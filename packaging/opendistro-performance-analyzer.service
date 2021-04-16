@@ -1,14 +1,14 @@
 [Unit]
 Description=Opendistro for Elasticsearch Performance Analyzer
-PartOf=elasticsearch.service
+PartOf=opensearch.service
 
 [Service]
-ExecStart=/usr/share/elasticsearch/bin/performance-analyzer-agent-cli
+ExecStart=/usr/share/opensearch/bin/performance-analyzer-agent-cli
 Restart=on-failure
-User=elasticsearch
-Group=elasticsearch
-Environment=ES_HOME=/usr/share/elasticsearch
-WorkingDirectory=/usr/share/elasticsearch
+User=opensearch
+Group=opensearch
+Environment=OPENSEARCH_HOME=/usr/share/opensearch
+WorkingDirectory=/usr/share/opensearch
 
 [Install]
-WantedBy=elasticsearch.service
+WantedBy=opensearch.service

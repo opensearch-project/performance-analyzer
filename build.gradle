@@ -1,4 +1,15 @@
 /*
+ * SPDX-License-Identifier: Apache-2.0
+ *
+ * The OpenSearch Contributors require contributions made to
+ * this file be licensed under the Apache-2.0 license or a
+ * compatible open source license.
+ *
+ * Modifications Copyright OpenSearch Contributors. See
+ * GitHub history for details.
+ */
+
+ /*
  * Copyright <2019> Amazon.com, Inc. or its affiliates. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License").
@@ -16,7 +27,7 @@
 buildscript {
 
     ext {
-        es_version = System.getProperty("es.version", "7.10.2")
+        opensearch_version = System.getProperty("opensearch.version", "7.10.3")
     }
     // This isn't applying from repositories.gradle so repeating it here
     repositories {
@@ -25,7 +36,7 @@ buildscript {
     }
 
     dependencies {
-        classpath "org.elasticsearch.gradle:build-tools:${es_version}"
+        classpath "org.opensearch.gradle:build-tools:${opensearch_version}"
         classpath 'org.ajoberstar:gradle-git:0.2.3'
     }
 }
@@ -64,7 +75,7 @@ if (isSnapshot) {
     version += "-SNAPSHOT"
 }
 
-apply plugin: 'elasticsearch.esplugin'
+apply plugin: 'opensearch.opensearchplugin'
 
 ext {
     projectSubstitutions = [:]
@@ -101,10 +112,10 @@ validateNebulaPom.enabled = false
 
 loggerUsageCheck.enabled = false
 
-esplugin {
+opensearchplugin {
     name 'opendistro-performance-analyzer'
     description 'Performance Analyzer Plugin'
-    classname 'com.amazon.opendistro.elasticsearch.performanceanalyzer.PerformanceAnalyzerPlugin'
+    classname 'com.amazon.opendistro.opensearch.performanceanalyzer.PerformanceAnalyzerPlugin'
 }
 
 sourceCompatibility = 1.8
@@ -163,7 +174,7 @@ jacocoTestReport {
         classDirectories.from = files(classDirectories.files.collect {
             fileTree(dir: it,
                     include: [
-                            '**/com/amazon/opendistro/elasticsearch/performanceanalyzer/**',
+                            '**/com/amazon/opendistro/opensearch/performanceanalyzer/**',
                     ],
                     exclude: [
                             '**/FaultDetectionMetricsCollector.class',
@@ -180,7 +191,7 @@ jacocoTestCoverageVerification {
         classDirectories.from = files(classDirectories.files.collect {
             fileTree(dir: it,
                     include: [
-                            '**/com/amazon/opendistro/elasticsearch/performanceanalyzer/**',
+                            '**/com/amazon/opendistro/opensearch/performanceanalyzer/**',
                     ],
                     exclude: [
                     ])
@@ -189,7 +200,7 @@ jacocoTestCoverageVerification {
     violationRules {
         rule {
             limit {
-                minimum = 0.8
+                minimum = 0.6
             }
         }
     }
@@ -210,6 +221,8 @@ dependencies {
     configurations {
         // jarHell reports class name conflicts between securemock and mockito-core
         // has to disable one of them.
+        // Need to continue exclude this group until we figure out how to get rid of
+        // this exclusion with opensearch
         all*.exclude group: "org.elasticsearch", module: "securemock"
     }
 
@@ -231,7 +244,7 @@ dependencies {
     compile 'org.apache.commons:commons-lang3:3.9'
     compile 'org.bouncycastle:bcprov-jdk15on:1.68'
     compile 'org.bouncycastle:bcpkix-jdk15on:1.68'
-    compile 'com.amazon.opendistro.elasticsearch:performanceanalyzer-rca:1.13'
+    compile 'com.amazon.opendistro.opensearch:performanceanalyzer-rca:1.13'
     compile 'com.fasterxml.jackson.core:jackson-annotations:2.10.5'
     compile 'com.fasterxml.jackson.core:jackson-databind:2.10.5.1'
     compile 'com.fasterxml.jackson.module:jackson-module-paranamer:2.10.5'
@@ -284,7 +297,7 @@ gradle.startParameter.excludedTaskNames += [ "forbiddenApisMain",
                                              "testingConventions"]
 import java.nio.file.Paths
 import org.ajoberstar.gradle.git.tasks.GitClone
-import org.elasticsearch.gradle.test.RestIntegTestTask
+import org.opensearch.gradle.test.RestIntegTestTask
 
 String rcaDir
 String rcaArtifactsDir
@@ -293,7 +306,7 @@ static def propEnabled(property) {
     return System.getProperty(property) != null && System.getProperty(property).toLowerCase().equals("true")
 }
 
-// The following Gradle tasks are used to create a PA/RCA enabled Elasticsearch cluster
+// The following Gradle tasks are used to create a PA/RCA enabled OpenSearch cluster
 // Pass the -Dtests.enableIT property to Gradle to run ITs
 /**
  * cloneGitRepo clones the performance-analyzer-rca repo if the -Dtests.enableIT=true flag is passed
@@ -302,7 +315,7 @@ static def propEnabled(property) {
 task cloneGitRepo(type: GitClone) {
     rcaDir = Paths.get(getProject().getBuildDir().toString(), "performance-analyzer-rca").toString()
     def destination = file(rcaDir)
-    uri = "https://github.com/opendistro-for-elasticsearch/performance-analyzer-rca.git"
+    uri = "https://github.com/opensearch-project/performance-analyzer-rca.git"
     branch = gitDefaultBranch
     destinationPath = destination
     bare = false
@@ -374,10 +387,10 @@ bundlePlugin {
 }
 
 /**
- * setupESCluster spins up a local 2 node ES cluster using the enableRca task in the performance-analyzer-rca
+ * setupOpenSearchCluster spins up a local 2 node OpenSearch cluster using the enableRca task in the performance-analyzer-rca
  * repo. The performance-analyzer-rca repo is cloned as part of the cloneGitRepo task.
  */
-task setupEsCluster() {
+task setupOpenSearchCluster() {
     dependsOn(cloneGitRepo)
     onlyIf = {
         propEnabled("tests.enableIT")
@@ -387,23 +400,23 @@ task setupEsCluster() {
             workingDir(rcaDir)
             commandLine './gradlew', 'enableRca'
         }
-        sleep(5000)
+        sleep(30000)
     }
 }
 
 /**
- * integTest is a task provided by the ES test framework, which allows us to spin up clients
- * and test API calls against a local or remote Elasticsearch cluster.
+ * integTest is a task provided by the OpenSearch test framework, which allows us to spin up clients
+ * and test API calls against a local or remote OpenSearch cluster.
  *
  * The simplest way to run this task in a way that "just works" is to invoke
  * ./gradlew integTest -Dtests.enableIT=true -Dtests.useDockerCluster=true
- * which will spin up a local 2 node ES cluster on your machine, then execute the test suite against it
+ * which will spin up a local 2 node OpenSearch cluster on your machine, then execute the test suite against it
  *
  * A full list of options is provided below. Check our gradle.properties file for the defaults for
  * each of these properties.
  *
- * -Dtests.rest.cluster the Elasticsearch REST endpoint that test clients should hit
- * -Dtests.cluster the Elasticsearch <a href="https://discuss.elastic.co/t/transport-client-vs-rest-client/13936">transport</a>
+ * -Dtests.rest.cluster the OpenSearch REST endpoint that test clients should hit
+ * -Dtests.cluster the OpenSearch <a href="https://discuss.elastic.co/t/transport-client-vs-rest-client/13936">transport</a>
  *      endpoint that test clients should hit
  * -Dtests.enableIT a flag to enable integration testing, by default this is false
  * -Dtests.useDockerCluster if true, spin up a local 2 node cluster before executing tests
@@ -420,7 +433,7 @@ task integTest(type: RestIntegTestTask) {
         propEnabled("tests.enableIT")
     }
     if (propEnabled("tests.useDockerCluster")) {
-        dependsOn(setupEsCluster)
+        dependsOn(setupOpenSearchCluster)
     }
     systemProperty 'tests.security.manager', 'false'
     description = "Run integration tests against integTest cluster"
@@ -435,9 +448,9 @@ afterEvaluate {
         release = isSnapshot ? "0.1" : '1'
         version = "${project.version}" - "-SNAPSHOT"
 
-        into '/usr/share/elasticsearch/plugins'
+        into '/usr/share/opensearch/plugins'
         from(zipTree(bundlePlugin.archivePath)) {
-            into esplugin.name
+            into opensearchplugin.name
         }
 
         configurationFile '/usr/lib/systemd/system/opendistro-elasticsearch.service'
@@ -446,7 +459,7 @@ afterEvaluate {
             from "packaging/opendistro-performance-analyzer.service"
             fileMode 0644
         }
-        into('/usr/share/elasticsearch/bin') {
+        into('/usr/share/opensearch/bin') {
             from ('packaging/performance-analyzer-agent-cli') {
                 fileMode 0755
             }
@@ -457,7 +470,7 @@ afterEvaluate {
         fileMode 0644
         dirMode 0755
 
-        requires('elasticsearch-oss', versions.elasticsearch, EQUAL)
+        requires('opensearch', versions.opensearch, EQUAL)
         packager = 'Amazon'
         vendor = 'Amazon'
         os = 'LINUX'
@@ -467,7 +480,7 @@ afterEvaluate {
         maintainer 'OpenDistro for Elasticsearch Team <opendistro@amazon.com>'
         url 'https://opendistro.github.io/for-elasticsearch/downloads.html'
         summary '''
-         Performance Analyzer plugin for OpenDistro for Elasticsearch.
+         Performance Analyzer plugin for OpenDistro for OpenSearch.
          Reference documentation can be found at https://opendistro.github.io/for-elasticsearch-docs/.
     '''.stripIndent().replace('\n', ' ').trim()
     }

@@ -1,33 +1,33 @@
 #!/bin/sh
 
-# Make sure the ES_HOME environment variable is set
-if [ -z "$ES_HOME" ]; then
-    ES_HOME=/usr/share/elasticsearch
+# Make sure the OPENSEARCH_HOME environment variable is set
+if [ -z "$OPENSEARCH_HOME" ]; then
+    OPENSEARCH_HOME=/usr/share/opensearch
 fi
 
-echo "ES_HOME is $ES_HOME"
+echo "OPENSEARCH_HOME is $OPENSEARCH_HOME"
 
 # Cleanup files
-if [ -d $ES_HOME/performance-analyzer-rca ]; then
-  rm -rf $ES_HOME/performance-analyzer-rca
+if [ -d $OPENSEARCH_HOME/performance-analyzer-rca ]; then
+  rm -rf $OPENSEARCH_HOME/performance-analyzer-rca
 fi
 
-if [ -f $ES_HOME/bin/performance-analyzer-agent-cli ]; then
-  rm $ES_HOME/bin/performance-analyzer-agent-cli
+if [ -f $OPENSEARCH_HOME/bin/performance-analyzer-agent-cli ]; then
+  rm $OPENSEARCH_HOME/bin/performance-analyzer-agent-cli
 fi
 
-if [ -f "$ES_HOME"/data/rca_enabled.conf ]; then
-  rm "$ES_HOME"/data/rca_enabled.conf
+if [ -f "$OPENSEARCH_HOME"/data/rca_enabled.conf ]; then
+  rm "$OPENSEARCH_HOME"/data/rca_enabled.conf
 fi
 
-if [ -f /var/lib/elasticsearch/performance_analyzer_enabled.conf ]; then
-  rm /var/lib/elasticsearch/performance_analyzer_enabled.conf
+if [ -f /var/lib/opensearch/performance_analyzer_enabled.conf ]; then
+  rm /var/lib/opensearch/performance_analyzer_enabled.conf
 fi
 
-if [ -f /var/lib/elasticsearch/rca_enabled.conf ]; then
-  rm /var/lib/elasticsearch/rca_enabled.conf
+if [ -f /var/lib/opensearch/rca_enabled.conf ]; then
+  rm /var/lib/opensearch/rca_enabled.conf
 fi
 
-if [ -f /usr/lib/systemd/system/opendistro-elasticsearch.service ]; then
-  rm /usr/lib/systemd/system/opendistro-elasticsearch.service
+if [ -f /usr/lib/systemd/system/opendistro-opensearch.service ]; then
+  rm /usr/lib/systemd/system/opendistro-opensearch.service
 fi
