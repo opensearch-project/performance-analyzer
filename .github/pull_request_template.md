@@ -1,29 +1,21 @@
-*Issue #, if available:*
+**Is your feature request related to a problem? Please provide an existing Issue # , or describe.**
+A clear and concise description of what the problem is. Ex. I'm always frustrated when [...]
 
-*Description of changes:*
+**Describe the solution you are proposing**
+A clear and concise description of what you want to happen.
 
-Developer's Certificate of Origin 1.1
+**Describe alternatives you've considered**
+A clear and concise description of any alternative solutions or features you've considered.
 
-By making a contribution to this project, I certify that:
+**Additional context**
+Add any other context or screenshots about the feature request here.
 
-(a) The contribution was created in whole or in part by me and I
-    have the right to submit it under the open source license
-    indicated in the file; or
+### Check List
+- [ ] New functionality includes testing.
+  - [ ] All tests pass
+- [ ] New functionality has been documented.
+  - [ ] New functionality has javadoc added
+- [ ] Commits are signed per the DCO using --signoff
 
-(b) The contribution is based upon previous work that, to the best
-    of my knowledge, is covered under an appropriate open source
-    license and I have the right under that license to submit that
-    work with modifications, whether created in whole or in part
-    by me, under the same open source license (unless I am
-    permitted to submit under a different license), as indicated
-    in the file; or
-
-(c) The contribution was provided directly to me by some other
-    person who certified (a), (b) or (c) and I have not modified
-    it.
-
-(d) I understand and agree that this project and the contribution
-    are public and that a record of the contribution (including all
-    personal information I submit with it, including my sign-off) is
-    maintained indefinitely and may be redistributed consistent with
-    this project or the open source license(s) involved.
+By submitting this pull request, I confirm that my contribution is made under the terms of the Apache 2.0 license.
+For more information on following Developer Certificate of Origin and signing off your commits, please check [here](https://github.com/opensearch-project/performance-analyzer/blob/main/CONTRIBUTING.md#developer-certificate-of-origin).
