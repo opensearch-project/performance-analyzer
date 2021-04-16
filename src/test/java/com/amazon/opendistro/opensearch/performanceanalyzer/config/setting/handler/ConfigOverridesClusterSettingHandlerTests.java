@@ -44,12 +44,12 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collections;
-import org.opensearch.common.settings.Setting;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
+import org.opensearch.common.settings.Setting;
 
 public class ConfigOverridesClusterSettingHandlerTests {
 

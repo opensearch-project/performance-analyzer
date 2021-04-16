@@ -29,9 +29,9 @@ import java.util.ArrayList;
 import java.util.List;
 import org.apache.http.HttpStatus;
 import org.apache.http.util.EntityUtils;
+import org.junit.Assert;
 import org.opensearch.client.Request;
 import org.opensearch.client.Response;
-import org.junit.Assert;
 
 public class MetricCollectorIntegTestBase extends PerformanceAnalyzerIntegTestBase {
 

@@ -32,15 +32,15 @@ import com.amazon.opendistro.opensearch.performanceanalyzer.util.TestUtil;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 import org.apache.commons.lang3.SystemUtils;
-import org.opensearch.index.shard.ShardId;
-import org.opensearch.search.internal.SearchContext;
-import org.opensearch.search.internal.ShardSearchRequest;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.Mockito;
+import org.opensearch.index.shard.ShardId;
+import org.opensearch.search.internal.SearchContext;
+import org.opensearch.search.internal.ShardSearchRequest;
 
 public class PerformanceAnalyzerSearchListenerTests {
     private static final long TOOK_IN_NANOS = 10;

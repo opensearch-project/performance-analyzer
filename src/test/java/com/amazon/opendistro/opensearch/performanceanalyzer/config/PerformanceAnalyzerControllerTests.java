@@ -22,9 +22,9 @@ import static org.mockito.MockitoAnnotations.initMocks;
 import com.amazon.opendistro.opensearch.performanceanalyzer.OpenSearchResources;
 import com.amazon.opendistro.opensearch.performanceanalyzer.collectors.ScheduledMetricCollectorsExecutor;
 import java.nio.file.Paths;
-import org.opensearch.common.settings.Settings;
 import org.junit.Before;
 import org.junit.Test;
+import org.opensearch.common.settings.Settings;
 
 public class PerformanceAnalyzerControllerTests {
     private static final int NUM_OF_SHARDS_PER_COLLECTION = 1;

@@ -28,6 +28,10 @@ import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.Mock;
 import org.opensearch.client.node.NodeClient;
 import org.opensearch.common.bytes.BytesReference;
 import org.opensearch.common.settings.ClusterSettings;
@@ -47,10 +51,6 @@ import org.opensearch.test.rest.FakeRestRequest;
 import org.opensearch.threadpool.TestThreadPool;
 import org.opensearch.threadpool.ThreadPool;
 import org.opensearch.usage.UsageService;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.mockito.Mock;
 
 public class PerformanceAnalyzerOverridesClusterConfigActionTests {
     private PerformanceAnalyzerOverridesClusterConfigAction configAction;

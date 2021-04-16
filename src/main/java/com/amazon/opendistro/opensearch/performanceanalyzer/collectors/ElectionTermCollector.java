@@ -15,6 +15,7 @@
 
 package com.amazon.opendistro.opensearch.performanceanalyzer.collectors;
 
+
 import com.amazon.opendistro.opensearch.performanceanalyzer.OpenSearchResources;
 import com.amazon.opendistro.opensearch.performanceanalyzer.PerformanceAnalyzerApp;
 import com.amazon.opendistro.opensearch.performanceanalyzer.config.PerformanceAnalyzerController;
@@ -32,16 +33,19 @@ import org.apache.logging.log4j.Logger;
 /**
  * This class starts publishing election term metric. These metric is emitted from cluster state.
  */
-public class ElectionTermCollector extends PerformanceAnalyzerMetricsCollector implements MetricsProcessor {
-    public static final int SAMPLING_TIME_INTERVAL = MetricsConfiguration.CONFIG_MAP.get(ElectionTermCollector.class).samplingInterval;
+public class ElectionTermCollector extends PerformanceAnalyzerMetricsCollector
+        implements MetricsProcessor {
+    public static final int SAMPLING_TIME_INTERVAL =
+            MetricsConfiguration.CONFIG_MAP.get(ElectionTermCollector.class).samplingInterval;
     private static final Logger LOG = LogManager.getLogger(ElectionTermCollector.class);
     private static final int KEYS_PATH_LENGTH = 0;
     private final ConfigOverridesWrapper configOverridesWrapper;
     private final PerformanceAnalyzerController controller;
     private StringBuilder value;
 
-    public ElectionTermCollector(PerformanceAnalyzerController controller,
-                                 ConfigOverridesWrapper configOverridesWrapper) {
+    public ElectionTermCollector(
+            PerformanceAnalyzerController controller,
+            ConfigOverridesWrapper configOverridesWrapper) {
         super(SAMPLING_TIME_INTERVAL, "ElectionTermCollector");
         value = new StringBuilder();
         this.controller = controller;
@@ -55,7 +59,8 @@ public class ElectionTermCollector extends PerformanceAnalyzerMetricsCollector i
             throw new RuntimeException("keys length should be " + KEYS_PATH_LENGTH);
         }
 
-        return PerformanceAnalyzerMetrics.generatePath(startTime, PerformanceAnalyzerMetrics.sElectionTermPath);
+        return PerformanceAnalyzerMetrics.generatePath(
+                startTime, PerformanceAnalyzerMetrics.sElectionTermPath);
     }
 
     @Override
@@ -73,21 +78,26 @@ public class ElectionTermCollector extends PerformanceAnalyzerMetricsCollector i
             value.setLength(0);
             value.append(PerformanceAnalyzerMetrics.getJsonCurrentMilliSeconds())
                     .append(PerformanceAnalyzerMetrics.sMetricNewLineDelimitor);
-            value.append(new ElectionTermMetrics(
-                    OpenSearchResources.INSTANCE.getClusterService().state()
-                            .term()).serialize());
+            value.append(
+                    new ElectionTermMetrics(
+                                    OpenSearchResources.INSTANCE.getClusterService().state().term())
+                            .serialize());
             saveMetricValues(value.toString(), startTime);
 
             PerformanceAnalyzerApp.WRITER_METRICS_AGGREGATOR.updateStat(
-                    WriterMetrics.ELECTION_TERM_COLLECTOR_EXECUTION_TIME, "",
+                    WriterMetrics.ELECTION_TERM_COLLECTOR_EXECUTION_TIME,
+                    "",
                     System.currentTimeMillis() - mCurrT);
 
         } catch (Exception ex) {
             PerformanceAnalyzerApp.ERRORS_AND_EXCEPTIONS_AGGREGATOR.updateStat(
-                    ExceptionsAndErrors.ELECTION_TERM_COLLECTOR_ERROR, "",
+                    ExceptionsAndErrors.ELECTION_TERM_COLLECTOR_ERROR,
+                    "",
                     System.currentTimeMillis() - mCurrT);
-            LOG.debug("Exception in Collecting Election term Metrics: {} for startTime {}",
-                    () -> ex.toString(), () -> startTime);
+            LOG.debug(
+                    "Exception in Collecting Election term Metrics: {} for startTime {}",
+                    () -> ex.toString(),
+                    () -> startTime);
         }
     }
 

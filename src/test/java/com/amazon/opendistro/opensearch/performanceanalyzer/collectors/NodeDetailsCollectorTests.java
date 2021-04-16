@@ -31,6 +31,10 @@ import com.fasterxml.jackson.module.paranamer.ParanamerModule;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.Mock;
 import org.opensearch.Version;
 import org.opensearch.cluster.node.DiscoveryNode;
 import org.opensearch.cluster.node.DiscoveryNodeRole;
@@ -39,10 +43,6 @@ import org.opensearch.test.ClusterServiceUtils;
 import org.opensearch.test.OpenSearchTestCase;
 import org.opensearch.threadpool.TestThreadPool;
 import org.opensearch.threadpool.ThreadPool;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.mockito.Mock;
 
 public class NodeDetailsCollectorTests extends OpenSearchTestCase {
     private static final String NODE_ID = "testNode";

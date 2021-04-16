@@ -242,8 +242,7 @@ public final class PerformanceAnalyzerPlugin extends Plugin
         scheduledMetricCollectorsExecutor.addScheduledMetricCollector(
                 new AdmissionControlMetricsCollector());
         scheduledMetricCollectorsExecutor.addScheduledMetricCollector(
-                new ElectionTermCollector(
-                        performanceAnalyzerController,configOverridesWrapper));
+                new ElectionTermCollector(performanceAnalyzerController, configOverridesWrapper));
         try {
             Class.forName(ShardIndexingPressureMetricsCollector.SHARD_INDEXING_PRESSURE_CLASS_NAME);
             scheduledMetricCollectorsExecutor.addScheduledMetricCollector(

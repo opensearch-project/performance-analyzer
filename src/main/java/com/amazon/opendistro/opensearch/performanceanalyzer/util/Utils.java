@@ -19,9 +19,9 @@ package com.amazon.opendistro.opensearch.performanceanalyzer.util;
 import com.amazon.opendistro.opensearch.performanceanalyzer.OpenSearchResources;
 import com.amazon.opendistro.opensearch.performanceanalyzer.collectors.AdmissionControlMetricsCollector;
 import com.amazon.opendistro.opensearch.performanceanalyzer.collectors.CacheConfigMetricsCollector;
-import com.amazon.opendistro.opensearch.performanceanalyzer.collectors.ElectionTermCollector;
 import com.amazon.opendistro.opensearch.performanceanalyzer.collectors.CircuitBreakerCollector;
 import com.amazon.opendistro.opensearch.performanceanalyzer.collectors.ClusterApplierServiceStatsCollector;
+import com.amazon.opendistro.opensearch.performanceanalyzer.collectors.ElectionTermCollector;
 import com.amazon.opendistro.opensearch.performanceanalyzer.collectors.FaultDetectionMetricsCollector;
 import com.amazon.opendistro.opensearch.performanceanalyzer.collectors.MasterServiceEventMetrics;
 import com.amazon.opendistro.opensearch.performanceanalyzer.collectors.MasterServiceMetrics;
@@ -106,7 +106,8 @@ public class Utils {
 
     public static HashMap<ShardId, IndexShard> getShards() {
         HashMap<ShardId, IndexShard> shards = new HashMap<>();
-        Iterator<IndexService> indexServices = OpenSearchResources.INSTANCE.getIndicesService().iterator();
+        Iterator<IndexService> indexServices =
+                OpenSearchResources.INSTANCE.getIndicesService().iterator();
         while (indexServices.hasNext()) {
             Iterator<IndexShard> indexShards = indexServices.next().iterator();
             while (indexShards.hasNext()) {

@@ -22,6 +22,10 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.MockitoAnnotations.initMocks;
 
 import com.amazon.opendistro.opensearch.performanceanalyzer.config.PerformanceAnalyzerController;
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.opensearch.action.ActionListener;
 import org.opensearch.action.ActionRequest;
 import org.opensearch.action.ActionResponse;
@@ -29,10 +33,6 @@ import org.opensearch.action.bulk.BulkRequest;
 import org.opensearch.action.search.SearchRequest;
 import org.opensearch.action.support.ActionFilterChain;
 import org.opensearch.tasks.Task;
-import org.junit.Before;
-import org.junit.Test;
-import org.mockito.Mock;
-import org.mockito.Mockito;
 
 public class PerformanceAnalyzerActionFilterTests {
     private static final String[] testIndices = new String[] {"testIndex"};

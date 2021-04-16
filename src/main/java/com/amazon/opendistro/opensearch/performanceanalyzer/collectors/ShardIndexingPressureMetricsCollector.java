@@ -35,10 +35,10 @@ import java.lang.reflect.Field;
 import java.util.Map;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.opensearch.cluster.service.ClusterService;
 import org.jooq.tools.json.JSONObject;
 import org.jooq.tools.json.JSONParser;
 import org.jooq.tools.json.ParseException;
+import org.opensearch.cluster.service.ClusterService;
 
 public class ShardIndexingPressureMetricsCollector extends PerformanceAnalyzerMetricsCollector
         implements MetricsProcessor {

@@ -24,15 +24,15 @@ import com.amazon.opendistro.opensearch.performanceanalyzer.metrics.PerformanceA
 import com.amazon.opendistro.opensearch.performanceanalyzer.reader_writer_shared.Event;
 import com.amazon.opendistro.opensearch.performanceanalyzer.util.TestUtil;
 import java.util.List;
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.Mockito;
 import org.opensearch.OpenSearchException;
 import org.opensearch.action.ActionListener;
 import org.opensearch.action.ActionResponse;
 import org.opensearch.action.bulk.BulkResponse;
 import org.opensearch.action.search.SearchResponse;
 import org.opensearch.rest.RestStatus;
-import org.junit.Before;
-import org.junit.Test;
-import org.mockito.Mockito;
 
 @SuppressWarnings("unchecked")
 public class PerformanceAnalyzerActionListenerTests {

@@ -27,11 +27,11 @@ import com.amazon.opendistro.opensearch.performanceanalyzer.metrics.MetricsConfi
 import com.amazon.opendistro.opensearch.performanceanalyzer.reader_writer_shared.Event;
 import com.amazon.opendistro.opensearch.performanceanalyzer.util.TestUtil;
 import java.util.List;
-import org.opensearch.cluster.service.ClusterService;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.Mockito;
+import org.opensearch.cluster.service.ClusterService;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 
 @PrepareForTest(Class.class)

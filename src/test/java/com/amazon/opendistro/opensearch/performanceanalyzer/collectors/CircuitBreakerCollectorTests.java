@@ -28,12 +28,12 @@ import com.fasterxml.jackson.module.paranamer.ParanamerModule;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import org.opensearch.common.breaker.CircuitBreaker;
-import org.opensearch.indices.IndicesService;
-import org.opensearch.test.OpenSearchSingleNodeTestCase;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.opensearch.common.breaker.CircuitBreaker;
+import org.opensearch.indices.IndicesService;
+import org.opensearch.test.OpenSearchSingleNodeTestCase;
 
 public class CircuitBreakerCollectorTests extends OpenSearchSingleNodeTestCase {
     private static final String TEST_INDEX = "test";
@@ -44,7 +44,8 @@ public class CircuitBreakerCollectorTests extends OpenSearchSingleNodeTestCase {
     public void init() {
         IndicesService indicesService = getInstanceFromNode(IndicesService.class);
         OpenSearchResources.INSTANCE.setIndicesService(indicesService);
-        OpenSearchResources.INSTANCE.setCircuitBreakerService(indicesService.getCircuitBreakerService());
+        OpenSearchResources.INSTANCE.setCircuitBreakerService(
+                indicesService.getCircuitBreakerService());
 
         MetricsConfiguration.CONFIG_MAP.put(
                 CircuitBreakerCollector.class, MetricsConfiguration.cdefault);

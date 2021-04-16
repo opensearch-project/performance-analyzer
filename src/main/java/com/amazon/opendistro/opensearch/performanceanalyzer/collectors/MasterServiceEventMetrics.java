@@ -86,7 +86,8 @@ public class MasterServiceEventMetrics extends PerformanceAnalyzerMetricsCollect
     public void collectMetrics(long startTime) {
         try {
             if (OpenSearchResources.INSTANCE.getClusterService() == null
-                    || OpenSearchResources.INSTANCE.getClusterService().getMasterService() == null) {
+                    || OpenSearchResources.INSTANCE.getClusterService().getMasterService()
+                            == null) {
                 return;
             }
 
@@ -194,7 +195,8 @@ public class MasterServiceEventMetrics extends PerformanceAnalyzerMetricsCollect
 
     // - Separated to have a unit test; and catch any code changes around this field
     Field getPrioritizedTPExecutorCurrentField() throws Exception {
-        Field currentField = PrioritizedOpenSearchThreadPoolExecutor.class.getDeclaredField("current");
+        Field currentField =
+                PrioritizedOpenSearchThreadPoolExecutor.class.getDeclaredField("current");
         currentField.setAccessible(true);
         return currentField;
     }
@@ -213,7 +215,8 @@ public class MasterServiceEventMetrics extends PerformanceAnalyzerMetricsCollect
         classArray[1] = List.class;
         classArray[2] = boolean.class;
         Method addPendingMethod =
-                PrioritizedOpenSearchThreadPoolExecutor.class.getDeclaredMethod("addPending", classArray);
+                PrioritizedOpenSearchThreadPoolExecutor.class.getDeclaredMethod(
+                        "addPending", classArray);
         addPendingMethod.setAccessible(true);
         return addPendingMethod;
     }

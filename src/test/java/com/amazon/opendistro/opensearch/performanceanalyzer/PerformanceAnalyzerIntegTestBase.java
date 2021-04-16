@@ -43,6 +43,9 @@ import org.apache.http.ssl.SSLContextBuilder;
 import org.apache.http.util.EntityUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.junit.After;
+import org.junit.Assert;
+import org.junit.Before;
 import org.opensearch.client.Request;
 import org.opensearch.client.Response;
 import org.opensearch.client.RestClient;
@@ -51,9 +54,6 @@ import org.opensearch.common.settings.Settings;
 import org.opensearch.common.unit.TimeValue;
 import org.opensearch.common.util.concurrent.ThreadContext;
 import org.opensearch.test.rest.OpenSearchRestTestCase;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
 
 public abstract class PerformanceAnalyzerIntegTestBase extends OpenSearchRestTestCase {
     private static final Logger LOG = LogManager.getLogger(PerformanceAnalyzerIntegTestBase.class);

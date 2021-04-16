@@ -3,8 +3,6 @@
 ## Maintainers
 | Maintainer | GitHub ID | Affiliation |
 | --------------- | --------- | ----------- |
-| Charlotte Henkle  | [CEHENKLE](https://github.com/CEHENKLE) | Amazon |
-| Nick Knize  | [nknize](https://github.com/nknize) | Amazon |
 | Joshua Tokle  | [jotok](https://github.com/jotok) | Amazon |
 | Sruti Parthiban  | [sruti1312](https://github.com/sruti1312) | Amazon |
 | Haoru Xiao  | [hxiao608](https://github.com/hxiao608) | Amazon |

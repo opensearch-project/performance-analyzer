@@ -38,7 +38,7 @@ jobs:
       run: ./gradlew publishToMavenLocal
     - name: Build PA gradle using the new RCA jar
       working-directory: ./tmp/pa
-      run: rm licenses/performanceanalyzer-rca-1.13.jar.sha1
+      run: rm -f licenses/performanceanalyzer-rca-1.13.jar.sha1
     - name: Update SHA
       working-directory: ./tmp/pa
       run: ./gradlew updateShas
@@ -46,7 +46,7 @@ jobs:
       # This is necessary because of the Github Actions environment and the workingDir of the Gradle environment
     - name: Set docker-compose path
       run: DOCKER_COMPOSE_LOCATION=$(which docker-compose)
-      # Set the vm.max_map_count system property to the minimum required to run Elasticsearch
+      # Set the vm.max_map_count system property to the minimum required to run OpenSearch
     - name: Set vm.max_map_count
       run: sudo sysctl -w vm.max_map_count=262144
     - name: Build PA and run Unit Tests

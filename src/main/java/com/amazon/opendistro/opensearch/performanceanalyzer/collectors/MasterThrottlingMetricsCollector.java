@@ -66,7 +66,8 @@ public class MasterThrottlingMetricsCollector extends PerformanceAnalyzerMetrics
         try {
             long mCurrT = System.currentTimeMillis();
             if (OpenSearchResources.INSTANCE.getClusterService() == null
-                    || OpenSearchResources.INSTANCE.getClusterService().getMasterService() == null) {
+                    || OpenSearchResources.INSTANCE.getClusterService().getMasterService()
+                            == null) {
                 return;
             }
             if (!isMasterThrottlingFeatureAvailable()) {
@@ -114,7 +115,8 @@ public class MasterThrottlingMetricsCollector extends PerformanceAnalyzerMetrics
 
     private long getTotalMasterThrottledTaskCount() throws Exception {
         Method method = MasterService.class.getMethod(THROTTLED_PENDING_TASK_COUNT_METHOD_NAME);
-        return (long) method.invoke(OpenSearchResources.INSTANCE.getClusterService().getMasterService());
+        return (long)
+                method.invoke(OpenSearchResources.INSTANCE.getClusterService().getMasterService());
     }
 
     private long getRetryingPendingTaskCount() throws Exception {

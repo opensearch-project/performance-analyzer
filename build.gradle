@@ -36,7 +36,7 @@ buildscript {
     }
 
     dependencies {
-        classpath "org.opensearch.gradle:build-tools:${opensearch_version}"
+        classpath "org.opensearch.gradle:build-tools:${opensearch_version}-SNAPSHOT"
         classpath 'org.ajoberstar:gradle-git:0.2.3'
     }
 }
@@ -480,7 +480,7 @@ afterEvaluate {
         maintainer 'OpenDistro for Elasticsearch Team <opendistro@amazon.com>'
         url 'https://opendistro.github.io/for-elasticsearch/downloads.html'
         summary '''
-         Performance Analyzer plugin for OpenDistro for OpenSearch.
+         Performance Analyzer plugin for OpenSearch.
          Reference documentation can be found at https://opendistro.github.io/for-elasticsearch-docs/.
     '''.stripIndent().replace('\n', ' ').trim()
     }

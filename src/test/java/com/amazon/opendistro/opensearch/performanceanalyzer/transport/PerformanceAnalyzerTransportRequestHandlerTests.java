@@ -21,6 +21,10 @@ import static org.mockito.MockitoAnnotations.initMocks;
 
 import com.amazon.opendistro.opensearch.performanceanalyzer.config.PerformanceAnalyzerController;
 import org.apache.commons.lang3.SystemUtils;
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.opensearch.action.bulk.BulkItemRequest;
 import org.opensearch.action.bulk.BulkShardRequest;
 import org.opensearch.action.support.replication.TransportReplicationAction.ConcreteShardRequest;
@@ -29,10 +33,6 @@ import org.opensearch.tasks.Task;
 import org.opensearch.transport.TransportChannel;
 import org.opensearch.transport.TransportRequest;
 import org.opensearch.transport.TransportRequestHandler;
-import org.junit.Before;
-import org.junit.Test;
-import org.mockito.Mock;
-import org.mockito.Mockito;
 
 @SuppressWarnings("unchecked")
 public class PerformanceAnalyzerTransportRequestHandlerTests {

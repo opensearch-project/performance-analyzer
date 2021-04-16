@@ -103,7 +103,8 @@ public class PerformanceAnalyzerTransportRequestHandler<T extends TransportReque
                 LOG.error(ex);
                 logOnce = true;
             }
-            StatsCollector.instance().logException(StatExceptionCode.OPENSEARCH_REQUEST_INTERCEPTOR_ERROR);
+            StatsCollector.instance()
+                    .logException(StatExceptionCode.OPENSEARCH_REQUEST_INTERCEPTOR_ERROR);
         }
 
         return performanceanalyzerChannel;
