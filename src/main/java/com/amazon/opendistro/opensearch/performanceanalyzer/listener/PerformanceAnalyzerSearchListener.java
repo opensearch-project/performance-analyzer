@@ -57,7 +57,8 @@ public class PerformanceAnalyzerSearchListener
             getSearchListener().preQueryPhase(searchContext);
         } catch (Exception ex) {
             LOG.error(ex);
-            StatsCollector.instance().logException(StatExceptionCode.OPENSEARCH_REQUEST_INTERCEPTOR_ERROR);
+            StatsCollector.instance()
+                    .logException(StatExceptionCode.OPENSEARCH_REQUEST_INTERCEPTOR_ERROR);
         }
     }
 
@@ -67,7 +68,8 @@ public class PerformanceAnalyzerSearchListener
             getSearchListener().queryPhase(searchContext, tookInNanos);
         } catch (Exception ex) {
             LOG.error(ex);
-            StatsCollector.instance().logException(StatExceptionCode.OPENSEARCH_REQUEST_INTERCEPTOR_ERROR);
+            StatsCollector.instance()
+                    .logException(StatExceptionCode.OPENSEARCH_REQUEST_INTERCEPTOR_ERROR);
         }
     }
 
@@ -77,7 +79,8 @@ public class PerformanceAnalyzerSearchListener
             getSearchListener().failedQueryPhase(searchContext);
         } catch (Exception ex) {
             LOG.error(ex);
-            StatsCollector.instance().logException(StatExceptionCode.OPENSEARCH_REQUEST_INTERCEPTOR_ERROR);
+            StatsCollector.instance()
+                    .logException(StatExceptionCode.OPENSEARCH_REQUEST_INTERCEPTOR_ERROR);
         }
     }
 
@@ -87,7 +90,8 @@ public class PerformanceAnalyzerSearchListener
             getSearchListener().preFetchPhase(searchContext);
         } catch (Exception ex) {
             LOG.error(ex);
-            StatsCollector.instance().logException(StatExceptionCode.OPENSEARCH_REQUEST_INTERCEPTOR_ERROR);
+            StatsCollector.instance()
+                    .logException(StatExceptionCode.OPENSEARCH_REQUEST_INTERCEPTOR_ERROR);
         }
     }
 
@@ -97,7 +101,8 @@ public class PerformanceAnalyzerSearchListener
             getSearchListener().fetchPhase(searchContext, tookInNanos);
         } catch (Exception ex) {
             LOG.error(ex);
-            StatsCollector.instance().logException(StatExceptionCode.OPENSEARCH_REQUEST_INTERCEPTOR_ERROR);
+            StatsCollector.instance()
+                    .logException(StatExceptionCode.OPENSEARCH_REQUEST_INTERCEPTOR_ERROR);
         }
     }
 
@@ -107,7 +112,8 @@ public class PerformanceAnalyzerSearchListener
             getSearchListener().failedFetchPhase(searchContext);
         } catch (Exception ex) {
             LOG.error(ex);
-            StatsCollector.instance().logException(StatExceptionCode.OPENSEARCH_REQUEST_INTERCEPTOR_ERROR);
+            StatsCollector.instance()
+                    .logException(StatExceptionCode.OPENSEARCH_REQUEST_INTERCEPTOR_ERROR);
         }
     }
 

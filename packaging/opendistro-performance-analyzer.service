@@ -1,5 +1,5 @@
 [Unit]
-Description=Opendistro for Elasticsearch Performance Analyzer
+Description=OpenSearch Performance Analyzer
 PartOf=opensearch.service
 
 [Service]

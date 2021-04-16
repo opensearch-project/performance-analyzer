@@ -29,12 +29,12 @@ import com.fasterxml.jackson.module.paranamer.ParanamerModule;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import org.opensearch.threadpool.ThreadPool;
-import org.opensearch.threadpool.ThreadPoolStats;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.Mockito;
+import org.opensearch.threadpool.ThreadPool;
+import org.opensearch.threadpool.ThreadPoolStats;
 
 public class ThreadPoolMetricsCollectorTests extends CustomMetricsLocationTestBase {
 

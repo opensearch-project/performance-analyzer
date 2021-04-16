@@ -57,7 +57,8 @@ public class ThreadPoolMetricsCollector extends PerformanceAnalyzerMetricsCollec
             return;
         }
 
-        Iterator<Stats> statsIterator = OpenSearchResources.INSTANCE.getThreadPool().stats().iterator();
+        Iterator<Stats> statsIterator =
+                OpenSearchResources.INSTANCE.getThreadPool().stats().iterator();
         value.setLength(0);
         value.append(PerformanceAnalyzerMetrics.getJsonCurrentMilliSeconds());
 
@@ -103,7 +104,8 @@ public class ThreadPoolMetricsCollector extends PerformanceAnalyzerMetricsCollec
                                             // SifiResizableBlockingQueue in the future.
                                             // In order to do that we can create a new
                                             // PerformanceAnalyzerLibrary package and push
-                                            // all the code which depends on core OpenSearch specific
+                                            // all the code which depends on core OpenSearch
+                                            // specific
                                             // changes into that library.
                                             if (queue instanceof SizeBlockingQueue) {
                                                 return ((SizeBlockingQueue) queue).capacity();

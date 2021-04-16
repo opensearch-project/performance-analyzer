@@ -166,7 +166,8 @@ public class ClusterSettingsManager implements ClusterStateListener {
      */
     private boolean clusterStatePresent() {
         try {
-            final ClusterState clusterState = OpenSearchResources.INSTANCE.getClusterService().state();
+            final ClusterState clusterState =
+                    OpenSearchResources.INSTANCE.getClusterService().state();
             return clusterState != null;
         } catch (Exception | AssertionError t) {
             LOG.error("Unable to retrieve cluster state: Exception: {}", t.getMessage());
@@ -233,7 +234,8 @@ public class ClusterSettingsManager implements ClusterStateListener {
             }
         } catch (Exception ex) {
             LOG.error(ex);
-            StatsCollector.instance().logException(StatExceptionCode.OPENSEARCH_REQUEST_INTERCEPTOR_ERROR);
+            StatsCollector.instance()
+                    .logException(StatExceptionCode.OPENSEARCH_REQUEST_INTERCEPTOR_ERROR);
         }
     }
 
@@ -254,7 +256,8 @@ public class ClusterSettingsManager implements ClusterStateListener {
             }
         } catch (Exception ex) {
             LOG.error(ex);
-            StatsCollector.instance().logException(StatExceptionCode.OPENSEARCH_REQUEST_INTERCEPTOR_ERROR);
+            StatsCollector.instance()
+                    .logException(StatExceptionCode.OPENSEARCH_REQUEST_INTERCEPTOR_ERROR);
         }
     }
     /** Class that handles response to GET /_cluster/settings */

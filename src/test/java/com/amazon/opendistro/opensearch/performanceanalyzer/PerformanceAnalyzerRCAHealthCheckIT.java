@@ -23,10 +23,10 @@ import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 import org.apache.http.HttpStatus;
 import org.apache.http.util.EntityUtils;
-import org.opensearch.client.Request;
-import org.opensearch.client.Response;
 import org.junit.Assert;
 import org.junit.Test;
+import org.opensearch.client.Request;
+import org.opensearch.client.Response;
 
 public class PerformanceAnalyzerRCAHealthCheckIT extends PerformanceAnalyzerIntegTestBase {
     @Test

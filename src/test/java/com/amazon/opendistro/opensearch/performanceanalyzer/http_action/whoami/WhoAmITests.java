@@ -22,6 +22,9 @@ import static org.mockito.MockitoAnnotations.initMocks;
 
 import com.amazon.opendistro.opensearch.performanceanalyzer.OpenSearchResources;
 import java.io.IOException;
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.Mock;
 import org.opensearch.action.ActionListener;
 import org.opensearch.action.support.ActionFilters;
 import org.opensearch.common.io.stream.Writeable.Reader;
@@ -30,9 +33,6 @@ import org.opensearch.common.xcontent.XContentType;
 import org.opensearch.indices.IndicesService;
 import org.opensearch.tasks.Task;
 import org.opensearch.transport.TransportService;
-import org.junit.Before;
-import org.junit.Test;
-import org.mockito.Mock;
 
 @SuppressWarnings("unchecked")
 public class WhoAmITests {

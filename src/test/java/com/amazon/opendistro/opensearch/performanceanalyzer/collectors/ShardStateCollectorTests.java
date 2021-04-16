@@ -17,9 +17,9 @@ package com.amazon.opendistro.opensearch.performanceanalyzer.collectors;
 
 import static com.amazon.opendistro.opensearch.performanceanalyzer.metrics.AllMetrics.ShardType.SHARD_PRIMARY;
 import static com.amazon.opendistro.opensearch.performanceanalyzer.metrics.AllMetrics.ShardType.SHARD_REPLICA;
-import static org.opensearch.test.OpenSearchTestCase.settings;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
+import static org.opensearch.test.OpenSearchTestCase.settings;
 
 import com.amazon.opendistro.opensearch.performanceanalyzer.OpenSearchResources;
 import com.amazon.opendistro.opensearch.performanceanalyzer.config.PerformanceAnalyzerController;
@@ -35,6 +35,11 @@ import com.fasterxml.jackson.module.paranamer.ParanamerModule;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import org.junit.Before;
+import org.junit.Ignore;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mockito;
 import org.opensearch.Version;
 import org.opensearch.cluster.ClusterState;
 import org.opensearch.cluster.metadata.IndexMetadata;
@@ -43,11 +48,6 @@ import org.opensearch.cluster.routing.IndexRoutingTable;
 import org.opensearch.cluster.routing.RoutingTable;
 import org.opensearch.cluster.service.ClusterService;
 import org.opensearch.common.settings.Settings;
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mockito;
 
 @RunWith(RandomizedRunner.class)
 public class ShardStateCollectorTests {

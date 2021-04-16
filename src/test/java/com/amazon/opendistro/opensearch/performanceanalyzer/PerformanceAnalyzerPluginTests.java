@@ -33,6 +33,9 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Supplier;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
 import org.opensearch.action.ActionRequest;
 import org.opensearch.action.ActionResponse;
 import org.opensearch.action.support.ActionFilter;
@@ -55,9 +58,6 @@ import org.opensearch.threadpool.ThreadPool;
 import org.opensearch.transport.Transport;
 import org.opensearch.transport.TransportInterceptor;
 import org.opensearch.usage.UsageService;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
 
 @ThreadLeakScope(Scope.NONE)
 public class PerformanceAnalyzerPluginTests extends OpenSearchTestCase {
@@ -163,7 +163,8 @@ public class PerformanceAnalyzerPluginTests extends OpenSearchTestCase {
                 plugin.getTransports(settings, threadPool, null, circuitBreakerService, null, null);
         assertEquals(0, map.size());
         assertEquals(settings, OpenSearchResources.INSTANCE.getSettings());
-        assertEquals(circuitBreakerService, OpenSearchResources.INSTANCE.getCircuitBreakerService());
+        assertEquals(
+                circuitBreakerService, OpenSearchResources.INSTANCE.getCircuitBreakerService());
     }
 
     @Test

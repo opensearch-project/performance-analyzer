@@ -224,7 +224,8 @@ public class PerformanceAnalyzerResourceProvider extends BaseRestHandler {
         String urlScheme = isHttpsEnabled ? "https://" : "http://";
         String redirectBasePath =
                 urlScheme + "localhost:" + portNumber + "/_opendistro/_performanceanalyzer/";
-        // Need to register all params in OpenSearch request else opensearch throws illegal_argument_exception
+        // Need to register all params in OpenSearch request else opensearch throws
+        // illegal_argument_exception
         for (String key : request.params().keySet()) {
             request.param(key);
         }

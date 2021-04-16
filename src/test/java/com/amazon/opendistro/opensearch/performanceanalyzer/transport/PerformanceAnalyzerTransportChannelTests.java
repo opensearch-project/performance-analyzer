@@ -21,11 +21,11 @@ import static org.mockito.MockitoAnnotations.initMocks;
 
 import java.io.IOException;
 import org.apache.commons.lang3.SystemUtils;
-import org.opensearch.transport.TransportChannel;
-import org.opensearch.transport.TransportResponse;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
+import org.opensearch.transport.TransportChannel;
+import org.opensearch.transport.TransportResponse;
 
 public class PerformanceAnalyzerTransportChannelTests {
     private PerformanceAnalyzerTransportChannel channel;

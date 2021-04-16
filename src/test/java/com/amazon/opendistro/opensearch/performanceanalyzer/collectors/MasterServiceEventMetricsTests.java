@@ -28,6 +28,10 @@ import com.amazon.opendistro.opensearch.performanceanalyzer.reader_writer_shared
 import com.amazon.opendistro.opensearch.performanceanalyzer.util.TestUtil;
 import java.util.List;
 import org.apache.commons.lang3.SystemUtils;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
 import org.opensearch.cluster.service.ClusterService;
 import org.opensearch.cluster.service.SourcePrioritizedRunnable;
 import org.opensearch.common.Priority;
@@ -35,10 +39,6 @@ import org.opensearch.common.util.concurrent.PrioritizedOpenSearchThreadPoolExec
 import org.opensearch.test.ClusterServiceUtils;
 import org.opensearch.threadpool.TestThreadPool;
 import org.opensearch.threadpool.ThreadPool;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
 
 public class MasterServiceEventMetricsTests {
     private long startTimeInMills = 1153721339;
@@ -122,7 +122,10 @@ public class MasterServiceEventMetricsTests {
                 (PrioritizedOpenSearchThreadPoolExecutor)
                         masterServiceEventMetrics
                                 .getMasterServiceTPExecutorField()
-                                .get(OpenSearchResources.INSTANCE.getClusterService().getMasterService());
+                                .get(
+                                        OpenSearchResources.INSTANCE
+                                                .getClusterService()
+                                                .getMasterService());
         SourcePrioritizedRunnable runnable =
                 new SourcePrioritizedRunnable(Priority.HIGH, "_add_listener_") {
                     @Override

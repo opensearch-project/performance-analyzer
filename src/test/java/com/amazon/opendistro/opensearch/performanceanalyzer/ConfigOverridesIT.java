@@ -29,10 +29,10 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import org.apache.http.HttpStatus;
-import org.opensearch.client.Request;
-import org.opensearch.client.Response;
 import org.junit.Assert;
 import org.junit.Test;
+import org.opensearch.client.Request;
+import org.opensearch.client.Response;
 
 public class ConfigOverridesIT extends PerformanceAnalyzerIntegTestBase {
     private static final String CONFIG_OVERRIDES_ENDPOINT =

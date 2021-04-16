@@ -28,11 +28,11 @@ import com.fasterxml.jackson.module.paranamer.ParanamerModule;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import org.opensearch.indices.IndicesService;
-import org.opensearch.test.OpenSearchSingleNodeTestCase;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.opensearch.indices.IndicesService;
+import org.opensearch.test.OpenSearchSingleNodeTestCase;
 
 public class NodeStatsAllShardsMetricsCollectorTests extends OpenSearchSingleNodeTestCase {
     private static final String TEST_INDEX = "test";

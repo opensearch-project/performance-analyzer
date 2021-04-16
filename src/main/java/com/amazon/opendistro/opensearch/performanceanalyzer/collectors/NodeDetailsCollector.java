@@ -83,7 +83,8 @@ public class NodeDetailsCollector extends PerformanceAnalyzerMetricsCollector
         }
         value.append(PerformanceAnalyzerMetrics.sMetricNewLineDelimitor);
 
-        DiscoveryNodes discoveryNodes = OpenSearchResources.INSTANCE.getClusterService().state().nodes();
+        DiscoveryNodes discoveryNodes =
+                OpenSearchResources.INSTANCE.getClusterService().state().nodes();
 
         DiscoveryNode masterNode = discoveryNodes.getMasterNode();
 

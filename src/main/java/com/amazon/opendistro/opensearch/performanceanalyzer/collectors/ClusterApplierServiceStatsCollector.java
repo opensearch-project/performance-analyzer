@@ -135,14 +135,15 @@ public class ClusterApplierServiceStatsCollector extends PerformanceAnalyzerMetr
         Method method =
                 ClusterApplierService.class.getMethod(
                         GET_CLUSTER_APPLIER_SERVICE_STATS_METHOD_NAME);
-        return method.invoke(OpenSearchResources.INSTANCE.getClusterService().getClusterApplierService());
+        return method.invoke(
+                OpenSearchResources.INSTANCE.getClusterService().getClusterApplierService());
     }
 
     /**
-     * ClusterApplierServiceStats is OpenSearch is a tracker for total time taken to apply cluster state and
-     * the number of times it has failed. To calculate point in time metric, we will have to store
-     * its previous state and calculate the diff to get the point in time latency. This might return
-     * as 0 if there is no cluster update since last retrieval.
+     * ClusterApplierServiceStats is OpenSearch is a tracker for total time taken to apply cluster
+     * state and the number of times it has failed. To calculate point in time metric, we will have
+     * to store its previous state and calculate the diff to get the point in time latency. This
+     * might return as 0 if there is no cluster update since last retrieval.
      *
      * @param currentMetrics Current Cluster update stats in OpenSearch
      * @return point in time latency.
@@ -161,10 +162,10 @@ public class ClusterApplierServiceStatsCollector extends PerformanceAnalyzerMetr
     }
 
     /**
-     * ClusterApplierServiceStats is OpenSearch is a tracker for total time taken to apply cluster state and
-     * the number of times it has failed. To calculate point in time metric, we will have to store
-     * its previous state and calculate the diff to get the point in time failure. This might return
-     * as 0 if there is no cluster update since last retrieval.
+     * ClusterApplierServiceStats is OpenSearch is a tracker for total time taken to apply cluster
+     * state and the number of times it has failed. To calculate point in time metric, we will have
+     * to store its previous state and calculate the diff to get the point in time failure. This
+     * might return as 0 if there is no cluster update since last retrieval.
      *
      * @param currentMetrics Current Cluster update stats in OpenSearch
      * @return point in time failure.
