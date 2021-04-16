@@ -16,7 +16,7 @@ jobs:
     - name: Checkout RCA package
       uses: actions/checkout@v2
       with:
-        repository: opensearch-project/performance-analyzer-rca
+        repository: opendistro-for-elasticsearch/performance-analyzer-rca
         path: ./tmp/rca
     - name: Checkout Performance Analyzer package
       uses: actions/checkout@v2
