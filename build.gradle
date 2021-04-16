@@ -36,7 +36,7 @@ buildscript {
     }
 
     dependencies {
-        classpath "org.opensearch.gradle:build-tools:${opensearch_version}"
+        classpath "org.opensearch.gradle:build-tools:${opensearch_version}-SNAPSHOT"
         classpath 'org.ajoberstar:gradle-git:0.2.3'
     }
 }
