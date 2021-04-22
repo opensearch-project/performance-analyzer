@@ -25,11 +25,12 @@
  */
 
 buildscript {
-
     ext {
+        opensearch_group = "org.opensearch"
         opensearch_version = System.getProperty("opensearch.version", "1.0.0-beta1")
     }
-    // This isn't applying from repositories.gradle so repeating it here
+
+    // Used to resolve build file dependencies
     repositories {
         mavenCentral()
         mavenLocal()
@@ -38,7 +39,7 @@ buildscript {
     }
 
     dependencies {
-        classpath "org.opensearch.gradle:build-tools:${opensearch_version}"
+        classpath "${opensearch_group}.gradle:build-tools:${opensearch_version}-SNAPSHOT"
         classpath 'org.ajoberstar:gradle-git:0.2.3'
     }
 }
@@ -49,6 +50,20 @@ plugins {
     id 'com.github.spotbugs' version '4.6.0'
     id 'jacoco'
     id 'com.diffplug.spotless' version '5.11.0'
+}
+
+ext {
+    performanceAnalyzerVersion = '1.0.0'
+    isSnapshot = "true" == System.getProperty("build.snapshot", "true")
+
+    // Name of the default git branch. This is used for spotless ratcheting and for checking out the RCA repository
+    gitDefaultBranch = 'main'
+
+    // If true, then the build will clone the RCA Project into $rcaProjectDir
+    cloneRcaProject = findProperty("cloneRcaProject") == "true"
+
+    // By default we will look for RCA in a peer directory
+    rcaProjectDir = findProperty("rcaProjectDir") ?: "../performance-analyzer-rca"
 }
 
 spotbugsMain {
@@ -66,25 +81,16 @@ spotbugsTest {
     ignoreFailures = true
 }
 
-ext {
-    opensearchVersion = '1.0.0'
-    isSnapshot = "true" == System.getProperty("build.snapshot", "true")
-}
-
 group = "org.opensearch"
-version = "${opensearchVersion}.0-beta1"
+version = "${performanceAnalyzer}.0-beta1"
 if (isSnapshot) {
     version += "-SNAPSHOT"
 }
 
 apply plugin: 'opensearch.opensearchplugin'
 
-ext {
-    projectSubstitutions = [:]
-    licenseFile = rootProject.file('LICENSE.txt')
-    noticeFile = rootProject.file('NOTICE.txt')
-    gitDefaultBranch = 'main'
-}
+licenseFile = rootProject.file('LICENSE.txt')
+noticeFile = rootProject.file('NOTICE.txt')
 
 spotless {
     java {
@@ -110,8 +116,6 @@ test {
 
 licenseHeaders.enabled = false
 validateNebulaPom.enabled = false
-
-
 loggerUsageCheck.enabled = false
 
 opensearchplugin {
@@ -154,7 +158,6 @@ repositories {
     maven { url "https://plugins.gradle.org/m2/" }
     jcenter()
 }
-
 
 configurations {
     includeJars
@@ -209,7 +212,6 @@ jacocoTestCoverageVerification {
         }
     }
 }
-
 
 // to run coverage verification during the build (and fail when appropriate)
 check.dependsOn jacocoTestCoverageVerification
@@ -299,12 +301,9 @@ gradle.startParameter.excludedTaskNames += [ "forbiddenApisMain",
                                              "forbiddenApisTest",
                                              "thirdPartyAudit",
                                              "testingConventions"]
-import java.nio.file.Paths
+
 import org.ajoberstar.gradle.git.tasks.GitClone
 import org.opensearch.gradle.test.RestIntegTestTask
-
-String rcaDir
-String rcaArtifactsDir
 
 static def propEnabled(property) {
     return System.getProperty(property) != null && System.getProperty(property).toLowerCase().equals("true")
@@ -312,35 +311,44 @@ static def propEnabled(property) {
 
 // The following Gradle tasks are used to create a PA/RCA enabled OpenSearch cluster
 // Pass the -Dtests.enableIT property to Gradle to run ITs
+
 /**
  * cloneGitRepo clones the performance-analyzer-rca repo if the -Dtests.enableIT=true flag is passed
  * to the Gradle JVM
  */
 task cloneGitRepo(type: GitClone) {
-    rcaDir = Paths.get(getProject().getBuildDir().toString(), "performance-analyzer-rca").toString()
-    def destination = file(rcaDir)
+    def destination = file(rcaProjectDir)
     uri = "https://github.com/opensearch-project/performance-analyzer-rca.git"
     branch = gitDefaultBranch
     destinationPath = destination
     bare = false
-    enabled = !destination.exists() // to clone only once
+    enabled = cloneRcaProject && !destination.exists() // to clone only once
+
+    doFirst {
+        logger.info("Cloning performance-analyzer-rca into ${rcaProjectDir}")
+    }
 }
 
 task buildRca() {
     dependsOn(cloneGitRepo)
+
+    doFirst {
+        logger.info("Building performance-analyzer-rca project in ${rcaProjectDir}")
+    }
+
     doLast {
         exec {
-            workingDir("$rcaDir")
+            workingDir("$rcaProjectDir")
             commandLine './gradlew', 'build', '-x', 'test'
         }
         exec {
-            workingDir("$rcaDir")
+            workingDir("$rcaProjectDir")
             commandLine './gradlew', 'publishToMavenLocal'
         }
         exec {
             def licenseDir = "$projectDir/licenses"
             workingDir("$licenseDir")
-            commandLine 'rm', "performanceanalyzer-rca-1.0.0.0-beta1.jar.sha1"
+            commandLine 'rm', "-f", "performanceanalyzer-rca-1.0.0.0-beta1.jar.sha1"
         }
         exec {
             workingDir("$projectDir")
@@ -349,16 +357,23 @@ task buildRca() {
     }
 }
 
+// This value is set by the unpackRca task
+def rcaArtifactsDir
+
 task unpackRca(type: Copy) {
     dependsOn(buildRca)
-    from(zipTree("$rcaDir/build/distributions/performance-analyzer-rca.zip")) {
+    from(zipTree("$rcaProjectDir/build/distributions/performance-analyzer-rca.zip")) {
     }
-    into "$rcaDir/build/distributions"
-    rcaArtifactsDir = "$rcaDir/build/distributions/performance-analyzer-rca/"
+    into "$rcaProjectDir/build/distributions"
+    rcaArtifactsDir = "$rcaProjectDir/build/distributions/performance-analyzer-rca/"
+
+    doLast {
+        logger.info("Unpacked performance-analyzer-rca artifacts into ${rcaProjectDir}")
+    }
 }
 
 bundlePlugin {
-    dependsOn 'cloneGitRepo'
+    dependsOn 'unpackRca'
     from("$rcaArtifactsDir/pa_config") {
         into "pa_config"
     }
@@ -401,7 +416,7 @@ task setupOpenSearchCluster() {
     }
     doLast {
         exec {
-            workingDir(rcaDir)
+            workingDir(rcaProjectDir)
             commandLine './gradlew', 'enableRca'
         }
         sleep(30000)
@@ -529,4 +544,3 @@ afterEvaluate {
 }
 
 bundlePlugin.mustRunAfter unpackRca
-build.dependsOn unpackRca
