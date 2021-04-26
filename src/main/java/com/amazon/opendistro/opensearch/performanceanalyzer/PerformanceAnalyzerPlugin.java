@@ -126,7 +126,7 @@ import org.opensearch.watcher.ResourceWatcherService;
 public final class PerformanceAnalyzerPlugin extends Plugin
         implements ActionPlugin, NetworkPlugin, SearchPlugin {
     private static final Logger LOG = LogManager.getLogger(PerformanceAnalyzerPlugin.class);
-    public static final String PLUGIN_NAME = "opendistro-performance-analyzer";
+    public static final String PLUGIN_NAME = "opensearch-performance-analyzer";
     private static final String ADD_FAULT_DETECTION_METHOD = "addFaultDetectionListener";
     private static final String LISTENER_INJECTOR_CLASS_PATH =
             "com.amazon.opendistro.opensearch.performanceanalyzer.listener.ListenerInjector";
