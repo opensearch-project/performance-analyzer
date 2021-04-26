@@ -67,12 +67,12 @@ spotbugsTest {
 }
 
 ext {
-    opendistroVersion = '1.13.0'
+    opensearchVersion = '1.0.0'
     isSnapshot = "true" == System.getProperty("build.snapshot", "true")
 }
 
-group = "com.amazon.opendistroforelasticsearch"
-version = "${opendistroVersion}.0"
+group = "org.opensearch"
+version = "${opensearchVersion}.0-beta1"
 if (isSnapshot) {
     version += "-SNAPSHOT"
 }
@@ -115,8 +115,8 @@ validateNebulaPom.enabled = false
 loggerUsageCheck.enabled = false
 
 opensearchplugin {
-    name 'opendistro-performance-analyzer'
-    description 'Performance Analyzer Plugin'
+    name 'opensearch-performance-analyzer'
+    description 'OpenSearch Performance Analyzer Plugin'
     classname 'com.amazon.opendistro.opensearch.performanceanalyzer.PerformanceAnalyzerPlugin'
 }
 
@@ -248,7 +248,7 @@ dependencies {
     compile 'org.apache.commons:commons-lang3:3.9'
     compile 'org.bouncycastle:bcprov-jdk15on:1.68'
     compile 'org.bouncycastle:bcpkix-jdk15on:1.68'
-    compile 'com.amazon.opendistro.opensearch:performanceanalyzer-rca:1.13'
+    compile 'com.amazon.opensearch:performanceanalyzer-rca:1.0.0.0-beta1'
     compile 'com.fasterxml.jackson.core:jackson-annotations:2.10.5'
     compile 'com.fasterxml.jackson.core:jackson-databind:2.10.5.1'
     compile 'com.fasterxml.jackson.module:jackson-module-paranamer:2.10.5'
@@ -340,7 +340,7 @@ task buildRca() {
         exec {
             def licenseDir = "$projectDir/licenses"
             workingDir("$licenseDir")
-            commandLine 'rm', "performanceanalyzer-rca-1.13.jar.sha1"
+            commandLine 'rm', "performanceanalyzer-rca-1.0.0.0-beta1.jar.sha1"
         }
         exec {
             workingDir("$projectDir")
@@ -385,7 +385,7 @@ bundlePlugin {
         include "plugin-security.policy"
     }
     exclude('tools.jar')
-    from("config/opendistro-performance-analyzer") {
+    from("config/opensearch-performance-analyzer") {
         into "config"
     }
 }
@@ -429,7 +429,7 @@ task setupOpenSearchCluster() {
  * -Dtests.https either true or false, if true, then instantiate REST and transport clients using
  *      the https:// protocol and basic authentication via the -Dtests.user and -Dtests.password properties
  * -Dtests.user the username of the admin user, this is used in conjunction with -Dtests.https and
- *      -Dtests.password to authenticate requests in the opendistro-security context
+ *      -Dtests.password to authenticate requests in the opensearch-security context
  * -Dtests.password the password of the admin user specified by -Dtests.user
  */
 task integTest(type: RestIntegTestTask) {
@@ -448,7 +448,7 @@ task integTest(type: RestIntegTestTask) {
 // This is afterEvaluate because the bundlePlugin ZIP task is updated afterEvaluate and changes the ZIP name to match the plugin name
 afterEvaluate {
     ospackage {
-        packageName = "opendistro-performance-analyzer"
+        packageName = "opensearch-performance-analyzer"
         release = isSnapshot ? "0.1" : '1'
         version = "${project.version}" - "-SNAPSHOT"
 
@@ -457,10 +457,10 @@ afterEvaluate {
             into opensearchplugin.name
         }
 
-        configurationFile '/usr/lib/systemd/system/opendistro-elasticsearch.service'
+        configurationFile '/usr/lib/systemd/system/opensearch.service'
         into('/usr/lib/systemd/system') {
             fileType CONFIG | NOREPLACE
-            from "packaging/opendistro-performance-analyzer.service"
+            from "packaging/opensearch-performance-analyzer.service"
             fileMode 0644
         }
         into('/usr/share/opensearch/bin') {
