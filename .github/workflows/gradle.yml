@@ -42,10 +42,10 @@ jobs:
       with:
         repository: 'opensearch-project/OpenSearch'
         path: OpenSearch
-        ref: '1.0.0-alpha1'
+        ref: '1.0.0-beta1'
     - name: Build OpenSearch
       working-directory: ./OpenSearch
-      run: ./gradlew publishToMavenLocal -Dbuild.version_qualifier=alpha1 -Dbuild.snapshot=false
+      run: ./gradlew publishToMavenLocal -Dbuild.version_qualifier=beta1 -Dbuild.snapshot=false
     - name: Build PA gradle using the new RCA jar
       working-directory: ./tmp/pa
       run: rm -f licenses/performanceanalyzer-rca-1.0.0.0-beta1.jar.sha1
