@@ -66,6 +66,12 @@ ext {
     rcaProjectDir = findProperty("rcaProjectDir") ?: "../performance-analyzer-rca"
 }
 
+group = "org.opensearch"
+version = "${performanceAnalyzerVersion}.0-beta1"
+if (isSnapshot) {
+    version += "-SNAPSHOT"
+}
+
 spotbugsMain {
     excludeFilter = file("checkstyle/findbugs-exclude.xml")
     effort = 'max'
@@ -79,12 +85,6 @@ spotbugsMain {
 
 spotbugsTest {
     ignoreFailures = true
-}
-
-group = "org.opensearch"
-version = "${performanceAnalyzer}.0-beta1"
-if (isSnapshot) {
-    version += "-SNAPSHOT"
 }
 
 apply plugin: 'opensearch.opensearchplugin'
