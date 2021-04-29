@@ -73,5 +73,9 @@ jobs:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
         run: bash <(curl -s https://codecov.io/bash) -f ./build/reports/jacoco/test/jacocoTestReport.xml
 
-      - name: Run Integration Tests
+      - name: Spin up Docker cluster for integration testing
+        working-directory: ./performance-analyzer-rca
+        run: ./gradlew enableRca --info
+
+      - name: Run integration tests
         run: ./gradlew integTest -Dtests.enableIT=true -Dtests.useDockerCluster=true --info
