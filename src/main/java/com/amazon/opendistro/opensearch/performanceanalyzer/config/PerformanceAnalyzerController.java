@@ -288,6 +288,10 @@ public class PerformanceAnalyzerController {
         PerformanceAnalyzerPlugin.invokePrivileged(
                 () -> {
                     try {
+                        Path destDir = Paths.get(getDataDirectory());
+                        if (!Files.exists(destDir)) {
+                            Files.createDirectory(destDir);
+                        }
                         Files.write(
                                 Paths.get(getDataDirectory() + File.separator + fileName),
                                 String.valueOf(featureEnabled).getBytes());
