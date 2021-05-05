@@ -290,6 +290,7 @@ public class PerformanceAnalyzerController {
                     try {
                         Path destDir = Paths.get(getDataDirectory());
                         if (!Files.exists(destDir)) {
+                            StatsCollector.instance().logException(StatExceptionCode.CONFIG_DIR_NOT_FOUND);
                             Files.createDirectory(destDir);
                         }
                         Files.write(
