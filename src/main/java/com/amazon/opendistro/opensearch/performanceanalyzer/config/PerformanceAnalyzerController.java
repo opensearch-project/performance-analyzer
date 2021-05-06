@@ -30,6 +30,8 @@ package com.amazon.opendistro.opensearch.performanceanalyzer.config;
 import com.amazon.opendistro.opensearch.performanceanalyzer.OpenSearchResources;
 import com.amazon.opendistro.opensearch.performanceanalyzer.PerformanceAnalyzerPlugin;
 import com.amazon.opendistro.opensearch.performanceanalyzer.collectors.ScheduledMetricCollectorsExecutor;
+import com.amazon.opendistro.opensearch.performanceanalyzer.collectors.StatExceptionCode;
+import com.amazon.opendistro.opensearch.performanceanalyzer.collectors.StatsCollector;
 import com.amazon.opendistro.opensearch.performanceanalyzer.config.overrides.ConfigOverridesWrapper;
 import com.amazon.opendistro.opensearch.performanceanalyzer.metrics.PerformanceAnalyzerMetrics;
 import java.io.File;
@@ -288,6 +290,12 @@ public class PerformanceAnalyzerController {
         PerformanceAnalyzerPlugin.invokePrivileged(
                 () -> {
                     try {
+                        Path destDir = Paths.get(getDataDirectory());
+                        if (!Files.exists(destDir)) {
+                            StatsCollector.instance()
+                                    .logException(StatExceptionCode.CONFIG_DIR_NOT_FOUND);
+                            Files.createDirectory(destDir);
+                        }
                         Files.write(
                                 Paths.get(getDataDirectory() + File.separator + fileName),
                                 String.valueOf(featureEnabled).getBytes());
