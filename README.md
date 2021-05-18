@@ -1,7 +1,7 @@
 [![Java CI](https://github.com/opensearch-project/performance-analyzer/workflows/Java%20CI/badge.svg)](https://github.com/opensearch-project/performance-analyzer/actions?query=workflow%3A%22Java+CI%22)
 [![CD](https://github.com/opensearch-project/performance-analyzer/workflows/CD/badge.svg)](https://github.com/opensearch-project/performance-analyzer/actions?query=workflow%3ACD)
 [![codecov](https://codecov.io/gh/opensearch-project/performance-analyzer/branch/master/graph/badge.svg)](https://codecov.io/gh/opensearch-project/performance-analyzer)
-[![Documentation](https://img.shields.io/badge/api-reference-blue.svg)](https://opendistro.github.io/for-elasticsearch-docs/docs/pa/)
+[![Documentation](https://img.shields.io/badge/api-reference-blue.svg)](https://docs-beta.opensearch.org/docs/pa/)
 [![Chat](https://img.shields.io/badge/chat-on%20forums-blue)](https://discuss.opendistrocommunity.dev/c/performance-analyzer/)
 ![PRs welcome!](https://img.shields.io/badge/PRs-welcome!-success)
 
@@ -82,11 +82,11 @@ See the [design doc](https://github.com/opensearch-project/performance-analyzer-
 
 ## Documentation
 
-Please refer to the [technical documentation](https://opendistro.github.io/for-elasticsearch-docs/) for detailed information on installing and configuring Performance Analyzer.
+Please refer to the [technical documentation](https://docs-beta.opensearch.org/) for detailed information on installing and configuring Performance Analyzer.
 
 ## Code of Conduct
 
-This project has adopted an [Open Source Code of Conduct](https://opendistro.github.io/for-elasticsearch/codeofconduct.html).
+This project has adopted an [Open Source Code of Conduct](https://opensearch.org/codeofconduct.html).
 
 
 ## Security issue notifications

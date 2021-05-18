@@ -88,7 +88,7 @@ Looking at the existing issues is a great way to find something to contribute on
 
 ## Code of Conduct
 
-This project has adopted an [Open Source Code of Conduct](https://opendistro.github.io/for-elasticsearch/codeofconduct.html).
+This project has adopted an [Open Source Code of Conduct](https://opensearch.org/codeofconduct.html).
 
 
 ## Security issue notifications

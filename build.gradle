@@ -485,7 +485,7 @@ afterEvaluate {
         url 'https://opendistro.github.io/for-elasticsearch/downloads.html'
         summary '''
          Performance Analyzer plugin for OpenSearch.
-         Reference documentation can be found at https://opendistro.github.io/for-elasticsearch-docs/.
+         Reference documentation can be found at https://docs-beta.opensearch.org/.
     '''.stripIndent().replace('\n', ' ').trim()
     }
 

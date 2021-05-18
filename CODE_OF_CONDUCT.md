@@ -24,4 +24,4 @@ This code of conduct applies to all spaces provided by the OpenSource project in
 
 Instances of abusive, harassing, or otherwise unacceptable behavior may be reported. [Contact us](mailto:opensource-codeofconduct@amazon.com). All complaints will be reviewed and investigated and will result in a response that is deemed necessary and appropriate to the circumstances.
 
-In the event of conflict, this **Code of Conduct** supercedes the original [Code of Conduct](https://opendistro.github.io/for-elasticsearch/codeofconduct.html) that this project had adopted.
+In the event of conflict, this **Code of Conduct** supercedes the original [Code of Conduct](https://opensearch.org/codeofconduct.html) that this project had adopted.
