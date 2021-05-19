@@ -235,6 +235,9 @@ dependencies {
     configurations.all {
        resolutionStrategy {
           force 'junit:junit:4.13.1'
+          force "com.fasterxml.jackson.core:jackson-annotations:${jacksonVersion}"
+          force "com.fasterxml.jackson.core:jackson-databind:${jacksonVersion}"
+          force "com.fasterxml.jackson.module:jackson-module-paranamer:${jacksonVersion}"
        }
     }
 
