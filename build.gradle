@@ -117,7 +117,7 @@ loggerUsageCheck.enabled = false
 opensearchplugin {
     name 'opensearch-performance-analyzer'
     description 'OpenSearch Performance Analyzer Plugin'
-    classname 'com.amazon.opendistro.opensearch.performanceanalyzer.PerformanceAnalyzerPlugin'
+    classname 'org.opensearch.performanceanalyzer.PerformanceAnalyzerPlugin'
 }
 
 sourceCompatibility = 1.8
@@ -178,7 +178,7 @@ jacocoTestReport {
         classDirectories.from = files(classDirectories.files.collect {
             fileTree(dir: it,
                     include: [
-                            '**/com/amazon/opendistro/opensearch/performanceanalyzer/**',
+                            '**/org/opensearch/performanceanalyzer/**',
                     ],
                     exclude: [
                             '**/FaultDetectionMetricsCollector.class',
@@ -195,7 +195,7 @@ jacocoTestCoverageVerification {
         classDirectories.from = files(classDirectories.files.collect {
             fileTree(dir: it,
                     include: [
-                            '**/com/amazon/opendistro/opensearch/performanceanalyzer/**',
+                            '**/org/opensearch/performanceanalyzer/**',
                     ],
                     exclude: [
                     ])
@@ -485,7 +485,7 @@ afterEvaluate {
         url 'https://opendistro.github.io/for-elasticsearch/downloads.html'
         summary '''
          Performance Analyzer plugin for OpenSearch.
-         Reference documentation can be found at https://opendistro.github.io/for-elasticsearch-docs/.
+         Reference documentation can be found at https://docs-beta.opensearch.org/.
     '''.stripIndent().replace('\n', ' ').trim()
     }
 
