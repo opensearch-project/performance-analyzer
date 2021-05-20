@@ -30,6 +30,7 @@ import static java.util.Arrays.asList;
 import static java.util.Collections.unmodifiableList;
 
 import java.io.IOException;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import org.apache.logging.log4j.LogManager;
@@ -59,28 +60,69 @@ public class PerformanceAnalyzerClusterConfigAction extends BaseRestHandler {
     public static final String CURRENT = "currentPerformanceAnalyzerClusterState";
     public static final String BATCH_METRICS_RETENTION_PERIOD_MINUTES =
             "batchMetricsRetentionPeriodMinutes";
-    public static final String PA_CLUSTER_CONFIG_PATH =
-            "/_opendistro/_performanceanalyzer/cluster/config";
-    public static final String RCA_CLUSTER_CONFIG_PATH =
-            "/_opendistro/_performanceanalyzer/rca/cluster/config";
-    public static final String LOGGING_CLUSTER_CONFIG_PATH =
-            "/_opendistro/_performanceanalyzer/logging/cluster/config";
-    public static final String BATCH_METRICS_CLUSTER_CONFIG_PATH =
-            "/_opendistro/_performanceanalyzer/batch/cluster/config";
     public static final String ENABLED = "enabled";
     public static final String SHARDS_PER_COLLECTION = "shardsPerCollection";
 
-    private static final List<Route> ROUTES =
+    public static final String PA_CLUSTER_CONFIG_PATH = RestConfig.PA_BASE_URI + "/cluster/config";
+    public static final String RCA_CLUSTER_CONFIG_PATH =
+            RestConfig.PA_BASE_URI + "/rca/cluster/config";
+    public static final String LOGGING_CLUSTER_CONFIG_PATH =
+            RestConfig.PA_BASE_URI + "/logging/cluster/config";
+    public static final String BATCH_METRICS_CLUSTER_CONFIG_PATH =
+            RestConfig.PA_BASE_URI + "/batch/cluster/config";
+
+    public static final String LEGACY_PA_CLUSTER_CONFIG_PATH =
+            RestConfig.LEGACY_PA_BASE_URI + "/cluster/config";
+    public static final String LEGACY_RCA_CLUSTER_CONFIG_PATH =
+            RestConfig.LEGACY_PA_BASE_URI + "/rca/cluster/config";
+    public static final String LEGACY_LOGGING_CLUSTER_CONFIG_PATH =
+            RestConfig.LEGACY_PA_BASE_URI + "/logging/cluster/config";
+    public static final String LEGACY_BATCH_METRICS_CLUSTER_CONFIG_PATH =
+            RestConfig.LEGACY_PA_BASE_URI + "/batch/cluster/config";
+
+    private static final List<ReplacedRoute> REPLACED_ROUTES =
             unmodifiableList(
                     asList(
-                            new Route(RestRequest.Method.GET, PA_CLUSTER_CONFIG_PATH),
-                            new Route(RestRequest.Method.POST, PA_CLUSTER_CONFIG_PATH),
-                            new Route(RestRequest.Method.GET, RCA_CLUSTER_CONFIG_PATH),
-                            new Route(RestRequest.Method.POST, RCA_CLUSTER_CONFIG_PATH),
-                            new Route(RestRequest.Method.GET, LOGGING_CLUSTER_CONFIG_PATH),
-                            new Route(RestRequest.Method.POST, LOGGING_CLUSTER_CONFIG_PATH),
-                            new Route(RestRequest.Method.GET, BATCH_METRICS_CLUSTER_CONFIG_PATH),
-                            new Route(RestRequest.Method.POST, BATCH_METRICS_CLUSTER_CONFIG_PATH)));
+                            new ReplacedRoute(
+                                    RestRequest.Method.GET,
+                                    PA_CLUSTER_CONFIG_PATH,
+                                    RestRequest.Method.GET,
+                                    LEGACY_PA_CLUSTER_CONFIG_PATH),
+                            new ReplacedRoute(
+                                    RestRequest.Method.POST,
+                                    PA_CLUSTER_CONFIG_PATH,
+                                    RestRequest.Method.POST,
+                                    LEGACY_PA_CLUSTER_CONFIG_PATH),
+                            new ReplacedRoute(
+                                    RestRequest.Method.GET,
+                                    RCA_CLUSTER_CONFIG_PATH,
+                                    RestRequest.Method.GET,
+                                    LEGACY_RCA_CLUSTER_CONFIG_PATH),
+                            new ReplacedRoute(
+                                    RestRequest.Method.POST,
+                                    RCA_CLUSTER_CONFIG_PATH,
+                                    RestRequest.Method.POST,
+                                    LEGACY_RCA_CLUSTER_CONFIG_PATH),
+                            new ReplacedRoute(
+                                    RestRequest.Method.GET,
+                                    LOGGING_CLUSTER_CONFIG_PATH,
+                                    RestRequest.Method.GET,
+                                    LEGACY_LOGGING_CLUSTER_CONFIG_PATH),
+                            new ReplacedRoute(
+                                    RestRequest.Method.POST,
+                                    LOGGING_CLUSTER_CONFIG_PATH,
+                                    RestRequest.Method.POST,
+                                    LEGACY_LOGGING_CLUSTER_CONFIG_PATH),
+                            new ReplacedRoute(
+                                    RestRequest.Method.GET,
+                                    BATCH_METRICS_CLUSTER_CONFIG_PATH,
+                                    RestRequest.Method.GET,
+                                    LEGACY_BATCH_METRICS_CLUSTER_CONFIG_PATH),
+                            new ReplacedRoute(
+                                    RestRequest.Method.POST,
+                                    BATCH_METRICS_CLUSTER_CONFIG_PATH,
+                                    RestRequest.Method.POST,
+                                    LEGACY_BATCH_METRICS_CLUSTER_CONFIG_PATH)));
 
     private final PerformanceAnalyzerClusterSettingHandler clusterSettingHandler;
     private final NodeStatsSettingHandler nodeStatsSettingHandler;
@@ -105,7 +147,12 @@ public class PerformanceAnalyzerClusterConfigAction extends BaseRestHandler {
 
     @Override
     public List<Route> routes() {
-        return ROUTES;
+        return Collections.emptyList();
+    }
+
+    @Override
+    public List<ReplacedRoute> replacedRoutes() {
+        return REPLACED_ROUTES;
     }
 
     /**

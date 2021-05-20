@@ -63,13 +63,12 @@ import org.opensearch.common.unit.TimeValue;
 import org.opensearch.common.util.concurrent.ThreadContext;
 import org.opensearch.performanceanalyzer.config.setting.PerformanceAnalyzerClusterSettings;
 import org.opensearch.performanceanalyzer.config.setting.handler.PerformanceAnalyzerClusterSettingHandler;
+import org.opensearch.performanceanalyzer.http_action.config.RestConfig;
 import org.opensearch.performanceanalyzer.util.WaitFor;
 import org.opensearch.test.rest.OpenSearchRestTestCase;
 
 public abstract class PerformanceAnalyzerIntegTestBase extends OpenSearchRestTestCase {
     private static final Logger LOG = LogManager.getLogger(PerformanceAnalyzerIntegTestBase.class);
-    protected static final String PERFORMANCE_ANALYZER_BASE_ENDPOINT =
-            "/_opendistro/_performanceanalyzer";
     private int paPort;
     protected static final ObjectMapper mapper = new ObjectMapper();
     // TODO this must be initialized at construction time to avoid NPEs, we should find a way for
@@ -223,10 +222,10 @@ public abstract class PerformanceAnalyzerIntegTestBase extends OpenSearchRestTes
         String endpoint;
         switch (component) {
             case PA:
-                endpoint = PERFORMANCE_ANALYZER_BASE_ENDPOINT + "/cluster/config";
+                endpoint = RestConfig.PA_BASE_URI + "/cluster/config";
                 break;
             case RCA:
-                endpoint = PERFORMANCE_ANALYZER_BASE_ENDPOINT + "/rca/cluster/config";
+                endpoint = RestConfig.PA_BASE_URI + "/rca/cluster/config";
                 break;
             default:
                 throw new IllegalArgumentException(
@@ -261,9 +260,7 @@ public abstract class PerformanceAnalyzerIntegTestBase extends OpenSearchRestTes
         // Sanity check that PA and RCA are enabled on the cluster
         Response resp =
                 client().performRequest(
-                                new Request(
-                                        "GET",
-                                        PERFORMANCE_ANALYZER_BASE_ENDPOINT + "/cluster/config"));
+                                new Request("GET", RestConfig.PA_BASE_URI + "/cluster/config"));
         Map<String, Object> respMap =
                 mapper.readValue(
                         EntityUtils.toString(resp.getEntity(), "UTF-8"),

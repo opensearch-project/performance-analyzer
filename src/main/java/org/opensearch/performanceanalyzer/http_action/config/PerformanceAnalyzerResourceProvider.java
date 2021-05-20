@@ -65,17 +65,22 @@ public class PerformanceAnalyzerResourceProvider extends BaseRestHandler {
             LogManager.getLogger(PerformanceAnalyzerResourceProvider.class);
 
     private static final int HTTP_CLIENT_CONNECTION_TIMEOUT_MILLIS = 200;
-    private static final String AGENT_PATH = "/_opendistro/_performanceanalyzer/_agent/";
+    private static final String AGENT_PATH = RestConfig.PA_BASE_URI + "/_agent/";
+    private static final String LEGACY_AGENT_PATH = RestConfig.LEGACY_PA_BASE_URI + "/_agent/";
     private static final String DEFAULT_PORT_NUMBER = "9600";
 
     private String portNumber;
     private final boolean isHttpsEnabled;
     private static Set<String> SUPPORTED_REDIRECTIONS =
             ImmutableSet.of("rca", "metrics", "batch", "actions");
-    private static final List<Route> ROUTES =
-            Collections.unmodifiableList(
-                    Collections.singletonList(
-                            new Route(Method.GET, AGENT_PATH + "{redirectEndpoint}")));
+
+    private static final List<ReplacedRoute> REPLACED_ROUTES =
+            Collections.singletonList(
+                    new ReplacedRoute(
+                            Method.GET,
+                            AGENT_PATH + "{redirectEndpoint}",
+                            Method.GET,
+                            LEGACY_AGENT_PATH + "{redirectEndpoint}"));
 
     @Inject
     public PerformanceAnalyzerResourceProvider(Settings settings, RestController controller) {
@@ -141,7 +146,12 @@ public class PerformanceAnalyzerResourceProvider extends BaseRestHandler {
     /** {@inheritDoc} */
     @Override
     public List<Route> routes() {
-        return ROUTES;
+        return Collections.emptyList();
+    }
+
+    @Override
+    public List<ReplacedRoute> replacedRoutes() {
+        return REPLACED_ROUTES;
     }
 
     @Override
@@ -234,7 +244,7 @@ public class PerformanceAnalyzerResourceProvider extends BaseRestHandler {
         String redirectEndpoint = request.param("redirectEndpoint");
         String urlScheme = isHttpsEnabled ? "https://" : "http://";
         String redirectBasePath =
-                urlScheme + "localhost:" + portNumber + "/_opendistro/_performanceanalyzer/";
+                urlScheme + "localhost:" + portNumber + RestConfig.PA_BASE_URI + "/";
         // Need to register all params in OpenSearch request else opensearch throws
         // illegal_argument_exception
         for (String key : request.params().keySet()) {
@@ -243,7 +253,15 @@ public class PerformanceAnalyzerResourceProvider extends BaseRestHandler {
 
         // Add Handler whenever add new redirectAgent path
         if (SUPPORTED_REDIRECTIONS.contains(redirectEndpoint)) {
-            String uri = redirectBasePath + request.uri().split(AGENT_PATH)[1];
+            String uri = null;
+            if (request.uri().contains(AGENT_PATH)) {
+                uri = redirectBasePath + request.uri().split(AGENT_PATH)[1];
+            } else if (request.uri().contains(LEGACY_AGENT_PATH)) {
+                uri = redirectBasePath + request.uri().split(LEGACY_AGENT_PATH)[1];
+            } else {
+                throw new IOException();
+            }
+
             return new URL(uri);
         }
         return null;

@@ -31,6 +31,7 @@ import java.util.List;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.opensearch.performanceanalyzer.http_action.config.RestConfig;
 import org.opensearch.performanceanalyzer.integ_test.json.JsonResponseData;
 import org.opensearch.performanceanalyzer.integ_test.json.JsonResponseField;
 import org.opensearch.performanceanalyzer.integ_test.json.JsonResponseNode;
@@ -47,16 +48,14 @@ public class CpuMetricsIT extends MetricCollectorIntegTestBase {
     public void checkCPUUtilization() throws Exception {
         // read metric from local node
         List<JsonResponseNode> responseNodeList =
-                readMetric(
-                        PERFORMANCE_ANALYZER_BASE_ENDPOINT
-                                + "/metrics/?metrics=CPU_Utilization&agg=sum");
+                readMetric(RestConfig.PA_BASE_URI + "/metrics/?metrics=CPU_Utilization&agg=sum");
         Assert.assertEquals(1, responseNodeList.size());
         validatePerNodeCPUMetric(responseNodeList.get(0));
 
         // read metric from all nodes in cluster
         responseNodeList =
                 readMetric(
-                        PERFORMANCE_ANALYZER_BASE_ENDPOINT
+                        RestConfig.PA_BASE_URI
                                 + "/metrics/?metrics=CPU_Utilization&agg=sum&nodes=all");
         int nodeNum = getNodeIDs().size();
         Assert.assertEquals(nodeNum, responseNodeList.size());

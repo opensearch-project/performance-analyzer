@@ -33,7 +33,6 @@ import static org.mockito.MockitoAnnotations.initMocks;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.List;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -52,7 +51,6 @@ import org.opensearch.indices.breaker.CircuitBreakerService;
 import org.opensearch.indices.breaker.HierarchyCircuitBreakerService;
 import org.opensearch.performanceanalyzer.config.PerformanceAnalyzerController;
 import org.opensearch.rest.RestController;
-import org.opensearch.rest.RestHandler.Route;
 import org.opensearch.rest.RestRequest;
 import org.opensearch.rest.RestStatus;
 import org.opensearch.test.rest.FakeRestChannel;
@@ -104,8 +102,7 @@ public class PerformanceAnalyzerConfigActionTests {
 
     @Test
     public void testRoutes() {
-        List<Route> routes = configAction.routes();
-        assertEquals(8, routes.size());
+        assertEquals(8, configAction.replacedRoutes().size());
     }
 
     @Test
@@ -121,8 +118,18 @@ public class PerformanceAnalyzerConfigActionTests {
     }
 
     @Test
+    public void testLegacyUpdateRcaState_ShouldEnable_paEnabled() throws IOException {
+        test(PerformanceAnalyzerConfigAction.LEGACY_RCA_CONFIG_PATH, true, true);
+    }
+
+    @Test
     public void testUpdateRcaState_ShouldEnable_paDisabled() throws IOException {
         test(PerformanceAnalyzerConfigAction.RCA_CONFIG_PATH, true, false);
+    }
+
+    @Test
+    public void testLegacyUpdateRcaState_ShouldEnable_paDisabled() throws IOException {
+        test(PerformanceAnalyzerConfigAction.LEGACY_RCA_CONFIG_PATH, true, false);
     }
 
     @Test
@@ -131,8 +138,18 @@ public class PerformanceAnalyzerConfigActionTests {
     }
 
     @Test
+    public void testLegacyUpdateRcaState_ShouldDisable_paEnabled() throws IOException {
+        test(PerformanceAnalyzerConfigAction.LEGACY_RCA_CONFIG_PATH, false, true);
+    }
+
+    @Test
     public void testUpdateRcaState_ShouldDisable_paDisabled() throws IOException {
         test(PerformanceAnalyzerConfigAction.RCA_CONFIG_PATH, false, false);
+    }
+
+    @Test
+    public void testLegacyUpdateRcaState_ShouldDisable_paDisabled() throws IOException {
+        test(PerformanceAnalyzerConfigAction.LEGACY_RCA_CONFIG_PATH, false, false);
     }
 
     @Test
@@ -141,8 +158,18 @@ public class PerformanceAnalyzerConfigActionTests {
     }
 
     @Test
+    public void testLegacyUpdateLoggingState_ShouldEnable_paEnabled() throws IOException {
+        test(PerformanceAnalyzerConfigAction.LEGACY_LOGGING_CONFIG_PATH, true, true);
+    }
+
+    @Test
     public void testUpdateLoggingState_ShouldEnable_paDisabled() throws IOException {
         test(PerformanceAnalyzerConfigAction.LOGGING_CONFIG_PATH, true, false);
+    }
+
+    @Test
+    public void testLegacyUpdateLoggingState_ShouldEnable_paDisabled() throws IOException {
+        test(PerformanceAnalyzerConfigAction.LEGACY_LOGGING_CONFIG_PATH, true, false);
     }
 
     @Test
@@ -151,8 +178,18 @@ public class PerformanceAnalyzerConfigActionTests {
     }
 
     @Test
+    public void testLegacyUpdateLoggingState_ShouldDisable_paEnabled() throws IOException {
+        test(PerformanceAnalyzerConfigAction.LEGACY_LOGGING_CONFIG_PATH, false, true);
+    }
+
+    @Test
     public void testUpdateLoggingState_ShouldDisable_paDisabled() throws IOException {
         test(PerformanceAnalyzerConfigAction.LOGGING_CONFIG_PATH, false, false);
+    }
+
+    @Test
+    public void testLegacyUpdateLoggingState_ShouldDisable_paDisabled() throws IOException {
+        test(PerformanceAnalyzerConfigAction.LEGACY_LOGGING_CONFIG_PATH, false, false);
     }
 
     @Test
@@ -161,8 +198,18 @@ public class PerformanceAnalyzerConfigActionTests {
     }
 
     @Test
+    public void testLegacyUpdateBatchMetricsState_ShouldEnable_paEnabled() throws IOException {
+        test(PerformanceAnalyzerConfigAction.LEGACY_BATCH_METRICS_CONFIG_PATH, true, true);
+    }
+
+    @Test
     public void testUpdateBatchMetricsState_ShouldEnable_paDisabled() throws IOException {
         test(PerformanceAnalyzerConfigAction.BATCH_METRICS_CONFIG_PATH, true, false);
+    }
+
+    @Test
+    public void testLegacyUpdateBatchMetricsState_ShouldEnable_paDisabled() throws IOException {
+        test(PerformanceAnalyzerConfigAction.LEGACY_BATCH_METRICS_CONFIG_PATH, true, false);
     }
 
     @Test
@@ -171,8 +218,18 @@ public class PerformanceAnalyzerConfigActionTests {
     }
 
     @Test
+    public void testLegacyUpdateBatchMetricsState_ShouldDisable_paEnabled() throws IOException {
+        test(PerformanceAnalyzerConfigAction.LEGACY_BATCH_METRICS_CONFIG_PATH, false, true);
+    }
+
+    @Test
     public void testUpdateBatchMetricsState_ShouldDisable_paDisabled() throws IOException {
         test(PerformanceAnalyzerConfigAction.BATCH_METRICS_CONFIG_PATH, false, false);
+    }
+
+    @Test
+    public void testLegacyUpdateBatchMetricsState_ShouldDisable_paDisabled() throws IOException {
+        test(PerformanceAnalyzerConfigAction.LEGACY_BATCH_METRICS_CONFIG_PATH, false, false);
     }
 
     @Test
@@ -181,13 +238,31 @@ public class PerformanceAnalyzerConfigActionTests {
     }
 
     @Test
+    public void testLegacyUpdatePerformanceAnalyzerState_ShouldEnable_paEnabled()
+            throws IOException {
+        test(PerformanceAnalyzerConfigAction.LEGACY_PA_CONFIG_PATH, true, true);
+    }
+
+    @Test
     public void testUpdatePerformanceAnalyzerState_ShouldDisable_paEnabled() throws IOException {
         test(PerformanceAnalyzerConfigAction.PA_CONFIG_PATH, false, true);
     }
 
     @Test
+    public void testLegacyUpdatePerformanceAnalyzerState_ShouldDisable_paEnabled()
+            throws IOException {
+        test(PerformanceAnalyzerConfigAction.LEGACY_PA_CONFIG_PATH, false, true);
+    }
+
+    @Test
     public void testUpdatePerformanceAnalyzerState_ShouldDisable_paDisabled() throws IOException {
         test(PerformanceAnalyzerConfigAction.PA_CONFIG_PATH, false, false);
+    }
+
+    @Test
+    public void testLegacyUpdatePerformanceAnalyzerState_ShouldDisable_paDisabled()
+            throws IOException {
+        test(PerformanceAnalyzerConfigAction.LEGACY_PA_CONFIG_PATH, false, false);
     }
 
     private void test(String requestPath, boolean shouldEnable, boolean paEnabled)

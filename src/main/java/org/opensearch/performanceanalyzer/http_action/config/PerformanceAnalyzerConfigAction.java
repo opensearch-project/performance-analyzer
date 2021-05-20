@@ -30,6 +30,7 @@ import static java.util.Arrays.asList;
 import static java.util.Collections.unmodifiableList;
 
 import java.io.IOException;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import org.apache.logging.log4j.LogManager;
@@ -63,24 +64,63 @@ public class PerformanceAnalyzerConfigAction extends BaseRestHandler {
             "batchMetricsRetentionPeriodMinutes";
     public static final String PERFORMANCE_ANALYZER_CONFIG_ACTION =
             "PerformanceAnalyzer_Config_Action";
-    public static final String RCA_CONFIG_PATH = "/_opendistro/_performanceanalyzer/rca/config";
-    public static final String PA_CONFIG_PATH = "/_opendistro/_performanceanalyzer/config";
-    public static final String LOGGING_CONFIG_PATH =
-            "/_opendistro/_performanceanalyzer/logging/config";
-    public static final String BATCH_METRICS_CONFIG_PATH =
-            "/_opendistro/_performanceanalyzer/batch/config";
 
-    private static final List<Route> ROUTES =
+    public static final String RCA_CONFIG_PATH = RestConfig.PA_BASE_URI + "/rca/config";
+    public static final String PA_CONFIG_PATH = RestConfig.PA_BASE_URI + "/config";
+    public static final String LOGGING_CONFIG_PATH = RestConfig.PA_BASE_URI + "/logging/config";
+    public static final String BATCH_METRICS_CONFIG_PATH = RestConfig.PA_BASE_URI + "/batch/config";
+
+    public static final String LEGACY_RCA_CONFIG_PATH =
+            RestConfig.LEGACY_PA_BASE_URI + "/rca/config";
+    public static final String LEGACY_PA_CONFIG_PATH = RestConfig.LEGACY_PA_BASE_URI + "/config";
+    public static final String LEGACY_LOGGING_CONFIG_PATH =
+            RestConfig.LEGACY_PA_BASE_URI + "/logging/config";
+    public static final String LEGACY_BATCH_METRICS_CONFIG_PATH =
+            RestConfig.LEGACY_PA_BASE_URI + "/batch/config";
+
+    private static final List<ReplacedRoute> REPLACED_ROUTES =
             unmodifiableList(
                     asList(
-                            new Route(RestRequest.Method.GET, PA_CONFIG_PATH),
-                            new Route(RestRequest.Method.POST, PA_CONFIG_PATH),
-                            new Route(RestRequest.Method.GET, RCA_CONFIG_PATH),
-                            new Route(RestRequest.Method.POST, RCA_CONFIG_PATH),
-                            new Route(RestRequest.Method.GET, LOGGING_CONFIG_PATH),
-                            new Route(RestRequest.Method.POST, LOGGING_CONFIG_PATH),
-                            new Route(RestRequest.Method.GET, BATCH_METRICS_CONFIG_PATH),
-                            new Route(RestRequest.Method.POST, BATCH_METRICS_CONFIG_PATH)));
+                            new ReplacedRoute(
+                                    RestRequest.Method.GET,
+                                    PA_CONFIG_PATH,
+                                    RestRequest.Method.GET,
+                                    LEGACY_PA_CONFIG_PATH),
+                            new ReplacedRoute(
+                                    RestRequest.Method.POST,
+                                    PA_CONFIG_PATH,
+                                    RestRequest.Method.POST,
+                                    LEGACY_PA_CONFIG_PATH),
+                            new ReplacedRoute(
+                                    RestRequest.Method.GET,
+                                    RCA_CONFIG_PATH,
+                                    RestRequest.Method.GET,
+                                    LEGACY_RCA_CONFIG_PATH),
+                            new ReplacedRoute(
+                                    RestRequest.Method.POST,
+                                    RCA_CONFIG_PATH,
+                                    RestRequest.Method.POST,
+                                    LEGACY_RCA_CONFIG_PATH),
+                            new ReplacedRoute(
+                                    RestRequest.Method.GET,
+                                    LOGGING_CONFIG_PATH,
+                                    RestRequest.Method.GET,
+                                    LEGACY_LOGGING_CONFIG_PATH),
+                            new ReplacedRoute(
+                                    RestRequest.Method.POST,
+                                    LOGGING_CONFIG_PATH,
+                                    RestRequest.Method.POST,
+                                    LEGACY_LOGGING_CONFIG_PATH),
+                            new ReplacedRoute(
+                                    RestRequest.Method.GET,
+                                    BATCH_METRICS_CONFIG_PATH,
+                                    RestRequest.Method.GET,
+                                    LEGACY_BATCH_METRICS_CONFIG_PATH),
+                            new ReplacedRoute(
+                                    RestRequest.Method.POST,
+                                    BATCH_METRICS_CONFIG_PATH,
+                                    RestRequest.Method.POST,
+                                    LEGACY_BATCH_METRICS_CONFIG_PATH)));
 
     public static PerformanceAnalyzerConfigAction getInstance() {
         return instance;
@@ -93,7 +133,12 @@ public class PerformanceAnalyzerConfigAction extends BaseRestHandler {
 
     @Override
     public List<Route> routes() {
-        return ROUTES;
+        return Collections.emptyList();
+    }
+
+    @Override
+    public List<ReplacedRoute> replacedRoutes() {
+        return REPLACED_ROUTES;
     }
 
     @Inject
@@ -119,7 +164,8 @@ public class PerformanceAnalyzerConfigAction extends BaseRestHandler {
                     performanceAnalyzerController.isPerformanceAnalyzerEnabled());
             if (value instanceof Boolean) {
                 boolean shouldEnable = (Boolean) value;
-                if (request.path().contains(RCA_CONFIG_PATH)) {
+                if (request.path().contains(RCA_CONFIG_PATH)
+                        || request.path().contains(LEGACY_RCA_CONFIG_PATH)) {
                     // If RCA needs to be turned on, we need to have PA turned on also.
                     // If this is not the case, return error.
                     if (shouldEnable
@@ -129,7 +175,8 @@ public class PerformanceAnalyzerConfigAction extends BaseRestHandler {
                     }
 
                     performanceAnalyzerController.updateRcaState(shouldEnable);
-                } else if (request.path().contains(LOGGING_CONFIG_PATH)) {
+                } else if (request.path().contains(LOGGING_CONFIG_PATH)
+                        || request.path().contains(LEGACY_LOGGING_CONFIG_PATH)) {
                     if (shouldEnable
                             && !performanceAnalyzerController.isPerformanceAnalyzerEnabled()) {
                         return getChannelConsumerWithError(
@@ -137,7 +184,8 @@ public class PerformanceAnalyzerConfigAction extends BaseRestHandler {
                     }
 
                     performanceAnalyzerController.updateLoggingState(shouldEnable);
-                } else if (request.path().contains(BATCH_METRICS_CONFIG_PATH)) {
+                } else if (request.path().contains(BATCH_METRICS_CONFIG_PATH)
+                        || request.path().contains(LEGACY_BATCH_METRICS_CONFIG_PATH)) {
                     if (shouldEnable
                             && !performanceAnalyzerController.isPerformanceAnalyzerEnabled()) {
                         return getChannelConsumerWithError(

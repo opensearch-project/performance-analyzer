@@ -102,17 +102,21 @@ public class PerformanceAnalyzerResourceProviderTests {
         return request;
     }
 
-    private void assertAgentUriWithMetricsRedirection(final String protocolScheme)
-            throws IOException {
+    private void assertAgentUriWithMetricsRedirection(
+            final String protocolScheme, String requestBasePath) throws IOException {
         initPerformanceAnalyzerResourceProvider(protocolScheme.equals("https://"));
 
         String requestURI =
                 protocolScheme
-                        + "localhost:9200/_opendistro/_performanceanalyzer/_agent/metrics"
+                        + "localhost:9200"
+                        + requestBasePath
+                        + "/_agent/metrics"
                         + "?metrics=Latency,CPU_Utilization&agg=avg,max&dim=ShardID&nodes=all";
         String expectedResponseURI =
                 protocolScheme
-                        + "localhost:9600/_opendistro/_performanceanalyzer/metrics"
+                        + "localhost:9600"
+                        + RestConfig.PA_BASE_URI
+                        + "/metrics"
                         + "?metrics=Latency,CPU_Utilization&agg=avg,max&dim=ShardID&nodes=all";
 
         RestRequest restRequest = generateRestRequest(requestURI, "metrics");
@@ -120,16 +124,21 @@ public class PerformanceAnalyzerResourceProviderTests {
         assertEquals(new URL(expectedResponseURI), actualResponseURI);
     }
 
-    private void assertAgentUriWithRcaRedirection(final String protocolScheme) throws IOException {
+    private void assertAgentUriWithRcaRedirection(
+            final String protocolScheme, String requestBasePath) throws IOException {
         initPerformanceAnalyzerResourceProvider(protocolScheme.equals("https://"));
 
         String requestUri =
                 protocolScheme
-                        + "localhost:9200/_opendistro/_performanceanalyzer/_agent/rca"
+                        + "localhost:9200"
+                        + requestBasePath
+                        + "/_agent/rca"
                         + "?rca=highShardCPU&startTime=2019-10-11";
         String expectedResponseUri =
                 protocolScheme
-                        + "localhost:9600/_opendistro/_performanceanalyzer/rca"
+                        + "localhost:9600"
+                        + RestConfig.PA_BASE_URI
+                        + "/rca"
                         + "?rca=highShardCPU&startTime=2019-10-11";
 
         RestRequest restRequest = generateRestRequest(requestUri, "rca");
@@ -137,17 +146,21 @@ public class PerformanceAnalyzerResourceProviderTests {
         assertEquals(new URL(expectedResponseUri), actualResponseURI);
     }
 
-    private void assertAgentUriWithBatchRedirection(final String protocolScheme)
-            throws IOException {
+    private void assertAgentUriWithBatchRedirection(
+            final String protocolScheme, String requestBasePath) throws IOException {
         initPerformanceAnalyzerResourceProvider(protocolScheme.equals("https://"));
 
         String requestUri =
                 protocolScheme
-                        + "localhost:9200/_opendistro/_performanceanalyzer/_agent/batch"
+                        + "localhost:9200"
+                        + requestBasePath
+                        + "/_agent/batch"
                         + "?metrics=CPU_Utilization,IO_TotThroughput&starttime=1594412650000&endtime=1594412665000&samplingperiod=5";
         String expectedResponseUri =
                 protocolScheme
-                        + "localhost:9600/_opendistro/_performanceanalyzer/batch"
+                        + "localhost:9600"
+                        + RestConfig.PA_BASE_URI
+                        + "/batch"
                         + "?metrics=CPU_Utilization,IO_TotThroughput&starttime=1594412650000&endtime=1594412665000&samplingperiod=5";
 
         RestRequest restRequest = generateRestRequest(requestUri, "batch");
@@ -155,14 +168,13 @@ public class PerformanceAnalyzerResourceProviderTests {
         assertEquals(new URL(expectedResponseUri), actualResponseURI);
     }
 
-    private void assertAgentUriWithActionsRedirection(final String protocolScheme)
-            throws IOException {
+    private void assertAgentUriWithActionsRedirection(
+            final String protocolScheme, String requestBasePath) throws IOException {
         initPerformanceAnalyzerResourceProvider(protocolScheme.equals("https://"));
 
-        String requestUri =
-                protocolScheme + "localhost:9200/_opendistro/_performanceanalyzer/_agent/actions";
+        String requestUri = protocolScheme + "localhost:9200" + requestBasePath + "/_agent/actions";
         String expectedResponseUri =
-                protocolScheme + "localhost:9600/_opendistro/_performanceanalyzer/actions";
+                protocolScheme + "localhost:9600" + RestConfig.PA_BASE_URI + "/actions";
 
         RestRequest restRequest = generateRestRequest(requestUri, "actions");
         URL actualResponseURI = performanceAnalyzerRp.getAgentUri(restRequest);
@@ -171,42 +183,50 @@ public class PerformanceAnalyzerResourceProviderTests {
 
     @Test
     public void testGetAgentUri_WithHttp_WithMetricRedirection() throws Exception {
-        assertAgentUriWithMetricsRedirection("http://");
+        assertAgentUriWithMetricsRedirection("http://", RestConfig.PA_BASE_URI);
+        assertAgentUriWithMetricsRedirection("http://", RestConfig.LEGACY_PA_BASE_URI);
     }
 
     @Test
     public void testGetAgentUri_WithHttps_WithMetricRedirection() throws Exception {
-        assertAgentUriWithRcaRedirection("https://");
+        assertAgentUriWithRcaRedirection("https://", RestConfig.PA_BASE_URI);
+        assertAgentUriWithRcaRedirection("https://", RestConfig.LEGACY_PA_BASE_URI);
     }
 
     @Test
     public void testGetAgentUri_WithHttp_WithRcaRedirection() throws Exception {
-        assertAgentUriWithRcaRedirection("http://");
+        assertAgentUriWithRcaRedirection("http://", RestConfig.PA_BASE_URI);
+        assertAgentUriWithRcaRedirection("http://", RestConfig.LEGACY_PA_BASE_URI);
     }
 
     @Test
     public void testGetAgentUri_WithHttps_WithRcaRedirection() throws Exception {
-        assertAgentUriWithRcaRedirection("https://");
+        assertAgentUriWithRcaRedirection("https://", RestConfig.PA_BASE_URI);
+        assertAgentUriWithRcaRedirection("https://", RestConfig.LEGACY_PA_BASE_URI);
     }
 
     @Test
     public void testGetAgentUri_WithHttp_WithBatchRedirection() throws Exception {
-        assertAgentUriWithBatchRedirection("http://");
+        assertAgentUriWithBatchRedirection("http://", RestConfig.PA_BASE_URI);
+        assertAgentUriWithBatchRedirection("http://", RestConfig.LEGACY_PA_BASE_URI);
     }
 
     @Test
     public void testGetAgentUri_WithHttps_WithBatchRedirection() throws Exception {
-        assertAgentUriWithBatchRedirection("https://");
+        assertAgentUriWithBatchRedirection("https://", RestConfig.PA_BASE_URI);
+        assertAgentUriWithBatchRedirection("https://", RestConfig.LEGACY_PA_BASE_URI);
     }
 
     @Test
     public void testGetAgentUri_WithHttp_WithActionsRedirection() throws Exception {
-        assertAgentUriWithActionsRedirection("http://");
+        assertAgentUriWithActionsRedirection("http://", RestConfig.PA_BASE_URI);
+        assertAgentUriWithActionsRedirection("http://", RestConfig.LEGACY_PA_BASE_URI);
     }
 
     @Test
     public void testGetAgentUri_WithHttps_WithActionsRedirection() throws Exception {
-        assertAgentUriWithActionsRedirection("https://");
+        assertAgentUriWithActionsRedirection("https://", RestConfig.PA_BASE_URI);
+        assertAgentUriWithActionsRedirection("https://", RestConfig.LEGACY_PA_BASE_URI);
     }
 
     @Test
@@ -214,6 +234,11 @@ public class PerformanceAnalyzerResourceProviderTests {
         String requestUri = "http://localhost:9200/_opendistro/_performanceanalyzer/_agent/invalid";
         RestRequest request = generateRestRequest(requestUri, "invalid");
         URL finalURI = performanceAnalyzerRp.getAgentUri(request);
+        assertNull(finalURI);
+
+        requestUri = "http://localhost:9200/_plugins/_performanceanalyzer/_agent/invalid";
+        request = generateRestRequest(requestUri, "invalid");
+        finalURI = performanceAnalyzerRp.getAgentUri(request);
         assertNull(finalURI);
     }
 }

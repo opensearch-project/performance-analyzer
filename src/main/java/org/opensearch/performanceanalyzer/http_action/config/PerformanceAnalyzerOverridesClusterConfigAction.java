@@ -55,16 +55,26 @@ public class PerformanceAnalyzerOverridesClusterConfigAction extends BaseRestHan
     private static final Logger LOG =
             LogManager.getLogger(PerformanceAnalyzerOverridesClusterConfigAction.class);
     public static final String PA_CONFIG_OVERRIDES_PATH =
-            "/_opendistro/_performanceanalyzer/override/cluster/config";
+            RestConfig.PA_BASE_URI + "/override/cluster/config";
+    public static final String LEGACY_PA_CONFIG_OVERRIDES_PATH =
+            RestConfig.LEGACY_PA_BASE_URI + "/override/cluster/config";
     private static final String OVERRIDES_FIELD = "overrides";
     private static final String REASON_FIELD = "reason";
     public static final String OVERRIDE_TRIGGERED_FIELD = "override triggered";
 
-    private static final List<Route> ROUTES =
+    private static final List<ReplacedRoute> REPLACED_ROUTES =
             unmodifiableList(
                     asList(
-                            new Route(RestRequest.Method.GET, PA_CONFIG_OVERRIDES_PATH),
-                            new Route(RestRequest.Method.POST, PA_CONFIG_OVERRIDES_PATH)));
+                            new ReplacedRoute(
+                                    RestRequest.Method.GET,
+                                    PA_CONFIG_OVERRIDES_PATH,
+                                    RestRequest.Method.GET,
+                                    LEGACY_PA_CONFIG_OVERRIDES_PATH),
+                            new ReplacedRoute(
+                                    RestRequest.Method.POST,
+                                    PA_CONFIG_OVERRIDES_PATH,
+                                    RestRequest.Method.POST,
+                                    LEGACY_PA_CONFIG_OVERRIDES_PATH)));
 
     private final ConfigOverridesClusterSettingHandler configOverridesClusterSettingHandler;
     private final ConfigOverridesWrapper overridesWrapper;
@@ -81,7 +91,12 @@ public class PerformanceAnalyzerOverridesClusterConfigAction extends BaseRestHan
 
     @Override
     public List<Route> routes() {
-        return ROUTES;
+        return Collections.emptyList();
+    }
+
+    @Override
+    public List<ReplacedRoute> replacedRoutes() {
+        return REPLACED_ROUTES;
     }
 
     /** @return the name of this handler. */

@@ -42,11 +42,12 @@ import org.junit.Test;
 import org.opensearch.client.Request;
 import org.opensearch.client.Response;
 import org.opensearch.performanceanalyzer.config.overrides.ConfigOverrides;
+import org.opensearch.performanceanalyzer.http_action.config.RestConfig;
 import org.opensearch.performanceanalyzer.util.WaitFor;
 
 public class ConfigOverridesIT extends PerformanceAnalyzerIntegTestBase {
     private static final String CONFIG_OVERRIDES_ENDPOINT =
-            PERFORMANCE_ANALYZER_BASE_ENDPOINT + "/override/cluster/config";
+            RestConfig.PA_BASE_URI + "/override/cluster/config";
 
     private static final List<String> EMPTY_LIST = Collections.emptyList();
     public static final String HOT_SHARD_RCA = "HotShardRca";
