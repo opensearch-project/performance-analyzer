@@ -37,6 +37,7 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.opensearch.client.Request;
 import org.opensearch.client.Response;
+import org.opensearch.performanceanalyzer.http_action.config.RestConfig;
 import org.opensearch.performanceanalyzer.util.WaitFor;
 
 public class PerformanceAnalyzerRCAHealthCheckIT extends PerformanceAnalyzerIntegTestBase {
@@ -49,7 +50,8 @@ public class PerformanceAnalyzerRCAHealthCheckIT extends PerformanceAnalyzerInte
                     Request request =
                             new Request(
                                     "GET",
-                                    "/_opendistro/_performanceanalyzer/metrics/?metrics=Disk_Utilization&agg=max&dim=&nodes=all");
+                                    RestConfig.PA_BASE_URI
+                                            + "/metrics/?metrics=Disk_Utilization&agg=max&dim=&nodes=all");
                     Response resp = paClient.performRequest(request);
                     Assert.assertEquals(HttpStatus.SC_OK, resp.getStatusLine().getStatusCode());
                     jsonString[0] = EntityUtils.toString(resp.getEntity());
@@ -87,7 +89,7 @@ public class PerformanceAnalyzerRCAHealthCheckIT extends PerformanceAnalyzerInte
         ensurePaAndRcaEnabled();
         WaitFor.waitFor(
                 () -> {
-                    Request request = new Request("GET", "/_opendistro/_performanceanalyzer/rca");
+                    Request request = new Request("GET", RestConfig.PA_BASE_URI + "/rca");
                     try {
                         Response resp = paClient.performRequest(request);
                         return Objects.equals(

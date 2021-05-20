@@ -33,7 +33,6 @@ import static org.mockito.MockitoAnnotations.initMocks;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.List;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -54,7 +53,6 @@ import org.opensearch.performanceanalyzer.config.setting.ClusterSettingsManager;
 import org.opensearch.performanceanalyzer.config.setting.handler.NodeStatsSettingHandler;
 import org.opensearch.performanceanalyzer.config.setting.handler.PerformanceAnalyzerClusterSettingHandler;
 import org.opensearch.rest.RestController;
-import org.opensearch.rest.RestHandler.Route;
 import org.opensearch.rest.RestRequest;
 import org.opensearch.rest.RestStatus;
 import org.opensearch.test.rest.FakeRestChannel;
@@ -114,8 +112,7 @@ public class PerformanceAnalyzerClusterConfigActionTests {
 
     @Test
     public void testRoutes() {
-        List<Route> routes = configAction.routes();
-        assertEquals(8, routes.size());
+        assertEquals(8, configAction.replacedRoutes().size());
     }
 
     @Test
@@ -131,8 +128,19 @@ public class PerformanceAnalyzerClusterConfigActionTests {
     }
 
     @Test
+    public void testLegacyUpdateRcaSetting() throws IOException {
+        testWithRequestPath(PerformanceAnalyzerClusterConfigAction.LEGACY_RCA_CLUSTER_CONFIG_PATH);
+    }
+
+    @Test
     public void testUpdateLoggingSetting() throws IOException {
         testWithRequestPath(PerformanceAnalyzerClusterConfigAction.LOGGING_CLUSTER_CONFIG_PATH);
+    }
+
+    @Test
+    public void testLegacyUpdateLoggingSetting() throws IOException {
+        testWithRequestPath(
+                PerformanceAnalyzerClusterConfigAction.LEGACY_LOGGING_CLUSTER_CONFIG_PATH);
     }
 
     @Test
@@ -142,8 +150,19 @@ public class PerformanceAnalyzerClusterConfigActionTests {
     }
 
     @Test
+    public void testLegacyUpdateBatchMetricsSetting() throws IOException {
+        testWithRequestPath(
+                PerformanceAnalyzerClusterConfigAction.LEGACY_BATCH_METRICS_CLUSTER_CONFIG_PATH);
+    }
+
+    @Test
     public void testUpdatePerformanceAnalyzerSetting() throws IOException {
         testWithRequestPath(PerformanceAnalyzerClusterConfigAction.PA_CLUSTER_CONFIG_PATH);
+    }
+
+    @Test
+    public void testLegacyUpdatePerformanceAnalyzerSetting() throws IOException {
+        testWithRequestPath(PerformanceAnalyzerClusterConfigAction.LEGACY_PA_CLUSTER_CONFIG_PATH);
     }
 
     private void testWithRequestPath(String requestPath) throws IOException {

@@ -34,7 +34,6 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.List;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -53,7 +52,6 @@ import org.opensearch.performanceanalyzer.config.ConfigOverridesTestHelper;
 import org.opensearch.performanceanalyzer.config.overrides.ConfigOverridesWrapper;
 import org.opensearch.performanceanalyzer.config.setting.handler.ConfigOverridesClusterSettingHandler;
 import org.opensearch.rest.RestController;
-import org.opensearch.rest.RestHandler.Route;
 import org.opensearch.rest.RestRequest.Method;
 import org.opensearch.rest.RestStatus;
 import org.opensearch.test.rest.FakeRestChannel;
@@ -108,8 +106,7 @@ public class PerformanceAnalyzerOverridesClusterConfigActionTests {
 
     @Test
     public void testRoutes() {
-        List<Route> routes = configAction.routes();
-        assertEquals(2, routes.size());
+        assertEquals(2, configAction.replacedRoutes().size());
     }
 
     @Test
@@ -124,6 +121,19 @@ public class PerformanceAnalyzerOverridesClusterConfigActionTests {
         final FakeRestRequest fakeRestRequest =
                 buildRequest(
                         PerformanceAnalyzerOverridesClusterConfigAction.PA_CONFIG_OVERRIDES_PATH,
+                        Method.GET,
+                        ConfigOverridesTestHelper.getValidConfigOverridesJson());
+        final FakeRestChannel channel = new FakeRestChannel(fakeRestRequest, true, 10);
+        restController.dispatchRequest(fakeRestRequest, channel, new ThreadContext(Settings.EMPTY));
+        assertEquals(RestStatus.OK, channel.capturedResponse().status());
+    }
+
+    @Test
+    public void testLegacyWithGetMethod() throws IOException {
+        final FakeRestRequest fakeRestRequest =
+                buildRequest(
+                        PerformanceAnalyzerOverridesClusterConfigAction
+                                .LEGACY_PA_CONFIG_OVERRIDES_PATH,
                         Method.GET,
                         ConfigOverridesTestHelper.getValidConfigOverridesJson());
         final FakeRestChannel channel = new FakeRestChannel(fakeRestRequest, true, 10);
@@ -148,6 +158,23 @@ public class PerformanceAnalyzerOverridesClusterConfigActionTests {
     }
 
     @Test
+    public void testLegacyWithPostMethod() throws IOException {
+        final FakeRestRequest fakeRestRequest =
+                buildRequest(
+                        PerformanceAnalyzerOverridesClusterConfigAction
+                                .LEGACY_PA_CONFIG_OVERRIDES_PATH,
+                        Method.POST,
+                        ConfigOverridesTestHelper.getValidConfigOverridesJson());
+        final FakeRestChannel channel = new FakeRestChannel(fakeRestRequest, true, 10);
+        restController.dispatchRequest(fakeRestRequest, channel, new ThreadContext(Settings.EMPTY));
+        assertEquals(RestStatus.OK, channel.capturedResponse().status());
+        String responseStr = channel.capturedResponse().content().utf8ToString();
+        assertTrue(
+                responseStr.contains(
+                        PerformanceAnalyzerOverridesClusterConfigAction.OVERRIDE_TRIGGERED_FIELD));
+    }
+
+    @Test
     public void testWithUnsupportedMethod() throws IOException {
         final FakeRestRequest fakeRestRequest =
                 buildRequest(
@@ -160,10 +187,36 @@ public class PerformanceAnalyzerOverridesClusterConfigActionTests {
     }
 
     @Test
+    public void testLegacyWithUnsupportedMethod() throws IOException {
+        final FakeRestRequest fakeRestRequest =
+                buildRequest(
+                        PerformanceAnalyzerOverridesClusterConfigAction
+                                .LEGACY_PA_CONFIG_OVERRIDES_PATH,
+                        Method.PUT,
+                        ConfigOverridesTestHelper.getValidConfigOverridesJson());
+        final FakeRestChannel channel = new FakeRestChannel(fakeRestRequest, true, 10);
+        restController.dispatchRequest(fakeRestRequest, channel, new ThreadContext(Settings.EMPTY));
+        assertEquals(RestStatus.METHOD_NOT_ALLOWED, channel.capturedResponse().status());
+    }
+
+    @Test
     public void testWithInvalidOverrides() throws IOException {
         final FakeRestRequest fakeRestRequest =
                 buildRequest(
                         PerformanceAnalyzerOverridesClusterConfigAction.PA_CONFIG_OVERRIDES_PATH,
+                        Method.POST,
+                        ConfigOverridesTestHelper.getInvalidConfigOverridesJson());
+        final FakeRestChannel channel = new FakeRestChannel(fakeRestRequest, true, 10);
+        restController.dispatchRequest(fakeRestRequest, channel, new ThreadContext(Settings.EMPTY));
+        assertEquals(RestStatus.BAD_REQUEST, channel.capturedResponse().status());
+    }
+
+    @Test
+    public void testLegacyWithInvalidOverrides() throws IOException {
+        final FakeRestRequest fakeRestRequest =
+                buildRequest(
+                        PerformanceAnalyzerOverridesClusterConfigAction
+                                .LEGACY_PA_CONFIG_OVERRIDES_PATH,
                         Method.POST,
                         ConfigOverridesTestHelper.getInvalidConfigOverridesJson());
         final FakeRestChannel channel = new FakeRestChannel(fakeRestRequest, true, 10);

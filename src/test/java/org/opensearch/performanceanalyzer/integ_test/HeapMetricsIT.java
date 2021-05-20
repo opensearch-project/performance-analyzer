@@ -34,6 +34,7 @@ import org.apache.logging.log4j.Logger;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.opensearch.performanceanalyzer.http_action.config.RestConfig;
 import org.opensearch.performanceanalyzer.integ_test.json.JsonResponseData;
 import org.opensearch.performanceanalyzer.integ_test.json.JsonResponseField;
 import org.opensearch.performanceanalyzer.integ_test.json.JsonResponseNode;
@@ -78,7 +79,7 @@ public class HeapMetricsIT extends MetricCollectorIntegTestBase {
         // read metric from local node
         List<JsonResponseNode> responseNodeList =
                 readMetric(
-                        PERFORMANCE_ANALYZER_BASE_ENDPOINT
+                        RestConfig.PA_BASE_URI
                                 + "/metrics/?metrics="
                                 + metric.toString()
                                 + "&agg=max");
@@ -88,7 +89,7 @@ public class HeapMetricsIT extends MetricCollectorIntegTestBase {
         // read metric from all nodes in cluster
         responseNodeList =
                 readMetric(
-                        PERFORMANCE_ANALYZER_BASE_ENDPOINT
+                        RestConfig.PA_BASE_URI
                                 + "/metrics/?metrics="
                                 + metric.toString()
                                 + "&agg=max&nodes=all");
