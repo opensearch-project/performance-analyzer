@@ -15,7 +15,7 @@ Performance Analyzer exposes a REST API that allows you to query numerous perfor
 ## Performance Analyzer API
 Performance Analyzer uses a single HTTP method and URI for all requests:
 
-GET `<endpoint>/_opendistro/_performanceanalyzer/metrics`
+GET `<endpoint>/_plugins/_performanceanalyzer/metrics`
 
 Then you provide parameters for metrics, aggregations, dimensions, and nodes (optional):
 
@@ -29,7 +29,7 @@ Then you provide parameters for metrics, aggregations, dimensions, and nodes (op
 * nodes - If the string all is passed, metrics from all nodes in the cluster are returned. For any other value, metrics from only the local node is returned.
 
 ### SAMPLE REQUEST
-GET `_opendistro/_performanceanalyzer/metrics?metrics=Latency,CPU_Utilization&agg=avg,max&dim=ShardID&nodes=all`
+GET `_plugins/_performanceanalyzer/metrics?metrics=Latency,CPU_Utilization&agg=avg,max&dim=ShardID&nodes=all`
 
 
 ## Batch Metrics API
@@ -38,8 +38,8 @@ While the metrics api associated with performance analyzer provides the last 5 s
 In order to access the batch metrics api, first enable it using one of the following HTTP request:
 
 ```
-POST localhost:9200/_opendistro/performanceanalyzer/batch/config -H ‘Content-Type: application/json’ -d ‘{"enabled": true}’
-POST localhost:9200/_opendistro/performanceanalyzer/batch/cluster/config -H ‘Content-Type: application/json’ -d ‘{"enabled": true}’
+POST localhost:9200/_plugins/performanceanalyzer/batch/config -H ‘Content-Type: application/json’ -d ‘{"enabled": true}’
+POST localhost:9200/_plugins/performanceanalyzer/batch/cluster/config -H ‘Content-Type: application/json’ -d ‘{"enabled": true}’
 ```
 
 The former enables batch metrics on a single node, while the latter enables it on nodes across the entire cluster. Batch metrics can be disabled using analogous queries with `{"enabled": false}`.
@@ -47,11 +47,11 @@ The former enables batch metrics on a single node, while the latter enables it o
 You can then query either the config or cluster config apis to see how many minutes worth of batch metrics data will be retained by nodes in the cluster (`batchMetricsRetentionPeriodMinutes`):
 
 ```
-GET localhost:9200/_opendistro/_performanceanalyzer/config
+GET localhost:9200/_plugins/_performanceanalyzer/config
 
 {"performanceAnalyzerEnabled":true,"rcaEnabled":false,"loggingEnabled":false,"shardsPerCollection":0,"batchMetricsEnabled":true,"batchMetricsRetentionPeriodMinutes":7}
 
-GET localhost:9200/_opendistro/_performanceanalyzer/cluster/config
+GET localhost:9200/_plugins/_performanceanalyzer/cluster/config
 
 {"currentPerformanceAnalyzerClusterState":9,"shardsPerCollection":0,"batchMetricsRetentionPeriodMinutes":7}
 ```
@@ -61,7 +61,7 @@ The default retention period is 7 minutes. However, the cluster owner can adjust
 You can then access the batch metrics available at each node via queries of the following format:
 
 ```
-GET localhost:9600/_opendistro/_performanceanalyzer/batch?metrics=<metrics>&starttime=<starttime>&endtime=<endtime>&samplingperiod=<samplingperiod>
+GET localhost:9600/_plugins/_performanceanalyzer/batch?metrics=<metrics>&starttime=<starttime>&endtime=<endtime>&samplingperiod=<samplingperiod>
 ```
 
 * metrics - Comma separated list of metrics you are interested in. For a full list of metrics, see Metrics Reference.
@@ -76,7 +76,7 @@ Note, unlike with the metrics api, there is no `nodes=all` parameter for the bat
 Note, the default retention period is 7 minutes because a typical use-case would be to query for 5 minutes worth of data from the node. In order to do this, a client would actually select a starttime of now-6min and an endtime of now-1min (this one minute offset will give sufficient time for the metrics in the time range to be available at the node). Atop this 6 minutes of retention, we need an extra 1 minute of retention to account for the time that would have passed by the time the query arrives at the node, and for the fact that starttime and endtime will be rounded down to the nearest samplingperiod.
 
 ### SAMPLE REQUEST
-GET `_opendistro/_performanceanalyzer/batch?metrics=CPU_Utilization,IO_TotThroughput&starttime=1594412250000&endtime=1594412260000&samplingperiod=5`
+GET `_plugins/_performanceanalyzer/batch?metrics=CPU_Utilization,IO_TotThroughput&starttime=1594412250000&endtime=1594412260000&samplingperiod=5`
 
 See the [design doc](https://github.com/opensearch-project/performance-analyzer-rca/blob/master/docs/batch-metrics-api.md) for the expected response.
 
