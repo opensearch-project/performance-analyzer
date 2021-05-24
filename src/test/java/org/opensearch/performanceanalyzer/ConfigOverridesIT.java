@@ -49,7 +49,7 @@ public class ConfigOverridesIT extends PerformanceAnalyzerIntegTestBase {
     private static final String CONFIG_OVERRIDES_ENDPOINT =
             RestConfig.PA_BASE_URI + "/override/cluster/config";
 
-    private static final String LEGACY_CONFIG_OVERRIDES_ENDPOINT =
+    private static final String LEGACY_OPENDISTRO_CONFIG_OVERRIDES_ENDPOINT =
             RestConfig.LEGACY_PA_BASE_URI + "/override/cluster/config";
 
     private static final List<String> EMPTY_LIST = Collections.emptyList();
@@ -63,7 +63,7 @@ public class ConfigOverridesIT extends PerformanceAnalyzerIntegTestBase {
 
     @Test
     public void testLegacySimpleOverride() throws Exception {
-        testSimpleOverride(LEGACY_CONFIG_OVERRIDES_ENDPOINT);
+        testSimpleOverride(LEGACY_OPENDISTRO_CONFIG_OVERRIDES_ENDPOINT);
     }
 
     public void testSimpleOverride(String configOverridesEndpoint) throws Exception {
@@ -111,7 +111,7 @@ public class ConfigOverridesIT extends PerformanceAnalyzerIntegTestBase {
 
     @Test
     public void testLegacyCompositeOverrides() throws Exception {
-        testCompositeOverrides(LEGACY_CONFIG_OVERRIDES_ENDPOINT);
+        testCompositeOverrides(LEGACY_OPENDISTRO_CONFIG_OVERRIDES_ENDPOINT);
     }
 
     public void testCompositeOverrides(String configOverridesEndpoint) throws Exception {
