@@ -49,12 +49,24 @@ public class ConfigOverridesIT extends PerformanceAnalyzerIntegTestBase {
     private static final String CONFIG_OVERRIDES_ENDPOINT =
             RestConfig.PA_BASE_URI + "/override/cluster/config";
 
+    private static final String LEGACY_OPENDISTRO_CONFIG_OVERRIDES_ENDPOINT =
+            RestConfig.LEGACY_PA_BASE_URI + "/override/cluster/config";
+
     private static final List<String> EMPTY_LIST = Collections.emptyList();
     public static final String HOT_SHARD_RCA = "HotShardRca";
     public static final String HOT_NODE_CLUSTER_RCA = "HotNodeClusterRca";
 
     @Test
     public void testSimpleOverride() throws Exception {
+        testSimpleOverride(CONFIG_OVERRIDES_ENDPOINT);
+    }
+
+    @Test
+    public void testLegacySimpleOverride() throws Exception {
+        testSimpleOverride(LEGACY_OPENDISTRO_CONFIG_OVERRIDES_ENDPOINT);
+    }
+
+    public void testSimpleOverride(String configOverridesEndpoint) throws Exception {
         ensurePaAndRcaEnabled();
         final ConfigOverrides overrides =
                 getOverrides(
@@ -64,7 +76,7 @@ public class ConfigOverridesIT extends PerformanceAnalyzerIntegTestBase {
                         EMPTY_LIST,
                         EMPTY_LIST,
                         EMPTY_LIST);
-        final Request postRequest = new Request(METHOD_POST, CONFIG_OVERRIDES_ENDPOINT);
+        final Request postRequest = new Request(METHOD_POST, configOverridesEndpoint);
         postRequest.setJsonEntity(mapper.writeValueAsString(overrides));
 
         try {
@@ -78,7 +90,7 @@ public class ConfigOverridesIT extends PerformanceAnalyzerIntegTestBase {
         WaitFor.waitFor(
                 () -> {
                     try {
-                        Map<String, Object> responseEntity = getAsMap(CONFIG_OVERRIDES_ENDPOINT);
+                        Map<String, Object> responseEntity = getAsMap(configOverridesEndpoint);
                         String serializedOverrides = (String) responseEntity.get("overrides");
                         final ConfigOverrides computedOverrides =
                                 mapper.readValue(serializedOverrides, ConfigOverrides.class);
@@ -94,6 +106,15 @@ public class ConfigOverridesIT extends PerformanceAnalyzerIntegTestBase {
 
     @Test
     public void testCompositeOverrides() throws Exception {
+        testCompositeOverrides(CONFIG_OVERRIDES_ENDPOINT);
+    }
+
+    @Test
+    public void testLegacyCompositeOverrides() throws Exception {
+        testCompositeOverrides(LEGACY_OPENDISTRO_CONFIG_OVERRIDES_ENDPOINT);
+    }
+
+    public void testCompositeOverrides(String configOverridesEndpoint) throws Exception {
         ensurePaAndRcaEnabled();
 
         final ConfigOverrides initialOverrides =
@@ -105,7 +126,7 @@ public class ConfigOverridesIT extends PerformanceAnalyzerIntegTestBase {
                         EMPTY_LIST,
                         EMPTY_LIST);
 
-        final Request postRequest = new Request(METHOD_POST, CONFIG_OVERRIDES_ENDPOINT);
+        final Request postRequest = new Request(METHOD_POST, configOverridesEndpoint);
         postRequest.setJsonEntity(mapper.writeValueAsString(initialOverrides));
 
         try {
@@ -118,7 +139,7 @@ public class ConfigOverridesIT extends PerformanceAnalyzerIntegTestBase {
 
         WaitFor.waitFor(
                 () -> {
-                    final Request getRequest = new Request(METHOD_GET, CONFIG_OVERRIDES_ENDPOINT);
+                    final Request getRequest = new Request(METHOD_GET, configOverridesEndpoint);
                     try {
                         final Response response = client().performRequest(getRequest);
                         assertEquals(HttpStatus.SC_OK, response.getStatusLine().getStatusCode());
@@ -148,7 +169,7 @@ public class ConfigOverridesIT extends PerformanceAnalyzerIntegTestBase {
                         EMPTY_LIST,
                         EMPTY_LIST);
 
-        final Request postRequestAdjusted = new Request(METHOD_POST, CONFIG_OVERRIDES_ENDPOINT);
+        final Request postRequestAdjusted = new Request(METHOD_POST, configOverridesEndpoint);
         postRequestAdjusted.setJsonEntity(mapper.writeValueAsString(adjustedOverrides));
 
         try {
@@ -170,7 +191,7 @@ public class ConfigOverridesIT extends PerformanceAnalyzerIntegTestBase {
 
         WaitFor.waitFor(
                 () -> {
-                    final Request getRequest = new Request(METHOD_GET, CONFIG_OVERRIDES_ENDPOINT);
+                    final Request getRequest = new Request(METHOD_GET, configOverridesEndpoint);
                     try {
                         final Response response = client().performRequest(getRequest);
                         assertEquals(HttpStatus.SC_OK, response.getStatusLine().getStatusCode());

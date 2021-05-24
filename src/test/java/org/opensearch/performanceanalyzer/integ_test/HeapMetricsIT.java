@@ -59,37 +59,64 @@ public class HeapMetricsIT extends MetricCollectorIntegTestBase {
     @Test
     public void checkHeapInit() throws Exception {
         checkHeapMetric(
-                AllMetrics.HeapValue.HEAP_INIT, (d) -> d >= MIN_HEAP_IN_MB && d <= MAX_HEAP_IN_MB);
+                AllMetrics.HeapValue.HEAP_INIT,
+                (d) -> d >= MIN_HEAP_IN_MB && d <= MAX_HEAP_IN_MB,
+                RestConfig.PA_BASE_URI);
+    }
+
+    @Test
+    public void checkLegacyHeapInit() throws Exception {
+        checkHeapMetric(
+                AllMetrics.HeapValue.HEAP_INIT,
+                (d) -> d >= MIN_HEAP_IN_MB && d <= MAX_HEAP_IN_MB,
+                RestConfig.LEGACY_PA_BASE_URI);
     }
 
     @Test
     public void checkHeapMax() throws Exception {
         checkHeapMetric(
-                AllMetrics.HeapValue.HEAP_MAX, (d) -> d >= MIN_HEAP_IN_MB && d <= MAX_HEAP_IN_MB);
+                AllMetrics.HeapValue.HEAP_MAX,
+                (d) -> d >= MIN_HEAP_IN_MB && d <= MAX_HEAP_IN_MB,
+                RestConfig.PA_BASE_URI);
+    }
+
+    @Test
+    public void checkLegacyHeapMax() throws Exception {
+        checkHeapMetric(
+                AllMetrics.HeapValue.HEAP_MAX,
+                (d) -> d >= MIN_HEAP_IN_MB && d <= MAX_HEAP_IN_MB,
+                RestConfig.LEGACY_PA_BASE_URI);
     }
 
     @Test
     public void checkHeapUsed() throws Exception {
         checkHeapMetric(
-                AllMetrics.HeapValue.HEAP_USED, (d) -> d >= MIN_HEAP_IN_MB && d <= MAX_HEAP_IN_MB);
+                AllMetrics.HeapValue.HEAP_USED,
+                (d) -> d >= MIN_HEAP_IN_MB && d <= MAX_HEAP_IN_MB,
+                RestConfig.PA_BASE_URI);
     }
 
-    private void checkHeapMetric(AllMetrics.HeapValue metric, DoublePredicate metricValidator)
+    @Test
+    public void checkLegacyHeapUsed() throws Exception {
+        checkHeapMetric(
+                AllMetrics.HeapValue.HEAP_USED,
+                (d) -> d >= MIN_HEAP_IN_MB && d <= MAX_HEAP_IN_MB,
+                RestConfig.LEGACY_PA_BASE_URI);
+    }
+
+    private void checkHeapMetric(
+            AllMetrics.HeapValue metric, DoublePredicate metricValidator, String paBaseUri)
             throws Exception {
         // read metric from local node
         List<JsonResponseNode> responseNodeList =
-                readMetric(
-                        RestConfig.PA_BASE_URI
-                                + "/metrics/?metrics="
-                                + metric.toString()
-                                + "&agg=max");
+                readMetric(paBaseUri + "/metrics/?metrics=" + metric.toString() + "&agg=max");
         Assert.assertEquals(1, responseNodeList.size());
         validateHeapMetric(responseNodeList.get(0), metric, metricValidator);
 
         // read metric from all nodes in cluster
         responseNodeList =
                 readMetric(
-                        RestConfig.PA_BASE_URI
+                        paBaseUri
                                 + "/metrics/?metrics="
                                 + metric.toString()
                                 + "&agg=max&nodes=all");

@@ -43,6 +43,15 @@ import org.opensearch.performanceanalyzer.util.WaitFor;
 public class PerformanceAnalyzerRCAHealthCheckIT extends PerformanceAnalyzerIntegTestBase {
     @Test
     public void checkMetrics() throws Exception {
+        checkMetrics(RestConfig.PA_BASE_URI);
+    }
+
+    @Test
+    public void checkLegacyMetrics() throws Exception {
+        checkMetrics(RestConfig.LEGACY_PA_BASE_URI);
+    }
+
+    public void checkMetrics(String paBaseUri) throws Exception {
         ensurePaAndRcaEnabled();
         final String[] jsonString = new String[1];
         WaitFor.waitFor(
@@ -50,7 +59,7 @@ public class PerformanceAnalyzerRCAHealthCheckIT extends PerformanceAnalyzerInte
                     Request request =
                             new Request(
                                     "GET",
-                                    RestConfig.PA_BASE_URI
+                                    paBaseUri
                                             + "/metrics/?metrics=Disk_Utilization&agg=max&dim=&nodes=all");
                     Response resp = paClient.performRequest(request);
                     Assert.assertEquals(HttpStatus.SC_OK, resp.getStatusLine().getStatusCode());
@@ -86,10 +95,19 @@ public class PerformanceAnalyzerRCAHealthCheckIT extends PerformanceAnalyzerInte
 
     @Test
     public void testRcaIsRunning() throws Exception {
+        testRcaIsRunning(RestConfig.PA_BASE_URI);
+    }
+
+    @Test
+    public void testLegacyRcaIsRunning() throws Exception {
+        testRcaIsRunning(RestConfig.LEGACY_PA_BASE_URI);
+    }
+
+    public void testRcaIsRunning(String paBaseUri) throws Exception {
         ensurePaAndRcaEnabled();
         WaitFor.waitFor(
                 () -> {
-                    Request request = new Request("GET", RestConfig.PA_BASE_URI + "/rca");
+                    Request request = new Request("GET", paBaseUri + "/rca");
                     try {
                         Response resp = paClient.performRequest(request);
                         return Objects.equals(

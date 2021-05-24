@@ -46,17 +46,24 @@ public class CpuMetricsIT extends MetricCollectorIntegTestBase {
 
     @Test
     public void checkCPUUtilization() throws Exception {
+        checkCPUUtilization(RestConfig.PA_BASE_URI);
+    }
+
+    @Test
+    public void checkLegacyCPUUtilization() throws Exception {
+        checkCPUUtilization(RestConfig.LEGACY_PA_BASE_URI);
+    }
+
+    public void checkCPUUtilization(String paBaseUri) throws Exception {
         // read metric from local node
         List<JsonResponseNode> responseNodeList =
-                readMetric(RestConfig.PA_BASE_URI + "/metrics/?metrics=CPU_Utilization&agg=sum");
+                readMetric(paBaseUri + "/metrics/?metrics=CPU_Utilization&agg=sum");
         Assert.assertEquals(1, responseNodeList.size());
         validatePerNodeCPUMetric(responseNodeList.get(0));
 
         // read metric from all nodes in cluster
         responseNodeList =
-                readMetric(
-                        RestConfig.PA_BASE_URI
-                                + "/metrics/?metrics=CPU_Utilization&agg=sum&nodes=all");
+                readMetric(paBaseUri + "/metrics/?metrics=CPU_Utilization&agg=sum&nodes=all");
         int nodeNum = getNodeIDs().size();
         Assert.assertEquals(nodeNum, responseNodeList.size());
         for (int i = 0; i < nodeNum; i++) {
