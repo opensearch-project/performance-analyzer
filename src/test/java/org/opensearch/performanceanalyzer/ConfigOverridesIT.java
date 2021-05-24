@@ -110,7 +110,7 @@ public class ConfigOverridesIT extends PerformanceAnalyzerIntegTestBase {
     }
 
     @Test
-    public void testCompositeOverrides() throws Exception {
+    public void testLegacyCompositeOverrides() throws Exception {
         testCompositeOverrides(LEGACY_CONFIG_OVERRIDES_ENDPOINT);
     }
 
