@@ -46,17 +46,24 @@ public class PageFaultMetricsIT extends MetricCollectorIntegTestBase {
 
     @Test
     public void checkPaging_MajfltRate() throws Exception {
+        checkPaging_MajfltRate(RestConfig.PA_BASE_URI);
+    }
+
+    @Test
+    public void checkLegacyPaging_MajfltRate() throws Exception {
+        checkPaging_MajfltRate(RestConfig.LEGACY_PA_BASE_URI);
+    }
+
+    public void checkPaging_MajfltRate(String paBaseUri) throws Exception {
         // read metric from local node
         List<JsonResponseNode> responseNodeList =
-                readMetric(RestConfig.PA_BASE_URI + "/metrics/?metrics=Paging_MajfltRate&agg=max");
+                readMetric(paBaseUri + "/metrics/?metrics=Paging_MajfltRate&agg=max");
         Assert.assertEquals(1, responseNodeList.size());
         validateMajorPageFaultMetric(responseNodeList.get(0));
 
         // read metric from all nodes in cluster
         responseNodeList =
-                readMetric(
-                        RestConfig.PA_BASE_URI
-                                + "/metrics/?metrics=Paging_MajfltRate&agg=max&nodes=all");
+                readMetric(paBaseUri + "/metrics/?metrics=Paging_MajfltRate&agg=max&nodes=all");
         int nodeNum = getNodeIDs().size();
         Assert.assertEquals(nodeNum, responseNodeList.size());
         for (int i = 0; i < nodeNum; i++) {
@@ -66,17 +73,24 @@ public class PageFaultMetricsIT extends MetricCollectorIntegTestBase {
 
     @Test
     public void checkPaging_MinfltRate() throws Exception {
+        checkPaging_MinfltRate(RestConfig.PA_BASE_URI);
+    }
+
+    @Test
+    public void checkLegacyPaging_MinfltRate() throws Exception {
+        checkPaging_MinfltRate(RestConfig.LEGACY_PA_BASE_URI);
+    }
+
+    public void checkPaging_MinfltRate(String paBaseUri) throws Exception {
         // read metric from local node
         List<JsonResponseNode> responseNodeList =
-                readMetric(RestConfig.PA_BASE_URI + "/metrics/?metrics=Paging_MinfltRate&agg=max");
+                readMetric(paBaseUri + "/metrics/?metrics=Paging_MinfltRate&agg=max");
         Assert.assertEquals(1, responseNodeList.size());
         validateMinorPageFaultMetric(responseNodeList.get(0));
 
         // read metric from all nodes in cluster
         responseNodeList =
-                readMetric(
-                        RestConfig.PA_BASE_URI
-                                + "/metrics/?metrics=Paging_MinfltRate&agg=max&nodes=all");
+                readMetric(paBaseUri + "/metrics/?metrics=Paging_MinfltRate&agg=max&nodes=all");
         int nodeNum = getNodeIDs().size();
         Assert.assertEquals(nodeNum, responseNodeList.size());
         for (int i = 0; i < nodeNum; i++) {
@@ -86,16 +100,23 @@ public class PageFaultMetricsIT extends MetricCollectorIntegTestBase {
 
     @Test
     public void checkPaging_RSS() throws Exception {
+        checkPaging_RSS(RestConfig.PA_BASE_URI);
+    }
+
+    @Test
+    public void checkLegacyPaging_RSS() throws Exception {
+        checkPaging_RSS(RestConfig.LEGACY_PA_BASE_URI);
+    }
+
+    public void checkPaging_RSS(String paBaseUri) throws Exception {
         // read metric from local node
         List<JsonResponseNode> responseNodeList =
-                readMetric(RestConfig.PA_BASE_URI + "/metrics/?metrics=Paging_RSS&agg=max");
+                readMetric(paBaseUri + "/metrics/?metrics=Paging_RSS&agg=max");
         Assert.assertEquals(1, responseNodeList.size());
         validatePagingRSSMetric(responseNodeList.get(0));
 
         // read metric from all nodes in cluster
-        responseNodeList =
-                readMetric(
-                        RestConfig.PA_BASE_URI + "/metrics/?metrics=Paging_RSS&agg=max&nodes=all");
+        responseNodeList = readMetric(paBaseUri + "/metrics/?metrics=Paging_RSS&agg=max&nodes=all");
         int nodeNum = getNodeIDs().size();
         Assert.assertEquals(nodeNum, responseNodeList.size());
         for (int i = 0; i < nodeNum; i++) {
