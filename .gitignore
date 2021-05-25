@@ -2,5 +2,3 @@
 /.idea/
 /build/
 *.iml
-licenses/performanceanalyzer-rca-*
-licenses/*.sha1
