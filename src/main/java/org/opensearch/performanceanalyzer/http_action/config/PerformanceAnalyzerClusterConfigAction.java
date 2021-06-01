@@ -181,11 +181,14 @@ public class PerformanceAnalyzerClusterConfigAction extends BaseRestHandler {
                     clusterSettingHandler.getCurrentClusterSettingValue());
 
             if (value instanceof Boolean) {
-                if (request.path().contains(RCA_CLUSTER_CONFIG_PATH)) {
+                if (request.path().contains(RCA_CLUSTER_CONFIG_PATH)
+                        || request.path().contains(LEGACY_RCA_CLUSTER_CONFIG_PATH)) {
                     clusterSettingHandler.updateRcaSetting((Boolean) value);
-                } else if (request.path().contains(LOGGING_CLUSTER_CONFIG_PATH)) {
+                } else if (request.path().contains(LOGGING_CLUSTER_CONFIG_PATH)
+                        || request.path().contains(LEGACY_LOGGING_CLUSTER_CONFIG_PATH)) {
                     clusterSettingHandler.updateLoggingSetting((Boolean) value);
-                } else if (request.path().contains(BATCH_METRICS_CLUSTER_CONFIG_PATH)) {
+                } else if (request.path().contains(BATCH_METRICS_CLUSTER_CONFIG_PATH)
+                        || request.path().contains(LEGACY_BATCH_METRICS_CLUSTER_CONFIG_PATH)) {
                     clusterSettingHandler.updateBatchMetricsSetting((Boolean) value);
                 } else {
                     clusterSettingHandler.updatePerformanceAnalyzerSetting((Boolean) value);
