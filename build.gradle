@@ -108,7 +108,7 @@ test {
     systemProperty 'tests.security.manager', 'false'
 }
 
-licenseHeaders.enabled = false
+licenseHeaders.enabled = true
 validateNebulaPom.enabled = false
 
 
