@@ -5,7 +5,21 @@
 [![Chat](https://img.shields.io/badge/chat-on%20forums-blue)](https://discuss.opendistrocommunity.dev/c/performance-analyzer/)
 ![PRs welcome!](https://img.shields.io/badge/PRs-welcome!-success)
 
-# Performance Analyzer
+<img src="https://opensearch.org/assets/brand/SVG/Logo/opensearch_logo_default.svg" height="64px"/>
+
+<!-- TOC -->
+
+- [OpenSearch Performance Analyzer](#opensearch-performace-analyzer)
+- [Documentation](#documentation)
+- [Contributing](#contributing)
+- [Code of Conduct](#code-of-conduct)
+- [Security](#security)
+- [License](#license)
+- [Copyright](#copyright)
+
+<!-- /TOC -->
+
+# OpenSearch Performance Analyzer
 Performance Analyzer exposes a REST API that allows you to query numerous performance metrics for your cluster, including aggregations of those metrics, independent of the Java Virtual Machine (JVM). PerfTop is the default command line interface (CLI) for displaying those metrics.
 
 ## Setup
@@ -82,22 +96,24 @@ See the [design doc](https://github.com/opensearch-project/performance-analyzer-
 
 ## Documentation
 
-Please refer to the [technical documentation](https://docs-beta.opensearch.org/) for detailed information on installing and configuring Performance Analyzer.
+Please refer to the [technical documentation](https://docs-beta.opensearch.org/monitoring-plugins/pa/index/) for detailed information on installing and configuring Performance Analyzer.
+
+## Contributing
+
+See [developer guide](DEVELOPER_GUIDE.md) and [how to contribute to this project](CONTRIBUTING.md).
 
 ## Code of Conduct
 
-This project has adopted an [Open Source Code of Conduct](https://opensearch.org/codeofconduct.html).
+This project has adopted the [Amazon Open Source Code of Conduct](CODE_OF_CONDUCT.md). For more information see the [Code of Conduct FAQ](https://aws.github.io/code-of-conduct-faq), or contact [opensource-codeofconduct@amazon.com](mailto:opensource-codeofconduct@amazon.com) with any additional questions or comments.
 
-
-## Security issue notifications
+## Security
 
 If you discover a potential security issue in this project we ask that you notify AWS/Amazon Security via our [vulnerability reporting page](http://aws.amazon.com/security/vulnerability-reporting/). Please do **not** create a public GitHub issue.
 
+## License
 
-## Licensing
-
-See the [LICENSE](./LICENSE) file for our project's licensing. We will ask you to confirm the licensing of your contribution.
+This project is licensed under the [Apache v2.0 License](LICENSE.txt).
 
 ## Copyright
 
-Copyright 2021 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+Copyright 2020-2021 Amazon.com, Inc. or its affiliates. All Rights Reserved.
