@@ -95,7 +95,7 @@ public class ShardIndexingPressureMetricsCollector extends PerformanceAnalyzerMe
     @Override
     @SuppressWarnings("unchecked")
     public void collectMetrics(long startTime) {
-        if (!controller.isCollectorEnabled(configOverridesWrapper, getCollectorName())) {
+        if (controller.isCollectorDisabled(configOverridesWrapper, getCollectorName())) {
             return;
         }
 

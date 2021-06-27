@@ -73,10 +73,12 @@ public class ShardIndexingPressureMetricsCollectorTests extends CustomMetricsLoc
     @Test
     public void testShardIndexingPressureMetrics() {
         long startTimeInMills = 1153721339;
+
         Mockito.when(
-                        mockController.isCollectorEnabled(
+                        mockController.isCollectorDisabled(
                                 mockConfigOverrides, "ShardIndexingPressureMetricsCollector"))
-                .thenReturn(true);
+                .thenReturn(false);
+
         shardIndexingPressureMetricsCollector.saveMetricValues(
                 "shard_indexing_pressure_metrics", startTimeInMills);
 
