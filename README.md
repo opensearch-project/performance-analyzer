@@ -1,11 +1,25 @@
 [![Java CI](https://github.com/opensearch-project/performance-analyzer/workflows/Java%20CI/badge.svg)](https://github.com/opensearch-project/performance-analyzer/actions?query=workflow%3A%22Java+CI%22)
 [![CD](https://github.com/opensearch-project/performance-analyzer/workflows/CD/badge.svg)](https://github.com/opensearch-project/performance-analyzer/actions?query=workflow%3ACD)
-[![codecov](https://codecov.io/gh/opensearch-project/performance-analyzer/branch/master/graph/badge.svg)](https://codecov.io/gh/opensearch-project/performance-analyzer)
-[![Documentation](https://img.shields.io/badge/api-reference-blue.svg)](https://docs-beta.opensearch.org/docs/pa/)
+[![codecov](https://codecov.io/gh/opensearch-project/performance-analyzer/branch/main/graph/badge.svg)](https://codecov.io/gh/opensearch-project/performance-analyzer)
+[![Documentation](https://img.shields.io/badge/api-reference-blue.svg)](https://docs-beta.opensearch.org/monitoring-plugins/pa/api/)
 [![Chat](https://img.shields.io/badge/chat-on%20forums-blue)](https://discuss.opendistrocommunity.dev/c/performance-analyzer/)
 ![PRs welcome!](https://img.shields.io/badge/PRs-welcome!-success)
 
-# Performance Analyzer
+<img src="https://opensearch.org/assets/brand/SVG/Logo/opensearch_logo_default.svg" height="64px"/>
+
+<!-- TOC -->
+
+- [OpenSearch Performance Analyzer](#opensearch-performace-analyzer)
+- [Documentation](#documentation)
+- [Contributing](#contributing)
+- [Code of Conduct](#code-of-conduct)
+- [Security](#security)
+- [License](#license)
+- [Copyright](#copyright)
+
+<!-- /TOC -->
+
+# OpenSearch Performance Analyzer
 Performance Analyzer exposes a REST API that allows you to query numerous performance metrics for your cluster, including aggregations of those metrics, independent of the Java Virtual Machine (JVM). PerfTop is the default command line interface (CLI) for displaying those metrics.
 
 ## Setup
@@ -33,7 +47,7 @@ GET `_plugins/_performanceanalyzer/metrics?metrics=Latency,CPU_Utilization&agg=a
 
 
 ## Batch Metrics API
-While the metrics api associated with performance analyzer provides the last 5 seconds worth of metrics, the batch metrics api provides more detailed metrics and from longer periods of time. See the [design doc](https://github.com/opensearch-project/performance-analyzer-rca/blob/master/docs/batch-metrics-api.md) for more information.
+While the metrics api associated with performance analyzer provides the last 5 seconds worth of metrics, the batch metrics api provides more detailed metrics and from longer periods of time. See the [design doc](https://github.com/opensearch-project/performance-analyzer-rca/blob/main/docs/batch-metrics-api.md) for more information.
 
 In order to access the batch metrics api, first enable it using one of the following HTTP request:
 
@@ -78,26 +92,28 @@ Note, the default retention period is 7 minutes because a typical use-case would
 ### SAMPLE REQUEST
 GET `_plugins/_performanceanalyzer/batch?metrics=CPU_Utilization,IO_TotThroughput&starttime=1594412250000&endtime=1594412260000&samplingperiod=5`
 
-See the [design doc](https://github.com/opensearch-project/performance-analyzer-rca/blob/master/docs/batch-metrics-api.md) for the expected response.
+See the [design doc](https://github.com/opensearch-project/performance-analyzer-rca/blob/main/docs/batch-metrics-api.md) for the expected response.
 
 ## Documentation
 
-Please refer to the [technical documentation](https://docs-beta.opensearch.org/) for detailed information on installing and configuring Performance Analyzer.
+Please refer to the [technical documentation](https://docs-beta.opensearch.org/monitoring-plugins/pa/index/) for detailed information on installing and configuring Performance Analyzer.
+
+## Contributing
+
+See [developer guide](DEVELOPER_GUIDE.md) and [how to contribute to this project](CONTRIBUTING.md).
 
 ## Code of Conduct
 
-This project has adopted an [Open Source Code of Conduct](https://opensearch.org/codeofconduct.html).
+This project has adopted the [Amazon Open Source Code of Conduct](CODE_OF_CONDUCT.md). For more information see the [Code of Conduct FAQ](https://aws.github.io/code-of-conduct-faq), or contact [opensource-codeofconduct@amazon.com](mailto:opensource-codeofconduct@amazon.com) with any additional questions or comments.
 
-
-## Security issue notifications
+## Security
 
 If you discover a potential security issue in this project we ask that you notify AWS/Amazon Security via our [vulnerability reporting page](http://aws.amazon.com/security/vulnerability-reporting/). Please do **not** create a public GitHub issue.
 
+## License
 
-## Licensing
-
-See the [LICENSE](./LICENSE) file for our project's licensing. We will ask you to confirm the licensing of your contribution.
+This project is licensed under the [Apache v2.0 License](LICENSE.txt).
 
 ## Copyright
 
-Copyright 2021 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+Copyright 2020-2021 Amazon.com, Inc. or its affiliates. All Rights Reserved.
