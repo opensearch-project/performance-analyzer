@@ -270,6 +270,7 @@ public final class PerformanceAnalyzerPlugin extends Plugin
         EventLog eventLog = new EventLog();
         EventLogFileHandler eventLogFileHandler =
                 new EventLogFileHandler(eventLog, PluginSettings.instance().getMetricsLocation());
+
         new EventLogQueueProcessor(
                         eventLogFileHandler,
                         MetricsConfiguration.SAMPLING_INTERVAL,

@@ -16,7 +16,17 @@
 package com.amazon.opendistro.elasticsearch.performanceanalyzer.writer;
 
 import com.amazon.opendistro.elasticsearch.performanceanalyzer.PerformanceAnalyzerApp;
+import com.amazon.opendistro.elasticsearch.performanceanalyzer.config.PerformanceAnalyzerController;
+import com.amazon.opendistro.elasticsearch.performanceanalyzer.config.PluginSettings;
+import com.amazon.opendistro.elasticsearch.performanceanalyzer.http_action.config.PerformanceAnalyzerConfigAction;
+import com.amazon.opendistro.elasticsearch.performanceanalyzer.metrics.MetricsConfiguration;
+import com.amazon.opendistro.elasticsearch.performanceanalyzer.metrics.PerformanceAnalyzerMetrics;
 import com.amazon.opendistro.elasticsearch.performanceanalyzer.rca.framework.metrics.WriterMetrics;
+import com.amazon.opendistro.elasticsearch.performanceanalyzer.reader_writer_shared.Event;
+import com.amazon.opendistro.elasticsearch.performanceanalyzer.reader_writer_shared.EventLogFileHandler;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CancellationException;
@@ -25,15 +35,6 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
-import com.amazon.opendistro.elasticsearch.performanceanalyzer.config.PerformanceAnalyzerController;
-import com.amazon.opendistro.elasticsearch.performanceanalyzer.http_action.config.PerformanceAnalyzerConfigAction;
-import com.amazon.opendistro.elasticsearch.performanceanalyzer.metrics.MetricsConfiguration;
-import com.amazon.opendistro.elasticsearch.performanceanalyzer.metrics.PerformanceAnalyzerMetrics;
-import com.amazon.opendistro.elasticsearch.performanceanalyzer.reader_writer_shared.Event;
-import com.amazon.opendistro.elasticsearch.performanceanalyzer.reader_writer_shared.EventLogFileHandler;
 
 public class EventLogQueueProcessor {
     private static final Logger LOG = LogManager.getLogger(
@@ -84,7 +85,15 @@ public class EventLogQueueProcessor {
 
     // This executes every purgePeriodicityMillis interval.
     public void purgeQueueAndPersist() {
-        // Return if the writer is not enabled.
+        // Delete the older event log files.
+        // In case files deletion takes longer/fails, we are okay with eventQueue reaching
+        // its max size (100000), post that {@link PerformanceAnalyzerMetrics#emitMetric()}
+        // will emit metric {@link WriterMetrics#METRICS_WRITE_ERROR} and return.
+        long currentTimeMillis = System.currentTimeMillis();
+        int purgeInterval = PluginSettings.instance().getMetricsDeletionInterval();
+        eventLogFileHandler.deleteFiles(currentTimeMillis, purgeInterval);
+
+        // Drain the Queue, and if writer is enabled then persist to event log file.
         if (PerformanceAnalyzerConfigAction.getInstance() == null) {
             return;
         } else if (!controller.isPerformanceAnalyzerEnabled()) {
@@ -99,14 +108,20 @@ public class EventLogQueueProcessor {
                         "queue to remove stale data.");
             }
             return;
+        } else if (PerformanceAnalyzerMetrics.metricQueue.size() == 0) {
+            // If all the PA collectors are muted, the metricQueue will be
+            // empty and in that case, we should return and not create empty files.
+            PerformanceAnalyzerApp.WRITER_METRICS_AGGREGATOR.updateStat(
+                    WriterMetrics.EMPTY_METRIC_QUEUE, "", 1);
+            LOG.info("Performance Analyzer metrics queue is empty; possibly as all collectors are " +
+                    "in muted state. Returning to avoid creating empty files.");
+            return;
         }
 
         LOG.debug("Starting to purge the queue.");
         List<Event> metrics = new ArrayList<>();
         PerformanceAnalyzerMetrics.metricQueue.drainTo(metrics);
         LOG.debug("Queue draining successful.");
-
-        long currentTimeMillis = System.currentTimeMillis();
 
         // Calculate the timestamp on the file. For example, lets say the
         // purging started at time 12.5 then all the events between 5-10
