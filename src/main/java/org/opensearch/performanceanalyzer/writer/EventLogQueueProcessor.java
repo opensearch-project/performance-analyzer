@@ -27,15 +27,15 @@
 package org.opensearch.performanceanalyzer.writer;
 
 
-import com.amazon.opendistro.elasticsearch.performanceanalyzer.PerformanceAnalyzerApp;
-import com.amazon.opendistro.elasticsearch.performanceanalyzer.config.PerformanceAnalyzerController;
-import com.amazon.opendistro.elasticsearch.performanceanalyzer.config.PluginSettings;
-import com.amazon.opendistro.elasticsearch.performanceanalyzer.http_action.config.PerformanceAnalyzerConfigAction;
-import com.amazon.opendistro.elasticsearch.performanceanalyzer.metrics.MetricsConfiguration;
-import com.amazon.opendistro.elasticsearch.performanceanalyzer.metrics.PerformanceAnalyzerMetrics;
-import com.amazon.opendistro.elasticsearch.performanceanalyzer.rca.framework.metrics.WriterMetrics;
-import com.amazon.opendistro.elasticsearch.performanceanalyzer.reader_writer_shared.Event;
-import com.amazon.opendistro.elasticsearch.performanceanalyzer.reader_writer_shared.EventLogFileHandler;
+import org.opensearch.performanceanalyzer.PerformanceAnalyzerApp;
+import org.opensearch.performanceanalyzer.config.PerformanceAnalyzerController;
+import org.opensearch.performanceanalyzer.config.PluginSettings;
+import org.opensearch.performanceanalyzer.http_action.config.PerformanceAnalyzerConfigAction;
+import org.opensearch.performanceanalyzer.metrics.MetricsConfiguration;
+import org.opensearch.performanceanalyzer.metrics.PerformanceAnalyzerMetrics;
+import org.opensearch.performanceanalyzer.rca.framework.metrics.WriterMetrics;
+import org.opensearch.performanceanalyzer.reader_writer_shared.Event;
+import org.opensearch.performanceanalyzer.reader_writer_shared.EventLogFileHandler;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -67,6 +67,7 @@ public class EventLogQueueProcessor {
     private final long purgePeriodicityMillis;
     private final PerformanceAnalyzerController controller;
     private long lastTimeBucket;
+    private final int purgeInterval = PluginSettings.instance().getMetricsDeletionInterval();
 
     public EventLogQueueProcessor(
             EventLogFileHandler eventLogFileHandler,
@@ -114,7 +115,6 @@ public class EventLogQueueProcessor {
         // its max size (100000), post that {@link PerformanceAnalyzerMetrics#emitMetric()}
         // will emit metric {@link WriterMetrics#METRICS_WRITE_ERROR} and return.
         long currentTimeMillis = System.currentTimeMillis();
-        int purgeInterval = PluginSettings.instance().getMetricsDeletionInterval();
         eventLogFileHandler.deleteFiles(currentTimeMillis, purgeInterval);
 
         // Drain the Queue, and if writer is enabled then persist to event log file.
@@ -132,14 +132,6 @@ public class EventLogQueueProcessor {
                         "Performance Analyzer no longer enabled. Drained the"
                                 + "queue to remove stale data.");
             }
-            return;
-        } else if (PerformanceAnalyzerMetrics.metricQueue.size() == 0) {
-            // If all the PA collectors are muted, the metricQueue will be
-            // empty and in that case, we should return and not create empty files.
-            PerformanceAnalyzerApp.WRITER_METRICS_AGGREGATOR.updateStat(
-                    WriterMetrics.EMPTY_METRIC_QUEUE, "", 1);
-            LOG.info("Performance Analyzer metrics queue is empty; possibly as all collectors are " +
-                    "in muted state. Returning to avoid creating empty files.");
             return;
         }
 

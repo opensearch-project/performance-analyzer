@@ -69,7 +69,7 @@ public class Utils {
         MetricsConfiguration.CONFIG_MAP.put(NodeStatsAllShardsMetricsCollector.class, cdefault);
         MetricsConfiguration.CONFIG_MAP.put(NodeStatsFixedShardsMetricsCollector.class, cdefault);
         MetricsConfiguration.CONFIG_MAP.put(
-                MasterServiceEventMetrics.class, new MetricsConfiguration.MetricConfig(1000, 0, 0));
+                MasterServiceEventMetrics.class, new MetricsConfiguration.MetricConfig(1000, 0));
         MetricsConfiguration.CONFIG_MAP.put(MasterServiceMetrics.class, cdefault);
         MetricsConfiguration.CONFIG_MAP.put(FaultDetectionMetricsCollector.class, cdefault);
         MetricsConfiguration.CONFIG_MAP.put(ShardStateCollector.class, cdefault);
