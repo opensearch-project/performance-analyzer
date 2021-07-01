@@ -27,7 +27,7 @@
 buildscript {
 
     ext {
-        opensearch_version = System.getProperty("opensearch.version", "1.0.0-rc1")
+        opensearch_version = System.getProperty("opensearch.version", "1.0.0")
     }
     // This isn't applying from repositories.gradle so repeating it here
     repositories {
@@ -72,7 +72,7 @@ ext {
 }
 
 group = "org.opensearch"
-version = "${opensearchVersion}.0-rc1"
+version = "${opensearchVersion}.0"
 if (isSnapshot) {
     version += "-SNAPSHOT"
 }
@@ -249,7 +249,7 @@ dependencies {
     compile 'org.apache.commons:commons-lang3:3.9'
     compile 'org.bouncycastle:bcprov-jdk15on:1.68'
     compile 'org.bouncycastle:bcpkix-jdk15on:1.68'
-    compile 'org.opensearch:performanceanalyzer-rca:1.0.0.0-rc1'
+    compile 'org.opensearch:performanceanalyzer-rca:1.0.0.0'
     compile "com.fasterxml.jackson.core:jackson-annotations:${jacksonVersion}"
     compile "com.fasterxml.jackson.core:jackson-databind:${jacksonVersion}"
     compile "com.fasterxml.jackson.module:jackson-module-paranamer:${jacksonVersion}"
@@ -341,7 +341,7 @@ task buildRca() {
         exec {
             def licenseDir = "$projectDir/licenses"
             workingDir("$licenseDir")
-            commandLine 'rm', "performanceanalyzer-rca-1.0.0.0-rc1.jar.sha1"
+            commandLine 'rm', "performanceanalyzer-rca-1.0.0.0.jar.sha1"
         }
         exec {
             workingDir("$projectDir")

@@ -3,10 +3,10 @@ name: Java CI
 on: 
   push: 
     branches: 
-      - main
+      - "*"
   pull_request:
     branches: 
-      - main
+      - "*"
 
 jobs:
   build_rca_pkg:
@@ -45,10 +45,10 @@ jobs:
         ref: '1.0'
     - name: Build OpenSearch
       working-directory: ./OpenSearch
-      run: ./gradlew publishToMavenLocal -Dbuild.version_qualifier=rc1 -Dbuild.snapshot=false
+      run: ./gradlew publishToMavenLocal -Dbuild.snapshot=false
     - name: Build PA gradle using the new RCA jar
       working-directory: ./tmp/pa
-      run: rm -f licenses/performanceanalyzer-rca-1.0.0.0-rc1.jar.sha1
+      run: rm -f licenses/performanceanalyzer-rca-1.0.0.0.jar.sha1
     - name: Update SHA
       working-directory: ./tmp/pa
       run: ./gradlew updateShas
