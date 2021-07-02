@@ -67,7 +67,9 @@ public class EventLogQueueProcessor {
     private final long purgePeriodicityMillis;
     private final PerformanceAnalyzerController controller;
     private long lastTimeBucket;
-    private final int purgeInterval = PluginSettings.instance().getMetricsDeletionInterval();
+    private int counter;
+    private int filesCleanupPeriod;
+    private final int filesCleanupPeriodicityMillis = PluginSettings.instance().getMetricsDeletionInterval(); // defaults to 60seconds
 
     public EventLogQueueProcessor(
             EventLogFileHandler eventLogFileHandler,
@@ -78,6 +80,8 @@ public class EventLogQueueProcessor {
         this.initialDelayMillis = initialDelayMillis;
         this.purgePeriodicityMillis = purgePeriodicityMillis;
         this.lastTimeBucket = 0;
+        this.counter = 0;
+        this.filesCleanupPeriod = (filesCleanupPeriodicityMillis)/(int)(purgePeriodicityMillis);
         this.controller = controller;
     }
 
@@ -110,12 +114,17 @@ public class EventLogQueueProcessor {
 
     // This executes every purgePeriodicityMillis interval.
     public void purgeQueueAndPersist() {
-        // Delete the older event log files.
+        counter += 1;
+        long currentTimeMillis = System.currentTimeMillis();
+
+        // Delete the older event log files every filesCleanupPeriod (defaults to 60)
         // In case files deletion takes longer/fails, we are okay with eventQueue reaching
         // its max size (100000), post that {@link PerformanceAnalyzerMetrics#emitMetric()}
         // will emit metric {@link WriterMetrics#METRICS_WRITE_ERROR} and return.
-        long currentTimeMillis = System.currentTimeMillis();
-        eventLogFileHandler.deleteFiles(currentTimeMillis, purgeInterval);
+        if (counter >= filesCleanupPeriod) {
+            eventLogFileHandler.deleteFiles(currentTimeMillis, filesCleanupPeriodicityMillis);
+            counter = 0;
+        }
 
         // Drain the Queue, and if writer is enabled then persist to event log file.
         if (PerformanceAnalyzerConfigAction.getInstance() == null) {
