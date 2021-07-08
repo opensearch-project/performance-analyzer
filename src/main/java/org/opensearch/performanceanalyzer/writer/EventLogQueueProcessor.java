@@ -172,8 +172,11 @@ public class EventLogQueueProcessor {
         if (lastTimeBucket != 0 && lastTimeBucket != currTimeBucket) {
             eventLogFileHandler.renameFromTmp(lastTimeBucket);
         }
-        // This appends the data to a file named <currTimeBucket>.tmp
-        eventLogFileHandler.writeTmpFile(currMetrics, currTimeBucket);
+        // Append to the tmp file only if we have metrics to publish.
+        if (!currMetrics.isEmpty()) {
+            // This appends the data to a file named <currTimeBucket>.tmp
+            eventLogFileHandler.writeTmpFile(currMetrics, currTimeBucket);
+        }
         lastTimeBucket = currTimeBucket;
     }
 }
