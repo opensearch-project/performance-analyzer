@@ -56,14 +56,13 @@ public class EventLogQueueProcessor {
     private static final Logger LOG = LogManager.getLogger(EventLogQueueProcessor.class);
 
     private final ScheduledExecutorService writerExecutor = Executors.newScheduledThreadPool(1);
+    private final int filesCleanupPeriodicityMillis = PluginSettings.instance().getMetricsDeletionInterval(); // defaults to 60seconds
     private final EventLogFileHandler eventLogFileHandler;
     private final long initialDelayMillis;
     private final long purgePeriodicityMillis;
     private final PerformanceAnalyzerController controller;
     private long lastCleanupTimeBucket;
     private long lastTimeBucket;
-    private final int filesCleanupPeriodicityMillis = PluginSettings.instance().getMetricsDeletionInterval(); // defaults to 60seconds
-
     public EventLogQueueProcessor(
             EventLogFileHandler eventLogFileHandler,
             long initialDelayMillis,
