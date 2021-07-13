@@ -317,4 +317,19 @@ public class PerformanceAnalyzerController {
                         .getCollectors();
         return enabledCollectorsList.contains(collectorName) ? true : false;
     }
+
+    public boolean isCollectorDisabled(
+            ConfigOverridesWrapper configOverridesWrapper, String collectorName) {
+        if (configOverridesWrapper == null) {
+            return true;
+        }
+
+        List<String> disabledCollectorsList =
+                configOverridesWrapper
+                        .getCurrentClusterConfigOverrides()
+                        .getDisable()
+                        .getCollectors();
+
+        return disabledCollectorsList.contains(collectorName);
+    }
 }
