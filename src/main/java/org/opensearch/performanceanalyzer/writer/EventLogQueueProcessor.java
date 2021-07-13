@@ -27,7 +27,19 @@
 package org.opensearch.performanceanalyzer.writer;
 
 
+import org.opensearch.performanceanalyzer.PerformanceAnalyzerApp;
+import org.opensearch.performanceanalyzer.config.PerformanceAnalyzerController;
+import org.opensearch.performanceanalyzer.config.PluginSettings;
+import org.opensearch.performanceanalyzer.http_action.config.PerformanceAnalyzerConfigAction;
+import org.opensearch.performanceanalyzer.metrics.MetricsConfiguration;
+import org.opensearch.performanceanalyzer.metrics.PerformanceAnalyzerMetrics;
+import org.opensearch.performanceanalyzer.rca.framework.metrics.WriterMetrics;
+import org.opensearch.performanceanalyzer.reader_writer_shared.Event;
+import org.opensearch.performanceanalyzer.reader_writer_shared.EventLogFileHandler;
+import org.apache.logging.log4j.Logger;
+
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.ExecutionException;
@@ -35,27 +47,22 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
+import java.util.stream.LongStream;
+
 import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import org.opensearch.performanceanalyzer.PerformanceAnalyzerApp;
-import org.opensearch.performanceanalyzer.config.PerformanceAnalyzerController;
-import org.opensearch.performanceanalyzer.http_action.config.PerformanceAnalyzerConfigAction;
-import org.opensearch.performanceanalyzer.metrics.MetricsConfiguration;
-import org.opensearch.performanceanalyzer.metrics.PerformanceAnalyzerMetrics;
-import org.opensearch.performanceanalyzer.rca.framework.metrics.WriterMetrics;
-import org.opensearch.performanceanalyzer.reader_writer_shared.Event;
-import org.opensearch.performanceanalyzer.reader_writer_shared.EventLogFileHandler;
 
 public class EventLogQueueProcessor {
     private static final Logger LOG = LogManager.getLogger(EventLogQueueProcessor.class);
 
     private final ScheduledExecutorService writerExecutor = Executors.newScheduledThreadPool(1);
+    private final int filesCleanupPeriodicityMillis = PluginSettings.instance().getMetricsDeletionInterval(); // defaults to 60seconds
     private final EventLogFileHandler eventLogFileHandler;
     private final long initialDelayMillis;
     private final long purgePeriodicityMillis;
     private final PerformanceAnalyzerController controller;
+    private long lastCleanupTimeBucket;
     private long lastTimeBucket;
-
     public EventLogQueueProcessor(
             EventLogFileHandler eventLogFileHandler,
             long initialDelayMillis,
@@ -64,6 +71,7 @@ public class EventLogQueueProcessor {
         this.eventLogFileHandler = eventLogFileHandler;
         this.initialDelayMillis = initialDelayMillis;
         this.purgePeriodicityMillis = purgePeriodicityMillis;
+        this.lastCleanupTimeBucket = 0;
         this.lastTimeBucket = 0;
         this.controller = controller;
     }
@@ -97,7 +105,7 @@ public class EventLogQueueProcessor {
 
     // This executes every purgePeriodicityMillis interval.
     public void purgeQueueAndPersist() {
-        // Return if the writer is not enabled.
+        // Drain the Queue, and if writer is enabled then persist to event log file.
         if (PerformanceAnalyzerConfigAction.getInstance() == null) {
             return;
         } else if (!controller.isPerformanceAnalyzerEnabled()) {
@@ -162,6 +170,33 @@ public class EventLogQueueProcessor {
             eventLogFileHandler.writeTmpFile(nextMetrics, nextTimeBucket);
         }
         LOG.debug("Writing to disk complete.");
+
+        // Delete the older event log files every filesCleanupPeriod (defaults to 60)
+        // In case files deletion takes longer/fails, we are okay with eventQueue reaching
+        // its max size (100000), post that {@link PerformanceAnalyzerMetrics#emitMetric()}
+        // will emit metric {@link WriterMetrics#METRICS_WRITE_ERROR} and return.
+        cleanup();
+    }
+
+    private void cleanup() {
+        long currentTimeMillis = System.currentTimeMillis();
+        if (lastCleanupTimeBucket != 0) {
+            // Delete Event log files belonging to time bucket older than past filesCleanupPeriod(defaults to 60s)
+            long currCleanupTimeBucket = PerformanceAnalyzerMetrics.getTimeInterval(currentTimeMillis);
+            if (currCleanupTimeBucket - lastCleanupTimeBucket > filesCleanupPeriodicityMillis) {
+                // Get list of files(time buckets) for purging, considered range : [lastCleanupTimeBucket, currCleanupTimeBucket)
+                List<String> filesForCleanup = LongStream.range(lastCleanupTimeBucket, currCleanupTimeBucket)
+                        .filter(timeMillis -> timeMillis % MetricsConfiguration.SAMPLING_INTERVAL == 0)
+                        .mapToObj(String::valueOf)
+                        .collect(Collectors.toList());
+                eventLogFileHandler.deleteFiles(Collections.unmodifiableList(filesForCleanup));
+                lastCleanupTimeBucket = currCleanupTimeBucket;
+            }
+        } else {
+            // First purge since the start-up, cleanup any lingering files.
+            eventLogFileHandler.deleteAllFiles();
+            lastCleanupTimeBucket = PerformanceAnalyzerMetrics.getTimeInterval(currentTimeMillis);
+        }
     }
 
     private void writeAndRotate(
