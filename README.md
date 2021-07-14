@@ -1,7 +1,7 @@
 [![Java CI](https://github.com/opensearch-project/performance-analyzer/workflows/Java%20CI/badge.svg)](https://github.com/opensearch-project/performance-analyzer/actions?query=workflow%3A%22Java+CI%22)
 [![CD](https://github.com/opensearch-project/performance-analyzer/workflows/CD/badge.svg)](https://github.com/opensearch-project/performance-analyzer/actions?query=workflow%3ACD)
 [![codecov](https://codecov.io/gh/opensearch-project/performance-analyzer/branch/main/graph/badge.svg)](https://codecov.io/gh/opensearch-project/performance-analyzer)
-[![Documentation](https://img.shields.io/badge/api-reference-blue.svg)](https://docs-beta.opensearch.org/monitoring-plugins/pa/api/)
+[![Documentation](https://img.shields.io/badge/api-reference-blue.svg)](https://opensearch.org/docs/monitoring-plugins/pa/api/)
 [![Chat](https://img.shields.io/badge/chat-on%20forums-blue)](https://discuss.opendistrocommunity.dev/c/performance-analyzer/)
 ![PRs welcome!](https://img.shields.io/badge/PRs-welcome!-success)
 
@@ -96,7 +96,7 @@ See the [design doc](https://github.com/opensearch-project/performance-analyzer-
 
 ## Documentation
 
-Please refer to the [technical documentation](https://docs-beta.opensearch.org/monitoring-plugins/pa/index/) for detailed information on installing and configuring Performance Analyzer.
+Please refer to the [technical documentation](https://opensearch.org/docs/monitoring-plugins/pa/index/) for detailed information on installing and configuring Performance Analyzer.
 
 ## Contributing
 

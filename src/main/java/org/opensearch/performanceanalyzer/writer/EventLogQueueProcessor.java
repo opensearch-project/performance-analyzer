@@ -77,6 +77,14 @@ public class EventLogQueueProcessor {
     }
 
     public void scheduleExecutor() {
+        // Cleanup any lingering files from previous plugin run.
+        try {
+            eventLogFileHandler.deleteAllFiles();
+        } catch (Exception ex) {
+            LOG.error("Unable to cleanup lingering files from previous plugin run.", ex);
+        }
+        lastCleanupTimeBucket = PerformanceAnalyzerMetrics.getTimeInterval(System.currentTimeMillis());
+
         ScheduledFuture<?> futureHandle =
                 writerExecutor.scheduleAtFixedRate(
                         this::purgeQueueAndPersist,
@@ -179,23 +187,16 @@ public class EventLogQueueProcessor {
     }
 
     private void cleanup() {
-        long currentTimeMillis = System.currentTimeMillis();
-        if (lastCleanupTimeBucket != 0) {
-            // Delete Event log files belonging to time bucket older than past filesCleanupPeriod(defaults to 60s)
-            long currCleanupTimeBucket = PerformanceAnalyzerMetrics.getTimeInterval(currentTimeMillis);
-            if (currCleanupTimeBucket - lastCleanupTimeBucket > filesCleanupPeriodicityMillis) {
-                // Get list of files(time buckets) for purging, considered range : [lastCleanupTimeBucket, currCleanupTimeBucket)
-                List<String> filesForCleanup = LongStream.range(lastCleanupTimeBucket, currCleanupTimeBucket)
-                        .filter(timeMillis -> timeMillis % MetricsConfiguration.SAMPLING_INTERVAL == 0)
-                        .mapToObj(String::valueOf)
-                        .collect(Collectors.toList());
-                eventLogFileHandler.deleteFiles(Collections.unmodifiableList(filesForCleanup));
-                lastCleanupTimeBucket = currCleanupTimeBucket;
-            }
-        } else {
-            // First purge since the start-up, cleanup any lingering files.
-            eventLogFileHandler.deleteAllFiles();
-            lastCleanupTimeBucket = PerformanceAnalyzerMetrics.getTimeInterval(currentTimeMillis);
+        // Delete Event log files belonging to time bucket older than past filesCleanupPeriod(defaults to 60s)
+        long currCleanupTimeBucket = PerformanceAnalyzerMetrics.getTimeInterval(System.currentTimeMillis());
+        if (currCleanupTimeBucket - lastCleanupTimeBucket > filesCleanupPeriodicityMillis) {
+            // Get list of files(time buckets) for purging, considered range : [lastCleanupTimeBucket, currCleanupTimeBucket)
+            List<String> filesForCleanup = LongStream.range(lastCleanupTimeBucket, currCleanupTimeBucket)
+                    .filter(timeMillis -> timeMillis % MetricsConfiguration.SAMPLING_INTERVAL == 0)
+                    .mapToObj(String::valueOf)
+                    .collect(Collectors.toList());
+            eventLogFileHandler.deleteFiles(Collections.unmodifiableList(filesForCleanup));
+            lastCleanupTimeBucket = currCleanupTimeBucket;
         }
     }
 
