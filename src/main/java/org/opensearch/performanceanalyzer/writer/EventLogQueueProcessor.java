@@ -80,7 +80,7 @@ public class EventLogQueueProcessor {
         // Cleanup any lingering files from previous plugin run.
         try {
             eventLogFileHandler.deleteAllFiles();
-        } catch Exception ex {
+        } catch (Exception ex) {
             LOG.error("Unable to cleanup lingering files from previous plugin run.", ex);
         }
         lastCleanupTimeBucket = PerformanceAnalyzerMetrics.getTimeInterval(System.currentTimeMillis());
