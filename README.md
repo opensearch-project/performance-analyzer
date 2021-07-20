@@ -5,7 +5,7 @@
 [![Chat](https://img.shields.io/badge/chat-on%20forums-blue)](https://discuss.opendistrocommunity.dev/c/performance-analyzer/)
 ![PRs welcome!](https://img.shields.io/badge/PRs-welcome!-success)
 
-<img src="https://opensearch.org/assets/brand/SVG/Logo/opensearch_logo_default.svg" height="64px"/>
+<img src="https://opensearch.org/assets/img/opensearch-logo-themed.svg" height="64px">
 
 <!-- TOC -->
 
