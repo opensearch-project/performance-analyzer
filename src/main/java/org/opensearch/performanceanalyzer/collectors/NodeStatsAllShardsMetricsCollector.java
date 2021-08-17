@@ -43,11 +43,13 @@ import org.opensearch.index.shard.ShardId;
 import org.opensearch.indices.IndicesService;
 import org.opensearch.indices.NodeIndicesStats;
 import org.opensearch.performanceanalyzer.OpenSearchResources;
+import org.opensearch.performanceanalyzer.PerformanceAnalyzerApp;
 import org.opensearch.performanceanalyzer.config.PerformanceAnalyzerController;
 import org.opensearch.performanceanalyzer.metrics.AllMetrics.ShardStatsValue;
 import org.opensearch.performanceanalyzer.metrics.MetricsConfiguration;
 import org.opensearch.performanceanalyzer.metrics.MetricsProcessor;
 import org.opensearch.performanceanalyzer.metrics.PerformanceAnalyzerMetrics;
+import org.opensearch.performanceanalyzer.rca.framework.metrics.ExceptionsAndErrors;
 import org.opensearch.performanceanalyzer.util.Utils;
 
 /**
@@ -199,7 +201,8 @@ public class NodeStatsAllShardsMetricsCollector extends PerformanceAnalyzerMetri
                     () -> ex.toString(),
                     () -> startTime,
                     () -> StatExceptionCode.NODESTATS_COLLECTION_ERROR.toString());
-            StatsCollector.instance().logException(StatExceptionCode.NODESTATS_COLLECTION_ERROR);
+            PerformanceAnalyzerApp.ERRORS_AND_EXCEPTIONS_AGGREGATOR.updateStat(
+                    ExceptionsAndErrors.NODESTATS_COLLECTION_ERROR, "", 1);
         }
     }
 

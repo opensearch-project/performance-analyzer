@@ -41,12 +41,14 @@ import org.opensearch.cluster.service.MasterService;
 import org.opensearch.cluster.service.SourcePrioritizedRunnable;
 import org.opensearch.common.util.concurrent.PrioritizedOpenSearchThreadPoolExecutor;
 import org.opensearch.performanceanalyzer.OpenSearchResources;
+import org.opensearch.performanceanalyzer.PerformanceAnalyzerApp;
 import org.opensearch.performanceanalyzer.metrics.AllMetrics.MasterMetricDimensions;
 import org.opensearch.performanceanalyzer.metrics.AllMetrics.MasterMetricValues;
 import org.opensearch.performanceanalyzer.metrics.MetricsConfiguration;
 import org.opensearch.performanceanalyzer.metrics.MetricsProcessor;
 import org.opensearch.performanceanalyzer.metrics.PerformanceAnalyzerMetrics;
 import org.opensearch.performanceanalyzer.metrics.ThreadIDUtil;
+import org.opensearch.performanceanalyzer.rca.framework.metrics.WriterMetrics;
 
 @SuppressWarnings("unchecked")
 public class MasterServiceEventMetrics extends PerformanceAnalyzerMetricsCollector
@@ -54,7 +56,6 @@ public class MasterServiceEventMetrics extends PerformanceAnalyzerMetricsCollect
     public static final int SAMPLING_TIME_INTERVAL =
             MetricsConfiguration.CONFIG_MAP.get(MasterServiceEventMetrics.class).samplingInterval;
     private static final Logger LOG = LogManager.getLogger(MasterServiceEventMetrics.class);
-    private static final String MASTER_NODE_NOT_UP_METRIC = "MasterNodeNotUp";
     private static final int KEYS_PATH_LENGTH = 3;
     private StringBuilder value;
     private static final int TPEXECUTOR_ADD_PENDING_PARAM_COUNT = 3;
@@ -169,7 +170,8 @@ public class MasterServiceEventMetrics extends PerformanceAnalyzerMetricsCollect
             }
             LOG.debug(() -> "Successfully collected Master Event Metrics.");
         } catch (Exception ex) {
-            StatsCollector.instance().logException(StatExceptionCode.MASTER_METRICS_ERROR);
+            PerformanceAnalyzerApp.WRITER_METRICS_AGGREGATOR.updateStat(
+                    WriterMetrics.MASTER_METRICS_ERROR, "", 1);
             LOG.debug(
                     "Exception in Collecting Master Metrics: {} for startTime {} with ExceptionCode: {}",
                     () -> ex.toString(),
@@ -251,7 +253,8 @@ public class MasterServiceEventMetrics extends PerformanceAnalyzerMetricsCollect
                                         getPrioritizedTPExecutorCurrentField()
                                                 .get(prioritizedOpenSearchThreadPoolExecutor);
                     } else {
-                        StatsCollector.instance().logMetric(MASTER_NODE_NOT_UP_METRIC);
+                        PerformanceAnalyzerApp.WRITER_METRICS_AGGREGATOR.updateStat(
+                                WriterMetrics.MASTER_NODE_NOT_UP, "", 1);
                     }
                 }
             }
