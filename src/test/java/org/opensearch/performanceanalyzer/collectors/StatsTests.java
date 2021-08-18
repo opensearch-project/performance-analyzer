@@ -65,13 +65,11 @@ public class StatsTests {
     private static final int REQUEST_REMOTE_ERRORS = Math.abs(RANDOM.nextInt() % MAX_COUNT);
     private static final int READER_PARSER_ERRORS = Math.abs(RANDOM.nextInt() % MAX_COUNT);
     private static final int READER_RESTART_PROCESSINGS = Math.abs(RANDOM.nextInt() % MAX_COUNT);
-    private static final int OTHERS = Math.abs(RANDOM.nextInt() % MAX_COUNT);
     private static final int TOTAL_ERRORS =
             MASTER_METRICS_ERRORS
                     + REQUEST_REMOTE_ERRORS
                     + READER_PARSER_ERRORS
-                    + READER_RESTART_PROCESSINGS
-                    + OTHERS;
+                    + READER_RESTART_PROCESSINGS;
     private static final AtomicInteger DEFAULT_VAL = new AtomicInteger(0);
     private static final int EXEC_COUNT = 20;
 
@@ -95,10 +93,6 @@ public class StatsTests {
 
         for (int i = 0; i < READER_RESTART_PROCESSINGS; i++) {
             exceptionCodeList.add(StatExceptionCode.READER_RESTART_PROCESSING);
-        }
-
-        for (int i = 0; i < OTHERS; i++) {
-            exceptionCodeList.add(null);
         }
 
         Collections.shuffle(exceptionCodeList);
@@ -143,11 +137,6 @@ public class StatsTests {
                                 StatExceptionCode.READER_RESTART_PROCESSING.toString(), DEFAULT_VAL)
                         .get(),
                 READER_RESTART_PROCESSINGS);
-        assertEquals(
-                sc.getCounters()
-                        .getOrDefault(StatExceptionCode.OTHER.toString(), DEFAULT_VAL)
-                        .get(),
-                OTHERS);
         assertEquals(
                 sc.getCounters()
                         .getOrDefault(StatExceptionCode.TOTAL_ERROR.toString(), DEFAULT_VAL)
@@ -195,8 +184,6 @@ public class StatsTests {
 
             if (exceptionCode != null) {
                 sc.logException(exceptionCode);
-            } else {
-                sc.logException();
             }
             count++;
         }

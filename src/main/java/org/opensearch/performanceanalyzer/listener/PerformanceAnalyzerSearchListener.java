@@ -30,14 +30,14 @@ package org.opensearch.performanceanalyzer.listener;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.opensearch.index.shard.SearchOperationListener;
-import org.opensearch.performanceanalyzer.collectors.StatExceptionCode;
-import org.opensearch.performanceanalyzer.collectors.StatsCollector;
+import org.opensearch.performanceanalyzer.PerformanceAnalyzerApp;
 import org.opensearch.performanceanalyzer.config.PerformanceAnalyzerController;
 import org.opensearch.performanceanalyzer.metrics.AllMetrics.CommonDimension;
 import org.opensearch.performanceanalyzer.metrics.AllMetrics.CommonMetric;
 import org.opensearch.performanceanalyzer.metrics.MetricsProcessor;
 import org.opensearch.performanceanalyzer.metrics.PerformanceAnalyzerMetrics;
 import org.opensearch.performanceanalyzer.metrics.ThreadIDUtil;
+import org.opensearch.performanceanalyzer.rca.framework.metrics.WriterMetrics;
 import org.opensearch.search.internal.SearchContext;
 
 public class PerformanceAnalyzerSearchListener
@@ -68,8 +68,8 @@ public class PerformanceAnalyzerSearchListener
             getSearchListener().preQueryPhase(searchContext);
         } catch (Exception ex) {
             LOG.error(ex);
-            StatsCollector.instance()
-                    .logException(StatExceptionCode.OPENSEARCH_REQUEST_INTERCEPTOR_ERROR);
+            PerformanceAnalyzerApp.WRITER_METRICS_AGGREGATOR.updateStat(
+                    WriterMetrics.OPENSEARCH_REQUEST_INTERCEPTOR_ERROR, "", 1);
         }
     }
 
@@ -79,8 +79,8 @@ public class PerformanceAnalyzerSearchListener
             getSearchListener().queryPhase(searchContext, tookInNanos);
         } catch (Exception ex) {
             LOG.error(ex);
-            StatsCollector.instance()
-                    .logException(StatExceptionCode.OPENSEARCH_REQUEST_INTERCEPTOR_ERROR);
+            PerformanceAnalyzerApp.WRITER_METRICS_AGGREGATOR.updateStat(
+                    WriterMetrics.OPENSEARCH_REQUEST_INTERCEPTOR_ERROR, "", 1);
         }
     }
 
@@ -90,8 +90,8 @@ public class PerformanceAnalyzerSearchListener
             getSearchListener().failedQueryPhase(searchContext);
         } catch (Exception ex) {
             LOG.error(ex);
-            StatsCollector.instance()
-                    .logException(StatExceptionCode.OPENSEARCH_REQUEST_INTERCEPTOR_ERROR);
+            PerformanceAnalyzerApp.WRITER_METRICS_AGGREGATOR.updateStat(
+                    WriterMetrics.OPENSEARCH_REQUEST_INTERCEPTOR_ERROR, "", 1);
         }
     }
 
@@ -101,8 +101,8 @@ public class PerformanceAnalyzerSearchListener
             getSearchListener().preFetchPhase(searchContext);
         } catch (Exception ex) {
             LOG.error(ex);
-            StatsCollector.instance()
-                    .logException(StatExceptionCode.OPENSEARCH_REQUEST_INTERCEPTOR_ERROR);
+            PerformanceAnalyzerApp.WRITER_METRICS_AGGREGATOR.updateStat(
+                    WriterMetrics.OPENSEARCH_REQUEST_INTERCEPTOR_ERROR, "", 1);
         }
     }
 
@@ -112,8 +112,8 @@ public class PerformanceAnalyzerSearchListener
             getSearchListener().fetchPhase(searchContext, tookInNanos);
         } catch (Exception ex) {
             LOG.error(ex);
-            StatsCollector.instance()
-                    .logException(StatExceptionCode.OPENSEARCH_REQUEST_INTERCEPTOR_ERROR);
+            PerformanceAnalyzerApp.WRITER_METRICS_AGGREGATOR.updateStat(
+                    WriterMetrics.OPENSEARCH_REQUEST_INTERCEPTOR_ERROR, "", 1);
         }
     }
 
@@ -123,8 +123,8 @@ public class PerformanceAnalyzerSearchListener
             getSearchListener().failedFetchPhase(searchContext);
         } catch (Exception ex) {
             LOG.error(ex);
-            StatsCollector.instance()
-                    .logException(StatExceptionCode.OPENSEARCH_REQUEST_INTERCEPTOR_ERROR);
+            PerformanceAnalyzerApp.WRITER_METRICS_AGGREGATOR.updateStat(
+                    WriterMetrics.OPENSEARCH_REQUEST_INTERCEPTOR_ERROR, "", 1);
         }
     }
 
