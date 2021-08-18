@@ -88,9 +88,6 @@ ext {
 
 spotless {
     java {
-        // only apply formatting rules to updated files
-        ratchetFrom "origin/${gitDefaultBranch}"
-
         licenseHeaderFile(file('license-header'))
         googleJavaFormat().aosp()
         importOrder()
