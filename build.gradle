@@ -71,14 +71,14 @@ ext {
     opensearchVersion = '1.0.0'
     isSnapshot = "true" == System.getProperty("build.snapshot", "true")
 
-    // Name of the default git branch. This is used for checking out the RCA repository
-    gitDefaultBranch = 'main'
+    // The RCA branch that will be built. Default value is main.
+    rcaProjectBranch = findProperty("performance-analyzer-rca.branch") ?: "main"
 
     // If true, then the build will clone the RCA Project into $rcaProjectDir
-    cloneRcaProject = "true" == System.getProperty("cloneRcaProject", "true")
+    cloneRcaProject = "true" == System.getProperty("performance-analyzer-rca.build", "true")
 
     // By default we will look for RCA in a peer directory
-    rcaProjectDir = findProperty("rcaProjectDir") ?: "../performance-analyzer-rca"
+    rcaProjectDir = findProperty("performance-analyzer-rca.path") ?: "../performance-analyzer-rca"
 }
 
 group = "org.opensearch"
@@ -317,7 +317,7 @@ static def propEnabled(property) {
 task cloneGitRepo(type: GitClone) {
     def destination = file(rcaProjectDir)
     uri = "https://github.com/opensearch-project/performance-analyzer-rca.git"
-    branch = gitDefaultBranch
+    branch = rcaProjectBranch
     destinationPath = destination
     bare = false
     enabled = cloneRcaProject && !destination.exists() // to clone only once
@@ -362,7 +362,7 @@ task unpackRca(type: Copy) {
     dependsOn(buildRca)
     from(zipTree("$rcaProjectDir/build/distributions/performance-analyzer-rca.zip")) {
     }
-    into "$rcaArtifactsDir/build/distributions"
+    into "$rcaProjectDir/build/distributions"
     rcaArtifactsDir = "$rcaProjectDir/build/distributions/performance-analyzer-rca/"
 
     doLast {
