@@ -348,12 +348,9 @@ task buildRca() {
             workingDir("$licenseDir")
             commandLine 'rm', "-f", "performanceanalyzer-rca-1.0.0.0.jar.sha1"
         }
-        exec {
-            workingDir("$projectDir")
-            commandLine './gradlew', 'updateShas'
-        }
     }
 }
+buildRca.finalizedBy updateShas
 
 // This value is set by the unpackRca task
 def rcaArtifactsDir
