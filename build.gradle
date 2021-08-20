@@ -346,7 +346,7 @@ task buildRca() {
         exec {
             def licenseDir = "$projectDir/licenses"
             workingDir("$licenseDir")
-            commandLine 'rm', "-f", "performanceanalyzer-rca-${project.version}.jar.sha1"
+            commandLine 'rm', "-f", "performanceanalyzer-rca-${version}.jar.sha1"
         }
     }
 }
@@ -461,7 +461,7 @@ afterEvaluate {
     ospackage {
         packageName = "opensearch-performance-analyzer"
         release = isSnapshot ? "0.1" : '1'
-        version = "${project.version}" - "-SNAPSHOT"
+        version = "${version}" - "-SNAPSHOT"
 
         into '/usr/share/opensearch/plugins'
         from(zipTree(bundlePlugin.archivePath)) {
