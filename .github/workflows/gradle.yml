@@ -31,10 +31,10 @@ jobs:
       with:
         repository: 'opensearch-project/OpenSearch'
         path: OpenSearch
-        ref: '1.0'
+        ref: '1.x'
     - name: Build OpenSearch
       working-directory: ./OpenSearch
-      run: ./gradlew publishToMavenLocal -Dbuild.snapshot=false
+      run: ./gradlew publishToMavenLocal -Dopensearch.version=1.1.0-SNAPSHOT
       # Explicitly set the docker-compose program path so that our build scripts in RCA can run the program
       # This is necessary because of the Github Actions environment and the workingDir of the Gradle environment
     - name: Set docker-compose path
@@ -44,7 +44,7 @@ jobs:
       run: sudo sysctl -w vm.max_map_count=262144
     - name: Build PA and run Unit Tests
       working-directory: ./tmp/pa
-      run: ./gradlew build -Dperformance-analyzer-rca.build=true -Dperformance-analyzer-rca.branch=main
+      run: ./gradlew build -Dperformance-analyzer-rca.build=true -Dperformance-analyzer-rca.branch=main -Dopensearch.version=1.1.0-SNAPSHOT
     - name: Generate Jacoco coverage report
       working-directory: ./tmp/pa
       run: ./gradlew jacocoTestReport
@@ -55,4 +55,4 @@ jobs:
       run: bash <(curl -s https://codecov.io/bash) -f ./build/reports/jacoco/test/jacocoTestReport.xml
     - name: Run Integration Tests
       working-directory: ./tmp/pa
-      run: ./gradlew integTest -Dtests.enableIT -Dtests.useDockerCluster
+      run: ./gradlew integTest -Dtests.enableIT -Dtests.useDockerCluster -Dopensearch.version=1.1.0-SNAPSHOT
