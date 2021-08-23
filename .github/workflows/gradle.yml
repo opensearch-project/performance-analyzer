@@ -44,8 +44,8 @@ jobs:
       working-directory: ./tmp/performance-analyzer
       run: |
         ./gradlew build -Dperformance-analyzer-rca.build=true \
-          -Dperformance-analyzer-rca.repo="https://github.com/dblock/performance-analyzer-rca.git" \
-          -Dperformance-analyzer-rca.branch=fix-snapshot-build \
+          -Dperformance-analyzer-rca.repo="https://github.com/opensearch-project/performance-analyzer-rca.git" \
+          -Dperformance-analyzer-rca.branch=main \
           -Dopensearch.version=1.1.0-SNAPSHOT
     - name: Generate Jacoco coverage report
       working-directory: ./tmp/performance-analyzer
