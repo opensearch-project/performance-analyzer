@@ -79,7 +79,6 @@ import org.opensearch.performanceanalyzer.collectors.HeapMetricsCollector;
 import org.opensearch.performanceanalyzer.collectors.MasterServiceEventMetrics;
 import org.opensearch.performanceanalyzer.collectors.MasterServiceMetrics;
 import org.opensearch.performanceanalyzer.collectors.MasterThrottlingMetricsCollector;
-import org.opensearch.performanceanalyzer.collectors.MetricsPurgeActivity;
 import org.opensearch.performanceanalyzer.collectors.NetworkInterfaceCollector;
 import org.opensearch.performanceanalyzer.collectors.NodeDetailsCollector;
 import org.opensearch.performanceanalyzer.collectors.NodeStatsAllShardsMetricsCollector;
@@ -222,8 +221,6 @@ public final class PerformanceAnalyzerPlugin extends Plugin
                 new CircuitBreakerCollector());
         scheduledMetricCollectorsExecutor.addScheduledMetricCollector(new OSMetricsCollector());
         scheduledMetricCollectorsExecutor.addScheduledMetricCollector(new HeapMetricsCollector());
-
-        scheduledMetricCollectorsExecutor.addScheduledMetricCollector(new MetricsPurgeActivity());
 
         scheduledMetricCollectorsExecutor.addScheduledMetricCollector(
                 new NodeDetailsCollector(configOverridesWrapper));
