@@ -68,7 +68,7 @@ spotbugsTest {
 }
 
 ext {
-    opensearchVersion = '1.0.1'
+    opensearchVersion = '1.0.0'
     isSnapshot = "true" == System.getProperty("build.snapshot", "true")
 
     // The RCA branch that will be built. Default value is main.
@@ -248,7 +248,7 @@ dependencies {
     compile 'org.apache.commons:commons-lang3:3.9'
     compile 'org.bouncycastle:bcprov-jdk15on:1.68'
     compile 'org.bouncycastle:bcpkix-jdk15on:1.68'
-    compile 'org.opensearch:performanceanalyzer-rca:1.0.1.0'
+    compile 'org.opensearch:performanceanalyzer-rca:1.0.0.0'
     compile "com.fasterxml.jackson.core:jackson-annotations:${jacksonVersion}"
     compile "com.fasterxml.jackson.core:jackson-databind:${jacksonVersion}"
     compile "com.fasterxml.jackson.module:jackson-module-paranamer:${jacksonVersion}"
@@ -346,7 +346,7 @@ task buildRca() {
         exec {
             def licenseDir = "$projectDir/licenses"
             workingDir("$licenseDir")
-            commandLine 'rm', "-f", "performanceanalyzer-rca-1.0.1.0.jar.sha1"
+            commandLine 'rm', "-f", "performanceanalyzer-rca-1.0.0.0.jar.sha1"
         }
     }
 }
