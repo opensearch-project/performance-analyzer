@@ -27,7 +27,7 @@
 buildscript {
 
     ext {
-        opensearch_version = System.getProperty("opensearch.version", "1.1.0-SNAPSHOT")
+        opensearch_version = System.getProperty("opensearch.version", "1.0.0-SNAPSHOT")
     }
 
     // Used to resolve build file dependencies
@@ -72,7 +72,7 @@ ext {
 
     // The RCA branch that will be built. Default branch is main.
     rcaProjectRepo = System.getProperty("performance-analyzer-rca.repo", "https://github.com/opensearch-project/performance-analyzer-rca.git")
-    rcaProjectBranch = System.getProperty("performance-analyzer-rca.branch", "main")
+    rcaProjectBranch = System.getProperty("performance-analyzer-rca.branch", "1.0.1")
 
     // If true, then the build will clone the RCA Project into $rcaProjectDir
     cloneRcaProject = "true" == System.getProperty("performance-analyzer-rca.build", "true")
@@ -82,7 +82,7 @@ ext {
 }
 
 group = "org.opensearch"
-version = opensearch_version - '-SNAPSHOT' + '.0'
+version = "1.0.1.0"
 if (isSnapshot) {
     version += "-SNAPSHOT"
 }
