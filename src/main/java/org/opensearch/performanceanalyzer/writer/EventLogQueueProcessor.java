@@ -192,7 +192,13 @@ public class EventLogQueueProcessor {
             // Delete Event log files belonging to time bucket older than past
             // filesCleanupPeriod(defaults to 60s)
             long currCleanupTimeBucket =
-                    PerformanceAnalyzerMetrics.getTimeInterval(System.currentTimeMillis());
+                    PerformanceAnalyzerMetrics.getTimeInterval(
+                            System.currentTimeMillis() - filesCleanupPeriodicityMillis);
+            // Inorder to prevent calling purging too frequently (where there is no or very less
+            // files),
+            // deletion is called only when range is greater then filesCleanupPeriod (defaults to 60
+            // sec)
+            // This is done to ensure that there is enough files for deletion.
             if (currCleanupTimeBucket - lastCleanupTimeBucket > filesCleanupPeriodicityMillis) {
                 // Get list of files(time buckets) for purging, considered range :
                 // [lastCleanupTimeBucket, currCleanupTimeBucket)
