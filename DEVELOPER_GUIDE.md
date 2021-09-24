@@ -28,7 +28,13 @@ To build from the command line, use `./gradlew`.
 ./gradlew clean
 ./gradlew build
 ./gradlew publishToMavenLocal
-```
+```    
+
+`./gradlew spotlessApply` formats code.
+`./gradlew paBwcCluster#mixedClusterTask -Dtests.security.manager=false` launches a cluster with three nodes of bwc version of OpenSearch with performance-analyzer and tests backwards compatibility by upgrading one of the nodes with the current version of OpenSearch with performance-analyzer creating a mixed cluster.
+`./gradlew paBwcCluster#rollingUpgradeClusterTask -Dtests.security.manager=false` launches a cluster with three nodes of bwc version of OpenSearch with performance-analyzer and tests backwards compatibility by performing rolling upgrade of each node with the current version of OpenSearch with performance-analyzer.
+`./gradlew paBwcCluster#fullRestartClusterTask -Dtests.security.manager=false` launches a cluster with three nodes of bwc version of OpenSearch with performance-analyzer and tests backwards compatibility by performing a full restart on the cluster upgrading all the nodes with the current version of OpenSearch with performance-analyzer.
+`./gradlew bwcTestSuite -Dtests.security.manager=false` runs all the above bwc tests combined.
 
 ### Using IntelliJ IDEA
 

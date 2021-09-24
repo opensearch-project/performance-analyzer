@@ -52,7 +52,7 @@ public class PerformanceAnalyzerRCAHealthCheckIT extends PerformanceAnalyzerInte
     }
 
     public void checkMetrics(String paBaseUri) throws Exception {
-        ensurePaAndRcaEnabled();
+        ensurePaAndRcaEnabled(paBaseUri);
         final String[] jsonString = new String[1];
         WaitFor.waitFor(
                 () -> {
@@ -104,7 +104,7 @@ public class PerformanceAnalyzerRCAHealthCheckIT extends PerformanceAnalyzerInte
     }
 
     public void testRcaIsRunning(String paBaseUri) throws Exception {
-        ensurePaAndRcaEnabled();
+        ensurePaAndRcaEnabled(paBaseUri);
         WaitFor.waitFor(
                 () -> {
                     Request request = new Request("GET", paBaseUri + "/rca");
