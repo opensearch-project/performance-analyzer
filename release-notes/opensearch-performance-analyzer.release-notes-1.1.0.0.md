@@ -29,6 +29,7 @@ Compatible with OpenSearch 1.1.0
 * Fix snapshot build, upgrade to OpenSearch 1.1 ([#55](https://github.com/opensearch-project/performance-analyzer-rca/pull/55))
 * Add workflow for gauntlet tests and fix spotbug errors ([#63](https://github.com/opensearch-project/performance-analyzer-rca/pull/63))
 * Update version and add release notes for 1.1.0.0 release ([#68](https://github.com/opensearch-project/performance-analyzer/pull/68))
+* Switch opensearch from 1.x to 1.1 ([#66](https://github.com/opensearch-project/performance-analyzer/pull/66))
 
 ### Documentation
 
