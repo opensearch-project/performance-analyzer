@@ -27,7 +27,7 @@
 buildscript {
 
     ext {
-        opensearch_version = System.getProperty("opensearch.version", "1.1.0-SNAPSHOT")
+        opensearch_version = System.getProperty("opensearch.version", "1.2.0-SNAPSHOT")
     }
 
     // Used to resolve build file dependencies
@@ -36,6 +36,7 @@ buildscript {
         mavenLocal()
         maven { url "https://plugins.gradle.org/m2/" }
         jcenter()
+        maven { url "https://aws.oss.sonatype.org/content/repositories/snapshots" }
     }
 
     dependencies {
@@ -154,6 +155,7 @@ repositories {
     mavenLocal()
     maven { url "https://plugins.gradle.org/m2/" }
     jcenter()
+    maven { url "https://aws.oss.sonatype.org/content/repositories/snapshots" }
 }
 
 configurations {
