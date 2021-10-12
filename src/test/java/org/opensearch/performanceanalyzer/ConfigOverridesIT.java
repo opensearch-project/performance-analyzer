@@ -67,7 +67,7 @@ public class ConfigOverridesIT extends PerformanceAnalyzerIntegTestBase {
     }
 
     public void testSimpleOverride(String configOverridesEndpoint) throws Exception {
-        ensurePaAndRcaEnabled();
+        ensurePaAndRcaEnabled(configOverridesEndpoint);
         final ConfigOverrides overrides =
                 getOverrides(
                         Arrays.asList(HOT_SHARD_RCA, HOT_NODE_CLUSTER_RCA),
@@ -115,7 +115,7 @@ public class ConfigOverridesIT extends PerformanceAnalyzerIntegTestBase {
     }
 
     public void testCompositeOverrides(String configOverridesEndpoint) throws Exception {
-        ensurePaAndRcaEnabled();
+        ensurePaAndRcaEnabled(configOverridesEndpoint);
 
         final ConfigOverrides initialOverrides =
                 getOverrides(

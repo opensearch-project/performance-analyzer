@@ -63,7 +63,6 @@ import org.opensearch.common.unit.TimeValue;
 import org.opensearch.common.util.concurrent.ThreadContext;
 import org.opensearch.performanceanalyzer.config.setting.PerformanceAnalyzerClusterSettings;
 import org.opensearch.performanceanalyzer.config.setting.handler.PerformanceAnalyzerClusterSettingHandler;
-import org.opensearch.performanceanalyzer.http_action.config.RestConfig;
 import org.opensearch.performanceanalyzer.util.WaitFor;
 import org.opensearch.test.rest.OpenSearchRestTestCase;
 
@@ -213,26 +212,31 @@ public abstract class PerformanceAnalyzerIntegTestBase extends OpenSearchRestTes
     }
 
     /**
-     * enableComponent enables PA or RCA on the test cluster
+     * modifyComponent enables/disables PA or RCA on the test cluster
      *
      * @param component Either PA or RCA
      * @return The cluster's {@link Response}
      */
-    public Response enableComponent(Component component) throws Exception {
+    public Response modifyComponent(String base_uri, Component component, boolean enabled)
+            throws Exception {
         String endpoint;
         switch (component) {
             case PA:
-                endpoint = RestConfig.PA_BASE_URI + "/cluster/config";
+                endpoint = base_uri + "/cluster/config";
                 break;
             case RCA:
-                endpoint = RestConfig.PA_BASE_URI + "/rca/cluster/config";
+                endpoint = base_uri + "/rca/cluster/config";
                 break;
             default:
                 throw new IllegalArgumentException(
                         "Unrecognized component value " + component.toString());
         }
         Request request = new Request("POST", endpoint);
-        request.setJsonEntity("{\"enabled\": true}");
+        if (enabled) {
+            request.setJsonEntity("{\"enabled\": true}");
+        } else {
+            request.setJsonEntity("{\"enabled\": false}");
+        }
         return client().performRequest(request);
     }
 
@@ -241,13 +245,13 @@ public abstract class PerformanceAnalyzerIntegTestBase extends OpenSearchRestTes
      *
      * @throws Exception If the function is unable to enable PA and RCA
      */
-    public void ensurePaAndRcaEnabled() throws Exception {
+    public void ensurePaAndRcaEnabled(String base_uri) throws Exception {
         // Attempt to enable PA and RCA on the cluster
         WaitFor.waitFor(
                 () -> {
                     try {
-                        Response paResp = enableComponent(Component.PA);
-                        Response rcaResp = enableComponent(Component.RCA);
+                        Response paResp = modifyComponent(base_uri, Component.PA, true);
+                        Response rcaResp = modifyComponent(base_uri, Component.RCA, true);
                         return paResp.getStatusLine().getStatusCode() == HttpStatus.SC_OK
                                 && rcaResp.getStatusLine().getStatusCode() == HttpStatus.SC_OK;
                     } catch (Exception e) {
@@ -258,9 +262,8 @@ public abstract class PerformanceAnalyzerIntegTestBase extends OpenSearchRestTes
                 TimeUnit.MINUTES);
 
         // Sanity check that PA and RCA are enabled on the cluster
-        Response resp =
-                client().performRequest(
-                                new Request("GET", RestConfig.PA_BASE_URI + "/cluster/config"));
+        Response resp = client().performRequest(new Request("GET", base_uri + "/cluster/config"));
+        Assert.assertEquals(resp.getStatusLine().getStatusCode(), HttpStatus.SC_OK);
         Map<String, Object> respMap =
                 mapper.readValue(
                         EntityUtils.toString(resp.getEntity(), "UTF-8"),
@@ -278,6 +281,51 @@ public abstract class PerformanceAnalyzerIntegTestBase extends OpenSearchRestTes
                                 PerformanceAnalyzerClusterSettings.PerformanceAnalyzerFeatureBits
                                         .RCA_BIT
                                         .ordinal()));
+    }
+
+    /**
+     * ensurePAStatus makes a best effort to enable/disable PA the test OpenSearch cluster
+     *
+     * @throws Exception If the function is unable to enable PA
+     */
+    public void ensurePAStatus(String base_uri, boolean enabled) throws Exception {
+        // Attempt to enable PA and RCA on the cluster
+        WaitFor.waitFor(
+                () -> {
+                    try {
+                        Response paResp = modifyComponent(base_uri, Component.PA, enabled);
+                        return paResp.getStatusLine().getStatusCode() == HttpStatus.SC_OK;
+                    } catch (Exception e) {
+                        return false;
+                    }
+                },
+                1,
+                TimeUnit.MINUTES);
+        // Wait for cluster to propagate PA state across nodes
+        Thread.sleep(2_000);
+        checkPAEnabled(base_uri, enabled);
+    }
+
+    /**
+     * checkPAEnabled makes a best effort to check if PA is enabled on the test OpenSearch cluster
+     *
+     * @throws Exception If the cluster is unable to enable PA
+     */
+    public void checkPAEnabled(String base_uri, boolean enabled) throws Exception {
+        // Sanity check that PA is enabled on the cluster
+        Response resp = client().performRequest(new Request("GET", base_uri + "/cluster/config"));
+        Assert.assertEquals(resp.getStatusLine().getStatusCode(), HttpStatus.SC_OK);
+        Map<String, Object> respMap =
+                mapper.readValue(
+                        EntityUtils.toString(resp.getEntity(), "UTF-8"),
+                        new TypeReference<Map<String, Object>>() {});
+        Integer state = (Integer) respMap.get("currentPerformanceAnalyzerClusterState");
+        Assert.assertEquals(
+                enabled,
+                PerformanceAnalyzerClusterSettingHandler.checkBit(
+                        state,
+                        PerformanceAnalyzerClusterSettings.PerformanceAnalyzerFeatureBits.PA_BIT
+                                .ordinal()));
     }
 
     @After
