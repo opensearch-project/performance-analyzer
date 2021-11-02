@@ -58,16 +58,18 @@ public class ConfigOverridesIT extends PerformanceAnalyzerIntegTestBase {
 
     @Test
     public void testSimpleOverride() throws Exception {
-        testSimpleOverride(CONFIG_OVERRIDES_ENDPOINT);
+        testSimpleOverride(RestConfig.PA_BASE_URI, CONFIG_OVERRIDES_ENDPOINT);
     }
 
     @Test
     public void testLegacySimpleOverride() throws Exception {
-        testSimpleOverride(LEGACY_OPENDISTRO_CONFIG_OVERRIDES_ENDPOINT);
+        testSimpleOverride(
+                RestConfig.LEGACY_PA_BASE_URI, LEGACY_OPENDISTRO_CONFIG_OVERRIDES_ENDPOINT);
     }
 
-    public void testSimpleOverride(String configOverridesEndpoint) throws Exception {
-        ensurePaAndRcaEnabled(configOverridesEndpoint);
+    public void testSimpleOverride(String paBaseUri, String configOverridesEndpoint)
+            throws Exception {
+        ensurePaAndRcaEnabled(paBaseUri);
         final ConfigOverrides overrides =
                 getOverrides(
                         Arrays.asList(HOT_SHARD_RCA, HOT_NODE_CLUSTER_RCA),
@@ -106,16 +108,18 @@ public class ConfigOverridesIT extends PerformanceAnalyzerIntegTestBase {
 
     @Test
     public void testCompositeOverrides() throws Exception {
-        testCompositeOverrides(CONFIG_OVERRIDES_ENDPOINT);
+        testCompositeOverrides(RestConfig.PA_BASE_URI, CONFIG_OVERRIDES_ENDPOINT);
     }
 
     @Test
     public void testLegacyCompositeOverrides() throws Exception {
-        testCompositeOverrides(LEGACY_OPENDISTRO_CONFIG_OVERRIDES_ENDPOINT);
+        testCompositeOverrides(
+                RestConfig.LEGACY_PA_BASE_URI, LEGACY_OPENDISTRO_CONFIG_OVERRIDES_ENDPOINT);
     }
 
-    public void testCompositeOverrides(String configOverridesEndpoint) throws Exception {
-        ensurePaAndRcaEnabled(configOverridesEndpoint);
+    public void testCompositeOverrides(String paBaseUri, String configOverridesEndpoint)
+            throws Exception {
+        ensurePaAndRcaEnabled(paBaseUri);
 
         final ConfigOverrides initialOverrides =
                 getOverrides(
