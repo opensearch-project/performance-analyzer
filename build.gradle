@@ -346,11 +346,11 @@ task buildRca() {
     doLast {
         exec {
             workingDir("$rcaProjectDir")
-            commandLine './gradlew', 'build', '-x', 'test', "-Dopensearch.version=${opensearch_version}"
+            commandLine './gradlew', 'build', '-x', 'test', "-Dopensearch.version=${opensearch_version}", "-Dbuild.snapshot=${isSnapshot}"
         }
         exec {
             workingDir("$rcaProjectDir")
-            commandLine './gradlew', 'publishToMavenLocal', "-Dopensearch.version=${opensearch_version}"
+            commandLine './gradlew', 'publishToMavenLocal', "-Dopensearch.version=${opensearch_version}", "-Dbuild.snapshot=${isSnapshot}"
         }
         exec {
             def licenseDir = "$projectDir/licenses"
@@ -511,7 +511,7 @@ List<Provider<RegularFile>> plugins = [
         })
 ]
 
-// Creates 2 test clusters with 3 nodes of the old version. 
+// Creates 2 test clusters with 3 nodes of the old version.
 2.times {i ->
     task "${baseName}#oldVersionClusterTask$i"(type: StandaloneRestIntegTestTask) {
         useCluster testClusters."${baseName}$i"
@@ -526,7 +526,7 @@ List<Provider<RegularFile>> plugins = [
     }
 }
 
-// Upgrades one node of the old cluster to new OpenSearch version with upgraded plugin version 
+// Upgrades one node of the old cluster to new OpenSearch version with upgraded plugin version
 // This results in a mixed cluster with 2 nodes on the old version and 1 upgraded node.
 // This is also used as a one third upgraded cluster for a rolling upgrade.
 task "${baseName}#mixedClusterTask"(type: StandaloneRestIntegTestTask) {
@@ -584,7 +584,7 @@ task "${baseName}#rollingUpgradeClusterTask"(type: StandaloneRestIntegTestTask) 
     nonInputProperties.systemProperty('tests.clustername', "${-> testClusters."${baseName}0".getName()}")
 }
 
-// Upgrades all the nodes of the old cluster to new OpenSearch version with upgraded plugin version 
+// Upgrades all the nodes of the old cluster to new OpenSearch version with upgraded plugin version
 // at the same time resulting in a fully upgraded cluster.
 task "${baseName}#fullRestartClusterTask"(type: StandaloneRestIntegTestTask) {
     dependsOn "${baseName}#oldVersionClusterTask1"
