@@ -83,10 +83,12 @@ ext {
     rcaProjectDir = System.getProperty("performance-analyzer-rca.path", "../performance-analyzer-rca")
 }
 
-group = "org.opensearch"
-version = opensearch_version - '-SNAPSHOT' + '.0'
-if (isSnapshot) {
-    version += "-SNAPSHOT"
+allprojects {
+    group = "org.opensearch"
+    version = opensearch_version - '-SNAPSHOT' + '.0'
+    if (isSnapshot) {
+        version += "-SNAPSHOT"
+    }
 }
 
 apply plugin: 'opensearch.opensearchplugin'
@@ -397,10 +399,6 @@ bundlePlugin {
         include "performance-analyzer-agent-cli"
         into "bin"
     }
-    from("packaging") {
-        include "deb/**", "rpm/**"
-        into "install"
-    }
     from('build/resources/main/') {
         include "plugin-security.policy"
     }
@@ -615,7 +613,7 @@ afterEvaluate {
     ospackage {
         packageName = "opensearch-performance-analyzer"
         release = isSnapshot ? "0.1" : '1'
-        version = "${version}" - "-SNAPSHOT"
+        version = "${project.version}" - "-SNAPSHOT"
 
         into '/usr/share/opensearch/plugins'
         from(zipTree(bundlePlugin.archivePath)) {
@@ -639,7 +637,7 @@ afterEvaluate {
         fileMode 0644
         dirMode 0755
 
-        requires('opensearch', versions.opensearch, EQUAL)
+        requires('opensearch-oss', versions.opensearch, EQUAL)
         packager = 'Amazon'
         vendor = 'Amazon'
         os = 'LINUX'
