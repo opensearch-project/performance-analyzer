@@ -7,7 +7,7 @@ if [ -z "$OPENSEARCH_HOME" ]; then
 fi
 
 # Prepare the RCA reader process for execution
-cp -r "$OPENSEARCH_HOME"/plugins/opensearch-performance-analyzer/performance-analyzer-rca $OPENSEARCH_HOME
+mv "$OPENSEARCH_HOME"/plugins/opensearch-performance-analyzer/performance-analyzer-rca $OPENSEARCH_HOME
 if [ -f "$OPENSEARCH_HOME"/bin/opensearch-performance-analyzer/performance-analyzer-agent-cli ]; then
   mv "$OPENSEARCH_HOME"/bin/opensearch-performance-analyzer/performance-analyzer-agent-cli "$OPENSEARCH_HOME"/bin
   rm -rf "$OPENSEARCH_HOME"/bin/opensearch-performance-analyzer
