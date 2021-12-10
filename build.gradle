@@ -27,7 +27,7 @@
 buildscript {
 
     ext {
-        opensearch_version = System.getProperty("opensearch.version", "1.2.0-SNAPSHOT")
+        opensearch_version = System.getProperty("opensearch.version", "1.2.1-SNAPSHOT")
     }
 
     // Used to resolve build file dependencies
@@ -476,7 +476,7 @@ String bwcFilePath = "src/test/resources/org/opensearch/performanceanalyzer/bwc/
     testClusters {
         "${baseName}$i" {
             testDistribution = "ARCHIVE"
-            versions = ["7.10.2","1.2.0-SNAPSHOT"]
+            versions = ["7.10.2","1.2.1-SNAPSHOT"]
             numberOfNodes = 3
             plugin(provider(new Callable<RegularFile>(){
                 @Override
