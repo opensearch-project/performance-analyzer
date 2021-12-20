@@ -27,7 +27,7 @@
 buildscript {
 
     ext {
-        opensearch_version = System.getProperty("opensearch.version", "1.2.2-SNAPSHOT")
+        opensearch_version = System.getProperty("opensearch.version", "1.2.3-SNAPSHOT")
     }
 
     // Used to resolve build file dependencies
@@ -259,10 +259,10 @@ dependencies {
     compile "com.fasterxml.jackson.core:jackson-annotations:${jacksonVersion}"
     compile "com.fasterxml.jackson.core:jackson-databind:${jacksonVersion}"
     compile "com.fasterxml.jackson.module:jackson-module-paranamer:${jacksonVersion}"
-    compile(group: 'org.apache.logging.log4j', name: 'log4j-api', version: '2.16.0') {
+    compile(group: 'org.apache.logging.log4j', name: 'log4j-api', version: '2.17.0') {
         force = 'true'
     }
-    compile(group: 'org.apache.logging.log4j', name: 'log4j-core', version: '2.16.0') {
+    compile(group: 'org.apache.logging.log4j', name: 'log4j-core', version: '2.17.0') {
         force = 'true'
     }
 
@@ -476,7 +476,7 @@ String bwcFilePath = "src/test/resources/org/opensearch/performanceanalyzer/bwc/
     testClusters {
         "${baseName}$i" {
             testDistribution = "ARCHIVE"
-            versions = ["7.10.2","1.2.2-SNAPSHOT"]
+            versions = ["7.10.2","1.2.3-SNAPSHOT"]
             numberOfNodes = 3
             plugin(provider(new Callable<RegularFile>(){
                 @Override
