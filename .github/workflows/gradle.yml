@@ -35,13 +35,13 @@ jobs:
         ./gradlew build -Dperformance-analyzer-rca.build=true \
           -Dperformance-analyzer-rca.repo="https://github.com/opensearch-project/performance-analyzer-rca.git" \
           -Dperformance-analyzer-rca.branch=1.2 \
-          -Dopensearch.version=1.2.3-SNAPSHOT
+          -Dopensearch.version=1.2.4-SNAPSHOT
     - name: Assemble PA jar for BWC tests
       working-directory: ./tmp/performance-analyzer
       run: |
-        ./gradlew assemble -Dopensearch.version=1.2.3-SNAPSHOT
-        mkdir -p ./src/test/resources/org/opensearch/performanceanalyzer/bwc/1.2.3.0-SNAPSHOT
-        cp ./build/distributions/*.zip ./src/test/resources/org/opensearch/performanceanalyzer/bwc/1.2.3.0-SNAPSHOT
+        ./gradlew assemble -Dopensearch.version=1.2.4-SNAPSHOT
+        mkdir -p ./src/test/resources/org/opensearch/performanceanalyzer/bwc/1.2.4.0-SNAPSHOT
+        cp ./build/distributions/*.zip ./src/test/resources/org/opensearch/performanceanalyzer/bwc/1.2.4.0-SNAPSHOT
     - name: Generate Jacoco coverage report
       working-directory: ./tmp/performance-analyzer
       run: ./gradlew jacocoTestReport
@@ -52,7 +52,7 @@ jobs:
       run: bash <(curl -s https://codecov.io/bash) -f ./build/reports/jacoco/test/jacocoTestReport.xml
     - name: Run Integration Tests
       working-directory: ./tmp/performance-analyzer
-      run: ./gradlew integTest -Dtests.enableIT -Dtests.useDockerCluster -Dopensearch.version=1.2.3-SNAPSHOT
+      run: ./gradlew integTest -Dtests.enableIT -Dtests.useDockerCluster -Dopensearch.version=1.2.4-SNAPSHOT
     - name: Run PerformanceAnalzyer Backwards Compatibility Tests
       working-directory: ./tmp/performance-analyzer
       run: ./gradlew bwcTestSuite -Dtests.security.manager=false
