@@ -7,5 +7,5 @@ PA_AGENT_JAVA_OPTS="-Dlog4j.configurationFile=$OPENSEARCH_HOME/plugins/opensearc
 OPENSEARCH_MAIN_CLASS="org.opensearch.performanceanalyzer.PerformanceAnalyzerApp" \
 OPENSEARCH_ADDITIONAL_CLASSPATH_DIRECTORIES=performance-analyzer-rca/lib \
 OPENSEARCH_JAVA_OPTS=$PA_AGENT_JAVA_OPTS \
- $OPENSEARCH_HOME/bin/opensearch-cli \
+ exec $OPENSEARCH_HOME/bin/opensearch-cli \
    "$@"
