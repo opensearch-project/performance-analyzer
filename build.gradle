@@ -248,29 +248,26 @@ dependencies {
         }
     }
 
-    compile ('com.google.guava:guava:30.1-jre') {
+    compile('com.google.guava:guava:30.1-jre') {
         force = 'true'
     }
     compile 'org.jooq:jooq:3.10.8'
     compile 'org.apache.commons:commons-lang3:3.9'
-    compile 'org.bouncycastle:bcprov-jdk15on:1.68'
-    compile 'org.bouncycastle:bcpkix-jdk15on:1.68'
+    compile 'org.bouncycastle:bcprov-jdk15on:1.70'
+    compile 'org.bouncycastle:bcpkix-jdk15on:1.70'
     compile "org.opensearch:performanceanalyzer-rca:${version}"
     compile "com.fasterxml.jackson.core:jackson-annotations:${jacksonVersion}"
     compile "com.fasterxml.jackson.core:jackson-databind:${jacksonVersion}"
     compile "com.fasterxml.jackson.module:jackson-module-paranamer:${jacksonVersion}"
-    compile(group: 'org.apache.logging.log4j', name: 'log4j-api', version: '2.17.1') {
-        force = 'true'
-    }
-    compile(group: 'org.apache.logging.log4j', name: 'log4j-core', version: '2.17.1') {
-        force = 'true'
-    }
+    compile(group: 'org.apache.logging.log4j', name: 'log4j-api', version: '2.17.1')
+    compile(group: 'org.apache.logging.log4j', name: 'log4j-core', version: '2.17.1')
     compile(group: 'com.google.errorprone', name: 'error_prone_annotations', version: '2.9.0') {
         force = 'true'
     }
-    compile (group: 'com.google.protobuf', name:'protobuf-java', version: '3.18.2') {
+    compile(group: 'com.google.protobuf', name:'protobuf-java', version: '3.19.2') {
         force = 'true'
     }
+
     // JDK9+ has to run powermock 2+. https://github.com/powermock/powermock/issues/888
     testCompile group: 'org.powermock', name: 'powermock-api-mockito2', version: '2.0.0'
     testCompile(group: 'org.powermock', name: 'powermock-module-junit4', version: '2.0.0') {
@@ -298,7 +295,7 @@ dependencies {
     testCompile(group: 'org.objenesis', name: 'objenesis', version: '3.0.1') {
         force = 'true'
     }
-    testCompile group: 'com.google.code.gson', name: 'gson', version: '2.8.6'
+    testCompile group: 'com.google.code.gson', name: 'gson', version: '2.8.9'
 }
 
 dependencyLicenses {
