@@ -228,7 +228,7 @@ dependencies {
         compile files("${System.properties['java.home']}/../lib/tools.jar")
     }
 
-    def jacksonVersion = "2.11.4"
+    def jacksonVersion = "2.12.6"
 
     configurations {
         // jarHell reports class name conflicts between securemock and mockito-core
