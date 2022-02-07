@@ -14,19 +14,15 @@ else
   OPENSEARCH_HOME=$1
 fi
 
-if [ -z "$2" ]; then
-  # Check if OPENSEARCH_JAVA_HOME is present
-  if [ -z "$OPENSEARCH_JAVA_HOME" ]; then
-      # If OPENSEARCH_JAVA_HOME is not present, check JAVA_HOME next
-      if [ -z "$JAVA_HOME" ]; then
-        echo "OPENSEARCH_JAVA_HOME / JAVA_HOME needs to be set or passed in as the second parameter."
-        exit 1
-      fi
-  else
-    JAVA_HOME=$OPENSEARCH_JAVA_HOME
-  fi
-else
+if [ ! -z "$2" ]; then
   JAVA_HOME=$2
+elif [ ! -z "$OPENSEARCH_JAVA_HOME" ]; then
+  # Use OPENSEARCH_JAVA_HOME if present
+  JAVA_HOME=$OPENSEARCH_JAVA_HOME
+elif [ -z "JAVA_HOME" ]; then
+  # Nor OPENSEARCH_JAVA_HOME nor JAVA_HOME is present, failing 
+  echo "OPENSEARCH_JAVA_HOME / JAVA_HOME needs to be set or passed in as the second parameter."
+  exit 1
 fi
 
 echo "Using JAVA_HOME: $JAVA_HOME"
