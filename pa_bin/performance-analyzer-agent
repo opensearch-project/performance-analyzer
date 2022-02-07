@@ -15,13 +15,22 @@ else
 fi
 
 if [ -z "$2" ]; then
-  if [ -z "$JAVA_HOME" ]; then
-    echo "JAVA_HOME needs to be set or passed in as the second parameter."
-    exit 1
+  # Check if OPENSEARCH_JAVA_HOME is present
+  if [ -z "$OPENSEARCH_JAVA_HOME" ]; then
+      # If OPENSEARCH_JAVA_HOME is not present, check JAVA_HOME next
+      if [ -z "$JAVA_HOME" ]; then
+        echo "OPENSEARCH_JAVA_HOME / JAVA_HOME needs to be set or passed in as the second parameter."
+        exit 1
+      fi
+  else
+    JAVA_HOME=$OPENSEARCH_JAVA_HOME
   fi
 else
   JAVA_HOME=$2
 fi
+
+echo "Using JAVA_HOME: $JAVA_HOME"
+export JAVA_HOME=$JAVA_HOME
 
 # Instead of the supervisor executing performance-analyzer-agent from the plugin location,
 # we should move this to the reader. The entry-point script should be executing
