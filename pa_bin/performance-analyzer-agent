@@ -19,7 +19,7 @@ if [ ! -z "$2" ]; then
 elif [ ! -z "$OPENSEARCH_JAVA_HOME" ]; then
   # Use OPENSEARCH_JAVA_HOME if present
   JAVA_HOME=$OPENSEARCH_JAVA_HOME
-elif [ -z "JAVA_HOME" ]; then
+elif [ -z "$JAVA_HOME" ]; then
   # Nor OPENSEARCH_JAVA_HOME nor JAVA_HOME is present, failing 
   echo "OPENSEARCH_JAVA_HOME / JAVA_HOME needs to be set or passed in as the second parameter."
   exit 1
