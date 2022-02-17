@@ -227,6 +227,7 @@ dependencies {
     }
 
     def jacksonVersion = "2.12.6"
+    def nettyVersion = "4.1.73.Final"
 
     configurations {
         // jarHell reports class name conflicts between securemock and mockito-core
@@ -265,6 +266,37 @@ dependencies {
     compile(group: 'com.google.protobuf', name:'protobuf-java', version: '3.19.2') {
         force = 'true'
     }
+    compile("io.netty:netty-buffer:${nettyVersion}") {
+        force = 'true'
+    }
+    compile("io.netty:netty-codec:${nettyVersion}") {
+        force = 'true'
+    }
+    compile("io.netty:netty-codec-http:${nettyVersion}") {
+        force = 'true'
+    }
+    compile("io.netty:netty-common:${nettyVersion}") {
+        force = 'true'
+    }
+    compile("io.netty:netty-handler:${nettyVersion}") {
+        force = 'true'
+    }
+    compile("io.netty:netty-resolver:${nettyVersion}") {
+        force = 'true'
+    }
+    compile("io.netty:netty-transport:${nettyVersion}") {
+        force = 'true'
+    }
+    compile("io.netty:netty-codec-http2:${nettyVersion}") {
+        force = 'true'
+    }
+    compile("io.netty:netty-codec-socks:${nettyVersion}") {
+        force = 'true'
+    }
+    compile("io.netty:netty-handler-proxy:${nettyVersion}") {
+        force = 'true'
+    }
+
 
     // JDK9+ has to run powermock 2+. https://github.com/powermock/powermock/issues/888
     testCompile group: 'org.powermock', name: 'powermock-api-mockito2', version: '2.0.0'
