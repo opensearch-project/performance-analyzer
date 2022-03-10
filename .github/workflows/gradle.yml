@@ -34,7 +34,7 @@ jobs:
       run: |
         ./gradlew build -Dperformance-analyzer-rca.build=true \
           -Dperformance-analyzer-rca.repo="https://github.com/opensearch-project/performance-analyzer-rca.git" \
-          -Dperformance-analyzer-rca.branch=main \
+          -Dperformance-analyzer-rca.branch=1.3 \
           -Dopensearch.version=1.3.0-SNAPSHOT
     - name: Assemble PA jar for BWC tests
       working-directory: ./tmp/performance-analyzer
