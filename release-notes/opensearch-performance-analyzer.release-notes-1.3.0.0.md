@@ -10,7 +10,7 @@ Compatible with OpenSearch 1.3.0
 
 ### Bug fixes
 
-* Fix and lock link checker at lycheeverse/lychee-action@v1.2.0. ([#113](https://github.com/opensearch-project/performance-analyzer/pull/113))
+* Fix and lock link checker at lycheeverse/lychee-action ([#113](https://github.com/opensearch-project/performance-analyzer/pull/113))
 * Upgrade plugin to 1.3.0 and log4j to 2.17.1 ([#118](https://github.com/opensearch-project/performance-analyzer/pull/118))
 * Don't run opensearch-cli in a child process ([#126](https://github.com/opensearch-project/performance-analyzer/pull/126))
 * Modify grpc-netty-shaded to grpc-netty ([#129](https://github.com/opensearch-project/performance-analyzer-rca/pull/129))
