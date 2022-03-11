@@ -10,13 +10,19 @@ on:
 
 jobs:
   build_pa_pkg:
+    strategy:
+      matrix:
+        java:
+          - 8
+          - 11
+          - 14
     runs-on: [ubuntu-latest]
     name: Building PA package
     steps:
     - name: Set up JDK
       uses: actions/setup-java@v1
       with:
-        java-version: 14
+        java-version: ${{matrix.java}}
     # Performance Analyzer in ./tmp/performance-analyzer
     - name: Checkout Performance Analyzer package
       uses: actions/checkout@v2
