@@ -35,6 +35,7 @@ To build from the command line, use `./gradlew`.
 `./gradlew paBwcCluster#rollingUpgradeClusterTask -Dtests.security.manager=false` launches a cluster with three nodes of bwc version of OpenSearch with performance-analyzer and tests backwards compatibility by performing rolling upgrade of each node with the current version of OpenSearch with performance-analyzer.
 `./gradlew paBwcCluster#fullRestartClusterTask -Dtests.security.manager=false` launches a cluster with three nodes of bwc version of OpenSearch with performance-analyzer and tests backwards compatibility by performing a full restart on the cluster upgrading all the nodes with the current version of OpenSearch with performance-analyzer.
 `./gradlew bwcTestSuite -Dtests.security.manager=false` runs all the above bwc tests combined.
+`./gradlew integTestRemote -Dtests.enableIT -Dtests.useDockerCluster -Dtests.rest.cluster=localhost:9200 -Dtests.cluster=localhost:9200 -Dtests.clustername="docker-cluster" -Dhttps=true -Duser=admin -Dpassword=admin` launches integration tests against a local cluster and run tests with security
 
 ### Using IntelliJ IDEA
 
