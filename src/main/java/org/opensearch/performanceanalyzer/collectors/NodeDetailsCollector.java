@@ -37,9 +37,14 @@ public class NodeDetailsCollector extends PerformanceAnalyzerMetricsCollector
 
     @Override
     public void collectMetrics(long startTime) {
-        if (OpenSearchResources.INSTANCE.getClusterService() == null
-                || OpenSearchResources.INSTANCE.getClusterService().state() == null
-                || OpenSearchResources.INSTANCE.getClusterService().state().nodes() == null) {
+        try {
+            if (OpenSearchResources.INSTANCE.getClusterService() == null
+                    || OpenSearchResources.INSTANCE.getClusterService().state() == null
+                    || OpenSearchResources.INSTANCE.getClusterService().state().nodes() == null) {
+                return;
+            }
+        } catch (Exception e) {
+            LOG.error("Unable to get cluster stats");
             return;
         }
 
