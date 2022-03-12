@@ -417,7 +417,6 @@ bundlePlugin {
     from('build/resources/main/') {
         include "plugin-security.policy"
     }
-    exclude('tools.jar')
     from("config/opensearch-performance-analyzer") {
         into "config"
     }
