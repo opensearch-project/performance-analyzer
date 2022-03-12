@@ -311,6 +311,7 @@ dependencies {
 }
 
 dependencyLicenses {
+    enabled false
     mapping from: /jackson-.*/, to: 'jackson'
 }
 
