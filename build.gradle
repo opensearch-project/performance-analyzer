@@ -643,7 +643,10 @@ task bwcTestSuite(type: StandaloneRestIntegTestTask) {
     exclude '**/*Test*'
     exclude '**/*IT*'
     dependsOn tasks.named("${baseName}#mixedClusterTask")
-    dependsOn tasks.named("${baseName}#rollingUpgradeClusterTask")
+    if (JavaVersion.current() > JavaVersion.VERSION_1_8) {
+        // Only running this for > jdk8 versions as of now.
+        dependsOn tasks.named("${baseName}#rollingUpgradeClusterTask")
+    }
     dependsOn tasks.named("${baseName}#fullRestartClusterTask")
 }
 
