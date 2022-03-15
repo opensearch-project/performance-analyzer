@@ -1,7 +1,7 @@
 - [Developer Guide](#developer-guide)
   - [Forking and Cloning](#forking-and-cloning)
   - [Install Prerequisites](#install-prerequisites)
-    - [JDK 14](#jdk-14)
+    - [JDK 11](#jdk-11)
   - [Building](#building)
   - [Using IntelliJ IDEA](#using-intellij-idea)
   - [Submitting Changes](#submitting-changes)
@@ -16,9 +16,9 @@ Fork this repository on GitHub, and clone locally with `git clone`.
 
 ### Install Prerequisites
 
-#### JDK 14
+#### JDK 11
 
-OpenSearch components build using Java 14 at a minimum. This means you must have a JDK 14 installed with the environment variable `JAVA_HOME` referencing the path to Java home for your JDK 14 installation, e.g. `JAVA_HOME=/usr/lib/jvm/jdk-14`.
+OpenSearch components build using Java 11 at a minimum. This means you must have a JDK 11 installed with the environment variable `JAVA_HOME` referencing the path to Java home for your JDK 11 installation, e.g. `JAVA_HOME=/usr/lib/jvm/jdk-11`.
 
 ### Building
 
@@ -35,6 +35,7 @@ To build from the command line, use `./gradlew`.
 `./gradlew paBwcCluster#rollingUpgradeClusterTask -Dtests.security.manager=false` launches a cluster with three nodes of bwc version of OpenSearch with performance-analyzer and tests backwards compatibility by performing rolling upgrade of each node with the current version of OpenSearch with performance-analyzer.
 `./gradlew paBwcCluster#fullRestartClusterTask -Dtests.security.manager=false` launches a cluster with three nodes of bwc version of OpenSearch with performance-analyzer and tests backwards compatibility by performing a full restart on the cluster upgrading all the nodes with the current version of OpenSearch with performance-analyzer.
 `./gradlew bwcTestSuite -Dtests.security.manager=false` runs all the above bwc tests combined.
+`./gradlew integTestRemote -Dtests.enableIT -Dtests.useDockerCluster -Dtests.rest.cluster=localhost:9200 -Dtests.cluster=localhost:9200 -Dtests.clustername="docker-cluster" -Dhttps=true -Duser=admin -Dpassword=admin` launches integration tests against a local cluster and run tests with security
 
 ### Using IntelliJ IDEA
 

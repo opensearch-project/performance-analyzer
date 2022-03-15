@@ -117,7 +117,10 @@ compileJava {
 }
 
 javadoc {
-    options.addStringOption("-add-exports", "jdk.attach/sun.tools.attach=ALL-UNNAMED")
+    JavaVersion targetVersion = JavaVersion.toVersion(targetCompatibility);
+    if (targetVersion.isJava9Compatible()) {
+        options.addStringOption("-add-exports", "jdk.attach/sun.tools.attach=ALL-UNNAMED")
+    }
 }
 
 project.afterEvaluate {
@@ -308,6 +311,7 @@ dependencies {
 }
 
 dependencyLicenses {
+    enabled false
     mapping from: /jackson-.*/, to: 'jackson'
 }
 
@@ -413,7 +417,6 @@ bundlePlugin {
     from('build/resources/main/') {
         include "plugin-security.policy"
     }
-    exclude('tools.jar')
     from("config/opensearch-performance-analyzer") {
         into "config"
     }
@@ -477,6 +480,31 @@ task integTest(type: RestIntegTestTask) {
     description = "Run integration tests against integTest cluster"
     testClassesDirs = sourceSets.test.output.classesDirs
     classpath = sourceSets.test.runtimeClasspath
+}
+
+def opensearch_tmp_dir = rootProject.file('build/private/opensearch_tmp').absoluteFile
+opensearch_tmp_dir.mkdirs()
+
+task integTestRemote(type: RestIntegTestTask) {
+    onlyIf = {
+        propEnabled("tests.enableIT")
+    }
+    if (System.getProperty("tests.rest.bwcsuite") == null) {
+        filter {
+            excludeTestsMatching "org.opensearch.performanceanalyzer.bwc.*IT"
+        }
+    }
+    if (propEnabled("tests.useDockerCluster")) {
+        dependsOn(setupOpenSearchCluster)
+    }
+    testClassesDirs = sourceSets.test.output.classesDirs
+    classpath = sourceSets.test.runtimeClasspath
+    systemProperty 'tests.security.manager', 'false'
+    systemProperty 'java.io.tmpdir', opensearch_tmp_dir.absolutePath
+
+    systemProperty "https", System.getProperty("https")
+    systemProperty "user", System.getProperty("user")
+    systemProperty "password", System.getProperty("password")
 }
 
 String bwcVersion = "1.13.0.0"
@@ -615,7 +643,10 @@ task bwcTestSuite(type: StandaloneRestIntegTestTask) {
     exclude '**/*Test*'
     exclude '**/*IT*'
     dependsOn tasks.named("${baseName}#mixedClusterTask")
-    dependsOn tasks.named("${baseName}#rollingUpgradeClusterTask")
+    if (JavaVersion.current() > JavaVersion.VERSION_1_8) {
+        // Only running this for > jdk8 versions as of now.
+        dependsOn tasks.named("${baseName}#rollingUpgradeClusterTask")
+    }
     dependsOn tasks.named("${baseName}#fullRestartClusterTask")
 }
 
