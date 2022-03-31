@@ -6,7 +6,19 @@
 buildscript {
 
     ext {
-        opensearch_version = System.getProperty("opensearch.version", "1.3.0-SNAPSHOT")
+        opensearch_version = System.getProperty("opensearch.version", "2.0.0-alpha1-SNAPSHOT")
+        isSnapshot = "true" == System.getProperty("build.snapshot", "true")
+        buildVersionQualifier = System.getProperty("build.version_qualifier", "alpha1")
+
+        // 2.0.0-alpha1-SNAPSHOT -> 2.0.0.0-alpha1-SNAPSHOT
+        version_tokens = opensearch_version.tokenize('-')
+        opensearch_build = version_tokens[0] + '.0'
+        if (buildVersionQualifier) {
+            opensearch_build += "-${buildVersionQualifier}"
+        }
+        if (isSnapshot) {
+            opensearch_build += "-SNAPSHOT"
+        }
     }
 
     // Used to resolve build file dependencies
@@ -48,7 +60,6 @@ spotbugsTest {
 }
 
 ext {
-    isSnapshot = "true" == System.getProperty("build.snapshot", "true")
 
     // The RCA branch that will be built. Default branch is main.
     rcaProjectRepo = System.getProperty("performance-analyzer-rca.repo", "https://github.com/opensearch-project/performance-analyzer-rca.git")
@@ -63,10 +74,7 @@ ext {
 
 allprojects {
     group = "org.opensearch"
-    version = opensearch_version - '-SNAPSHOT' + '.0'
-    if (isSnapshot) {
-        version += "-SNAPSHOT"
-    }
+    version = opensearch_build
 }
 
 apply plugin: 'opensearch.opensearchplugin'
@@ -363,11 +371,21 @@ task buildRca() {
     doLast {
         exec {
             workingDir("$rcaProjectDir")
-            commandLine './gradlew', 'build', '-x', 'test', "-Dopensearch.version=${opensearch_version}", "-Dbuild.snapshot=${isSnapshot}"
+            if (buildVersionQualifier == null || buildVersionQualifier == '' || buildVersionQualifier == 'null') {
+                commandLine './gradlew', 'build', '-x', 'test', "-Dopensearch.version=${opensearch_version}", "-Dbuild.snapshot=${isSnapshot}"
+            }
+            else {
+                commandLine './gradlew', 'build', '-x', 'test', "-Dopensearch.version=${opensearch_version}", "-Dbuild.snapshot=${isSnapshot}", "-Dbuild.version_qualifier=${buildVersionQualifier}"
+            }
         }
         exec {
             workingDir("$rcaProjectDir")
-            commandLine './gradlew', 'publishToMavenLocal', "-Dopensearch.version=${opensearch_version}", "-Dbuild.snapshot=${isSnapshot}"
+            if (buildVersionQualifier == null || buildVersionQualifier == '' || buildVersionQualifier == 'null') {
+                commandLine './gradlew', 'publishToMavenLocal', "-Dopensearch.version=${opensearch_version}", "-Dbuild.snapshot=${isSnapshot}"
+            }
+            else {
+                commandLine './gradlew', 'publishToMavenLocal', "-Dopensearch.version=${opensearch_version}", "-Dbuild.snapshot=${isSnapshot}", "-Dbuild.version_qualifier=${buildVersionQualifier}"
+            }
         }
         exec {
             def licenseDir = "$projectDir/licenses"
@@ -515,7 +533,7 @@ String bwcFilePath = "src/test/resources/org/opensearch/performanceanalyzer/bwc/
     testClusters {
         "${baseName}$i" {
             testDistribution = "ARCHIVE"
-            versions = ["7.10.2","1.3.0-SNAPSHOT"]
+            versions = ["7.10.2", "${opensearch_version}"]
             numberOfNodes = 3
             plugin(provider(new Callable<RegularFile>(){
                 @Override
@@ -655,7 +673,7 @@ afterEvaluate {
     ospackage {
         packageName = "opensearch-performance-analyzer"
         release = isSnapshot ? "0.1" : '1'
-        version = "${project.version}" - "-SNAPSHOT"
+        version = "${project.version}"
 
         into '/usr/share/opensearch/plugins'
         from(zipTree(bundlePlugin.archivePath)) {
