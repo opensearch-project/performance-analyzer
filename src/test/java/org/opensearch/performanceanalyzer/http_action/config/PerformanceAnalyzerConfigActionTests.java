@@ -244,6 +244,26 @@ public class PerformanceAnalyzerConfigActionTests {
         test(PerformanceAnalyzerConfigAction.LEGACY_PA_CONFIG_PATH, false, false);
     }
 
+    @Test
+    public void testUpdateThreadContentionMonitoringState_ShouldEnable_paEnabled() throws IOException {
+        test(PerformanceAnalyzerConfigAction.THREAD_CONTENTION_MONITORING_CONFIG_PATH, true, true);
+    }
+
+    @Test
+    public void testUpdateThreadContentionMonitoringState_ShouldEnable_paDisabled() throws IOException {
+        test(PerformanceAnalyzerConfigAction.THREAD_CONTENTION_MONITORING_CONFIG_PATH, true, false);
+    }
+
+    @Test
+    public void testUpdateThreadContentionMonitoringState_ShouldDisable_paDisabled() throws IOException {
+        test(PerformanceAnalyzerConfigAction.THREAD_CONTENTION_MONITORING_CONFIG_PATH, false, false);
+    }
+
+    @Test
+    public void testUpdateThreadContentionMonitoringState_ShouldDisable_paEnabled() throws IOException {
+        test(PerformanceAnalyzerConfigAction.THREAD_CONTENTION_MONITORING_CONFIG_PATH, false, true);
+    }
+
     private void test(String requestPath, boolean shouldEnable, boolean paEnabled)
             throws IOException {
         final FakeRestRequest fakeRestRequest = buildRequest(requestPath, shouldEnable);
@@ -261,6 +281,7 @@ public class PerformanceAnalyzerConfigActionTests {
             assertTrue(responseStr.contains(PerformanceAnalyzerConfigAction.PA_LOGGING_ENABLED));
             assertTrue(responseStr.contains(PerformanceAnalyzerConfigAction.SHARDS_PER_COLLECTION));
             assertTrue(responseStr.contains(PerformanceAnalyzerConfigAction.BATCH_METRICS_ENABLED));
+            assertTrue(responseStr.contains(PerformanceAnalyzerConfigAction.THREAD_CONTENTION_MONITORING_ENABLED));
             assertTrue(
                     responseStr.contains(
                             PerformanceAnalyzerConfigAction

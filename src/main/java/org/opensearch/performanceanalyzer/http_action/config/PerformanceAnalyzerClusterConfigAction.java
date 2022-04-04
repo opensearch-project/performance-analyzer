@@ -49,6 +49,8 @@ public class PerformanceAnalyzerClusterConfigAction extends BaseRestHandler {
             RestConfig.PA_BASE_URI + "/logging/cluster/config";
     public static final String BATCH_METRICS_CLUSTER_CONFIG_PATH =
             RestConfig.PA_BASE_URI + "/batch/cluster/config";
+    public static final String THREAD_CONTENTION_MONITORING_CLUSTER_CONFIG_PATH =
+            RestConfig.PA_BASE_URI + "/threadContentionMonitoring/cluster/config";
 
     public static final String LEGACY_PA_CLUSTER_CONFIG_PATH =
             RestConfig.LEGACY_PA_BASE_URI + "/cluster/config";
@@ -59,6 +61,16 @@ public class PerformanceAnalyzerClusterConfigAction extends BaseRestHandler {
     public static final String LEGACY_BATCH_METRICS_CLUSTER_CONFIG_PATH =
             RestConfig.LEGACY_PA_BASE_URI + "/batch/cluster/config";
 
+    private static final List<Route> ROUTES =
+            unmodifiableList(
+                    asList(
+                            new Route(
+                                    RestRequest.Method.GET,
+                                    THREAD_CONTENTION_MONITORING_CLUSTER_CONFIG_PATH),
+                            new Route(
+                                    RestRequest.Method.POST,
+                                    THREAD_CONTENTION_MONITORING_CLUSTER_CONFIG_PATH)
+                    ));
     private static final List<ReplacedRoute> REPLACED_ROUTES =
             unmodifiableList(
                     asList(
@@ -126,7 +138,7 @@ public class PerformanceAnalyzerClusterConfigAction extends BaseRestHandler {
 
     @Override
     public List<Route> routes() {
-        return Collections.emptyList();
+        return ROUTES;
     }
 
     @Override
@@ -169,6 +181,8 @@ public class PerformanceAnalyzerClusterConfigAction extends BaseRestHandler {
                 } else if (request.path().contains(BATCH_METRICS_CLUSTER_CONFIG_PATH)
                         || request.path().contains(LEGACY_BATCH_METRICS_CLUSTER_CONFIG_PATH)) {
                     clusterSettingHandler.updateBatchMetricsSetting((Boolean) value);
+                } else if (request.path().contains(THREAD_CONTENTION_MONITORING_CLUSTER_CONFIG_PATH)) {
+                    clusterSettingHandler.updateThreadContentionMonitoringSetting((Boolean) value);
                 } else {
                     clusterSettingHandler.updatePerformanceAnalyzerSetting((Boolean) value);
                 }

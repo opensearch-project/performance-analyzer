@@ -39,6 +39,7 @@ public class PerformanceAnalyzerConfigAction extends BaseRestHandler {
     public static final String RCA_ENABLED = "rcaEnabled";
     public static final String PA_LOGGING_ENABLED = "loggingEnabled";
     public static final String BATCH_METRICS_ENABLED = "batchMetricsEnabled";
+    public static final String THREAD_CONTENTION_MONITORING_ENABLED = "threadContentionMonitoringEnabled";
     public static final String BATCH_METRICS_RETENTION_PERIOD_MINUTES =
             "batchMetricsRetentionPeriodMinutes";
     public static final String PERFORMANCE_ANALYZER_CONFIG_ACTION =
@@ -48,6 +49,8 @@ public class PerformanceAnalyzerConfigAction extends BaseRestHandler {
     public static final String PA_CONFIG_PATH = RestConfig.PA_BASE_URI + "/config";
     public static final String LOGGING_CONFIG_PATH = RestConfig.PA_BASE_URI + "/logging/config";
     public static final String BATCH_METRICS_CONFIG_PATH = RestConfig.PA_BASE_URI + "/batch/config";
+    public static final String THREAD_CONTENTION_MONITORING_CONFIG_PATH =
+            RestConfig.PA_BASE_URI + "/threadContentionMonitoring/config";
 
     public static final String LEGACY_RCA_CONFIG_PATH =
             RestConfig.LEGACY_PA_BASE_URI + "/rca/config";
@@ -56,7 +59,16 @@ public class PerformanceAnalyzerConfigAction extends BaseRestHandler {
             RestConfig.LEGACY_PA_BASE_URI + "/logging/config";
     public static final String LEGACY_BATCH_METRICS_CONFIG_PATH =
             RestConfig.LEGACY_PA_BASE_URI + "/batch/config";
-
+    private static final List<Route> ROUTES =
+            unmodifiableList(
+                    asList(
+                            new Route(
+                                    RestRequest.Method.GET,
+                                    THREAD_CONTENTION_MONITORING_CONFIG_PATH),
+                            new Route(
+                                    RestRequest.Method.POST,
+                                    THREAD_CONTENTION_MONITORING_CONFIG_PATH)
+                    ));
     private static final List<ReplacedRoute> REPLACED_ROUTES =
             unmodifiableList(
                     asList(
@@ -112,7 +124,7 @@ public class PerformanceAnalyzerConfigAction extends BaseRestHandler {
 
     @Override
     public List<Route> routes() {
-        return Collections.emptyList();
+        return ROUTES;
     }
 
     @Override
@@ -172,12 +184,20 @@ public class PerformanceAnalyzerConfigAction extends BaseRestHandler {
                     }
 
                     performanceAnalyzerController.updateBatchMetricsState(shouldEnable);
+                } else if (request.path().contains(THREAD_CONTENTION_MONITORING_CONFIG_PATH)) {
+                    if (shouldEnable
+                            && !performanceAnalyzerController.isPerformanceAnalyzerEnabled()) {
+                        return getChannelConsumerWithError(
+                                "Error: PA not enabled. Enable PA before turning Batch Metrics on");
+                    }
+                    performanceAnalyzerController.updateThreadContentionMonitoringState(shouldEnable);
                 } else {
                     // Disabling Performance Analyzer should disable the RCA framework as well.
                     if (!shouldEnable) {
                         performanceAnalyzerController.updateRcaState(false);
                         performanceAnalyzerController.updateLoggingState(false);
                         performanceAnalyzerController.updateBatchMetricsState(false);
+                        performanceAnalyzerController.updateThreadContentionMonitoringState(false);
                     }
                     performanceAnalyzerController.updatePerformanceAnalyzerState(shouldEnable);
                 }
@@ -206,6 +226,9 @@ public class PerformanceAnalyzerConfigAction extends BaseRestHandler {
                 builder.field(
                         BATCH_METRICS_ENABLED,
                         performanceAnalyzerController.isBatchMetricsEnabled());
+                builder.field(
+                        THREAD_CONTENTION_MONITORING_ENABLED,
+                        performanceAnalyzerController.isThreadContentionMonitoringEnabled());
                 builder.field(
                         BATCH_METRICS_RETENTION_PERIOD_MINUTES,
                         PluginSettings.instance().getBatchMetricsRetentionPeriodMinutes());
