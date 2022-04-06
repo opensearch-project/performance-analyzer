@@ -38,8 +38,8 @@ jobs:
       working-directory: ./tmp/performance-analyzer
       run: |
         ./gradlew build -Dperformance-analyzer-rca.build=true \
-          -Dperformance-analyzer-rca.repo="https://github.com/sgup432/performance-analyzer-rca.git" \
-          -Dperformance-analyzer-rca.branch=jdk_gradle7_OS_2.0
+          -Dperformance-analyzer-rca.repo="https://github.com/opensearch-project/performance-analyzer-rca.git" \
+          -Dperformance-analyzer-rca.branch=main
     - name: Assemble PA jar for BWC tests
       working-directory: ./tmp/performance-analyzer
       run: |
