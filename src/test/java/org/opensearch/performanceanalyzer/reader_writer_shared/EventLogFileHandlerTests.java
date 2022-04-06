@@ -100,6 +100,12 @@ public class EventLogFileHandlerTests {
 
     @Test
     public void testNoFileWithNoMetrics() throws InterruptedException {
+        // Waiting and calling purgeQueueAndPersist method
+        // for tmp file to be renamed to timestamp file
+        Thread.sleep(5_000);
+        // Clearing out all the files in the directory again before we start.
+        eventLogFileHandler.deleteAllFilesWithPrivilege();
+
         queuePurgerAndPersistor.purgeQueueAndPersist();
         String bucketTime1 = String.valueOf(getTimeBucket());
         assertFalse(
