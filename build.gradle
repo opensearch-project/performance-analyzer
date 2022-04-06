@@ -42,6 +42,7 @@ plugins {
     id 'jacoco'
     id 'com.diffplug.spotless' version '5.11.0'
     id 'checkstyle'
+    id 'org.ajoberstar.grgit' version '5.0.0'
 }
 
 spotbugsMain {
@@ -327,7 +328,7 @@ gradle.startParameter.excludedTaskNames += [ "forbiddenApisMain",
                                              "testingConventions"]
 
 import java.util.concurrent.Callable
-import org.ajoberstar.gradle.git.tasks.GitClone
+import org.ajoberstar.grgit.Grgit
 import org.opensearch.gradle.test.RestIntegTestTask
 import org.opensearch.gradle.testclusters.StandaloneRestIntegTestTask
 
@@ -342,16 +343,21 @@ static def propEnabled(property) {
  * cloneRcaGitRepo clones the performance-analyzer-rca repo if the -Dtests.enableIT=true flag is passed
  * to the Gradle JVM
  */
-task cloneRcaGitRepo(type: GitClone) {
+task cloneRcaGitRepo() {
     def destination = file(rcaProjectDir)
-    uri = rcaProjectRepo
-    branch = rcaProjectBranch
-    destinationPath = destination
-    bare = false
-    enabled = cloneRcaProject && !destination.exists() // to clone only once
-
+    def uri = rcaProjectRepo
+    def branch = rcaProjectBranch
     doFirst {
-        logger.info("Cloning performance-analyzer-rca into ${rcaProjectDir} from ${rcaProjectRepo}#${rcaProjectBranch}")
+        println "Cloning performance-analyzer-rca into ${rcaProjectDir} from ${rcaProjectRepo}#${rcaProjectBranch}"
+    }
+    doLast {
+        if (destination.exists() && destination.isDirectory()) { // If directory exists, use this instead.
+            def grgit = Grgit.open(dir: destination.toString())
+        } else { // Otherwise pull it from git.
+            def grgit = Grgit.clone(dir: destination.toString(), uri: uri)
+            grgit.fetch(remote: 'origin')
+            grgit.checkout(branch: branch)
+        }
     }
 }
 
