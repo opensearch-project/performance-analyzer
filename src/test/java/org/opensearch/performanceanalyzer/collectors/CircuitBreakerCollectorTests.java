@@ -76,7 +76,6 @@ public class CircuitBreakerCollectorTests extends OpenSearchSingleNodeTestCase {
         assertEquals(CircuitBreaker.REQUEST, metrics.get(0).getType());
         assertEquals(CircuitBreaker.FIELDDATA, metrics.get(1).getType());
         assertEquals(CircuitBreaker.IN_FLIGHT_REQUESTS, metrics.get(2).getType());
-        assertEquals(CircuitBreaker.ACCOUNTING, metrics.get(3).getType());
         assertEquals(CircuitBreaker.PARENT, metrics.get(4).getType());
     }
 

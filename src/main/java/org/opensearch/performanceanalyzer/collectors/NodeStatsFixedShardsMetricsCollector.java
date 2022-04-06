@@ -107,42 +107,6 @@ public class NodeStatsFixedShardsMetricsCollector extends PerformanceAnalyzerMet
                             ShardStatsValue.SEGMENTS_TOTAL.toString(),
                             (shardStats) -> shardStats.getStats().getSegments().getCount());
                     put(
-                            ShardStatsValue.SEGMENTS_MEMORY.toString(),
-                            (shardStats) -> shardStats.getStats().getSegments().getMemoryInBytes());
-                    put(
-                            ShardStatsValue.TERMS_MEMORY.toString(),
-                            (shardStats) ->
-                                    shardStats.getStats().getSegments().getTermsMemoryInBytes());
-                    put(
-                            ShardStatsValue.STORED_FIELDS_MEMORY.toString(),
-                            (shardStats) ->
-                                    shardStats
-                                            .getStats()
-                                            .getSegments()
-                                            .getStoredFieldsMemoryInBytes());
-                    put(
-                            ShardStatsValue.TERM_VECTOR_MEMORY.toString(),
-                            (shardStats) ->
-                                    shardStats
-                                            .getStats()
-                                            .getSegments()
-                                            .getTermVectorsMemoryInBytes());
-                    put(
-                            ShardStatsValue.NORMS_MEMORY.toString(),
-                            (shardStats) ->
-                                    shardStats.getStats().getSegments().getNormsMemoryInBytes());
-                    put(
-                            ShardStatsValue.POINTS_MEMORY.toString(),
-                            (shardStats) ->
-                                    shardStats.getStats().getSegments().getPointsMemoryInBytes());
-                    put(
-                            ShardStatsValue.DOC_VALUES_MEMORY.toString(),
-                            (shardStats) ->
-                                    shardStats
-                                            .getStats()
-                                            .getSegments()
-                                            .getDocValuesMemoryInBytes());
-                    put(
                             ShardStatsValue.INDEX_WRITER_MEMORY.toString(),
                             (shardStats) ->
                                     shardStats
@@ -273,13 +237,6 @@ public class NodeStatsFixedShardsMetricsCollector extends PerformanceAnalyzerMet
         private final long mergeCurrent;
         private final long indexBufferBytes;
         private final long segmentCount;
-        private final long segmentsMemory;
-        private final long termsMemory;
-        private final long storedFieldsMemory;
-        private final long termVectorsMemory;
-        private final long normsMemory;
-        private final long pointsMemory;
-        private final long docValuesMemory;
         private final long indexWriterMemory;
         private final long versionMapMemory;
         private final long bitsetMemory;
@@ -299,13 +256,6 @@ public class NodeStatsFixedShardsMetricsCollector extends PerformanceAnalyzerMet
             this.mergeCurrent = calculate(ShardStatsValue.MERGE_CURRENT_EVENT);
             this.indexBufferBytes = calculate(ShardStatsValue.INDEXING_BUFFER);
             this.segmentCount = calculate(ShardStatsValue.SEGMENTS_TOTAL);
-            this.segmentsMemory = calculate(ShardStatsValue.SEGMENTS_MEMORY);
-            this.termsMemory = calculate(ShardStatsValue.TERMS_MEMORY);
-            this.storedFieldsMemory = calculate(ShardStatsValue.STORED_FIELDS_MEMORY);
-            this.termVectorsMemory = calculate(ShardStatsValue.TERMS_MEMORY);
-            this.normsMemory = calculate(ShardStatsValue.NORMS_MEMORY);
-            this.pointsMemory = calculate(ShardStatsValue.POINTS_MEMORY);
-            this.docValuesMemory = calculate(ShardStatsValue.DOC_VALUES_MEMORY);
             this.indexWriterMemory = calculate(ShardStatsValue.INDEX_WRITER_MEMORY);
             this.versionMapMemory = calculate(ShardStatsValue.VERSION_MAP_MEMORY);
             this.bitsetMemory = calculate(ShardStatsValue.BITSET_MEMORY);
@@ -369,41 +319,6 @@ public class NodeStatsFixedShardsMetricsCollector extends PerformanceAnalyzerMet
         @JsonProperty(ShardStatsValue.Constants.SEGMENTS_COUNT_VALUE)
         public long getSegmentCount() {
             return segmentCount;
-        }
-
-        @JsonProperty(ShardStatsValue.Constants.SEGMENTS_MEMORY_VALUE)
-        public long getSegmentsMemory() {
-            return segmentsMemory;
-        }
-
-        @JsonProperty(ShardStatsValue.Constants.TERMS_MEMORY_VALUE)
-        public long getTermsMemory() {
-            return termsMemory;
-        }
-
-        @JsonProperty(ShardStatsValue.Constants.STORED_FIELDS_MEMORY_VALUE)
-        public long getStoredFieldsMemory() {
-            return storedFieldsMemory;
-        }
-
-        @JsonProperty(ShardStatsValue.Constants.TERM_VECTOR_MEMORY_VALUE)
-        public long getTermVectorsMemory() {
-            return termVectorsMemory;
-        }
-
-        @JsonProperty(ShardStatsValue.Constants.NORMS_MEMORY_VALUE)
-        public long getNormsMemory() {
-            return normsMemory;
-        }
-
-        @JsonProperty(ShardStatsValue.Constants.POINTS_MEMORY_VALUE)
-        public long getPointsMemory() {
-            return pointsMemory;
-        }
-
-        @JsonProperty(ShardStatsValue.Constants.DOC_VALUES_MEMORY_VALUE)
-        public long getDocValuesMemory() {
-            return docValuesMemory;
         }
 
         @JsonProperty(ShardStatsValue.Constants.INDEX_WRITER_MEMORY_VALUE)

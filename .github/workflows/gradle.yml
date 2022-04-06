@@ -13,9 +13,8 @@ jobs:
     strategy:
       matrix:
         java:
-          - 8
           - 11
-          - 14
+          - 17
     runs-on: [ubuntu-latest]
     name: Building PA package
     steps:
@@ -39,15 +38,18 @@ jobs:
       working-directory: ./tmp/performance-analyzer
       run: |
         ./gradlew build -Dperformance-analyzer-rca.build=true \
-          -Dperformance-analyzer-rca.repo="https://github.com/opensearch-project/performance-analyzer-rca.git" \
-          -Dperformance-analyzer-rca.branch=main \
-          -Dopensearch.version=1.3.0-SNAPSHOT
+          -Dperformance-analyzer-rca.repo="https://github.com/sgup432/performance-analyzer-rca.git" \
+          -Dperformance-analyzer-rca.branch=jdk_gradle7_OS_2.0
     - name: Assemble PA jar for BWC tests
       working-directory: ./tmp/performance-analyzer
       run: |
-        ./gradlew assemble -Dopensearch.version=1.3.0-SNAPSHOT
-        mkdir -p ./src/test/resources/org/opensearch/performanceanalyzer/bwc/1.3.0.0-SNAPSHOT
-        cp ./build/distributions/*.zip ./src/test/resources/org/opensearch/performanceanalyzer/bwc/1.3.0.0-SNAPSHOT
+        ./gradlew assemble
+        version=`./gradlew properties -q | grep "opensearch_version:" | awk '{print $2}'`
+        IFS='-' read -r -a version_array <<< "$version"
+        plugin_version="${version_array[0]}.0"; for entry in ${version_array[@]:1}; do plugin_version+="-$entry"; done
+        echo $plugin_version
+        mkdir -p ./src/test/resources/org/opensearch/performanceanalyzer/bwc/$plugin_version
+        cp ./build/distributions/*.zip ./src/test/resources/org/opensearch/performanceanalyzer/bwc/$plugin_version
     - name: Generate Jacoco coverage report
       working-directory: ./tmp/performance-analyzer
       run: ./gradlew jacocoTestReport
@@ -58,7 +60,7 @@ jobs:
       run: bash <(curl -s https://codecov.io/bash) -f ./build/reports/jacoco/test/jacocoTestReport.xml
     - name: Run Integration Tests
       working-directory: ./tmp/performance-analyzer
-      run: ./gradlew integTest -Dtests.enableIT -Dtests.useDockerCluster -Dopensearch.version=1.3.0-SNAPSHOT
+      run: ./gradlew integTest -Dtests.enableIT -Dtests.useDockerCluster
     - name: Run PerformanceAnalzyer Backwards Compatibility Tests
       working-directory: ./tmp/performance-analyzer
       run: ./gradlew bwcTestSuite -Dtests.security.manager=false
