@@ -229,6 +229,7 @@ dependencies {
             force "com.fasterxml.jackson.dataformat:jackson-dataformat-smile:${jacksonVersion}"
             force "com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:${jacksonVersion}"
             force "com.fasterxml.jackson.dataformat:jackson-dataformat-cbor:${jacksonVersion}"
+            force "org.apache.commons:commons-lang3:3.12.0"
         }
     }
 
