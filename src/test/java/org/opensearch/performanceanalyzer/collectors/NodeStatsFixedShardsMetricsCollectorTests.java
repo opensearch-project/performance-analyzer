@@ -131,13 +131,6 @@ public class NodeStatsFixedShardsMetricsCollectorTests extends OpenSearchSingleN
         assertTrue(jsonStr.contains(ShardStatsValue.Constants.MERGE_CURRENT_VALUE));
         assertTrue(jsonStr.contains(ShardStatsValue.Constants.INDEX_BUFFER_BYTES_VALUE));
         assertTrue(jsonStr.contains(ShardStatsValue.Constants.SEGMENTS_COUNT_VALUE));
-        assertTrue(jsonStr.contains(ShardStatsValue.Constants.SEGMENTS_MEMORY_VALUE));
-        assertTrue(jsonStr.contains(ShardStatsValue.Constants.TERMS_MEMORY_VALUE));
-        assertTrue(jsonStr.contains(ShardStatsValue.Constants.STORED_FIELDS_MEMORY_VALUE));
-        assertTrue(jsonStr.contains(ShardStatsValue.Constants.TERM_VECTOR_MEMORY_VALUE));
-        assertTrue(jsonStr.contains(ShardStatsValue.Constants.NORMS_MEMORY_VALUE));
-        assertTrue(jsonStr.contains(ShardStatsValue.Constants.POINTS_MEMORY_VALUE));
-        assertTrue(jsonStr.contains(ShardStatsValue.Constants.DOC_VALUES_MEMORY_VALUE));
         assertTrue(jsonStr.contains(ShardStatsValue.Constants.INDEX_WRITER_MEMORY_VALUE));
         assertTrue(jsonStr.contains(ShardStatsValue.Constants.VERSION_MAP_MEMORY_VALUE));
         assertTrue(jsonStr.contains(ShardStatsValue.Constants.BITSET_MEMORY_VALUE));
