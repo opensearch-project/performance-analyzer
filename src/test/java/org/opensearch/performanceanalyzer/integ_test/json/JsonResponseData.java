@@ -7,6 +7,7 @@ package org.opensearch.performanceanalyzer.integ_test.json;
 
 
 import com.google.gson.annotations.SerializedName;
+import java.util.Arrays;
 
 /**
  * spotless:off
@@ -70,5 +71,15 @@ public class JsonResponseData {
             throw new IllegalArgumentException();
         }
         return Double.parseDouble(recordStr);
+    }
+
+    @Override
+    public String toString() {
+        return "data:{"
+                + "fields="
+                + Arrays.toString(fields)
+                + ", records="
+                + Arrays.toString(records)
+                + '}';
     }
 }

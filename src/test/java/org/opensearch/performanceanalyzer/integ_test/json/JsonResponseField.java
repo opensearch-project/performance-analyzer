@@ -32,6 +32,11 @@ public class JsonResponseField {
         return this.type;
     }
 
+    @Override
+    public String toString() {
+        return "JsonResponseField{" + "name='" + name + '\'' + ", type='" + type + '\'' + '}';
+    }
+
     // SQLite data type
     public enum Type {
         VARCHAR(Constants.VARCHAR),
