@@ -1,7 +1,7 @@
 - [Developer Guide](#developer-guide)
   - [Forking and Cloning](#forking-and-cloning)
   - [Install Prerequisites](#install-prerequisites)
-    - [JDK 11](#jdk-11)
+    - [JDK](#jdk)
   - [Building](#building)
   - [Using IntelliJ IDEA](#using-intellij-idea)
   - [Submitting Changes](#submitting-changes)
@@ -18,7 +18,7 @@ Fork this repository on GitHub, and clone locally with `git clone`.
 
 #### JDK 11
 
-OpenSearch components build using Java 11 at a minimum. This means you must have a JDK 11 installed with the environment variable `JAVA_HOME` referencing the path to Java home for your JDK 11 installation, e.g. `JAVA_HOME=/usr/lib/jvm/jdk-11`.
+OpenSearch components build using Java 11 at a minimum and supports JDK 11, 17. This means you must have a JDK of supported version installed with the environment variable `JAVA_HOME` referencing the path to Java home for your JDK installation, e.g. `JAVA_HOME=/usr/lib/jvm/jdk-11`.
 
 ### Building
 

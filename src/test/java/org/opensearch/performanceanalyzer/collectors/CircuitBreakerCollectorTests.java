@@ -10,6 +10,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.module.paranamer.ParanamerModule;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import org.junit.After;
 import org.junit.Before;
@@ -72,12 +73,11 @@ public class CircuitBreakerCollectorTests extends OpenSearchSingleNodeTestCase {
         createIndex(TEST_INDEX);
         collector.collectMetrics(startTimeInMills);
         List<CircuitBreakerCollector.CircuitBreakerStatus> metrics = readMetrics();
-        assertEquals(5, metrics.size());
+        assertEquals(4, metrics.size());
         assertEquals(CircuitBreaker.REQUEST, metrics.get(0).getType());
         assertEquals(CircuitBreaker.FIELDDATA, metrics.get(1).getType());
         assertEquals(CircuitBreaker.IN_FLIGHT_REQUESTS, metrics.get(2).getType());
-        assertEquals(CircuitBreaker.ACCOUNTING, metrics.get(3).getType());
-        assertEquals(CircuitBreaker.PARENT, metrics.get(4).getType());
+        assertEquals(CircuitBreaker.PARENT, metrics.get(3).getType());
     }
 
     private List<CircuitBreakerCollector.CircuitBreakerStatus> readMetrics() throws IOException {
@@ -85,9 +85,9 @@ public class CircuitBreakerCollectorTests extends OpenSearchSingleNodeTestCase {
         assert metrics.size() == 1;
         ObjectMapper objectMapper = new ObjectMapper().registerModule(new ParanamerModule());
         String[] jsonStrs = metrics.get(0).value.split("\n");
-        assert jsonStrs.length == 6;
+        assert jsonStrs.length == 5;
         List<CircuitBreakerCollector.CircuitBreakerStatus> list = new ArrayList<>();
-        for (int i = 1; i < 6; i++) {
+        for (int i = 1; i < 5; i++) {
             list.add(
                     objectMapper.readValue(
                             jsonStrs[i], CircuitBreakerCollector.CircuitBreakerStatus.class));

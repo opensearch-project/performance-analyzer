@@ -6,7 +6,19 @@
 buildscript {
 
     ext {
-        opensearch_version = System.getProperty("opensearch.version", "1.3.0-SNAPSHOT")
+        opensearch_version = System.getProperty("opensearch.version", "2.0.0-alpha1-SNAPSHOT")
+        isSnapshot = "true" == System.getProperty("build.snapshot", "true")
+        buildVersionQualifier = System.getProperty("build.version_qualifier", "alpha1")
+
+        // 2.0.0-alpha1-SNAPSHOT -> 2.0.0.0-alpha1-SNAPSHOT
+        version_tokens = opensearch_version.tokenize('-')
+        opensearch_build = version_tokens[0] + '.0'
+        if (buildVersionQualifier) {
+            opensearch_build += "-${buildVersionQualifier}"
+        }
+        if (isSnapshot) {
+            opensearch_build += "-SNAPSHOT"
+        }
     }
 
     // Used to resolve build file dependencies
@@ -26,11 +38,13 @@ buildscript {
 plugins {
     id 'java'
     id 'nebula.ospackage' version "8.3.0"
-    id 'com.github.spotbugs' version '4.6.0'
+    id 'com.github.spotbugs' version '5.0.0'
     id 'jacoco'
     id 'com.diffplug.spotless' version '5.11.0'
     id 'checkstyle'
+    id 'org.ajoberstar.grgit' version '5.0.0'
     id 'org.gradle.test-retry' version '1.3.1'
+
 }
 
 spotbugsMain {
@@ -49,8 +63,6 @@ spotbugsTest {
 }
 
 ext {
-    isSnapshot = "true" == System.getProperty("build.snapshot", "true")
-
     // The RCA branch that will be built. Default branch is main.
     rcaProjectRepo = System.getProperty("performance-analyzer-rca.repo", "https://github.com/opensearch-project/performance-analyzer-rca.git")
     rcaProjectBranch = System.getProperty("performance-analyzer-rca.branch", "main")
@@ -64,10 +76,7 @@ ext {
 
 allprojects {
     group = "org.opensearch"
-    version = opensearch_version - '-SNAPSHOT' + '.0'
-    if (isSnapshot) {
-        version += "-SNAPSHOT"
-    }
+    version = opensearch_build
 }
 
 apply plugin: 'opensearch.opensearchplugin'
@@ -78,7 +87,7 @@ noticeFile = rootProject.file('NOTICE.txt')
 spotless {
     java {
         licenseHeaderFile(file('license-header'))
-        googleJavaFormat().aosp()
+        googleJavaFormat('1.12.0').aosp()
         importOrder()
         removeUnusedImports()
         trimTrailingWhitespace()
@@ -112,22 +121,14 @@ opensearchplugin {
     classname 'org.opensearch.performanceanalyzer.PerformanceAnalyzerPlugin'
 }
 
-sourceCompatibility = 1.8
-targetCompatibility = 1.8
+sourceCompatibility = JavaVersion.VERSION_11
+targetCompatibility = JavaVersion.VERSION_11
 
 compileJava {
     dependsOn spotlessApply
-    JavaVersion targetVersion = JavaVersion.toVersion(targetCompatibility);
-    if (targetVersion.isJava9Compatible()) {
-        options.compilerArgs += ["--add-exports", "jdk.attach/sun.tools.attach=ALL-UNNAMED"]
-    }
 }
 
 javadoc {
-    JavaVersion targetVersion = JavaVersion.toVersion(targetCompatibility);
-    if (targetVersion.isJava9Compatible()) {
-        options.addStringOption("-add-exports", "jdk.attach/sun.tools.attach=ALL-UNNAMED")
-    }
 }
 
 project.afterEvaluate {
@@ -159,7 +160,7 @@ tasks.withType(JavaCompile) {
 }
 
 jacoco {
-    toolVersion = "0.8.5"
+    toolVersion = "0.8.7"
 }
 
 jacocoTestReport {
@@ -212,7 +213,7 @@ checkstyleTest.enabled = false
 
 dependencies {
     if (JavaVersion.current() <= JavaVersion.VERSION_1_8) {
-        compile files("${System.properties['java.home']}/../lib/tools.jar")
+        implementation files("${System.properties['java.home']}/../lib/tools.jar")
     }
 
     def jacksonVersion = "2.12.6"
@@ -233,88 +234,92 @@ dependencies {
             force "com.fasterxml.jackson.core:jackson-core:${jacksonVersion}"
             force "com.fasterxml.jackson.core:jackson-databind:${jacksonVersion}"
             force "com.fasterxml.jackson.module:jackson-module-paranamer:${jacksonVersion}"
+            force "com.fasterxml.jackson.dataformat:jackson-dataformat-smile:${jacksonVersion}"
+            force "com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:${jacksonVersion}"
+            force "com.fasterxml.jackson.dataformat:jackson-dataformat-cbor:${jacksonVersion}"
+            force "org.apache.commons:commons-lang3:3.12.0"
         }
     }
 
-    compile('com.google.guava:guava:30.1-jre') {
+    implementation('com.google.guava:guava:30.1-jre') {
         force = 'true'
     }
-    compile 'org.jooq:jooq:3.10.8'
-    compile 'org.apache.commons:commons-lang3:3.9'
-    compile 'org.bouncycastle:bcprov-jdk15on:1.70'
-    compile 'org.bouncycastle:bcpkix-jdk15on:1.70'
-    compile "org.opensearch:performanceanalyzer-rca:${version}"
-    compile "com.fasterxml.jackson.core:jackson-annotations:${jacksonVersion}"
-    compile "com.fasterxml.jackson.core:jackson-databind:${jacksonVersion}"
-    compile "com.fasterxml.jackson.module:jackson-module-paranamer:${jacksonVersion}"
-    compile(group: 'org.apache.logging.log4j', name: 'log4j-api', version: '2.17.1')
-    compile(group: 'org.apache.logging.log4j', name: 'log4j-core', version: '2.17.1')
-    compile(group: 'com.google.errorprone', name: 'error_prone_annotations', version: '2.9.0') {
+    implementation 'org.jooq:jooq:3.10.8'
+    implementation 'org.apache.commons:commons-lang3:3.9'
+    implementation 'org.bouncycastle:bcprov-jdk15on:1.70'
+    implementation 'org.bouncycastle:bcpkix-jdk15on:1.70'
+    implementation "org.opensearch:performanceanalyzer-rca:${version}"
+    implementation "com.fasterxml.jackson.core:jackson-annotations:${jacksonVersion}"
+    implementation "com.fasterxml.jackson.core:jackson-databind:${jacksonVersion}"
+    implementation "com.fasterxml.jackson.module:jackson-module-paranamer:${jacksonVersion}"
+    implementation(group: 'org.apache.logging.log4j', name: 'log4j-api', version: '2.17.1')
+    implementation(group: 'org.apache.logging.log4j', name: 'log4j-core', version: '2.17.1')
+    implementation(group: 'com.google.errorprone', name: 'error_prone_annotations', version: '2.9.0') {
         force = 'true'
     }
-    compile(group: 'com.google.protobuf', name:'protobuf-java', version: '3.19.2') {
+    implementation(group: 'com.google.protobuf', name:'protobuf-java', version: '3.19.2') {
         force = 'true'
     }
-    compile("io.netty:netty-buffer:${nettyVersion}") {
+    implementation("io.netty:netty-buffer:${nettyVersion}") {
         force = 'true'
     }
-    compile("io.netty:netty-codec:${nettyVersion}") {
+    implementation("io.netty:netty-codec:${nettyVersion}") {
         force = 'true'
     }
-    compile("io.netty:netty-codec-http:${nettyVersion}") {
+    implementation("io.netty:netty-codec-http:${nettyVersion}") {
         force = 'true'
     }
-    compile("io.netty:netty-common:${nettyVersion}") {
+    implementation("io.netty:netty-common:${nettyVersion}") {
         force = 'true'
     }
-    compile("io.netty:netty-handler:${nettyVersion}") {
+    implementation("io.netty:netty-handler:${nettyVersion}") {
         force = 'true'
     }
-    compile("io.netty:netty-resolver:${nettyVersion}") {
+    implementation("io.netty:netty-resolver:${nettyVersion}") {
         force = 'true'
     }
-    compile("io.netty:netty-transport:${nettyVersion}") {
+    implementation("io.netty:netty-transport:${nettyVersion}") {
         force = 'true'
     }
-    compile("io.netty:netty-codec-http2:${nettyVersion}") {
+    implementation("io.netty:netty-codec-http2:${nettyVersion}") {
         force = 'true'
     }
-    compile("io.netty:netty-codec-socks:${nettyVersion}") {
+    implementation("io.netty:netty-codec-socks:${nettyVersion}") {
         force = 'true'
     }
-    compile("io.netty:netty-handler-proxy:${nettyVersion}") {
+    implementation("io.netty:netty-handler-proxy:${nettyVersion}") {
         force = 'true'
     }
 
 
     // JDK9+ has to run powermock 2+. https://github.com/powermock/powermock/issues/888
-    testCompile group: 'org.powermock', name: 'powermock-api-mockito2', version: '2.0.0'
-    testCompile(group: 'org.powermock', name: 'powermock-module-junit4', version: '2.0.0') {
+    testImplementation group: 'org.powermock', name: 'powermock-api-mockito2', version: '2.0.0'
+    testImplementation(group: 'org.powermock', name: 'powermock-module-junit4', version: '2.0.0') {
         exclude(group: 'org.hamcrest', module: 'hamcrest-core')
     }
-    testCompile(group: 'org.mockito', name: 'mockito-core', version: '2.23.0') {
+    testImplementation(group: 'org.mockito', name: 'mockito-core', version: '2.23.0') {
         force = 'true'
     }
     // Dependency to mock final classes.
     testImplementation group: 'org.mockito', name: 'mockito-inline', version: '2.13.0'
-    testCompile group: 'org.powermock', name: 'powermock-core', version: '2.0.0'
-    testCompile group: 'org.powermock', name: 'powermock-api-support', version: '2.0.0'
-    testCompile(group: 'org.powermock', name: 'powermock-module-junit4-common', version: '2.0.0') {
+    testImplementation group: 'org.powermock', name: 'powermock-core', version: '2.0.0'
+    testImplementation group: 'org.powermock', name: 'powermock-api-support', version: '2.0.0'
+    testImplementation(group: 'org.powermock', name: 'powermock-module-junit4-common', version: '2.0.0') {
         exclude(group: 'org.hamcrest', module: 'hamcrest-core')
     }
-    testCompile group: 'org.javassist', name: 'javassist', version: '3.24.0-GA'
-    testCompile group: 'org.powermock', name: 'powermock-reflect', version: '2.0.0'
+    testImplementation group: 'org.javassist', name: 'javassist', version: '3.24.0-GA'
+    testImplementation group: 'org.powermock', name: 'powermock-reflect', version: '2.0.0'
     //minimum byte-buddy version to be compatible with mockito-core 2.23.0 is 1.9.7+. https://github.com/mockito/mockito/issues/1606
-    testCompile(group: 'net.bytebuddy', name: 'byte-buddy', version: '1.9.7') {
+    testImplementation(group: 'net.bytebuddy', name: 'byte-buddy', version: '1.9.7') {
         force = 'true'
     }
-    testCompile(group: 'net.bytebuddy', name: 'byte-buddy-agent', version: '1.9.7') {
+    testImplementation(group: 'net.bytebuddy', name: 'byte-buddy-agent', version: '1.9.7') {
         force = 'true'
     }
-    testCompile(group: 'org.objenesis', name: 'objenesis', version: '3.0.1') {
+    testImplementation(group: 'org.objenesis', name: 'objenesis', version: '3.0.1') {
         force = 'true'
     }
-    testCompile group: 'com.google.code.gson', name: 'gson', version: '2.8.9'
+    testImplementation group: 'com.google.code.gson', name: 'gson', version: '2.8.9'
 }
 
 dependencyLicenses {
@@ -332,7 +337,7 @@ gradle.startParameter.excludedTaskNames += [ "forbiddenApisMain",
                                              "testingConventions"]
 
 import java.util.concurrent.Callable
-import org.ajoberstar.gradle.git.tasks.GitClone
+import org.ajoberstar.grgit.Grgit
 import org.opensearch.gradle.test.RestIntegTestTask
 import org.opensearch.gradle.testclusters.StandaloneRestIntegTestTask
 
@@ -347,16 +352,21 @@ static def propEnabled(property) {
  * cloneRcaGitRepo clones the performance-analyzer-rca repo if the -Dtests.enableIT=true flag is passed
  * to the Gradle JVM
  */
-task cloneRcaGitRepo(type: GitClone) {
+task cloneRcaGitRepo() {
     def destination = file(rcaProjectDir)
-    uri = rcaProjectRepo
-    branch = rcaProjectBranch
-    destinationPath = destination
-    bare = false
-    enabled = cloneRcaProject && !destination.exists() // to clone only once
-
+    def uri = rcaProjectRepo
+    def branch = rcaProjectBranch
     doFirst {
-        logger.info("Cloning performance-analyzer-rca into ${rcaProjectDir} from ${rcaProjectRepo}#${rcaProjectBranch}")
+        println "Cloning performance-analyzer-rca into ${rcaProjectDir} from ${rcaProjectRepo}#${rcaProjectBranch}"
+    }
+    doLast {
+        if (destination.exists() && destination.isDirectory()) { // If directory exists, use this instead.
+            def grgit = Grgit.open(dir: destination.toString())
+        } else { // Otherwise pull it from git.
+            def grgit = Grgit.clone(dir: destination.toString(), uri: uri)
+            grgit.fetch(remote: 'origin')
+            grgit.checkout(branch: branch)
+        }
     }
 }
 
@@ -370,11 +380,21 @@ task buildRca() {
     doLast {
         exec {
             workingDir("$rcaProjectDir")
-            commandLine './gradlew', 'build', '-x', 'test', "-Dopensearch.version=${opensearch_version}", "-Dbuild.snapshot=${isSnapshot}"
+            if (buildVersionQualifier == null || buildVersionQualifier == '' || buildVersionQualifier == 'null') {
+                commandLine './gradlew', 'build', '-x', 'test', "-Dopensearch.version=${opensearch_version}", "-Dbuild.snapshot=${isSnapshot}"
+            }
+            else {
+                commandLine './gradlew', 'build', '-x', 'test', "-Dopensearch.version=${opensearch_version}", "-Dbuild.snapshot=${isSnapshot}", "-Dbuild.version_qualifier=${buildVersionQualifier}"
+            }
         }
         exec {
             workingDir("$rcaProjectDir")
-            commandLine './gradlew', 'publishToMavenLocal', "-Dopensearch.version=${opensearch_version}", "-Dbuild.snapshot=${isSnapshot}"
+            if (buildVersionQualifier == null || buildVersionQualifier == '' || buildVersionQualifier == 'null') {
+                commandLine './gradlew', 'publishToMavenLocal', "-Dopensearch.version=${opensearch_version}", "-Dbuild.snapshot=${isSnapshot}"
+            }
+            else {
+                commandLine './gradlew', 'publishToMavenLocal', "-Dopensearch.version=${opensearch_version}", "-Dbuild.snapshot=${isSnapshot}", "-Dbuild.version_qualifier=${buildVersionQualifier}"
+            }
         }
         exec {
             def licenseDir = "$projectDir/licenses"
@@ -400,6 +420,14 @@ task unpackRca(type: Copy) {
         logger.info("Unpacked performance-analyzer-rca artifacts into ${rcaProjectDir}")
     }
 }
+
+tasks.withType(Test) {
+    jvmArgs('--add-opens=java.base/sun.security.jca=ALL-UNNAMED')
+    jvmArgs('--add-opens=java.base/java.util.concurrent=ALL-UNNAMED')
+    jvmArgs('--add-opens=java.base/java.io=ALL-UNNAMED')
+    jvmArgs('--add-opens=java.base/java.nio.file=ALL-UNNAMED')
+}
+
 
 bundlePlugin {
     dependsOn 'unpackRca'
@@ -522,7 +550,7 @@ String bwcFilePath = "src/test/resources/org/opensearch/performanceanalyzer/bwc/
     testClusters {
         "${baseName}$i" {
             testDistribution = "ARCHIVE"
-            versions = ["7.10.2","1.3.0-SNAPSHOT"]
+            versions = ["7.10.2", opensearch_version]
             numberOfNodes = 3
             plugin(provider(new Callable<RegularFile>(){
                 @Override
@@ -662,7 +690,7 @@ afterEvaluate {
     ospackage {
         packageName = "opensearch-performance-analyzer"
         release = isSnapshot ? "0.1" : '1'
-        version = "${project.version}" - "-SNAPSHOT"
+        version = "${project.version}"
 
         into '/usr/share/opensearch/plugins'
         from(zipTree(bundlePlugin.archivePath)) {
