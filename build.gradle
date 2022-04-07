@@ -212,9 +212,6 @@ checkstyleMain.enabled = false
 checkstyleTest.enabled = false
 
 dependencies {
-    if (JavaVersion.current() <= JavaVersion.VERSION_1_8) {
-        implementation files("${System.properties['java.home']}/../lib/tools.jar")
-    }
 
     def jacksonVersion = "2.12.6"
     def nettyVersion = "4.1.73.Final"
@@ -323,7 +320,6 @@ dependencies {
 }
 
 dependencyLicenses {
-    enabled false
     mapping from: /jackson-.*/, to: 'jackson'
 }
 
