@@ -381,10 +381,10 @@ task buildRca() {
         exec {
             workingDir("$rcaProjectDir")
             if (buildVersionQualifier == null || buildVersionQualifier == '' || buildVersionQualifier == 'null') {
-                commandLine './gradlew', 'build', '-x', 'test', "-Dopensearch.version=${opensearch_version}", "-Dbuild.snapshot=${isSnapshot}"
+                commandLine './gradlew', 'build', '-x', 'test', '-x', 'jacocoTestCoverageVerification', "-Dopensearch.version=${opensearch_version}", "-Dbuild.snapshot=${isSnapshot}"
             }
             else {
-                commandLine './gradlew', 'build', '-x', 'test', "-Dopensearch.version=${opensearch_version}", "-Dbuild.snapshot=${isSnapshot}", "-Dbuild.version_qualifier=${buildVersionQualifier}"
+                commandLine './gradlew', 'build', '-x', 'test', '-x', 'jacocoTestCoverageVerification', "-Dopensearch.version=${opensearch_version}", "-Dbuild.snapshot=${isSnapshot}", "-Dbuild.version_qualifier=${buildVersionQualifier}"
             }
         }
         exec {
@@ -678,10 +678,7 @@ task bwcTestSuite(type: StandaloneRestIntegTestTask) {
     exclude '**/*Test*'
     exclude '**/*IT*'
     dependsOn tasks.named("${baseName}#mixedClusterTask")
-    if (JavaVersion.current() > JavaVersion.VERSION_1_8) {
-        // Only running this for > jdk8 versions as of now.
-        dependsOn tasks.named("${baseName}#rollingUpgradeClusterTask")
-    }
+    dependsOn tasks.named("${baseName}#rollingUpgradeClusterTask")
     dependsOn tasks.named("${baseName}#fullRestartClusterTask")
 }
 
