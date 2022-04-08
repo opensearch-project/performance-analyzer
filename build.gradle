@@ -65,7 +65,7 @@ spotbugsTest {
 ext {
     // The RCA branch that will be built. Default branch is main.
     rcaProjectRepo = System.getProperty("performance-analyzer-rca.repo", "https://github.com/opensearch-project/performance-analyzer-rca.git")
-    rcaProjectBranch = System.getProperty("performance-analyzer-rca.branch", "main")
+    rcaProjectBranch = System.getProperty("performance-analyzer-rca.branch", "fix_jdk11_integ_test")
 
     // If true, then the build will clone the RCA Project into $rcaProjectDir
     cloneRcaProject = "true" == System.getProperty("performance-analyzer-rca.build", "true")
