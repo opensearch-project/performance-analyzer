@@ -188,7 +188,7 @@ public class PerformanceAnalyzerConfigAction extends BaseRestHandler {
                     if (shouldEnable
                             && !performanceAnalyzerController.isPerformanceAnalyzerEnabled()) {
                         return getChannelConsumerWithError(
-                                "Error: PA not enabled. Enable PA before turning Batch Metrics on");
+                                "Error: PA not enabled. Enable PA before turning thread contention monitoring on");
                     }
                     performanceAnalyzerController.updateThreadContentionMonitoringState(shouldEnable);
                 } else {

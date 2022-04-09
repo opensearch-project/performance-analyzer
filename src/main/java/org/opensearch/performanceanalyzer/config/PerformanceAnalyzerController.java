@@ -287,7 +287,7 @@ public class PerformanceAnalyzerController {
                                 threadContentionMonitoringEnabledDefaultValue, THREAD_CONTENTION_MONITORING_ENABLED_CONF);
                         threadContentionMonitoringEnabledFromConf = threadContentionMonitoringEnabledDefaultValue;
                     } catch (Exception e) {
-                        LOG.debug("Error reading Performance Analyzer state from Conf file", e);
+                        LOG.debug("Error reading thread contention monitoring state from Conf file", e);
                         threadContentionMonitoringEnabledFromConf = threadContentionMonitoringEnabledDefaultValue;
                     }
 

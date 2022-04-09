@@ -31,7 +31,7 @@ public class PerformanceAnalyzerClusterSettingHandlerTests {
 
     @Test
     public void disabledClusterStateTest() {
-        setControllerValues(DISABLED_STATE, DISABLED_STATE, DISABLED_STATE, DISABLED_STATE,DISABLED_STATE );
+        setControllerValues(DISABLED_STATE, DISABLED_STATE, DISABLED_STATE, DISABLED_STATE, DISABLED_STATE);
         clusterSettingHandler =
                 new PerformanceAnalyzerClusterSettingHandler(
                         mockPerformanceAnalyzerController, mockClusterSettingsManager);
