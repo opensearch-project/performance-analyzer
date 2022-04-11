@@ -31,7 +31,7 @@ public class PerformanceAnalyzerClusterSettingHandlerTests {
 
     @Test
     public void disabledClusterStateTest() {
-        setControllerValues(DISABLED_STATE, DISABLED_STATE, DISABLED_STATE, DISABLED_STATE);
+        setControllerValues(DISABLED_STATE, DISABLED_STATE, DISABLED_STATE, DISABLED_STATE, DISABLED_STATE);
         clusterSettingHandler =
                 new PerformanceAnalyzerClusterSettingHandler(
                         mockPerformanceAnalyzerController, mockClusterSettingsManager);
@@ -40,16 +40,16 @@ public class PerformanceAnalyzerClusterSettingHandlerTests {
 
     @Test
     public void enabledClusterStateTest() {
-        setControllerValues(ENABLED_STATE, ENABLED_STATE, ENABLED_STATE, ENABLED_STATE);
+        setControllerValues(ENABLED_STATE, ENABLED_STATE, ENABLED_STATE, ENABLED_STATE, ENABLED_STATE);
         clusterSettingHandler =
                 new PerformanceAnalyzerClusterSettingHandler(
                         mockPerformanceAnalyzerController, mockClusterSettingsManager);
-        assertEquals(15, clusterSettingHandler.getCurrentClusterSettingValue());
+        assertEquals(31, clusterSettingHandler.getCurrentClusterSettingValue());
     }
 
     @Test
     public void paDisabledClusterStateTest() {
-        setControllerValues(DISABLED_STATE, ENABLED_STATE, ENABLED_STATE, ENABLED_STATE);
+        setControllerValues(DISABLED_STATE, ENABLED_STATE, ENABLED_STATE, ENABLED_STATE, ENABLED_STATE);
         clusterSettingHandler =
                 new PerformanceAnalyzerClusterSettingHandler(
                         mockPerformanceAnalyzerController, mockClusterSettingsManager);
@@ -58,7 +58,7 @@ public class PerformanceAnalyzerClusterSettingHandlerTests {
 
     @Test
     public void updateClusterStateTest() {
-        setControllerValues(ENABLED_STATE, ENABLED_STATE, DISABLED_STATE, DISABLED_STATE);
+        setControllerValues(ENABLED_STATE, ENABLED_STATE, DISABLED_STATE, DISABLED_STATE, DISABLED_STATE);
         clusterSettingHandler =
                 new PerformanceAnalyzerClusterSettingHandler(
                         mockPerformanceAnalyzerController, mockClusterSettingsManager);
@@ -71,12 +71,15 @@ public class PerformanceAnalyzerClusterSettingHandlerTests {
             final Boolean paEnabled,
             final Boolean rcaEnabled,
             final Boolean loggingEnabled,
-            final Boolean batchMetricsEnabled) {
+            final Boolean batchMetricsEnabled,
+            final Boolean threadContentionMonitoringEnabled) {
         when(mockPerformanceAnalyzerController.isPerformanceAnalyzerEnabled())
                 .thenReturn(paEnabled);
         when(mockPerformanceAnalyzerController.isRcaEnabled()).thenReturn(rcaEnabled);
         when(mockPerformanceAnalyzerController.isLoggingEnabled()).thenReturn(loggingEnabled);
         when(mockPerformanceAnalyzerController.isBatchMetricsEnabled())
                 .thenReturn(batchMetricsEnabled);
+        when(mockPerformanceAnalyzerController.isThreadContentionMonitoringEnabled())
+                .thenReturn(threadContentionMonitoringEnabled);
     }
 }

@@ -144,6 +144,12 @@ public class PerformanceAnalyzerClusterConfigActionTests {
         testWithRequestPath(PerformanceAnalyzerClusterConfigAction.LEGACY_PA_CLUSTER_CONFIG_PATH);
     }
 
+    @Test
+    public void testUpdateThreadContentionMonitoringSetting() throws IOException {
+        testWithRequestPath(
+                PerformanceAnalyzerClusterConfigAction.THREAD_CONTENTION_MONITORING_CLUSTER_CONFIG_PATH);
+    }
+
     private void testWithRequestPath(String requestPath) throws IOException {
         final FakeRestRequest fakeRestRequest = buildRequest(requestPath);
         final FakeRestChannel channel = new FakeRestChannel(fakeRestRequest, true, 10);
