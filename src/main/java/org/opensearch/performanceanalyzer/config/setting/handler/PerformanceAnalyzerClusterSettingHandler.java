@@ -30,7 +30,8 @@ public class PerformanceAnalyzerClusterSettingHandler implements ClusterSettingL
             PerformanceAnalyzerClusterSettings.PerformanceAnalyzerFeatureBits.BATCH_METRICS_BIT
                     .ordinal();
     private static final int THREAD_CONTENTION_MONITORING_ENABLED_BIT_POS =
-            PerformanceAnalyzerClusterSettings.PerformanceAnalyzerFeatureBits.THREAD_CONTENTION_MONITORING_BIT
+            PerformanceAnalyzerClusterSettings.PerformanceAnalyzerFeatureBits
+                    .THREAD_CONTENTION_MONITORING_BIT
                     .ordinal();
 
     private final PerformanceAnalyzerController controller;
@@ -121,7 +122,8 @@ public class PerformanceAnalyzerClusterSettingHandler implements ClusterSettingL
             controller.updateRcaState(getRcaStateFromSetting(newSettingValue));
             controller.updateLoggingState(getLoggingStateFromSetting(newSettingValue));
             controller.updateBatchMetricsState(getBatchMetricsStateFromSetting(newSettingValue));
-            controller.updateThreadContentionMonitoringState(getThreadContentionMonitoringStateFromSetting(newSettingValue));
+            controller.updateThreadContentionMonitoringState(
+                    getThreadContentionMonitoringStateFromSetting(newSettingValue));
         }
     }
 
@@ -182,10 +184,12 @@ public class PerformanceAnalyzerClusterSettingHandler implements ClusterSettingL
 
     /**
      * Converts the boolean PA state to composite cluster setting. If Performance Analyzer is being
-     * turned off, it will also turn off RCA, logging, batch metrics and thread contention monitoring.
+     * turned off, it will also turn off RCA, logging, batch metrics and thread contention
+     * monitoring.
      *
      * @param state the state of performance analyzer. Will enable performance analyzer if true,
-     *     disables performance analyzer, RCA, logging, batch metrics and thread contention monitoring.
+     *     disables performance analyzer, RCA, logging, batch metrics and thread contention
+     *     monitoring.
      * @return composite cluster setting as an integer.
      */
     private Integer getPASettingValueFromState(final boolean state) {
@@ -243,7 +247,8 @@ public class PerformanceAnalyzerClusterSettingHandler implements ClusterSettingL
      * @return true if the THREAD_CONTENTION_MONITORING bit is set, false otherwise.
      */
     private boolean getThreadContentionMonitoringStateFromSetting(final int settingValue) {
-        return ((settingValue >> THREAD_CONTENTION_MONITORING_ENABLED_BIT_POS) & BIT_ONE) == ENABLED_VALUE;
+        return ((settingValue >> THREAD_CONTENTION_MONITORING_ENABLED_BIT_POS) & BIT_ONE)
+                == ENABLED_VALUE;
     }
 
     /**
@@ -306,11 +311,12 @@ public class PerformanceAnalyzerClusterSettingHandler implements ClusterSettingL
     }
 
     /**
-     * Converts the boolean thread contention monitoring state to composite cluster setting. Enables thread contention
-     * monitoring only if performance analyzer is also set. Otherwise, results in a no-op.
+     * Converts the boolean thread contention monitoring state to composite cluster setting. Enables
+     * thread contention monitoring only if performance analyzer is also set. Otherwise, results in
+     * a no-op.
      *
-     * @param shouldEnable the state of thread contention monitoring. Will try to enable if true, disables thread
-     * contention monitoring if false.
+     * @param shouldEnable the state of thread contention monitoring. Will try to enable if true,
+     *     disables thread contention monitoring if false.
      * @return composite cluster setting as an integer.
      */
     private Integer getThreadContentionMonitoringSettingValueFromState(final boolean shouldEnable) {

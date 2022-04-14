@@ -31,7 +31,8 @@ public class PerformanceAnalyzerClusterSettingHandlerTests {
 
     @Test
     public void disabledClusterStateTest() {
-        setControllerValues(DISABLED_STATE, DISABLED_STATE, DISABLED_STATE, DISABLED_STATE, DISABLED_STATE);
+        setControllerValues(
+                DISABLED_STATE, DISABLED_STATE, DISABLED_STATE, DISABLED_STATE, DISABLED_STATE);
         clusterSettingHandler =
                 new PerformanceAnalyzerClusterSettingHandler(
                         mockPerformanceAnalyzerController, mockClusterSettingsManager);
@@ -40,7 +41,8 @@ public class PerformanceAnalyzerClusterSettingHandlerTests {
 
     @Test
     public void enabledClusterStateTest() {
-        setControllerValues(ENABLED_STATE, ENABLED_STATE, ENABLED_STATE, ENABLED_STATE, ENABLED_STATE);
+        setControllerValues(
+                ENABLED_STATE, ENABLED_STATE, ENABLED_STATE, ENABLED_STATE, ENABLED_STATE);
         clusterSettingHandler =
                 new PerformanceAnalyzerClusterSettingHandler(
                         mockPerformanceAnalyzerController, mockClusterSettingsManager);
@@ -49,7 +51,8 @@ public class PerformanceAnalyzerClusterSettingHandlerTests {
 
     @Test
     public void paDisabledClusterStateTest() {
-        setControllerValues(DISABLED_STATE, ENABLED_STATE, ENABLED_STATE, ENABLED_STATE, ENABLED_STATE);
+        setControllerValues(
+                DISABLED_STATE, ENABLED_STATE, ENABLED_STATE, ENABLED_STATE, ENABLED_STATE);
         clusterSettingHandler =
                 new PerformanceAnalyzerClusterSettingHandler(
                         mockPerformanceAnalyzerController, mockClusterSettingsManager);
@@ -58,7 +61,8 @@ public class PerformanceAnalyzerClusterSettingHandlerTests {
 
     @Test
     public void updateClusterStateTest() {
-        setControllerValues(ENABLED_STATE, ENABLED_STATE, DISABLED_STATE, DISABLED_STATE, DISABLED_STATE);
+        setControllerValues(
+                ENABLED_STATE, ENABLED_STATE, DISABLED_STATE, DISABLED_STATE, DISABLED_STATE);
         clusterSettingHandler =
                 new PerformanceAnalyzerClusterSettingHandler(
                         mockPerformanceAnalyzerController, mockClusterSettingsManager);

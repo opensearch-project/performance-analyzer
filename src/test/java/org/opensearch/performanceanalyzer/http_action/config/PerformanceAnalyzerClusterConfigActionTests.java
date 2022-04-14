@@ -147,7 +147,8 @@ public class PerformanceAnalyzerClusterConfigActionTests {
     @Test
     public void testUpdateThreadContentionMonitoringSetting() throws IOException {
         testWithRequestPath(
-                PerformanceAnalyzerClusterConfigAction.THREAD_CONTENTION_MONITORING_CLUSTER_CONFIG_PATH);
+                PerformanceAnalyzerClusterConfigAction
+                        .THREAD_CONTENTION_MONITORING_CLUSTER_CONFIG_PATH);
     }
 
     private void testWithRequestPath(String requestPath) throws IOException {

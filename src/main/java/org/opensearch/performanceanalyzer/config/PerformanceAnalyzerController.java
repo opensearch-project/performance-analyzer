@@ -31,7 +31,8 @@ public class PerformanceAnalyzerController {
     // This file should contain "true" or "false", indicating whether batch metrics is currently
     // enabled or not.
     private static final String BATCH_METRICS_ENABLED_CONF = "batch_metrics_enabled.conf";
-    private static final String THREAD_CONTENTION_MONITORING_ENABLED_CONF = "thread_contention_monitoring_enabled.conf";
+    private static final String THREAD_CONTENTION_MONITORING_ENABLED_CONF =
+            "thread_contention_monitoring_enabled.conf";
     private static final Logger LOG = LogManager.getLogger(PerformanceAnalyzerController.class);
     public static final int DEFAULT_NUM_OF_SHARDS_PER_COLLECTION = 0;
 
@@ -177,8 +178,8 @@ public class PerformanceAnalyzerController {
     /**
      * Updates the state of the thread contention monitoring api.
      *
-     * @param shouldEnable The desired state of the thread contention monitoring api. False to disable, and true to
-     *     enable.
+     * @param shouldEnable The desired state of the thread contention monitoring api. False to
+     *     disable, and true to enable.
      */
     public void updateThreadContentionMonitoringState(final boolean shouldEnable) {
         if (shouldEnable && !isPerformanceAnalyzerEnabled()) {
@@ -186,9 +187,11 @@ public class PerformanceAnalyzerController {
         }
         this.threadContentionMonitoringEnabled = shouldEnable;
         if (scheduledMetricCollectorsExecutor != null) {
-            scheduledMetricCollectorsExecutor.setThreadContentionMonitoringEnabled(threadContentionMonitoringEnabled);
+            scheduledMetricCollectorsExecutor.setThreadContentionMonitoringEnabled(
+                    threadContentionMonitoringEnabled);
         }
-        saveStateToConf(this.threadContentionMonitoringEnabled, THREAD_CONTENTION_MONITORING_ENABLED_CONF);
+        saveStateToConf(
+                this.threadContentionMonitoringEnabled, THREAD_CONTENTION_MONITORING_ENABLED_CONF);
     }
 
     private void initPerformanceAnalyzerStateFromConf() {
@@ -284,16 +287,23 @@ public class PerformanceAnalyzerController {
                     } catch (NoSuchFileException e) {
                         LOG.debug("Error reading Performance Analyzer state from Conf file", e);
                         saveStateToConf(
-                                threadContentionMonitoringEnabledDefaultValue, THREAD_CONTENTION_MONITORING_ENABLED_CONF);
-                        threadContentionMonitoringEnabledFromConf = threadContentionMonitoringEnabledDefaultValue;
+                                threadContentionMonitoringEnabledDefaultValue,
+                                THREAD_CONTENTION_MONITORING_ENABLED_CONF);
+                        threadContentionMonitoringEnabledFromConf =
+                                threadContentionMonitoringEnabledDefaultValue;
                     } catch (Exception e) {
-                        LOG.debug("Error reading thread contention monitoring state from Conf file", e);
-                        threadContentionMonitoringEnabledFromConf = threadContentionMonitoringEnabledDefaultValue;
+                        LOG.debug(
+                                "Error reading thread contention monitoring state from Conf file",
+                                e);
+                        threadContentionMonitoringEnabledFromConf =
+                                threadContentionMonitoringEnabledDefaultValue;
                     }
 
-                    // For thread contention monitoring to be enabled, both PA and thread contention monitoring
+                    // For thread contention monitoring to be enabled, both PA and thread contention
+                    // monitoring
                     // need to enabled.
-                    updateThreadContentionMonitoringState(paEnabled && threadContentionMonitoringEnabledFromConf);
+                    updateThreadContentionMonitoringState(
+                            paEnabled && threadContentionMonitoringEnabledFromConf);
                 });
     }
 

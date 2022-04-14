@@ -245,22 +245,29 @@ public class PerformanceAnalyzerConfigActionTests {
     }
 
     @Test
-    public void testUpdateThreadContentionMonitoringState_ShouldEnable_paEnabled() throws IOException {
+    public void testUpdateThreadContentionMonitoringState_ShouldEnable_paEnabled()
+            throws IOException {
         test(PerformanceAnalyzerConfigAction.THREAD_CONTENTION_MONITORING_CONFIG_PATH, true, true);
     }
 
     @Test
-    public void testUpdateThreadContentionMonitoringState_ShouldEnable_paDisabled() throws IOException {
+    public void testUpdateThreadContentionMonitoringState_ShouldEnable_paDisabled()
+            throws IOException {
         test(PerformanceAnalyzerConfigAction.THREAD_CONTENTION_MONITORING_CONFIG_PATH, true, false);
     }
 
     @Test
-    public void testUpdateThreadContentionMonitoringState_ShouldDisable_paDisabled() throws IOException {
-        test(PerformanceAnalyzerConfigAction.THREAD_CONTENTION_MONITORING_CONFIG_PATH, false, false);
+    public void testUpdateThreadContentionMonitoringState_ShouldDisable_paDisabled()
+            throws IOException {
+        test(
+                PerformanceAnalyzerConfigAction.THREAD_CONTENTION_MONITORING_CONFIG_PATH,
+                false,
+                false);
     }
 
     @Test
-    public void testUpdateThreadContentionMonitoringState_ShouldDisable_paEnabled() throws IOException {
+    public void testUpdateThreadContentionMonitoringState_ShouldDisable_paEnabled()
+            throws IOException {
         test(PerformanceAnalyzerConfigAction.THREAD_CONTENTION_MONITORING_CONFIG_PATH, false, true);
     }
 
@@ -281,7 +288,9 @@ public class PerformanceAnalyzerConfigActionTests {
             assertTrue(responseStr.contains(PerformanceAnalyzerConfigAction.PA_LOGGING_ENABLED));
             assertTrue(responseStr.contains(PerformanceAnalyzerConfigAction.SHARDS_PER_COLLECTION));
             assertTrue(responseStr.contains(PerformanceAnalyzerConfigAction.BATCH_METRICS_ENABLED));
-            assertTrue(responseStr.contains(PerformanceAnalyzerConfigAction.THREAD_CONTENTION_MONITORING_ENABLED));
+            assertTrue(
+                    responseStr.contains(
+                            PerformanceAnalyzerConfigAction.THREAD_CONTENTION_MONITORING_ENABLED));
             assertTrue(
                     responseStr.contains(
                             PerformanceAnalyzerConfigAction
