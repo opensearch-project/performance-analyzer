@@ -1,3 +1,7 @@
+grant {
+    permission java.lang.management.ManagementPermission "control";
+};
+
 grant codebase "file:${java.home}/../lib/tools.jar" {
   permission java.security.AllPermission;
 };
