@@ -7,7 +7,15 @@ if [ -z "$OPENSEARCH_HOME" ]; then
 fi
 
 # Prepare the RCA reader process for execution
-mv "$OPENSEARCH_HOME"/plugins/opensearch-performance-analyzer/performance-analyzer-rca $OPENSEARCH_HOME
+PA_PLUGIN_PATH=$OUTPUT/plugins/opensearch-performance-analyzer
+RCA_LIB_PATH=$OUTPUT/plugins/opensearch-performance-analyzer/rca_lib
+# Remove common lib files between PA plugin and RCA reader process
+for f in `ls -1 $PA_PLUGIN_PATH`; do
+    if [[ $(diff $RCA_LIB_PATH/$f $PA_PLUGIN_PATH/$f | wc -c) -eq 0 ]]; then
+        rm -rf $RCA_LIB_PATH/$f;
+    fi
+done;
+
 if [ -f "$OPENSEARCH_HOME"/bin/opensearch-performance-analyzer/performance-analyzer-agent-cli ]; then
   mv "$OPENSEARCH_HOME"/bin/opensearch-performance-analyzer/performance-analyzer-agent-cli "$OPENSEARCH_HOME"/bin
   rm -rf "$OPENSEARCH_HOME"/bin/opensearch-performance-analyzer
@@ -20,7 +28,6 @@ echo 'true' > /var/lib/opensearch/performance_analyzer_enabled.conf
 echo 'true' > /var/lib/opensearch/rca_enabled.conf
 chown opensearch /var/lib/opensearch/performance_analyzer_enabled.conf
 chown opensearch /var/lib/opensearch/rca_enabled.conf
-chown -R opensearch "$OPENSEARCH_HOME/performance-analyzer-rca"
 chmod a+rw /tmp
 
 if ! grep -q '## OpenSearch Performance Analyzer' /etc/opensearch/jvm.options; then
