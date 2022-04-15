@@ -427,15 +427,11 @@ tasks.withType(Test) {
 
 bundlePlugin {
     dependsOn 'unpackRca'
-    from("$rcaArtifactsDir/pa_config") {
-        into "pa_config"
+    from("$rcaArtifactsDir/config") {
+        into "config"
     }
-    from("$rcaArtifactsDir/pa_bin") {
-        into "pa_bin"
-        include "performance-analyzer-agent"
-    }
-    from("$rcaArtifactsDir/pa_bin") {
-        into "extensions"
+    from("$rcaArtifactsDir/bin") {
+        into "bin"
         include "performance-analyzer-agent"
     }
     from("$rcaArtifactsDir") {
@@ -541,6 +537,8 @@ task integTestRemote(type: RestIntegTestTask) {
 String bwcVersion = "1.13.0.0"
 String baseName = "paBwcCluster"
 String bwcFilePath = "src/test/resources/org/opensearch/performanceanalyzer/bwc/"
+String bwcRemoteFile = "https://d3g5vo6xdbdb9a.cloudfront.net/downloads/elasticsearch-plugins/performance-analyzer/opendistro-performance-analyzer-1.13.0.0.zip"
+String bwcOpenDistroPlugin = "opendistro-performance-analyzer-1.13.0.0.zip"
 
 2.times {i ->
     testClusters {
@@ -554,6 +552,14 @@ String bwcFilePath = "src/test/resources/org/opensearch/performanceanalyzer/bwc/
                     return new RegularFile() {
                         @Override
                         File getAsFile() {
+                            File dir = new File(bwcFilePath + bwcVersion)
+                            if (!dir.exists()) {
+                                dir.mkdirs()
+                            }
+                            File f = new File(bwcFilePath + bwcVersion + "/" + bwcOpenDistroPlugin)
+                            if (!f.exists()) {
+                                new URL(bwcRemoteFile).withInputStream{ ins -> f.withOutputStream{ it << ins }}
+                            }
                             return fileTree(bwcFilePath + bwcVersion).getSingleFile()
                         }
                     }

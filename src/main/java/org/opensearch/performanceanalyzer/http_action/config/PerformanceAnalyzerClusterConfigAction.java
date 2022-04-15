@@ -9,7 +9,6 @@ import static java.util.Arrays.asList;
 import static java.util.Collections.unmodifiableList;
 
 import java.io.IOException;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import org.apache.logging.log4j.LogManager;
@@ -69,8 +68,7 @@ public class PerformanceAnalyzerClusterConfigAction extends BaseRestHandler {
                                     THREAD_CONTENTION_MONITORING_CLUSTER_CONFIG_PATH),
                             new Route(
                                     RestRequest.Method.POST,
-                                    THREAD_CONTENTION_MONITORING_CLUSTER_CONFIG_PATH)
-                    ));
+                                    THREAD_CONTENTION_MONITORING_CLUSTER_CONFIG_PATH)));
     private static final List<ReplacedRoute> REPLACED_ROUTES =
             unmodifiableList(
                     asList(
@@ -181,7 +179,8 @@ public class PerformanceAnalyzerClusterConfigAction extends BaseRestHandler {
                 } else if (request.path().contains(BATCH_METRICS_CLUSTER_CONFIG_PATH)
                         || request.path().contains(LEGACY_BATCH_METRICS_CLUSTER_CONFIG_PATH)) {
                     clusterSettingHandler.updateBatchMetricsSetting((Boolean) value);
-                } else if (request.path().contains(THREAD_CONTENTION_MONITORING_CLUSTER_CONFIG_PATH)) {
+                } else if (request.path()
+                        .contains(THREAD_CONTENTION_MONITORING_CLUSTER_CONFIG_PATH)) {
                     clusterSettingHandler.updateThreadContentionMonitoringSetting((Boolean) value);
                 } else {
                     clusterSettingHandler.updatePerformanceAnalyzerSetting((Boolean) value);

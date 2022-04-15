@@ -9,7 +9,6 @@ import static java.util.Arrays.asList;
 import static java.util.Collections.unmodifiableList;
 
 import java.io.IOException;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import org.apache.logging.log4j.LogManager;
@@ -39,7 +38,8 @@ public class PerformanceAnalyzerConfigAction extends BaseRestHandler {
     public static final String RCA_ENABLED = "rcaEnabled";
     public static final String PA_LOGGING_ENABLED = "loggingEnabled";
     public static final String BATCH_METRICS_ENABLED = "batchMetricsEnabled";
-    public static final String THREAD_CONTENTION_MONITORING_ENABLED = "threadContentionMonitoringEnabled";
+    public static final String THREAD_CONTENTION_MONITORING_ENABLED =
+            "threadContentionMonitoringEnabled";
     public static final String BATCH_METRICS_RETENTION_PERIOD_MINUTES =
             "batchMetricsRetentionPeriodMinutes";
     public static final String PERFORMANCE_ANALYZER_CONFIG_ACTION =
@@ -67,8 +67,7 @@ public class PerformanceAnalyzerConfigAction extends BaseRestHandler {
                                     THREAD_CONTENTION_MONITORING_CONFIG_PATH),
                             new Route(
                                     RestRequest.Method.POST,
-                                    THREAD_CONTENTION_MONITORING_CONFIG_PATH)
-                    ));
+                                    THREAD_CONTENTION_MONITORING_CONFIG_PATH)));
     private static final List<ReplacedRoute> REPLACED_ROUTES =
             unmodifiableList(
                     asList(
@@ -190,7 +189,8 @@ public class PerformanceAnalyzerConfigAction extends BaseRestHandler {
                         return getChannelConsumerWithError(
                                 "Error: PA not enabled. Enable PA before turning thread contention monitoring on");
                     }
-                    performanceAnalyzerController.updateThreadContentionMonitoringState(shouldEnable);
+                    performanceAnalyzerController.updateThreadContentionMonitoringState(
+                            shouldEnable);
                 } else {
                     // Disabling Performance Analyzer should disable the RCA framework as well.
                     if (!shouldEnable) {
