@@ -6,11 +6,11 @@
 buildscript {
 
     ext {
-        opensearch_version = System.getProperty("opensearch.version", "2.0.0-alpha1-SNAPSHOT")
+        opensearch_version = System.getProperty("opensearch.version", "2.0.0-rc1-SNAPSHOT")
         isSnapshot = "true" == System.getProperty("build.snapshot", "true")
-        buildVersionQualifier = System.getProperty("build.version_qualifier", "alpha1")
+        buildVersionQualifier = System.getProperty("build.version_qualifier", "rc1")
 
-        // 2.0.0-alpha1-SNAPSHOT -> 2.0.0.0-alpha1-SNAPSHOT
+        // 2.0.0-rc1-SNAPSHOT -> 2.0.0.0-rc1-SNAPSHOT
         version_tokens = opensearch_version.tokenize('-')
         opensearch_build = version_tokens[0] + '.0'
         if (buildVersionQualifier) {
@@ -556,7 +556,7 @@ String bwcOpenDistroPlugin = "opendistro-performance-analyzer-1.13.0.0.zip"
                             if (!dir.exists()) {
                                 dir.mkdirs()
                             }
-                            File f = new File(bwcOpenDistroPlugin, dir)
+                            File f = new File(bwcFilePath + bwcVersion + "/" + bwcOpenDistroPlugin)
                             if (!f.exists()) {
                                 new URL(bwcRemoteFile).withInputStream{ ins -> f.withOutputStream{ it << ins }}
                             }
