@@ -10,7 +10,6 @@ Compatible with OpenSearch 2.0.0-rc1
 
 ### Bug fixes
 
-* Updated issue templates from .github. ([#177](https://github.com/opensearch-project/performance-analyzer/pull/177))
 * Fix EventLogFileHandlerTests flaky test ([#178](https://github.com/opensearch-project/performance-analyzer/pull/178))
 * Add retry for tests ([#180](https://github.com/opensearch-project/performance-analyzer/pull/180))
 
@@ -26,5 +25,6 @@ Compatible with OpenSearch 2.0.0-rc1
 * Update directory names ([#166](https://github.com/opensearch-project/performance-analyzer-rca/pull/166))
 * Update PA directories from plugins to root ([#168](https://github.com/opensearch-project/performance-analyzer-rca/pull/168))
 
-### Deprecation
+### Documentation
+* Updated issue templates from .github. ([#177](https://github.com/opensearch-project/performance-analyzer/pull/177))
 * Removing metrics which are not required now as were removed in OS 2.0 ([#159](https://github.com/opensearch-project/performance-analyzer-rca/pull/159))
