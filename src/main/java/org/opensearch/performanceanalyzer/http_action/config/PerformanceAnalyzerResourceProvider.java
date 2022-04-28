@@ -202,7 +202,11 @@ public class PerformanceAnalyzerResourceProvider extends BaseRestHandler {
                 try {
                     Map<String, List<String>> map = httpURLConnection.getHeaderFields();
                     for (Map.Entry<String, List<String>> entry : map.entrySet()) {
-                        finalResponse.addHeader(entry.getKey(), entry.getValue().toString());
+                        if (entry.getKey() != null && entry.getKey().length() != 0) {
+                            for (String value : entry.getValue()) {
+                                finalResponse.addHeader(entry.getKey(), value);
+                            }
+                        }
                     }
                     // Send Response back to callee
                     channel.sendResponse(finalResponse);
