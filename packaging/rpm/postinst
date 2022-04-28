@@ -12,6 +12,11 @@ if [ -z "$OPENSEARCH_HOME" ]; then
   OPENSEARCH_HOME=/usr/share/opensearch
 fi
 
+# Make sure the OPENSEARCH_PATH_CONF environment variable is set
+if [ -z "$OPENSEARCH_PATH_CONF" ]; then
+  OPENSEARCH_PATH_CONF=/etc/opensearch
+fi
+
 # Prepare the RCA reader process for execution
 mv "$OPENSEARCH_HOME"/plugins/opensearch-performance-analyzer/performance-analyzer-rca $OPENSEARCH_HOME
 mkdir -p "$OPENSEARCH_HOME"/data
@@ -25,13 +30,13 @@ chown opensearch /var/lib/opensearch/rca_enabled.conf
 chown -R opensearch "$OPENSEARCH_HOME/performance-analyzer-rca"
 chmod a+rw /tmp
 
-if ! grep -q '## OpenSearch Performance Analyzer' /etc/opensearch/jvm.options; then
+if ! grep -q '## OpenSearch Performance Analyzer' $OPENSEARCH_PATH_CONF/jvm.options; then
    CLK_TCK=`/usr/bin/getconf CLK_TCK`
-   echo >> /etc/opensearch/jvm.options
-   echo '## OpenSearch Performance Analyzer' >> /etc/opensearch/jvm.options
-   echo "-Dclk.tck=$CLK_TCK" >> /etc/opensearch/jvm.options
-   echo "-Djdk.attach.allowAttachSelf=true" >> /etc/opensearch/jvm.options
-   echo "-Djava.security.policy=file:///usr/share/opensearch/config/opensearch-performance-analyzer/opensearch_security.policy" >> /etc/opensearch/jvm.options
+   echo >> $OPENSEARCH_PATH_CONF/jvm.options
+   echo '## OpenSearch Performance Analyzer' >> $OPENSEARCH_PATH_CONF/jvm.options
+   echo "-Dclk.tck=$CLK_TCK" >> $OPENSEARCH_PATH_CONF/jvm.options
+   echo "-Djdk.attach.allowAttachSelf=true" >> $OPENSEARCH_PATH_CONF/jvm.options
+   echo "-Djava.security.policy=file://$OPENSEARCH_PATH_CONF/opensearch-performance-analyzer/opensearch_security.policy" >> $OPENSEARCH_PATH_CONF/jvm.options
 fi
 
 IS_UPGRADE=false
