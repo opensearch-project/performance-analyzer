@@ -36,13 +36,14 @@ public class PageFaultMetricsIT extends MetricCollectorIntegTestBase {
     public void checkPaging_MajfltRate(String paBaseUri) throws Exception {
         // read metric from local node
         List<JsonResponseNode> responseNodeList =
-                readMetric(paBaseUri + "/metrics/?metrics=Paging_MajfltRate&agg=max");
+                readMetric(paBaseUri + "/_agent/metrics?metrics=Paging_MajfltRate&agg=max");
         Assert.assertEquals(1, responseNodeList.size());
         validateMajorPageFaultMetric(responseNodeList.get(0));
 
         // read metric from all nodes in cluster
         responseNodeList =
-                readMetric(paBaseUri + "/metrics/?metrics=Paging_MajfltRate&agg=max&nodes=all");
+                readMetric(
+                        paBaseUri + "/_agent/metrics?metrics=Paging_MajfltRate&agg=max&nodes=all");
         int nodeNum = getNodeIDs().size();
         Assert.assertEquals(nodeNum, responseNodeList.size());
         for (int i = 0; i < nodeNum; i++) {
@@ -63,13 +64,14 @@ public class PageFaultMetricsIT extends MetricCollectorIntegTestBase {
     public void checkPaging_MinfltRate(String paBaseUri) throws Exception {
         // read metric from local node
         List<JsonResponseNode> responseNodeList =
-                readMetric(paBaseUri + "/metrics/?metrics=Paging_MinfltRate&agg=max");
+                readMetric(paBaseUri + "/_agent/metrics?metrics=Paging_MinfltRate&agg=max");
         Assert.assertEquals(1, responseNodeList.size());
         validateMinorPageFaultMetric(responseNodeList.get(0));
 
         // read metric from all nodes in cluster
         responseNodeList =
-                readMetric(paBaseUri + "/metrics/?metrics=Paging_MinfltRate&agg=max&nodes=all");
+                readMetric(
+                        paBaseUri + "/_agent/metrics?metrics=Paging_MinfltRate&agg=max&nodes=all");
         int nodeNum = getNodeIDs().size();
         Assert.assertEquals(nodeNum, responseNodeList.size());
         for (int i = 0; i < nodeNum; i++) {
@@ -90,12 +92,13 @@ public class PageFaultMetricsIT extends MetricCollectorIntegTestBase {
     public void checkPaging_RSS(String paBaseUri) throws Exception {
         // read metric from local node
         List<JsonResponseNode> responseNodeList =
-                readMetric(paBaseUri + "/metrics/?metrics=Paging_RSS&agg=max");
+                readMetric(paBaseUri + "/_agent/metrics?metrics=Paging_RSS&agg=max");
         Assert.assertEquals(1, responseNodeList.size());
         validatePagingRSSMetric(responseNodeList.get(0));
 
         // read metric from all nodes in cluster
-        responseNodeList = readMetric(paBaseUri + "/metrics/?metrics=Paging_RSS&agg=max&nodes=all");
+        responseNodeList =
+                readMetric(paBaseUri + "/_agent/metrics?metrics=Paging_RSS&agg=max&nodes=all");
         int nodeNum = getNodeIDs().size();
         Assert.assertEquals(nodeNum, responseNodeList.size());
         for (int i = 0; i < nodeNum; i++) {
