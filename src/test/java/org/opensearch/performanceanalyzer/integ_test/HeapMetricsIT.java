@@ -109,7 +109,8 @@ public class HeapMetricsIT extends MetricCollectorIntegTestBase {
             throws Exception {
         // read metric from local node
         List<JsonResponseNode> responseNodeList =
-                readMetric(paBaseUri + "/metrics/?metrics=" + metric.toString() + "&agg=max");
+                readMetric(
+                        paBaseUri + "/_agent/metrics/?metrics=" + metric.toString() + "&agg=max");
         Assert.assertEquals(1, responseNodeList.size());
         validateHeapMetric(responseNodeList.get(0), metric, metricValidator);
 
@@ -117,7 +118,7 @@ public class HeapMetricsIT extends MetricCollectorIntegTestBase {
         responseNodeList =
                 readMetric(
                         paBaseUri
-                                + "/metrics/?metrics="
+                                + "/_agent/metrics/?metrics="
                                 + metric.toString()
                                 + "&agg=max&nodes=all");
         int nodeNum = getNodeIDs().size();

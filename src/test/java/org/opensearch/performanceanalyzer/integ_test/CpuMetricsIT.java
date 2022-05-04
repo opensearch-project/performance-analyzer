@@ -57,13 +57,13 @@ public class CpuMetricsIT extends MetricCollectorIntegTestBase {
     public void checkCPUUtilization(String paBaseUri) throws Exception {
         // read metric from local node
         List<JsonResponseNode> responseNodeList =
-                readMetric(paBaseUri + "/metrics/?metrics=CPU_Utilization&agg=sum");
+                readMetric(paBaseUri + "/_agent/metrics?metrics=CPU_Utilization&agg=sum");
         Assert.assertEquals(1, responseNodeList.size());
         validatePerNodeCPUMetric(responseNodeList.get(0));
 
         // read metric from all nodes in cluster
         responseNodeList =
-                readMetric(paBaseUri + "/metrics/?metrics=CPU_Utilization&agg=sum&nodes=all");
+                readMetric(paBaseUri + "/_agent/metrics?metrics=CPU_Utilization&agg=sum&nodes=all");
         int nodeNum = getNodeIDs().size();
         Assert.assertEquals(nodeNum, responseNodeList.size());
         for (int i = 0; i < nodeNum; i++) {

@@ -41,7 +41,7 @@ public class ITConfig {
     private String transportEndpoint;
 
     // The port number to use for
-    private int paPort = 9600;
+    private int paPort = 9200;
 
     public ITConfig() {
         https = Boolean.parseBoolean(System.getProperty("tests.https"));
