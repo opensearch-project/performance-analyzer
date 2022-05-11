@@ -19,10 +19,6 @@ fi
 
 # Prepare the RCA reader process for execution
 mv "$OPENSEARCH_HOME"/plugins/opensearch-performance-analyzer/performance-analyzer-rca $OPENSEARCH_HOME
-if [ -f "$OPENSEARCH_HOME"/bin/opensearch-performance-analyzer/performance-analyzer-agent-cli ]; then
-  mv "$OPENSEARCH_HOME"/bin/opensearch-performance-analyzer/performance-analyzer-agent-cli "$OPENSEARCH_HOME"/bin
-  rm -rf "$OPENSEARCH_HOME"/bin/opensearch-performance-analyzer
-fi
 mkdir -p "$OPENSEARCH_HOME"/data
 mkdir -p "/var/lib/opensearch"
 touch "$OPENSEARCH_HOME"/data/rca_enabled.conf
@@ -68,6 +64,6 @@ if [ "x$IS_UPGRADE" != "xtrue" ]; then
 
     elif command -v chkconfig >/dev/null; then
         echo "### Non systemd distro. Please start and stop performance analyzer manually using the command: "
-        echo "sh /usr/share/opensearch/plugins/opensearch-performance-analyzer/bin/performance-analyzer-agent /usr/share/opensearch -d"
+        echo "sh /usr/share/opensearch/bin/opensearch-performance-analyzer/performance-analyzer-agent /usr/share/opensearch -d"
     fi
 fi
