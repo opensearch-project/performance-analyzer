@@ -80,6 +80,7 @@ allprojects {
 }
 
 apply plugin: 'opensearch.opensearchplugin'
+apply plugin: 'opensearch.pluginzip'
 
 licenseFile = rootProject.file('LICENSE.txt')
 noticeFile = rootProject.file('NOTICE.txt')
@@ -142,6 +143,29 @@ project.afterEvaluate {
     }
 
     compileJava.options.compilerArgs.removeAll(['--release', version])
+}
+
+publishing {
+    publications {
+        pluginZip(MavenPublication) { publication ->
+            pom {
+                name = "performance-analyzer"
+                description = "OpenSearch performance-analyzer plugin"
+                licenses {
+                    license {
+                        name = "The Apache License, Version 2.0"
+                        url = "http://www.apache.org/licenses/LICENSE-2.0.txt"
+                    }
+                }
+                developers {
+                    developer {
+                        name = "OpenSearch"
+                        url = "https://github.com/opensearch-project/performance-analyzer"
+                    }
+                }
+            }
+        }
+    }
 }
 
 repositories {
