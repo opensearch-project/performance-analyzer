@@ -6,11 +6,11 @@
 buildscript {
 
     ext {
-        opensearch_version = System.getProperty("opensearch.version", "2.0.1-SNAPSHOT")
+        opensearch_version = System.getProperty("opensearch.version", "2.1.0-SNAPSHOT")
         isSnapshot = "true" == System.getProperty("build.snapshot", "true")
         buildVersionQualifier = System.getProperty("build.version_qualifier", "")
 
-        // 2.0.1-SNAPSHOT -> 2.0.1.0-SNAPSHOT
+        // 2.1.0-SNAPSHOT -> 2.1.0.0-SNAPSHOT
         version_tokens = opensearch_version.tokenize('-')
         opensearch_build = version_tokens[0] + '.0'
         if (buildVersionQualifier) {
@@ -63,9 +63,9 @@ spotbugsTest {
 }
 
 ext {
-    // The RCA branch that will be built. Default branch is 2.0.
+    // The RCA branch that will be built. Default branch is 2.1.
     rcaProjectRepo = System.getProperty("performance-analyzer-rca.repo", "https://github.com/opensearch-project/performance-analyzer-rca.git")
-    rcaProjectBranch = System.getProperty("performance-analyzer-rca.branch", "2.0")
+    rcaProjectBranch = System.getProperty("performance-analyzer-rca.branch", "2.1")
 
     // If true, then the build will clone the RCA Project into $rcaProjectDir
     cloneRcaProject = "true" == System.getProperty("performance-analyzer-rca.build", "true")
