@@ -6,7 +6,7 @@
 buildscript {
 
     ext {
-        opensearch_version = System.getProperty("opensearch.version", "1.3.3-SNAPSHOT")
+        opensearch_version = System.getProperty("opensearch.version", "1.3.4-SNAPSHOT")
     }
 
     // Used to resolve build file dependencies
@@ -208,7 +208,7 @@ dependencies {
         compile files("${System.properties['java.home']}/../lib/tools.jar")
     }
 
-    def jacksonVersion = "2.12.6"
+    def jacksonVersion = "2.13.2"
     def nettyVersion = "4.1.73.Final"
 
     configurations {
