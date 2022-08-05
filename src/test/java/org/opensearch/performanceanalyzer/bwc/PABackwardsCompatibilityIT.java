@@ -67,7 +67,7 @@ public class PABackwardsCompatibilityIT extends PerformanceAnalyzerIntegTestBase
                     plugins.stream().map(map -> map.get("name")).collect(Collectors.toSet());
             switch (CLUSTER_TYPE) {
                 case OLD:
-                    Assert.assertTrue(pluginNames.contains("opendistro-performance-analyzer"));
+                    Assert.assertTrue(pluginNames.contains("opensearch-performance-analyzer"));
                     ensurePAStatus(RestConfig.LEGACY_PA_BASE_URI, true);
                     ensurePAStatus(RestConfig.LEGACY_PA_BASE_URI, false);
                     break;
