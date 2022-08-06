@@ -210,14 +210,9 @@ public class PerformanceAnalyzerResourceProviderTests {
 
     @Test
     public void testGetAgentUri_WithHttp_WithUnsupportedRedirection() throws Exception {
-        String requestUri = "http://localhost:9200/_opendistro/_performanceanalyzer/_agent/invalid";
+        String requestUri = "http://localhost:9200/_plugins/_performanceanalyzer/_agent/invalid";
         RestRequest request = generateRestRequest(requestUri, "invalid");
         URL finalURI = performanceAnalyzerRp.getAgentUri(request);
-        assertNull(finalURI);
-
-        requestUri = "http://localhost:9200/_plugins/_performanceanalyzer/_agent/invalid";
-        request = generateRestRequest(requestUri, "invalid");
-        finalURI = performanceAnalyzerRp.getAgentUri(request);
         assertNull(finalURI);
     }
 }
