@@ -68,8 +68,8 @@ public class PABackwardsCompatibilityIT extends PerformanceAnalyzerIntegTestBase
             switch (CLUSTER_TYPE) {
                 case OLD:
                     Assert.assertTrue(pluginNames.contains("opensearch-performance-analyzer"));
-                    ensurePAStatus(RestConfig.LEGACY_PA_BASE_URI, true);
-                    ensurePAStatus(RestConfig.LEGACY_PA_BASE_URI, false);
+                    ensurePAStatus(RestConfig.PA_BASE_URI, true);
+                    ensurePAStatus(RestConfig.PA_BASE_URI, false);
                     break;
                 case MIXED:
                     Assert.assertTrue(pluginNames.contains("opensearch-performance-analyzer"));
