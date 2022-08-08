@@ -65,7 +65,8 @@ spotbugsTest {
 ext {
     // The RCA branch that will be built. Default branch is main.
     rcaProjectRepo = System.getProperty("performance-analyzer-rca.repo", "https://github.com/opensearch-project/performance-analyzer-rca.git")
-    rcaProjectBranch = System.getProperty("performance-analyzer-rca.branch", "main")
+    rcaProjectFetch = System.getProperty("performance-analyzer-rca.fetch", "origin")
+    rcaProjectBranch = System.getProperty("performance-analyzer-rca.branch", "${rcaProjectFetch}/main")
 
     // If true, then the build will clone the RCA Project into $rcaProjectDir
     cloneRcaProject = "true" == System.getProperty("performance-analyzer-rca.build", "true")
@@ -375,6 +376,7 @@ static def propEnabled(property) {
 task cloneRcaGitRepo() {
     def destination = file(rcaProjectDir)
     def uri = rcaProjectRepo
+    def fetch = rcaProjectFetch
     def branch = rcaProjectBranch
     doFirst {
         println "Cloning performance-analyzer-rca into ${rcaProjectDir} from ${rcaProjectRepo}#${rcaProjectBranch}"
@@ -384,7 +386,7 @@ task cloneRcaGitRepo() {
             def grgit = Grgit.open(dir: destination.toString())
         } else { // Otherwise pull it from git.
             def grgit = Grgit.clone(dir: destination.toString(), uri: uri)
-            grgit.fetch(remote: 'origin')
+            grgit.fetch(remote: fetch)
             grgit.checkout(branch: branch)
         }
     }
