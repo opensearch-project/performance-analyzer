@@ -504,17 +504,17 @@ task integTestRemote(type: RestIntegTestTask) {
     systemProperty "password", System.getProperty("password")
 }
 
-String bwcVersion = "1.13.0.0"
+String bwcVersion = "1.1.0.0"
 String baseName = "paBwcCluster"
 String bwcFilePath = "src/test/resources/org/opensearch/performanceanalyzer/bwc/"
-String bwcRemoteFile = "https://d3g5vo6xdbdb9a.cloudfront.net/downloads/elasticsearch-plugins/performance-analyzer/opendistro-performance-analyzer-1.13.0.0.zip"
-String bwcOpenDistroPlugin = "opendistro-performance-analyzer-1.13.0.0.zip"
+String bwcRemoteFile = "https://ci.opensearch.org/ci/dbc/bundle-build/1.1.0/20210930/linux/x64/builds/opensearch/plugins/opensearch-performance-analyzer-1.1.0.0.zip"
+String bwcOpenSearchPlugin = "opensearch-performance-analyzer-1.1.0.0.zip"
 
 2.times {i ->
     testClusters {
         "${baseName}$i" {
             testDistribution = "ARCHIVE"
-            versions = ["7.10.2","1.3.2-SNAPSHOT"]
+            versions = ["1.1.0",opensearch_version]
             numberOfNodes = 3
             plugin(provider(new Callable<RegularFile>(){
                 @Override
@@ -526,7 +526,7 @@ String bwcOpenDistroPlugin = "opendistro-performance-analyzer-1.13.0.0.zip"
                             if (!dir.exists()) {
                                 dir.mkdirs()
                             }
-                            File f = new File(bwcFilePath + bwcVersion + "/" + bwcOpenDistroPlugin)
+                            File f = new File(bwcFilePath + bwcVersion + "/" + bwcOpenSearchPlugin)
                             if (!f.exists()) {
                                 new URL(bwcRemoteFile).withInputStream{ ins -> f.withOutputStream{ it << ins }}
                             }
