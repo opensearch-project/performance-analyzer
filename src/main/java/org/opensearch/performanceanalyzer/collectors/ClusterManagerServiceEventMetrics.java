@@ -21,8 +21,8 @@ import org.opensearch.cluster.service.SourcePrioritizedRunnable;
 import org.opensearch.common.util.concurrent.PrioritizedOpenSearchThreadPoolExecutor;
 import org.opensearch.performanceanalyzer.OpenSearchResources;
 import org.opensearch.performanceanalyzer.PerformanceAnalyzerApp;
-import org.opensearch.performanceanalyzer.metrics.AllMetrics.MasterMetricDimensions;
-import org.opensearch.performanceanalyzer.metrics.AllMetrics.MasterMetricValues;
+import org.opensearch.performanceanalyzer.metrics.AllMetrics.ClusterManagerMetricDimensions;
+import org.opensearch.performanceanalyzer.metrics.AllMetrics.ClusterManagerMetricValues;
 import org.opensearch.performanceanalyzer.metrics.MetricsConfiguration;
 import org.opensearch.performanceanalyzer.metrics.MetricsProcessor;
 import org.opensearch.performanceanalyzer.metrics.PerformanceAnalyzerMetrics;
@@ -30,26 +30,27 @@ import org.opensearch.performanceanalyzer.metrics.ThreadIDUtil;
 import org.opensearch.performanceanalyzer.rca.framework.metrics.WriterMetrics;
 
 @SuppressWarnings("unchecked")
-public class MasterServiceEventMetrics extends PerformanceAnalyzerMetricsCollector
+public class ClusterManagerServiceEventMetrics extends PerformanceAnalyzerMetricsCollector
         implements MetricsProcessor {
     public static final int SAMPLING_TIME_INTERVAL =
-            MetricsConfiguration.CONFIG_MAP.get(MasterServiceEventMetrics.class).samplingInterval;
-    private static final Logger LOG = LogManager.getLogger(MasterServiceEventMetrics.class);
+            MetricsConfiguration.CONFIG_MAP.get(ClusterManagerServiceEventMetrics.class)
+                    .samplingInterval;
+    private static final Logger LOG = LogManager.getLogger(ClusterManagerServiceEventMetrics.class);
     private static final int KEYS_PATH_LENGTH = 3;
     private StringBuilder value;
     private static final int TPEXECUTOR_ADD_PENDING_PARAM_COUNT = 3;
-    private Queue<Runnable> masterServiceCurrentQueue;
+    private Queue<Runnable> clusterManagerServiceCurrentQueue;
     private PrioritizedOpenSearchThreadPoolExecutor prioritizedOpenSearchThreadPoolExecutor;
-    private HashSet<Object> masterServiceWorkers;
+    private HashSet<Object> clusterManagerServiceWorkers;
     private long currentThreadId;
     private Object currentWorker;
 
     @VisibleForTesting long lastTaskInsertionOrder;
 
-    public MasterServiceEventMetrics() {
-        super(SAMPLING_TIME_INTERVAL, "MasterServiceEventMetrics");
-        masterServiceCurrentQueue = null;
-        masterServiceWorkers = null;
+    public ClusterManagerServiceEventMetrics() {
+        super(SAMPLING_TIME_INTERVAL, "ClusterManagerServiceEventMetrics");
+        clusterManagerServiceCurrentQueue = null;
+        clusterManagerServiceWorkers = null;
         prioritizedOpenSearchThreadPoolExecutor = null;
         currentWorker = null;
         currentThreadId = -1;
@@ -68,7 +69,7 @@ public class MasterServiceEventMetrics extends PerformanceAnalyzerMetricsCollect
                 startTime,
                 PerformanceAnalyzerMetrics.sThreadsPath,
                 keysPath[0],
-                PerformanceAnalyzerMetrics.sMasterTaskPath,
+                PerformanceAnalyzerMetrics.sClusterManagerTaskPath,
                 keysPath[1],
                 keysPath[2]);
     }
@@ -83,7 +84,7 @@ public class MasterServiceEventMetrics extends PerformanceAnalyzerMetricsCollect
             }
 
             value.setLength(0);
-            Queue<Runnable> current = getMasterServiceCurrentQueue();
+            Queue<Runnable> current = getClusterManagerServiceCurrentQueue();
 
             if (current == null || current.size() == 0) {
                 generateFinishMetrics(startTime);
@@ -111,34 +112,35 @@ public class MasterServiceEventMetrics extends PerformanceAnalyzerMetricsCollect
                     value.append(PerformanceAnalyzerMetrics.getCurrentTimeMetric());
                     PerformanceAnalyzerMetrics.addMetricEntry(
                             value,
-                            MasterMetricDimensions.MASTER_TASK_PRIORITY.toString(),
+                            ClusterManagerMetricDimensions.CLUSTER_MANAGER_TASK_PRIORITY.toString(),
                             firstPending.priority.toString());
                     // - as it is sampling, we won't exactly know the start time of the current
                     // task, we will be
                     // - capturing start time as midpoint of previous time bucket
                     PerformanceAnalyzerMetrics.addMetricEntry(
                             value,
-                            MasterMetricValues.START_TIME.toString(),
+                            ClusterManagerMetricValues.START_TIME.toString(),
                             startTime - SAMPLING_TIME_INTERVAL / 2);
                     PerformanceAnalyzerMetrics.addMetricEntry(
                             value,
-                            MasterMetricDimensions.MASTER_TASK_TYPE.toString(),
+                            ClusterManagerMetricDimensions.CLUSTER_MANAGER_TASK_TYPE.toString(),
                             firstSpaceIndex == -1
                                     ? task.source()
                                     : task.source().substring(0, firstSpaceIndex));
                     PerformanceAnalyzerMetrics.addMetricEntry(
                             value,
-                            MasterMetricDimensions.MASTER_TASK_METADATA.toString(),
+                            ClusterManagerMetricDimensions.CLUSTER_MANAGER_TASK_METADATA.toString(),
                             firstSpaceIndex == -1 ? "" : task.source().substring(firstSpaceIndex));
                     PerformanceAnalyzerMetrics.addMetricEntry(
                             value,
-                            MasterMetricDimensions.MASTER_TASK_QUEUE_TIME.toString(),
+                            ClusterManagerMetricDimensions.CLUSTER_MANAGER_TASK_QUEUE_TIME
+                                    .toString(),
                             task.getAgeInMillis());
 
                     saveMetricValues(
                             value.toString(),
                             startTime,
-                            String.valueOf(getMasterThreadId()),
+                            String.valueOf(getClusterManagerThreadId()),
                             String.valueOf(lastTaskInsertionOrder),
                             PerformanceAnalyzerMetrics.START_FILE_NAME);
 
@@ -147,15 +149,15 @@ public class MasterServiceEventMetrics extends PerformanceAnalyzerMetricsCollect
             } else {
                 generateFinishMetrics(startTime);
             }
-            LOG.debug(() -> "Successfully collected Master Event Metrics.");
+            LOG.debug(() -> "Successfully collected ClusterManager Event Metrics.");
         } catch (Exception ex) {
             PerformanceAnalyzerApp.WRITER_METRICS_AGGREGATOR.updateStat(
-                    WriterMetrics.MASTER_METRICS_ERROR, "", 1);
+                    WriterMetrics.CLUSTER_MANAGER_METRICS_ERROR, "", 1);
             LOG.debug(
-                    "Exception in Collecting Master Metrics: {} for startTime {} with ExceptionCode: {}",
+                    "Exception in Collecting ClusterManager Metrics: {} for startTime {} with ExceptionCode: {}",
                     () -> ex.toString(),
                     () -> startTime,
-                    () -> StatExceptionCode.MASTER_METRICS_ERROR.toString());
+                    () -> StatExceptionCode.CLUSTER_MANAGER_METRICS_ERROR.toString());
         }
     }
 
@@ -165,7 +167,7 @@ public class MasterServiceEventMetrics extends PerformanceAnalyzerMetricsCollect
             value.append(PerformanceAnalyzerMetrics.getCurrentTimeMetric());
             PerformanceAnalyzerMetrics.addMetricEntry(
                     value,
-                    MasterMetricValues.FINISH_TIME.toString(),
+                    ClusterManagerMetricValues.FINISH_TIME.toString(),
                     startTime - SAMPLING_TIME_INTERVAL / 2);
             saveMetricValues(
                     value.toString(),
@@ -179,7 +181,7 @@ public class MasterServiceEventMetrics extends PerformanceAnalyzerMetricsCollect
     }
 
     // - Separated to have a unit test; and catch any code changes around this field
-    Field getMasterServiceTPExecutorField() throws Exception {
+    Field getClusterManagerServiceTPExecutorField() throws Exception {
         Field threadPoolExecutorField = MasterService.class.getDeclaredField("threadPoolExecutor");
         threadPoolExecutorField.setAccessible(true);
         return threadPoolExecutorField;
@@ -213,49 +215,51 @@ public class MasterServiceEventMetrics extends PerformanceAnalyzerMetricsCollect
         return addPendingMethod;
     }
 
-    Queue<Runnable> getMasterServiceCurrentQueue() throws Exception {
-        if (masterServiceCurrentQueue == null) {
+    Queue<Runnable> getClusterManagerServiceCurrentQueue() throws Exception {
+        if (clusterManagerServiceCurrentQueue == null) {
             if (OpenSearchResources.INSTANCE.getClusterService() != null) {
-                MasterService masterService =
+                MasterService clusterManagerService =
                         OpenSearchResources.INSTANCE.getClusterService().getMasterService();
 
-                if (masterService != null) {
+                if (clusterManagerService != null) {
                     if (prioritizedOpenSearchThreadPoolExecutor == null) {
                         prioritizedOpenSearchThreadPoolExecutor =
                                 (PrioritizedOpenSearchThreadPoolExecutor)
-                                        getMasterServiceTPExecutorField().get(masterService);
+                                        getClusterManagerServiceTPExecutorField()
+                                                .get(clusterManagerService);
                     }
 
                     if (prioritizedOpenSearchThreadPoolExecutor != null) {
-                        masterServiceCurrentQueue =
+                        clusterManagerServiceCurrentQueue =
                                 (Queue<Runnable>)
                                         getPrioritizedTPExecutorCurrentField()
                                                 .get(prioritizedOpenSearchThreadPoolExecutor);
                     } else {
                         PerformanceAnalyzerApp.WRITER_METRICS_AGGREGATOR.updateStat(
-                                WriterMetrics.MASTER_NODE_NOT_UP, "", 1);
+                                WriterMetrics.CLUSTER_MANAGER_NODE_NOT_UP, "", 1);
                     }
                 }
             }
         }
 
-        return masterServiceCurrentQueue;
+        return clusterManagerServiceCurrentQueue;
     }
 
-    HashSet<Object> getMasterServiceWorkers() throws Exception {
-        if (masterServiceWorkers == null) {
+    HashSet<Object> getClusterManagerServiceWorkers() throws Exception {
+        if (clusterManagerServiceWorkers == null) {
             if (OpenSearchResources.INSTANCE.getClusterService() != null) {
-                MasterService masterService =
+                MasterService clusterManagerService =
                         OpenSearchResources.INSTANCE.getClusterService().getMasterService();
 
-                if (masterService != null) {
+                if (clusterManagerService != null) {
                     if (prioritizedOpenSearchThreadPoolExecutor == null) {
                         prioritizedOpenSearchThreadPoolExecutor =
                                 (PrioritizedOpenSearchThreadPoolExecutor)
-                                        getMasterServiceTPExecutorField().get(masterService);
+                                        getClusterManagerServiceTPExecutorField()
+                                                .get(clusterManagerService);
                     }
 
-                    masterServiceWorkers =
+                    clusterManagerServiceWorkers =
                             (HashSet<Object>)
                                     getTPExecutorWorkersField()
                                             .get(prioritizedOpenSearchThreadPoolExecutor);
@@ -263,16 +267,16 @@ public class MasterServiceEventMetrics extends PerformanceAnalyzerMetricsCollect
             }
         }
 
-        return masterServiceWorkers;
+        return clusterManagerServiceWorkers;
     }
 
-    long getMasterThreadId() throws Exception {
-        HashSet<Object> currentWorkers = getMasterServiceWorkers();
+    long getClusterManagerThreadId() throws Exception {
+        HashSet<Object> currentWorkers = getClusterManagerServiceWorkers();
 
         if (currentWorkers.size() > 0) {
             if (currentWorkers.size() > 1) {
                 LOG.error(
-                        "Master threads are more than 1 (expected); current Master threads count: {}",
+                        "ClusterManager threads are more than 1 (expected); current ClusterManager threads count: {}",
                         currentWorkers.size());
                 currentThreadId = -1;
                 currentWorker = null;
@@ -280,8 +284,10 @@ public class MasterServiceEventMetrics extends PerformanceAnalyzerMetricsCollect
                 Object currentTopWorker = currentWorkers.iterator().next();
                 if (currentWorker != currentTopWorker) {
                     currentWorker = currentTopWorker;
-                    Thread masterThread = (Thread) getWorkerThreadField().get(currentWorker);
-                    currentThreadId = ThreadIDUtil.INSTANCE.getNativeThreadId(masterThread.getId());
+                    Thread clusterManagerThread =
+                            (Thread) getWorkerThreadField().get(currentWorker);
+                    currentThreadId =
+                            ThreadIDUtil.INSTANCE.getNativeThreadId(clusterManagerThread.getId());
                 }
             }
         } else {

@@ -11,7 +11,7 @@ Compatible with OpenSearch 1.1.0
 * Use Collector override disable list for ShardIndexingPressureMetricCollector ([#28](https://github.com/opensearch-project/performance-analyzer/pull/28))
 * Adding metric emission + UT for RCA_FRAMEWORK_CRASH ([#36](https://github.com/opensearch-project/performance-analyzer-rca/pull/36))
 * Replace String split with Guava Splitter ([#42](https://github.com/opensearch-project/performance-analyzer-rca/pull/42))
-* Add master not up writer metric ([#51](https://github.com/opensearch-project/performance-analyzer-rca/pull/51))
+* Add cluster_manager not up writer metric ([#51](https://github.com/opensearch-project/performance-analyzer-rca/pull/51))
 
 ### Bug fixes
 

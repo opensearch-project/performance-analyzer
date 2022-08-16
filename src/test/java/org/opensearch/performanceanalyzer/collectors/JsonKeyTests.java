@@ -191,8 +191,8 @@ public class JsonKeyTests {
             nodeDetailColumnSet.add(d.toString());
         }
 
-        // The _cat/master fix might not be backport to all PA versions in brazil
-        // So not all domains has the IS_MASTER_NODE field in NodeDetailsStatus
+        // The _cat/cluster_manager fix might not be backport to all PA versions in brazil
+        // So not all domains has the IS_CLUSTER_MANAGER_NODE field in NodeDetailsStatus
         // change this assert statement to support backward compatibility
         assertTrue(
                 nodeDetailColumnSet.size() == jsonKeySet.size()
