@@ -2,7 +2,7 @@
 [![CD](https://github.com/opensearch-project/performance-analyzer/workflows/CD/badge.svg)](https://github.com/opensearch-project/performance-analyzer/actions?query=workflow%3ACD)
 [![codecov](https://codecov.io/gh/opensearch-project/performance-analyzer/branch/main/graph/badge.svg)](https://codecov.io/gh/opensearch-project/performance-analyzer)
 [![Documentation](https://img.shields.io/badge/api-reference-blue.svg)](https://opensearch.org/docs/monitoring-plugins/pa/api/)
-[![Chat](https://img.shields.io/badge/chat-on%20forums-blue)](https://discuss.opendistrocommunity.dev/c/performance-analyzer/)
+[![Chat](https://img.shields.io/badge/chat-on%20forums-blue)](https://forum.opensearch.org/c/plugins/performance-analyzer/9)
 ![PRs welcome!](https://img.shields.io/badge/PRs-welcome!-success)
 
 <img src="https://opensearch.org/assets/img/opensearch-logo-themed.svg" height="64px">
