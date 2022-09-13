@@ -378,7 +378,7 @@ task cloneRcaGitRepo() {
     def destination = file(rcaProjectDir)
     def uri = rcaProjectRepo
     def fetch = rcaProjectFetch
-    def branch = rcaProjectBranch
+    def branch = rcaProjectFetch + "/" + rcaProjectBranch
     doFirst {
         println "Cloning performance-analyzer-rca into ${rcaProjectDir} from ${rcaProjectRepo}#${rcaProjectBranch}"
     }
