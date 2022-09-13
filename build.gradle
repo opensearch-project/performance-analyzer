@@ -66,7 +66,7 @@ ext {
     // The RCA branch that will be built. Default branch is main.
     rcaProjectRepo = System.getProperty("performance-analyzer-rca.repo", "https://github.com/opensearch-project/performance-analyzer-rca.git")
     rcaProjectFetch = System.getProperty("performance-analyzer-rca.fetch", "origin")
-    rcaProjectBranch = System.getProperty("performance-analyzer-rca.branch", "${rcaProjectFetch}/main")
+    rcaProjectBranch = System.getProperty("performance-analyzer-rca.branch", "${rcaProjectFetch}/2.3")
 
     // If true, then the build will clone the RCA Project into $rcaProjectDir
     cloneRcaProject = "true" == System.getProperty("performance-analyzer-rca.build", "true")
@@ -378,7 +378,7 @@ task cloneRcaGitRepo() {
     def destination = file(rcaProjectDir)
     def uri = rcaProjectRepo
     def fetch = rcaProjectFetch
-    def branch = rcaProjectBranch
+    def branch = rcaProjectFetch + "/" + rcaProjectBranch
     doFirst {
         println "Cloning performance-analyzer-rca into ${rcaProjectDir} from ${rcaProjectRepo}#${rcaProjectBranch}"
     }
