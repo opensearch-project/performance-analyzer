@@ -310,7 +310,7 @@ dependencies {
     testCompile(group: 'org.objenesis', name: 'objenesis', version: '3.0.1') {
         force = 'true'
     }
-    testImplementation group: 'com.google.code.gson', name: 'gson', version: '2.9.0'
+    testCompile group: 'com.google.code.gson', name: 'gson', version: '2.9.0'
 }
 
 dependencyLicenses {
