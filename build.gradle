@@ -568,7 +568,7 @@ task integTestRemote(type: RestIntegTestTask) {
 String bwcVersion = "2.1.0.0"
 String baseName = "paBwcCluster"
 String bwcFilePath = "src/test/resources/org/opensearch/performanceanalyzer/bwc/"
-String bwcRemoteFile = "https://ci.opensearch.org/ci/dbc/distribution-build-opensearch/2.1.0/5757/linux/x64/builds/opensearch/plugins/opensearch-performance-analyzer-2.1.0.0.zip"
+String bwcRemoteFile = "https://ci.opensearch.org/ci/dbc/distribution-build-opensearch/2.1.0/5757/linux/x64/tar/builds/opensearch/plugins/opensearch-performance-analyzer-2.1.0.0.zip"
 String bwcOpenSearchPlugin = "opensearch-performance-analyzer-2.1.0.0.zip"
 
 2.times {i ->
