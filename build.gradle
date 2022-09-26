@@ -382,9 +382,13 @@ task cloneRcaGitRepo() {
     def destination = file(rcaProjectDir)
     def uri = rcaProjectRepo
     def fetch = rcaProjectFetch
-    def branch = rcaProjectFetch + "/" + rcaProjectBranch
+    def branch = rcaProjectBranch
+    if(!branch.startsWith(fetch)) { // to avoid checking out origin/origin/branch
+        branch = rcaProjectFetch + "/" + rcaProjectBranch
+    }
+
     doFirst {
-        println "Cloning performance-analyzer-rca into ${rcaProjectDir} from ${rcaProjectRepo}#${rcaProjectBranch}"
+        println "Cloning performance-analyzer-rca into ${rcaProjectDir} from ${uri}#${branch}"
     }
     doLast {
         if (destination.exists() && destination.isDirectory()) { // If directory exists, use this instead.
