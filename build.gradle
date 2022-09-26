@@ -383,7 +383,7 @@ task cloneRcaGitRepo() {
     def uri = rcaProjectRepo
     def fetch = rcaProjectFetch
     def branch = rcaProjectBranch
-    if(!branch.startsWith(fetch)) { // to avoid checking out origin/origin/branch
+    if (!branch.startsWith(fetch)) { // to avoid checking out origin/origin/branch
         branch = rcaProjectFetch + "/" + rcaProjectBranch
     }
     doFirst {
