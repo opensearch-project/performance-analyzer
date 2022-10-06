@@ -60,7 +60,7 @@ public class PerformanceAnalyzerRCAHealthCheckIT extends PerformanceAnalyzerInte
                             new Request(
                                     "GET",
                                     paBaseUri
-                                            + "/metrics/?metrics=Disk_Utilization&agg=max&dim=&nodes=all");
+                                            + "/_agent/metrics/?metrics=Disk_Utilization&agg=max&dim=&nodes=all");
                     Response resp = paClient.performRequest(request);
                     Assert.assertEquals(HttpStatus.SC_OK, resp.getStatusLine().getStatusCode());
                     jsonString[0] = EntityUtils.toString(resp.getEntity());
