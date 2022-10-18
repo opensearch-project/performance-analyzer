@@ -44,6 +44,9 @@ import org.opensearch.performanceanalyzer.config.setting.PerformanceAnalyzerClus
 import org.opensearch.performanceanalyzer.config.setting.handler.PerformanceAnalyzerClusterSettingHandler;
 import org.opensearch.performanceanalyzer.util.WaitFor;
 import org.opensearch.test.rest.OpenSearchRestTestCase;
+import org.apache.hc.client5.http.impl.io.PoolingHttpClientConnectionManagerBuilder;
+import org.apache.hc.client5.http.ssl.SSLConnectionSocketFactoryBuilder;
+import org.apache.hc.core5.util.Timeout;
 
 public abstract class PerformanceAnalyzerIntegTestBase extends OpenSearchRestTestCase {
     private static final Logger LOG = LogManager.getLogger(PerformanceAnalyzerIntegTestBase.class);
@@ -133,20 +136,21 @@ public abstract class PerformanceAnalyzerIntegTestBase extends OpenSearchRestTes
                 (HttpAsyncClientBuilder httpClientBuilder) -> {
                     CredentialsProvider credentialsProvider = new BasicCredentialsProvider();
                     credentialsProvider.setCredentials(
-                            AuthScope.ANY,
+                            new AuthScope(-1),
                             new UsernamePasswordCredentials(
-                                    config.getUser(), config.getPassword()));
+                                    config.getUser(), config.getPassword().toCharArray()));
                     try {
                         return httpClientBuilder
                                 .setDefaultCredentialsProvider(credentialsProvider)
-                                .setSSLHostnameVerifier(NoopHostnameVerifier.INSTANCE)
-                                .setSSLContext(
-                                        SSLContextBuilder.create()
-                                                .loadTrustMaterial(
-                                                        null,
-                                                        (X509Certificate[] chain,
-                                                                String authType) -> true)
-                                                .build());
+                                .setConnectionManager(PoolingHttpClientConnectionManagerBuilder.create()
+                                        .setSSLSocketFactory(SSLConnectionSocketFactoryBuilder.create()
+                                                .setSslContext(SSLContextBuilder.create()
+                                                        .loadTrustMaterial(null, (X509Certificate[] chain, String authType) -> true)
+                                                        .build())
+                                                .setHostnameVerifier(NoopHostnameVerifier.INSTANCE)
+                                                .build())
+                                        .build())
+                                .build();
                     } catch (Exception e) {
                         throw new RuntimeException(e);
                     }
@@ -158,7 +162,7 @@ public abstract class PerformanceAnalyzerIntegTestBase extends OpenSearchRestTes
                     TimeValue.parseTimeValue(socketTimeoutString, CLIENT_SOCKET_TIMEOUT);
             builder.setRequestConfigCallback(
                     (RequestConfig.Builder conf) ->
-                            conf.setSocketTimeout(Math.toIntExact(socketTimeout.millis())));
+                            conf.setResponseTimeout(Timeout.ofMilliseconds(Math.toIntExact(socketTimeout.millis()))));
             if (settings.hasValue(CLIENT_PATH_PREFIX)) {
                 builder.setPathPrefix(settings.get(CLIENT_PATH_PREFIX));
             }
@@ -174,7 +178,7 @@ public abstract class PerformanceAnalyzerIntegTestBase extends OpenSearchRestTes
                             + "to which to send REST requests");
         }
         return Collections.singletonList(
-                new HttpHost(cluster.substring(0, cluster.lastIndexOf(":")), port, "http"));
+                new HttpHost("http", cluster.substring(0, cluster.lastIndexOf(":")), port));
     }
 
     @Before
