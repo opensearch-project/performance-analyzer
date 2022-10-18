@@ -44,7 +44,7 @@ import org.opensearch.performanceanalyzer.config.setting.PerformanceAnalyzerClus
 import org.opensearch.performanceanalyzer.config.setting.handler.PerformanceAnalyzerClusterSettingHandler;
 import org.opensearch.performanceanalyzer.util.WaitFor;
 import org.opensearch.test.rest.OpenSearchRestTestCase;
-import org.apache.hc.client5.http.impl.io.PoolingHttpClientConnectionManagerBuilder;
+import org.apache.hc.client5.http.impl.nio.PoolingAsyncClientConnectionManagerBuilder;
 import org.apache.hc.client5.http.ssl.SSLConnectionSocketFactoryBuilder;
 import org.apache.hc.core5.util.Timeout;
 
@@ -136,13 +136,13 @@ public abstract class PerformanceAnalyzerIntegTestBase extends OpenSearchRestTes
                 (HttpAsyncClientBuilder httpClientBuilder) -> {
                     CredentialsProvider credentialsProvider = new BasicCredentialsProvider();
                     credentialsProvider.setCredentials(
-                            new AuthScope(-1),
+                            new AuthScope(null, -1),
                             new UsernamePasswordCredentials(
                                     config.getUser(), config.getPassword().toCharArray()));
                     try {
                         return httpClientBuilder
                                 .setDefaultCredentialsProvider(credentialsProvider)
-                                .setConnectionManager(PoolingHttpClientConnectionManagerBuilder.create()
+                                .setConnectionManager(PoolingAsyncClientConnectionManagerBuilder.create()
                                         .setSSLSocketFactory(SSLConnectionSocketFactoryBuilder.create()
                                                 .setSslContext(SSLContextBuilder.create()
                                                         .loadTrustMaterial(null, (X509Certificate[] chain, String authType) -> true)
