@@ -47,6 +47,7 @@ import org.opensearch.test.rest.OpenSearchRestTestCase;
 import org.apache.hc.client5.http.impl.nio.PoolingAsyncClientConnectionManagerBuilder;
 import org.apache.hc.client5.http.ssl.SSLConnectionSocketFactoryBuilder;
 import org.apache.hc.core5.util.Timeout;
+import org.apache.hc.core5.http.nio.ssl.TlsStrategy;
 
 public abstract class PerformanceAnalyzerIntegTestBase extends OpenSearchRestTestCase {
     private static final Logger LOG = LogManager.getLogger(PerformanceAnalyzerIntegTestBase.class);
@@ -134,21 +135,22 @@ public abstract class PerformanceAnalyzerIntegTestBase extends OpenSearchRestTes
         builder.setDefaultHeaders(defaultHeaders);
         builder.setHttpClientConfigCallback(
                 (HttpAsyncClientBuilder httpClientBuilder) -> {
-                    CredentialsProvider credentialsProvider = new BasicCredentialsProvider();
+                    BasicCredentialsProvider credentialsProvider = new BasicCredentialsProvider();
                     credentialsProvider.setCredentials(
                             new AuthScope(null, -1),
                             new UsernamePasswordCredentials(
                                     config.getUser(), config.getPassword().toCharArray()));
                     try {
+                        TlsStrategy tlsStrategy = ClientTlsStrategyBuilder.create()
+                                .setSslContext(SSLContextBuilder.create()
+                                        .loadTrustMaterial(null, (X509Certificate[] chain, String authType) -> true)
+                                        .build())
+                                .setHostnameVerifier(NoopHostnameVerifier.INSTANCE)
+                                .build();
                         return httpClientBuilder
                                 .setDefaultCredentialsProvider(credentialsProvider)
                                 .setConnectionManager(PoolingAsyncClientConnectionManagerBuilder.create()
-                                        .setSSLSocketFactory(SSLConnectionSocketFactoryBuilder.create()
-                                                .setSslContext(SSLContextBuilder.create()
-                                                        .loadTrustMaterial(null, (X509Certificate[] chain, String authType) -> true)
-                                                        .build())
-                                                .setHostnameVerifier(NoopHostnameVerifier.INSTANCE)
-                                                .build())
+                                        .setTlsStrategy(tlsStrategy)
                                         .build())
                                 .build();
                     } catch (Exception e) {
