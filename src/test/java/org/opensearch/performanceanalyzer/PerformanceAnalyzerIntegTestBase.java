@@ -48,6 +48,7 @@ import org.apache.hc.client5.http.impl.nio.PoolingAsyncClientConnectionManagerBu
 import org.apache.hc.client5.http.ssl.SSLConnectionSocketFactoryBuilder;
 import org.apache.hc.core5.util.Timeout;
 import org.apache.hc.core5.http.nio.ssl.TlsStrategy;
+import org.apache.hc.client5.http.ssl.ClientTlsStrategyBuilder;
 
 public abstract class PerformanceAnalyzerIntegTestBase extends OpenSearchRestTestCase {
     private static final Logger LOG = LogManager.getLogger(PerformanceAnalyzerIntegTestBase.class);
@@ -151,8 +152,7 @@ public abstract class PerformanceAnalyzerIntegTestBase extends OpenSearchRestTes
                                 .setDefaultCredentialsProvider(credentialsProvider)
                                 .setConnectionManager(PoolingAsyncClientConnectionManagerBuilder.create()
                                         .setTlsStrategy(tlsStrategy)
-                                        .build())
-                                .build();
+                                        .build());
                     } catch (Exception e) {
                         throw new RuntimeException(e);
                     }
