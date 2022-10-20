@@ -281,7 +281,7 @@ dependencies {
     implementation(group: 'com.google.errorprone', name: 'error_prone_annotations', version: '2.9.0') {
         force = 'true'
     }
-    implementation(group: 'com.google.protobuf', name:'protobuf-java', version: '3.19.2') {
+    implementation(group: 'com.google.protobuf', name:'protobuf-java', version: '3.21.8') {
         force = 'true'
     }
     implementation("io.netty:netty-buffer:${nettyVersion}") {
