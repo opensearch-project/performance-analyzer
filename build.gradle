@@ -209,7 +209,7 @@ dependencies {
     }
 
     def jacksonVersion = "2.13.4"
-    def jacksonDataBindVersion = "2.13.4"
+    def jacksonDataBindVersion = "2.13.4.2"
     def nettyVersion = "4.1.79.Final"
 
     configurations {
