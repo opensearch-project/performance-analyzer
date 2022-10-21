@@ -401,47 +401,10 @@ task cloneRcaGitRepo() {
     }
 }
 
-task buildRca() {
-    dependsOn(cloneRcaGitRepo)
-
-    doFirst {
-        logger.info("Building performance-analyzer-rca project in ${rcaProjectDir} with -Dopensearch.version=${opensearch_version}")
-    }
-
-    doLast {
-        exec {
-            workingDir("$rcaProjectDir")
-            if (buildVersionQualifier == null || buildVersionQualifier == '' || buildVersionQualifier == 'null') {
-                commandLine './gradlew', 'build', '-x', 'test', '-x', 'jacocoTestCoverageVerification', "-Dopensearch.version=${opensearch_version}", "-Dbuild.snapshot=${isSnapshot}"
-            }
-            else {
-                commandLine './gradlew', 'build', '-x', 'test', '-x', 'jacocoTestCoverageVerification', "-Dopensearch.version=${opensearch_version}", "-Dbuild.snapshot=${isSnapshot}", "-Dbuild.version_qualifier=${buildVersionQualifier}"
-            }
-        }
-        exec {
-            workingDir("$rcaProjectDir")
-            if (buildVersionQualifier == null || buildVersionQualifier == '' || buildVersionQualifier == 'null') {
-                commandLine './gradlew', 'publishToMavenLocal', "-Dopensearch.version=${opensearch_version}", "-Dbuild.snapshot=${isSnapshot}"
-            }
-            else {
-                commandLine './gradlew', 'publishToMavenLocal', "-Dopensearch.version=${opensearch_version}", "-Dbuild.snapshot=${isSnapshot}", "-Dbuild.version_qualifier=${buildVersionQualifier}"
-            }
-        }
-        exec {
-            def licenseDir = "$projectDir/licenses"
-            workingDir("$licenseDir")
-            commandLine 'rm', "-f", "performanceanalyzer-rca-${version}.jar.sha1"
-        }
-    }
-}
-
-buildRca.finalizedBy updateShas
-
 // This value is set by the unpackRca task
 def rcaArtifactsDir
 
 task unpackRca(type: Copy) {
-    dependsOn(buildRca)
     from(zipTree("$rcaProjectDir/build/distributions/performance-analyzer-rca-${version}.zip")) {
     }
     into "$rcaProjectDir/build/distributions"
