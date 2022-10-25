@@ -38,7 +38,7 @@ buildscript {
 plugins {
     id 'java'
     id 'nebula.ospackage' version "8.3.0"
-    id 'com.github.spotbugs' version '5.0.0'
+    id 'com.github.spotbugs' version '5.0.13'
     id 'jacoco'
     id 'com.diffplug.spotless' version '5.11.0'
     id 'checkstyle'
@@ -262,6 +262,7 @@ dependencies {
             force "com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:${jacksonVersion}"
             force "com.fasterxml.jackson.dataformat:jackson-dataformat-cbor:${jacksonVersion}"
             force "org.apache.commons:commons-lang3:3.12.0"
+            force "org.slf4j:slf4j-api:2.0.0"
         }
     }
 
