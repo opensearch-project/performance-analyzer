@@ -76,14 +76,15 @@ public class NodeDetailsCollector extends PerformanceAnalyzerMetricsCollector
         DiscoveryNodes discoveryNodes =
                 OpenSearchResources.INSTANCE.getClusterService().state().nodes();
 
-        DiscoveryNode masterNode = discoveryNodes.getMasterNode();
+        DiscoveryNode clusterManagerNode = discoveryNodes.getMasterNode();
 
         Iterator<DiscoveryNode> discoveryNodeIterator = discoveryNodes.iterator();
-        addMetricsToStringBuilder(discoveryNodes.getLocalNode(), value, "", masterNode);
+        addMetricsToStringBuilder(discoveryNodes.getLocalNode(), value, "", clusterManagerNode);
         String localNodeID = discoveryNodes.getLocalNode().getId();
 
         while (discoveryNodeIterator.hasNext()) {
-            addMetricsToStringBuilder(discoveryNodeIterator.next(), value, localNodeID, masterNode);
+            addMetricsToStringBuilder(
+                    discoveryNodeIterator.next(), value, localNodeID, clusterManagerNode);
         }
         saveMetricValues(value.toString(), startTime);
     }
@@ -92,15 +93,15 @@ public class NodeDetailsCollector extends PerformanceAnalyzerMetricsCollector
             DiscoveryNode discoveryNode,
             StringBuilder value,
             String localNodeID,
-            DiscoveryNode masterNode) {
+            DiscoveryNode clusterManagerNode) {
         if (!discoveryNode.getId().equals(localNodeID)) {
-            boolean isMasterNode = discoveryNode.equals(masterNode);
+            boolean isClusterManagerNode = discoveryNode.equals(clusterManagerNode);
             value.append(
                             new NodeDetailsStatus(
                                             discoveryNode.getId(),
                                             discoveryNode.getHostAddress(),
                                             getNodeRole(discoveryNode),
-                                            isMasterNode)
+                                            isClusterManagerNode)
                                     .serialize())
                     .append(PerformanceAnalyzerMetrics.sMetricNewLineDelimitor);
         }
@@ -110,7 +111,7 @@ public class NodeDetailsCollector extends PerformanceAnalyzerMetricsCollector
         final NodeRole role =
                 node.isDataNode()
                         ? NodeRole.DATA
-                        : node.isMasterNode() ? NodeRole.MASTER : NodeRole.UNKNOWN;
+                        : node.isMasterNode() ? NodeRole.CLUSTER_MANAGER : NodeRole.UNKNOWN;
         return role.toString();
     }
 
@@ -132,14 +133,15 @@ public class NodeDetailsCollector extends PerformanceAnalyzerMetricsCollector
 
         private String role;
 
-        private boolean isMasterNode;
+        private boolean isClusterManagerNode;
 
-        public NodeDetailsStatus(String id, String hostAddress, String role, boolean isMasterNode) {
+        public NodeDetailsStatus(
+                String id, String hostAddress, String role, boolean isClusterManagerNode) {
             super();
             this.id = id;
             this.hostAddress = hostAddress;
             this.role = role;
-            this.isMasterNode = isMasterNode;
+            this.isClusterManagerNode = isClusterManagerNode;
         }
 
         @JsonProperty(NodeDetailColumns.Constants.ID_VALUE)
@@ -157,9 +159,9 @@ public class NodeDetailsCollector extends PerformanceAnalyzerMetricsCollector
             return role;
         }
 
-        @JsonProperty(NodeDetailColumns.Constants.IS_MASTER_NODE)
-        public boolean getIsMasterNode() {
-            return isMasterNode;
+        @JsonProperty(NodeDetailColumns.Constants.IS_CLUSTER_MANAGER_NODE)
+        public boolean getIsClusterManagerNode() {
+            return isClusterManagerNode;
         }
     }
 }

@@ -50,14 +50,14 @@ import org.opensearch.performanceanalyzer.collectors.AdmissionControlMetricsColl
 import org.opensearch.performanceanalyzer.collectors.CacheConfigMetricsCollector;
 import org.opensearch.performanceanalyzer.collectors.CircuitBreakerCollector;
 import org.opensearch.performanceanalyzer.collectors.ClusterApplierServiceStatsCollector;
+import org.opensearch.performanceanalyzer.collectors.ClusterManagerServiceEventMetrics;
+import org.opensearch.performanceanalyzer.collectors.ClusterManagerServiceMetrics;
+import org.opensearch.performanceanalyzer.collectors.ClusterManagerThrottlingMetricsCollector;
 import org.opensearch.performanceanalyzer.collectors.DisksCollector;
 import org.opensearch.performanceanalyzer.collectors.ElectionTermCollector;
 import org.opensearch.performanceanalyzer.collectors.FaultDetectionMetricsCollector;
 import org.opensearch.performanceanalyzer.collectors.GCInfoCollector;
 import org.opensearch.performanceanalyzer.collectors.HeapMetricsCollector;
-import org.opensearch.performanceanalyzer.collectors.MasterServiceEventMetrics;
-import org.opensearch.performanceanalyzer.collectors.MasterServiceMetrics;
-import org.opensearch.performanceanalyzer.collectors.MasterThrottlingMetricsCollector;
 import org.opensearch.performanceanalyzer.collectors.NetworkInterfaceCollector;
 import org.opensearch.performanceanalyzer.collectors.NodeDetailsCollector;
 import org.opensearch.performanceanalyzer.collectors.NodeStatsAllShardsMetricsCollector;
@@ -207,9 +207,10 @@ public final class PerformanceAnalyzerPlugin extends Plugin
                 new NodeStatsAllShardsMetricsCollector(performanceAnalyzerController));
         scheduledMetricCollectorsExecutor.addScheduledMetricCollector(
                 new NodeStatsFixedShardsMetricsCollector(performanceAnalyzerController));
-        scheduledMetricCollectorsExecutor.addScheduledMetricCollector(new MasterServiceMetrics());
         scheduledMetricCollectorsExecutor.addScheduledMetricCollector(
-                new MasterServiceEventMetrics());
+                new ClusterManagerServiceMetrics());
+        scheduledMetricCollectorsExecutor.addScheduledMetricCollector(
+                new ClusterManagerServiceEventMetrics());
         scheduledMetricCollectorsExecutor.addScheduledMetricCollector(new DisksCollector());
         scheduledMetricCollectorsExecutor.addScheduledMetricCollector(
                 new NetworkInterfaceCollector());
@@ -221,7 +222,7 @@ public final class PerformanceAnalyzerPlugin extends Plugin
         scheduledMetricCollectorsExecutor.addScheduledMetricCollector(
                 new ShardStateCollector(performanceAnalyzerController, configOverridesWrapper));
         scheduledMetricCollectorsExecutor.addScheduledMetricCollector(
-                new MasterThrottlingMetricsCollector(
+                new ClusterManagerThrottlingMetricsCollector(
                         performanceAnalyzerController, configOverridesWrapper));
         scheduledMetricCollectorsExecutor.addScheduledMetricCollector(
                 new ClusterApplierServiceStatsCollector(

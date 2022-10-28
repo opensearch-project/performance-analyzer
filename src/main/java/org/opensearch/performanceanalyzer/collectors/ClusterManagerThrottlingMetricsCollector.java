@@ -22,15 +22,16 @@ import org.opensearch.performanceanalyzer.metrics.PerformanceAnalyzerMetrics;
 import org.opensearch.performanceanalyzer.rca.framework.metrics.ExceptionsAndErrors;
 import org.opensearch.performanceanalyzer.rca.framework.metrics.WriterMetrics;
 
-public class MasterThrottlingMetricsCollector extends PerformanceAnalyzerMetricsCollector
+public class ClusterManagerThrottlingMetricsCollector extends PerformanceAnalyzerMetricsCollector
         implements MetricsProcessor {
 
     public static final int SAMPLING_TIME_INTERVAL =
-            MetricsConfiguration.CONFIG_MAP.get(MasterThrottlingMetricsCollector.class)
+            MetricsConfiguration.CONFIG_MAP.get(ClusterManagerThrottlingMetricsCollector.class)
                     .samplingInterval;
-    private static final Logger LOG = LogManager.getLogger(MasterThrottlingMetricsCollector.class);
+    private static final Logger LOG =
+            LogManager.getLogger(ClusterManagerThrottlingMetricsCollector.class);
     private static final int KEYS_PATH_LENGTH = 0;
-    private static final String MASTER_THROTTLING_RETRY_LISTENER_PATH =
+    private static final String CLUSTER_MANAGER_THROTTLING_RETRY_LISTENER_PATH =
             "org.opensearch.action.support.master.MasterThrottlingRetryListener";
     private static final String THROTTLED_PENDING_TASK_COUNT_METHOD_NAME =
             "numberOfThrottledPendingTasks";
@@ -39,10 +40,10 @@ public class MasterThrottlingMetricsCollector extends PerformanceAnalyzerMetrics
     private final PerformanceAnalyzerController controller;
     private final ConfigOverridesWrapper configOverridesWrapper;
 
-    public MasterThrottlingMetricsCollector(
+    public ClusterManagerThrottlingMetricsCollector(
             PerformanceAnalyzerController controller,
             ConfigOverridesWrapper configOverridesWrapper) {
-        super(SAMPLING_TIME_INTERVAL, "MasterThrottlingMetricsCollector");
+        super(SAMPLING_TIME_INTERVAL, "ClusterManagerThrottlingMetricsCollector");
         value = new StringBuilder();
         this.controller = controller;
         this.configOverridesWrapper = configOverridesWrapper;
@@ -60,10 +61,10 @@ public class MasterThrottlingMetricsCollector extends PerformanceAnalyzerMetrics
                             == null) {
                 return;
             }
-            if (!isMasterThrottlingFeatureAvailable()) {
-                LOG.debug("Master Throttling Feature is not available for this domain");
+            if (!isClusterManagerThrottlingFeatureAvailable()) {
+                LOG.debug("ClusterManager Throttling Feature is not available for this domain");
                 PerformanceAnalyzerApp.WRITER_METRICS_AGGREGATOR.updateStat(
-                        WriterMetrics.MASTER_THROTTLING_COLLECTOR_NOT_AVAILABLE, "", 1);
+                        WriterMetrics.CLUSTER_MANAGER_THROTTLING_COLLECTOR_NOT_AVAILABLE, "", 1);
                 return;
             }
 
@@ -71,31 +72,31 @@ public class MasterThrottlingMetricsCollector extends PerformanceAnalyzerMetrics
             value.append(PerformanceAnalyzerMetrics.getJsonCurrentMilliSeconds())
                     .append(PerformanceAnalyzerMetrics.sMetricNewLineDelimitor);
             value.append(
-                    new MasterThrottlingMetrics(
+                    new ClusterManagerThrottlingMetrics(
                                     getRetryingPendingTaskCount(),
-                                    getTotalMasterThrottledTaskCount())
+                                    getTotalClusterManagerThrottledTaskCount())
                             .serialize());
 
             saveMetricValues(value.toString(), startTime);
 
             PerformanceAnalyzerApp.WRITER_METRICS_AGGREGATOR.updateStat(
-                    WriterMetrics.MASTER_THROTTLING_COLLECTOR_EXECUTION_TIME,
+                    WriterMetrics.CLUSTER_MANAGER_THROTTLING_COLLECTOR_EXECUTION_TIME,
                     "",
                     System.currentTimeMillis() - mCurrT);
 
         } catch (Exception ex) {
             PerformanceAnalyzerApp.ERRORS_AND_EXCEPTIONS_AGGREGATOR.updateStat(
-                    ExceptionsAndErrors.MASTER_THROTTLING_COLLECTOR_ERROR, "", 1);
+                    ExceptionsAndErrors.CLUSTER_MANAGER_THROTTLING_COLLECTOR_ERROR, "", 1);
             LOG.debug(
-                    "Exception in Collecting Master Throttling Metrics: {} for startTime {}",
+                    "Exception in Collecting ClusterManager Throttling Metrics: {} for startTime {}",
                     () -> ex.toString(),
                     () -> startTime);
         }
     }
 
-    private boolean isMasterThrottlingFeatureAvailable() {
+    private boolean isClusterManagerThrottlingFeatureAvailable() {
         try {
-            Class.forName(MASTER_THROTTLING_RETRY_LISTENER_PATH);
+            Class.forName(CLUSTER_MANAGER_THROTTLING_RETRY_LISTENER_PATH);
             MasterService.class.getMethod(THROTTLED_PENDING_TASK_COUNT_METHOD_NAME);
         } catch (ClassNotFoundException | NoSuchMethodException e) {
             return false;
@@ -103,7 +104,7 @@ public class MasterThrottlingMetricsCollector extends PerformanceAnalyzerMetrics
         return true;
     }
 
-    private long getTotalMasterThrottledTaskCount() throws Exception {
+    private long getTotalClusterManagerThrottledTaskCount() throws Exception {
         Method method = MasterService.class.getMethod(THROTTLED_PENDING_TASK_COUNT_METHOD_NAME);
         return (long)
                 method.invoke(OpenSearchResources.INSTANCE.getClusterService().getMasterService());
@@ -111,7 +112,7 @@ public class MasterThrottlingMetricsCollector extends PerformanceAnalyzerMetrics
 
     private long getRetryingPendingTaskCount() throws Exception {
         Method method =
-                Class.forName(MASTER_THROTTLING_RETRY_LISTENER_PATH)
+                Class.forName(CLUSTER_MANAGER_THROTTLING_RETRY_LISTENER_PATH)
                         .getMethod(RETRYING_TASK_COUNT_METHOD_NAME);
         return (long) method.invoke(null);
     }
@@ -123,24 +124,26 @@ public class MasterThrottlingMetricsCollector extends PerformanceAnalyzerMetrics
         }
 
         return PerformanceAnalyzerMetrics.generatePath(
-                startTime, PerformanceAnalyzerMetrics.sMasterThrottledTasksPath);
+                startTime, PerformanceAnalyzerMetrics.sClusterManagerThrottledTasksPath);
     }
 
-    public static class MasterThrottlingMetrics extends MetricStatus {
+    public static class ClusterManagerThrottlingMetrics extends MetricStatus {
         private final long retryingTaskCount;
         private final long throttledPendingTasksCount;
 
-        public MasterThrottlingMetrics(long retryingTaskCount, long throttledPendingTasksCount) {
+        public ClusterManagerThrottlingMetrics(
+                long retryingTaskCount, long throttledPendingTasksCount) {
             this.retryingTaskCount = retryingTaskCount;
             this.throttledPendingTasksCount = throttledPendingTasksCount;
         }
 
-        @JsonProperty(AllMetrics.MasterThrottlingValue.Constants.RETRYING_TASK_COUNT)
+        @JsonProperty(AllMetrics.ClusterManagerThrottlingValue.Constants.RETRYING_TASK_COUNT)
         public long getRetryingTaskCount() {
             return retryingTaskCount;
         }
 
-        @JsonProperty(AllMetrics.MasterThrottlingValue.Constants.THROTTLED_PENDING_TASK_COUNT)
+        @JsonProperty(
+                AllMetrics.ClusterManagerThrottlingValue.Constants.THROTTLED_PENDING_TASK_COUNT)
         public long getThrottledPendingTasksCount() {
             return throttledPendingTasksCount;
         }
