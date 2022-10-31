@@ -13,23 +13,24 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.opensearch.cluster.service.PendingClusterTask;
 import org.opensearch.performanceanalyzer.OpenSearchResources;
-import org.opensearch.performanceanalyzer.metrics.AllMetrics.MasterPendingTaskDimension;
-import org.opensearch.performanceanalyzer.metrics.AllMetrics.MasterPendingValue;
+import org.opensearch.performanceanalyzer.metrics.AllMetrics.ClusterManagerPendingTaskDimension;
+import org.opensearch.performanceanalyzer.metrics.AllMetrics.ClusterManagerPendingValue;
 import org.opensearch.performanceanalyzer.metrics.MetricsConfiguration;
 import org.opensearch.performanceanalyzer.metrics.MetricsProcessor;
 import org.opensearch.performanceanalyzer.metrics.PerformanceAnalyzerMetrics;
 
 @SuppressWarnings("unchecked")
-public class MasterServiceMetrics extends PerformanceAnalyzerMetricsCollector
+public class ClusterManagerServiceMetrics extends PerformanceAnalyzerMetricsCollector
         implements MetricsProcessor {
     public static final int SAMPLING_TIME_INTERVAL =
-            MetricsConfiguration.CONFIG_MAP.get(MasterServiceMetrics.class).samplingInterval;
-    private static final Logger LOG = LogManager.getLogger(MasterServiceMetrics.class);
+            MetricsConfiguration.CONFIG_MAP.get(ClusterManagerServiceMetrics.class)
+                    .samplingInterval;
+    private static final Logger LOG = LogManager.getLogger(ClusterManagerServiceMetrics.class);
     private static final int KEYS_PATH_LENGTH = 2;
     private StringBuilder value;
 
-    public MasterServiceMetrics() {
-        super(SAMPLING_TIME_INTERVAL, "MasterServiceMetrics");
+    public ClusterManagerServiceMetrics() {
+        super(SAMPLING_TIME_INTERVAL, "ClusterManagerServiceMetrics");
         value = new StringBuilder();
     }
 
@@ -87,37 +88,37 @@ public class MasterServiceMetrics extends PerformanceAnalyzerMetricsCollector
                     (pendingTaskType, PendingTaskValue) -> {
                         value.append(PerformanceAnalyzerMetrics.sMetricNewLineDelimitor);
                         value.append(
-                                new MasterPendingStatus(pendingTaskType, PendingTaskValue)
+                                new ClusterManagerPendingStatus(pendingTaskType, PendingTaskValue)
                                         .serialize());
                     });
             saveMetricValues(
                     value.toString(),
                     startTime,
-                    PerformanceAnalyzerMetrics.MASTER_CURRENT,
-                    PerformanceAnalyzerMetrics.MASTER_META_DATA);
+                    PerformanceAnalyzerMetrics.CLUSTER_MANAGER_CURRENT,
+                    PerformanceAnalyzerMetrics.CLUSTER_MANAGER_META_DATA);
         } catch (Exception ex) {
             LOG.debug(
-                    "Exception in Collecting Master Metrics: {} for startTime {}",
+                    "Exception in Collecting ClusterManager Metrics: {} for startTime {}",
                     () -> ex.toString(),
                     () -> startTime);
         }
     }
 
-    public static class MasterPendingStatus extends MetricStatus {
+    public static class ClusterManagerPendingStatus extends MetricStatus {
         private final String pendingTaskType;
         private final int pendingTasksCount;
 
-        public MasterPendingStatus(String pendingTaskType, int pendingTasksCount) {
+        public ClusterManagerPendingStatus(String pendingTaskType, int pendingTasksCount) {
             this.pendingTaskType = pendingTaskType;
             this.pendingTasksCount = pendingTasksCount;
         }
 
-        @JsonProperty(MasterPendingTaskDimension.Constants.PENDING_TASK_TYPE)
-        public String getMasterTaskType() {
+        @JsonProperty(ClusterManagerPendingTaskDimension.Constants.PENDING_TASK_TYPE)
+        public String getClusterManagerTaskType() {
             return pendingTaskType;
         }
 
-        @JsonProperty(MasterPendingValue.Constants.PENDING_TASKS_COUNT_VALUE)
+        @JsonProperty(ClusterManagerPendingValue.Constants.PENDING_TASKS_COUNT_VALUE)
         public int getPendingTasksCount() {
             return pendingTasksCount;
         }

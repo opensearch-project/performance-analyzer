@@ -30,9 +30,9 @@ import org.opensearch.test.ClusterServiceUtils;
 import org.opensearch.threadpool.TestThreadPool;
 import org.opensearch.threadpool.ThreadPool;
 
-public class MasterServiceEventMetricsTests {
+public class ClusterManagerServiceEventMetricsTests {
     private long startTimeInMills = 1153721339;
-    private MasterServiceEventMetrics masterServiceEventMetrics;
+    private ClusterManagerServiceEventMetrics clusterManagerServiceEventMetrics;
     private ThreadPool threadPool;
 
     @BeforeClass
@@ -49,8 +49,8 @@ public class MasterServiceEventMetricsTests {
         OpenSearchResources.INSTANCE.setClusterService(clusterService);
 
         MetricsConfiguration.CONFIG_MAP.put(
-                MasterServiceEventMetrics.class, MetricsConfiguration.cdefault);
-        masterServiceEventMetrics = new MasterServiceEventMetrics();
+                ClusterManagerServiceEventMetrics.class, MetricsConfiguration.cdefault);
+        clusterManagerServiceEventMetrics = new ClusterManagerServiceEventMetrics();
 
         // clean metricQueue before running every test
         TestUtil.readEvents();
@@ -71,13 +71,13 @@ public class MasterServiceEventMetricsTests {
                         + "/"
                         + "thread123"
                         + "/"
-                        + PerformanceAnalyzerMetrics.sMasterTaskPath
+                        + PerformanceAnalyzerMetrics.sClusterManagerTaskPath
                         + "/"
                         + "task123"
                         + "/"
                         + PerformanceAnalyzerMetrics.FINISH_FILE_NAME;
         String actualPath =
-                masterServiceEventMetrics.getMetricsPath(
+                clusterManagerServiceEventMetrics.getMetricsPath(
                         startTimeInMills,
                         "thread123",
                         "task123",
@@ -85,7 +85,8 @@ public class MasterServiceEventMetricsTests {
         assertEquals(expectedPath, actualPath);
 
         try {
-            masterServiceEventMetrics.getMetricsPath(startTimeInMills, "thread123", "task123");
+            clusterManagerServiceEventMetrics.getMetricsPath(
+                    startTimeInMills, "thread123", "task123");
             fail("Negative scenario test: Should have been a RuntimeException");
         } catch (RuntimeException ex) {
             // - expecting exception...2 values passed; 3 expected
@@ -94,24 +95,25 @@ public class MasterServiceEventMetricsTests {
 
     @Test
     public void testGenerateFinishMetrics() {
-        assertEquals(-1, masterServiceEventMetrics.lastTaskInsertionOrder);
-        masterServiceEventMetrics.generateFinishMetrics(startTimeInMills);
+        assertEquals(-1, clusterManagerServiceEventMetrics.lastTaskInsertionOrder);
+        clusterManagerServiceEventMetrics.generateFinishMetrics(startTimeInMills);
 
-        masterServiceEventMetrics.lastTaskInsertionOrder = 1;
-        masterServiceEventMetrics.generateFinishMetrics(startTimeInMills);
+        clusterManagerServiceEventMetrics.lastTaskInsertionOrder = 1;
+        clusterManagerServiceEventMetrics.generateFinishMetrics(startTimeInMills);
         List<Event> metrics = TestUtil.readEvents();
         String[] jsonStrs = metrics.get(0).value.split("\n");
         assert jsonStrs.length == 2;
-        assertTrue(jsonStrs[1].contains(AllMetrics.MasterMetricValues.FINISH_TIME.toString()));
-        assertEquals(-1, masterServiceEventMetrics.lastTaskInsertionOrder);
+        assertTrue(
+                jsonStrs[1].contains(AllMetrics.ClusterManagerMetricValues.FINISH_TIME.toString()));
+        assertEquals(-1, clusterManagerServiceEventMetrics.lastTaskInsertionOrder);
     }
 
     @Test
     public void testCollectMetrics() throws Exception {
         PrioritizedOpenSearchThreadPoolExecutor prioritizedOpenSearchThreadPoolExecutor =
                 (PrioritizedOpenSearchThreadPoolExecutor)
-                        masterServiceEventMetrics
-                                .getMasterServiceTPExecutorField()
+                        clusterManagerServiceEventMetrics
+                                .getClusterManagerServiceTPExecutorField()
                                 .get(
                                         OpenSearchResources.INSTANCE
                                                 .getClusterService()
@@ -130,24 +132,33 @@ public class MasterServiceEventMetricsTests {
         prioritizedOpenSearchThreadPoolExecutor.submit(runnable);
         Thread.sleep(1L); // don't delete it
 
-        masterServiceEventMetrics.collectMetrics(startTimeInMills);
+        clusterManagerServiceEventMetrics.collectMetrics(startTimeInMills);
         List<String> jsonStrs = TestUtil.readMetricsInJsonString(6);
         assertTrue(
                 jsonStrs.get(0)
                         .contains(
-                                AllMetrics.MasterMetricDimensions.MASTER_TASK_PRIORITY.toString()));
-        assertTrue(jsonStrs.get(1).contains(AllMetrics.MasterMetricValues.START_TIME.toString()));
+                                AllMetrics.ClusterManagerMetricDimensions
+                                        .CLUSTER_MANAGER_TASK_PRIORITY
+                                        .toString()));
+        assertTrue(
+                jsonStrs.get(1)
+                        .contains(AllMetrics.ClusterManagerMetricValues.START_TIME.toString()));
         assertTrue(
                 jsonStrs.get(2)
-                        .contains(AllMetrics.MasterMetricDimensions.MASTER_TASK_TYPE.toString()));
+                        .contains(
+                                AllMetrics.ClusterManagerMetricDimensions.CLUSTER_MANAGER_TASK_TYPE
+                                        .toString()));
         assertTrue(
                 jsonStrs.get(3)
                         .contains(
-                                AllMetrics.MasterMetricDimensions.MASTER_TASK_METADATA.toString()));
+                                AllMetrics.ClusterManagerMetricDimensions
+                                        .CLUSTER_MANAGER_TASK_METADATA
+                                        .toString()));
         assertTrue(
                 jsonStrs.get(4)
                         .contains(
-                                AllMetrics.MasterMetricDimensions.MASTER_TASK_QUEUE_TIME
+                                AllMetrics.ClusterManagerMetricDimensions
+                                        .CLUSTER_MANAGER_TASK_QUEUE_TIME
                                         .toString()));
     }
 }

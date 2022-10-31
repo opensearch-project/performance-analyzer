@@ -19,12 +19,12 @@ import org.opensearch.performanceanalyzer.metrics.MetricsConfiguration;
 import org.opensearch.performanceanalyzer.metrics.PerformanceAnalyzerMetrics;
 import org.opensearch.performanceanalyzer.reader_writer_shared.Event;
 
-public class MasterThrottlingMetricsCollectorTests extends CustomMetricsLocationTestBase {
+public class ClusterManagerThrottlingMetricsCollectorTests extends CustomMetricsLocationTestBase {
 
     @Test
-    public void testMasterThrottlingMetrics() {
+    public void testClusterManagerThrottlingMetrics() {
         MetricsConfiguration.CONFIG_MAP.put(
-                MasterThrottlingMetricsCollector.class, MetricsConfiguration.cdefault);
+                ClusterManagerThrottlingMetricsCollector.class, MetricsConfiguration.cdefault);
         System.setProperty("performanceanalyzer.metrics.log.enabled", "False");
 
         long startTimeInMills = 1153721339;
@@ -33,10 +33,10 @@ public class MasterThrottlingMetricsCollectorTests extends CustomMetricsLocation
         ConfigOverridesWrapper configOverrides = Mockito.mock(ConfigOverridesWrapper.class);
         Mockito.when(
                         controller.isCollectorEnabled(
-                                configOverrides, "MasterThrottlingMetricsCollector"))
+                                configOverrides, "ClusterManagerThrottlingMetricsCollector"))
                 .thenReturn(true);
-        MasterThrottlingMetricsCollector throttlingMetricsCollectorCollector =
-                new MasterThrottlingMetricsCollector(controller, configOverrides);
+        ClusterManagerThrottlingMetricsCollector throttlingMetricsCollectorCollector =
+                new ClusterManagerThrottlingMetricsCollector(controller, configOverrides);
         throttlingMetricsCollectorCollector.saveMetricValues("testMetric", startTimeInMills);
 
         List<Event> metrics = new ArrayList<>();

@@ -470,7 +470,7 @@ public class CollectMetricsTests extends AbstractTests {
                         nodeId1,
                         new TransportAddress(address1, 9200),
                         emptyMap(),
-                        singleton(DiscoveryNodeRole.MASTER_ROLE),
+                        singleton(DiscoveryNodeRole.CLUSTER_MANAGER_ROLE),
                         Version.CURRENT);
         nodesList.add(node1);
 

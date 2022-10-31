@@ -8,7 +8,7 @@ This is the release of the Open Distro Performance Analyzer that will work with 
 
 ### Improvements
 
-* Better measurement granularity for Master Metrics [#16](https://github.com/opendistro-for-elasticsearch/performance-analyzer/pull/16)
+* Better measurement granularity for ClusterManager Metrics [#16](https://github.com/opendistro-for-elasticsearch/performance-analyzer/pull/16)
 
 ### Bug fixes
 
