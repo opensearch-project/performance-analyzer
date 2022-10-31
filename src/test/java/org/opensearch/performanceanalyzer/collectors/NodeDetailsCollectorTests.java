@@ -99,7 +99,7 @@ public class NodeDetailsCollectorTests extends OpenSearchTestCase {
         assertEquals(NODE_ID, nodeDetailsStatus.getID());
         assertEquals("0.0.0.0", nodeDetailsStatus.getHostAddress());
         assertEquals(NodeRole.DATA.role(), nodeDetailsStatus.getRole());
-        assertTrue(nodeDetailsStatus.getIsMasterNode());
+        assertTrue(nodeDetailsStatus.getIsClusterManagerNode());
     }
 
     private NodeDetailsCollector.NodeDetailsStatus readMetrics() throws IOException {

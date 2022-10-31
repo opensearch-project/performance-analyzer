@@ -19,21 +19,8 @@ import org.opensearch.index.shard.IndexShardState;
 import org.opensearch.index.shard.ShardId;
 import org.opensearch.indices.IndicesService;
 import org.opensearch.performanceanalyzer.OpenSearchResources;
-import org.opensearch.performanceanalyzer.collectors.AdmissionControlMetricsCollector;
-import org.opensearch.performanceanalyzer.collectors.CacheConfigMetricsCollector;
-import org.opensearch.performanceanalyzer.collectors.CircuitBreakerCollector;
-import org.opensearch.performanceanalyzer.collectors.ClusterApplierServiceStatsCollector;
-import org.opensearch.performanceanalyzer.collectors.ElectionTermCollector;
-import org.opensearch.performanceanalyzer.collectors.FaultDetectionMetricsCollector;
-import org.opensearch.performanceanalyzer.collectors.MasterServiceEventMetrics;
-import org.opensearch.performanceanalyzer.collectors.MasterServiceMetrics;
-import org.opensearch.performanceanalyzer.collectors.MasterThrottlingMetricsCollector;
-import org.opensearch.performanceanalyzer.collectors.NodeDetailsCollector;
-import org.opensearch.performanceanalyzer.collectors.NodeStatsAllShardsMetricsCollector;
-import org.opensearch.performanceanalyzer.collectors.NodeStatsFixedShardsMetricsCollector;
-import org.opensearch.performanceanalyzer.collectors.ShardIndexingPressureMetricsCollector;
-import org.opensearch.performanceanalyzer.collectors.ShardStateCollector;
-import org.opensearch.performanceanalyzer.collectors.ThreadPoolMetricsCollector;
+import org.opensearch.performanceanalyzer.collectors.*;
+import org.opensearch.performanceanalyzer.collectors.ClusterManagerServiceEventMetrics;
 import org.opensearch.performanceanalyzer.metrics.MetricsConfiguration;
 
 public class Utils {
@@ -48,11 +35,13 @@ public class Utils {
         MetricsConfiguration.CONFIG_MAP.put(NodeStatsAllShardsMetricsCollector.class, cdefault);
         MetricsConfiguration.CONFIG_MAP.put(NodeStatsFixedShardsMetricsCollector.class, cdefault);
         MetricsConfiguration.CONFIG_MAP.put(
-                MasterServiceEventMetrics.class, new MetricsConfiguration.MetricConfig(1000, 0));
-        MetricsConfiguration.CONFIG_MAP.put(MasterServiceMetrics.class, cdefault);
+                ClusterManagerServiceEventMetrics.class,
+                new MetricsConfiguration.MetricConfig(1000, 0));
+        MetricsConfiguration.CONFIG_MAP.put(ClusterManagerServiceMetrics.class, cdefault);
         MetricsConfiguration.CONFIG_MAP.put(FaultDetectionMetricsCollector.class, cdefault);
         MetricsConfiguration.CONFIG_MAP.put(ShardStateCollector.class, cdefault);
-        MetricsConfiguration.CONFIG_MAP.put(MasterThrottlingMetricsCollector.class, cdefault);
+        MetricsConfiguration.CONFIG_MAP.put(
+                ClusterManagerThrottlingMetricsCollector.class, cdefault);
         MetricsConfiguration.CONFIG_MAP.put(ClusterApplierServiceStatsCollector.class, cdefault);
         MetricsConfiguration.CONFIG_MAP.put(ElectionTermCollector.class, cdefault);
         MetricsConfiguration.CONFIG_MAP.put(ShardIndexingPressureMetricsCollector.class, cdefault);

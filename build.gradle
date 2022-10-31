@@ -38,7 +38,7 @@ buildscript {
 plugins {
     id 'java'
     id 'nebula.ospackage' version "8.3.0"
-    id 'com.github.spotbugs' version '5.0.0'
+    id 'com.github.spotbugs' version '5.0.13'
     id 'jacoco'
     id 'com.diffplug.spotless' version '5.11.0'
     id 'checkstyle'
@@ -262,6 +262,7 @@ dependencies {
             force "com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:${jacksonVersion}"
             force "com.fasterxml.jackson.dataformat:jackson-dataformat-cbor:${jacksonVersion}"
             force "org.apache.commons:commons-lang3:3.12.0"
+            force "org.slf4j:slf4j-api:2.0.0"
         }
     }
 
@@ -384,7 +385,7 @@ task cloneRcaGitRepo() {
     def uri = rcaProjectRepo
     def fetch = rcaProjectFetch
     def branch = rcaProjectBranch
-    if(!branch.startsWith(fetch)) { // to avoid checking out origin/origin/branch
+    if (!branch.startsWith(fetch)) { // to avoid checking out origin/origin/branch
         branch = rcaProjectFetch + "/" + rcaProjectBranch
     }
     doFirst {
@@ -569,17 +570,17 @@ task integTestRemote(type: RestIntegTestTask) {
     systemProperty "password", System.getProperty("password")
 }
 
-String bwcVersion = "1.1.0.0"
+String bwcVersion = "2.1.0.0"
 String baseName = "paBwcCluster"
 String bwcFilePath = "src/test/resources/org/opensearch/performanceanalyzer/bwc/"
-String bwcRemoteFile = "https://ci.opensearch.org/ci/dbc/bundle-build/1.1.0/20210930/linux/x64/builds/opensearch/plugins/opensearch-performance-analyzer-1.1.0.0.zip"
-String bwcOpenSearchPlugin = "opensearch-performance-analyzer-1.1.0.0.zip"
+String bwcRemoteFile = "https://ci.opensearch.org/ci/dbc/distribution-build-opensearch/2.1.0/5757/linux/x64/tar/builds/opensearch/plugins/opensearch-performance-analyzer-2.1.0.0.zip"
+String bwcOpenSearchPlugin = "opensearch-performance-analyzer-2.1.0.0.zip"
 
 2.times {i ->
     testClusters {
         "${baseName}$i" {
             testDistribution = "ARCHIVE"
-            versions = ["1.1.0", opensearch_version]
+            versions = ["2.1.0", opensearch_version]
             numberOfNodes = 3
             plugin(provider(new Callable<RegularFile>(){
                 @Override

@@ -27,7 +27,7 @@ The performance analyzer application is written in Java, and this allows us to s
 
  The writer has two different policies for lifecycle management of data in shared memory
 
-* A new file is created in shared memory for every event. These files are then deleted by the writer once their age crosses a threshold. This strategy is used for http, request and master events.
+* A new file is created in shared memory for every event. These files are then deleted by the writer once their age crosses a threshold. This strategy is used for http, request and cluster_manager events.
 * Samples of statistics are written to a single file, which is overwritten every 5 seconds. This strategy is used for both operating system statistics(cpu, rss) and node level OpenSearch statistics(circuit breaker).
 
 The reader scans the shared memory directory for updates every 2.5 seconds to make sure that no update from the writer is missed. This scheme avoids explicit synchronization between the reader and writer processes.
@@ -101,7 +101,7 @@ On a large OpenSearch cluster with heavy workload, we often see hundreds of thou
 
 ### MetricsEmitter
 
-The metrics emitter queries in memory snapshots of data and then bulk loads them into metricsDB. This helps us process more than 100k updates per second on a single thread. A single emitter can emit multiple metrics. We currently have four emitters - request, http, node and master. Every emitter queries an inmemory snapshot and then populates the results into the corresponding metricsDB tables. The ability to add new metrics and dimensions through configuration instead of code would be a nice enhancement.
+The metrics emitter queries in memory snapshots of data and then bulk loads them into metricsDB. This helps us process more than 100k updates per second on a single thread. A single emitter can emit multiple metrics. We currently have four emitters - request, http, node and cluster_manager. Every emitter queries an inmemory snapshot and then populates the results into the corresponding metricsDB tables. The ability to add new metrics and dimensions through configuration instead of code would be a nice enhancement.
 
 ### MetricsDB
 

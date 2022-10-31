@@ -4,7 +4,7 @@ Supported Elasticsearch version 7.10.0
 
 ### Features
 * Publish shard state metrics ([#212](https://github.com/opendistro-for-elasticsearch/performance-analyzer/pull/212))
-* Add Master Throttling Collector Metrics ([#227](https://github.com/opendistro-for-elasticsearch/performance-analyzer/pull/227))
+* Add ClusterManager Throttling Collector Metrics ([#227](https://github.com/opendistro-for-elasticsearch/performance-analyzer/pull/227))
 * Publish fault detection metrics ([#218](https://github.com/opendistro-for-elasticsearch/performance-analyzer/pull/218))
 * Adding new GC info collector to the scheduled metrics collector([#225](https://github.com/opendistro-for-elasticsearch/performance-analyzer/pull/225))
 
