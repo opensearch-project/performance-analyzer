@@ -15,22 +15,19 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
-import org.apache.hc.client5.http.auth.AuthScope;
-import org.apache.hc.client5.http.auth.UsernamePasswordCredentials;
-import org.apache.hc.client5.http.config.RequestConfig;
-import org.apache.hc.client5.http.impl.async.HttpAsyncClientBuilder;
-import org.apache.hc.client5.http.impl.auth.BasicCredentialsProvider;
-import org.apache.hc.client5.http.impl.nio.PoolingAsyncClientConnectionManagerBuilder;
-import org.apache.hc.client5.http.ssl.ClientTlsStrategyBuilder;
-import org.apache.hc.client5.http.ssl.NoopHostnameVerifier;
-import org.apache.hc.core5.http.Header;
-import org.apache.hc.core5.http.HttpHost;
-import org.apache.hc.core5.http.HttpStatus;
-import org.apache.hc.core5.http.io.entity.EntityUtils;
-import org.apache.hc.core5.http.message.BasicHeader;
-import org.apache.hc.core5.http.nio.ssl.TlsStrategy;
-import org.apache.hc.core5.ssl.SSLContextBuilder;
-import org.apache.hc.core5.util.Timeout;
+import org.apache.http.Header;
+import org.apache.http.HttpHost;
+import org.apache.http.HttpStatus;
+import org.apache.http.auth.AuthScope;
+import org.apache.http.auth.UsernamePasswordCredentials;
+import org.apache.http.client.CredentialsProvider;
+import org.apache.http.client.config.RequestConfig;
+import org.apache.http.conn.ssl.NoopHostnameVerifier;
+import org.apache.http.impl.client.BasicCredentialsProvider;
+import org.apache.http.impl.nio.client.HttpAsyncClientBuilder;
+import org.apache.http.message.BasicHeader;
+import org.apache.http.ssl.SSLContextBuilder;
+import org.apache.http.util.EntityUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.junit.After;
@@ -134,28 +131,21 @@ public abstract class PerformanceAnalyzerIntegTestBase extends OpenSearchRestTes
         builder.setDefaultHeaders(defaultHeaders);
         builder.setHttpClientConfigCallback(
                 (HttpAsyncClientBuilder httpClientBuilder) -> {
-                    BasicCredentialsProvider credentialsProvider = new BasicCredentialsProvider();
+                    CredentialsProvider credentialsProvider = new BasicCredentialsProvider();
                     credentialsProvider.setCredentials(
-                            new AuthScope(null, -1),
+                            AuthScope.ANY,
                             new UsernamePasswordCredentials(
-                                    config.getUser(), config.getPassword().toCharArray()));
+                                    config.getUser(), config.getPassword()));
                     try {
-                        TlsStrategy tlsStrategy =
-                                ClientTlsStrategyBuilder.create()
-                                        .setSslContext(
-                                                SSLContextBuilder.create()
-                                                        .loadTrustMaterial(
-                                                                null,
-                                                                (X509Certificate[] chain,
-                                                                        String authType) -> true)
-                                                        .build())
-                                        .setHostnameVerifier(NoopHostnameVerifier.INSTANCE)
-                                        .build();
                         return httpClientBuilder
                                 .setDefaultCredentialsProvider(credentialsProvider)
-                                .setConnectionManager(
-                                        PoolingAsyncClientConnectionManagerBuilder.create()
-                                                .setTlsStrategy(tlsStrategy)
+                                .setSSLHostnameVerifier(NoopHostnameVerifier.INSTANCE)
+                                .setSSLContext(
+                                        SSLContextBuilder.create()
+                                                .loadTrustMaterial(
+                                                        null,
+                                                        (X509Certificate[] chain,
+                                                                String authType) -> true)
                                                 .build());
                     } catch (Exception e) {
                         throw new RuntimeException(e);
@@ -168,9 +158,7 @@ public abstract class PerformanceAnalyzerIntegTestBase extends OpenSearchRestTes
                     TimeValue.parseTimeValue(socketTimeoutString, CLIENT_SOCKET_TIMEOUT);
             builder.setRequestConfigCallback(
                     (RequestConfig.Builder conf) ->
-                            conf.setResponseTimeout(
-                                    Timeout.ofMicroseconds(
-                                            Math.toIntExact(socketTimeout.millis()))));
+                            conf.setSocketTimeout(Math.toIntExact(socketTimeout.millis())));
             if (settings.hasValue(CLIENT_PATH_PREFIX)) {
                 builder.setPathPrefix(settings.get(CLIENT_PATH_PREFIX));
             }
@@ -186,7 +174,7 @@ public abstract class PerformanceAnalyzerIntegTestBase extends OpenSearchRestTes
                             + "to which to send REST requests");
         }
         return Collections.singletonList(
-                new HttpHost("http", cluster.substring(0, cluster.lastIndexOf(":")), port));
+                new HttpHost(cluster.substring(0, cluster.lastIndexOf(":")), port, "http"));
     }
 
     @Before
