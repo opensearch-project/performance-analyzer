@@ -1,6 +1,6 @@
-## Version 2.3.0 Release Notes
+## Version 2.4.0 Release Notes
 
-Compatible with OpenSearch 2.3.0
+Compatible with OpenSearch 2.4.0
 
 ### Bug fixes
 * Safeguard against appending origin twice ([#285](https://github.com/opensearch-project/performance-analyzer/pull/285))
