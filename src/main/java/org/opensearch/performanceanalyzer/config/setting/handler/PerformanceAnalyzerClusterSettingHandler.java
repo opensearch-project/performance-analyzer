@@ -6,6 +6,7 @@
 package org.opensearch.performanceanalyzer.config.setting.handler;
 
 
+import java.util.*;
 import org.opensearch.performanceanalyzer.config.PerformanceAnalyzerController;
 import org.opensearch.performanceanalyzer.config.setting.ClusterSettingListener;
 import org.opensearch.performanceanalyzer.config.setting.ClusterSettingsManager;
@@ -33,6 +34,13 @@ public class PerformanceAnalyzerClusterSettingHandler implements ClusterSettingL
             PerformanceAnalyzerClusterSettings.PerformanceAnalyzerFeatureBits
                     .THREAD_CONTENTION_MONITORING_BIT
                     .ordinal();
+
+    static final String PA_ENABLED_KEY = "PerformanceAnalyzerEnabled";
+    static final String RCA_ENABLED_KEY = "RcaEnabled";
+    static final String LOGGING_ENABLED_KEY = "LoggingEnabled";
+    static final String BATCH_METRICS_ENABLED_KEY = "BatchMetricsEnabled";
+    static final String THREAD_CONTENTION_MONITORING_ENABLED_KEY =
+            "ThreadContentionMonitoringEnabled";
 
     private final PerformanceAnalyzerController controller;
     private final ClusterSettingsManager clusterSettingsManager;
@@ -132,8 +140,20 @@ public class PerformanceAnalyzerClusterSettingHandler implements ClusterSettingL
      *
      * @return the current cluster setting value if exists. Initial cluster setting otherwise.
      */
-    public int getCurrentClusterSettingValue() {
-        return currentClusterSetting;
+    public Map<String, Boolean> getCurrentClusterSettingValue() {
+        Map<String, Boolean> statusMap = new LinkedHashMap<String, Boolean>();
+        statusMap.put(PA_ENABLED_KEY, getPAStateFromSetting(currentClusterSetting.intValue()));
+        statusMap.put(RCA_ENABLED_KEY, getRcaStateFromSetting(currentClusterSetting.intValue()));
+        statusMap.put(
+                LOGGING_ENABLED_KEY, getLoggingStateFromSetting(currentClusterSetting.intValue()));
+        statusMap.put(
+                BATCH_METRICS_ENABLED_KEY,
+                getBatchMetricsStateFromSetting(currentClusterSetting.intValue()));
+        statusMap.put(
+                THREAD_CONTENTION_MONITORING_ENABLED_KEY,
+                getThreadContentionMonitoringStateFromSetting(currentClusterSetting.intValue()));
+
+        return statusMap;
     }
 
     /**
