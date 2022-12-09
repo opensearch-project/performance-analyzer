@@ -262,6 +262,7 @@ dependencies {
             force "com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:${jacksonVersion}"
             force "com.fasterxml.jackson.dataformat:jackson-dataformat-cbor:${jacksonVersion}"
             force "org.apache.commons:commons-lang3:3.12.0"
+            force "org.apache.bcel:bcel:6.6.0" // TODO - This line should be removed once Spotbugs is upgraded to 4.7.4
             force "org.slf4j:slf4j-api:2.0.0"
         }
     }
