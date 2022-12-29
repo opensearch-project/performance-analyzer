@@ -238,7 +238,7 @@ checkstyleMain.enabled = false
 checkstyleTest.enabled = false
 
 dependencies {
-    def nettyVersion = "4.1.79.Final"
+    def nettyVersion = "${versions.netty}"
 
     configurations {
         // jarHell reports class name conflicts between securemock and mockito-core
