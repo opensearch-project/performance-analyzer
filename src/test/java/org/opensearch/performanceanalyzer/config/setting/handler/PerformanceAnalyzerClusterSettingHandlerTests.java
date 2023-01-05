@@ -9,7 +9,8 @@ import static org.junit.Assert.assertEquals;
 import static org.mockito.MockitoAnnotations.initMocks;
 import static org.powermock.api.mockito.PowerMockito.when;
 
-import java.util.*;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -19,6 +20,16 @@ import org.opensearch.performanceanalyzer.config.setting.ClusterSettingsManager;
 public class PerformanceAnalyzerClusterSettingHandlerTests {
     private static final Boolean DISABLED_STATE = Boolean.FALSE;
     private static final Boolean ENABLED_STATE = Boolean.TRUE;
+
+    private final Map<String, Boolean> ALL_ENABLED_CLUSTER =
+            createStatusMap(
+                    ENABLED_STATE, ENABLED_STATE, ENABLED_STATE, ENABLED_STATE, ENABLED_STATE);
+    private final Map<String, Boolean> ALL_DISABLED_CLUSTER =
+            createStatusMap(
+                    DISABLED_STATE, DISABLED_STATE, DISABLED_STATE, DISABLED_STATE, DISABLED_STATE);
+    private final Map<String, Boolean> MIXED_STATUS_CLUSTER =
+            createStatusMap(
+                    ENABLED_STATE, ENABLED_STATE, DISABLED_STATE, DISABLED_STATE, DISABLED_STATE);
 
     private PerformanceAnalyzerClusterSettingHandler clusterSettingHandler;
 
@@ -37,14 +48,9 @@ public class PerformanceAnalyzerClusterSettingHandlerTests {
         clusterSettingHandler =
                 new PerformanceAnalyzerClusterSettingHandler(
                         mockPerformanceAnalyzerController, mockClusterSettingsManager);
-        Map<String, Boolean> statusMap =
-                createStatusMap(
-                        DISABLED_STATE,
-                        DISABLED_STATE,
-                        DISABLED_STATE,
-                        DISABLED_STATE,
-                        DISABLED_STATE);
-        assertEquals(statusMap, clusterSettingHandler.getCurrentClusterSettingValue());
+        assertEquals(0, clusterSettingHandler.getCurrentClusterSettingValue());
+        assertEquals(
+                ALL_DISABLED_CLUSTER, clusterSettingHandler.getCurrentClusterSettingValueVerbose());
     }
 
     @Test
@@ -54,10 +60,9 @@ public class PerformanceAnalyzerClusterSettingHandlerTests {
         clusterSettingHandler =
                 new PerformanceAnalyzerClusterSettingHandler(
                         mockPerformanceAnalyzerController, mockClusterSettingsManager);
-        Map<String, Boolean> statusMap =
-                createStatusMap(
-                        ENABLED_STATE, ENABLED_STATE, ENABLED_STATE, ENABLED_STATE, ENABLED_STATE);
-        assertEquals(statusMap, clusterSettingHandler.getCurrentClusterSettingValue());
+        assertEquals(31, clusterSettingHandler.getCurrentClusterSettingValue());
+        assertEquals(
+                ALL_ENABLED_CLUSTER, clusterSettingHandler.getCurrentClusterSettingValueVerbose());
     }
 
     @Test
@@ -67,14 +72,9 @@ public class PerformanceAnalyzerClusterSettingHandlerTests {
         clusterSettingHandler =
                 new PerformanceAnalyzerClusterSettingHandler(
                         mockPerformanceAnalyzerController, mockClusterSettingsManager);
-        Map<String, Boolean> statusMap =
-                createStatusMap(
-                        DISABLED_STATE,
-                        DISABLED_STATE,
-                        DISABLED_STATE,
-                        DISABLED_STATE,
-                        DISABLED_STATE);
-        assertEquals(statusMap, clusterSettingHandler.getCurrentClusterSettingValue());
+        assertEquals(0, clusterSettingHandler.getCurrentClusterSettingValue());
+        assertEquals(
+                ALL_DISABLED_CLUSTER, clusterSettingHandler.getCurrentClusterSettingValueVerbose());
     }
 
     @Test
@@ -84,23 +84,13 @@ public class PerformanceAnalyzerClusterSettingHandlerTests {
         clusterSettingHandler =
                 new PerformanceAnalyzerClusterSettingHandler(
                         mockPerformanceAnalyzerController, mockClusterSettingsManager);
-        Map<String, Boolean> statusMap =
-                createStatusMap(
-                        ENABLED_STATE,
-                        ENABLED_STATE,
-                        DISABLED_STATE,
-                        DISABLED_STATE,
-                        DISABLED_STATE);
-        Map<String, Boolean> statusMap2 =
-                createStatusMap(
-                        DISABLED_STATE,
-                        DISABLED_STATE,
-                        DISABLED_STATE,
-                        DISABLED_STATE,
-                        DISABLED_STATE);
-        assertEquals(statusMap, clusterSettingHandler.getCurrentClusterSettingValue());
+        assertEquals(3, clusterSettingHandler.getCurrentClusterSettingValue());
+        assertEquals(
+                MIXED_STATUS_CLUSTER, clusterSettingHandler.getCurrentClusterSettingValueVerbose());
         clusterSettingHandler.onSettingUpdate(0);
-        assertEquals(statusMap2, clusterSettingHandler.getCurrentClusterSettingValue());
+        assertEquals(0, clusterSettingHandler.getCurrentClusterSettingValue());
+        assertEquals(
+                ALL_DISABLED_CLUSTER, clusterSettingHandler.getCurrentClusterSettingValueVerbose());
     }
 
     private void setControllerValues(

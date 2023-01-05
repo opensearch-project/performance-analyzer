@@ -6,7 +6,8 @@
 package org.opensearch.performanceanalyzer.config.setting.handler;
 
 
-import java.util.*;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import org.opensearch.performanceanalyzer.config.PerformanceAnalyzerController;
 import org.opensearch.performanceanalyzer.config.setting.ClusterSettingListener;
 import org.opensearch.performanceanalyzer.config.setting.ClusterSettingsManager;
@@ -140,7 +141,11 @@ public class PerformanceAnalyzerClusterSettingHandler implements ClusterSettingL
      *
      * @return the current cluster setting value if exists. Initial cluster setting otherwise.
      */
-    public Map<String, Boolean> getCurrentClusterSettingValue() {
+    public int getCurrentClusterSettingValue() {
+        return currentClusterSetting;
+    }
+
+    public Map<String, Boolean> getCurrentClusterSettingValueVerbose() {
         Map<String, Boolean> statusMap = new LinkedHashMap<String, Boolean>();
         statusMap.put(PA_ENABLED_KEY, getPAStateFromSetting(currentClusterSetting.intValue()));
         statusMap.put(RCA_ENABLED_KEY, getRcaStateFromSetting(currentClusterSetting.intValue()));
