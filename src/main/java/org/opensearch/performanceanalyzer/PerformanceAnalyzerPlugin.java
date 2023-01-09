@@ -153,7 +153,7 @@ public final class PerformanceAnalyzerPlugin extends Plugin
         OpenSearchResources.INSTANCE.setSettings(settings);
         OpenSearchResources.INSTANCE.setConfigPath(configPath);
         OpenSearchResources.INSTANCE.setPluginFileLocation(
-                new Environment(settings, configPath).pluginsDir().toString()
+                new Environment(settings, configPath).pluginsFile().toAbsolutePath().toString()
                         + File.separator
                         + PLUGIN_NAME
                         + File.separator);
