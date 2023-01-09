@@ -65,6 +65,7 @@ public class PerformanceAnalyzerResourceProvider extends BaseRestHandler {
             LogManager.getLogger(PerformanceAnalyzerResourceProvider.class);
 
     private static final int HTTP_CLIENT_CONNECTION_TIMEOUT_MILLIS = 200;
+    private static final int HTTP_READ_CONNECTON_TIMEOUT_MILLIS = 10000;
     private static final String AGENT_PATH = RestConfig.PA_BASE_URI + "/_agent/";
     private static final String LEGACY_AGENT_PATH = RestConfig.LEGACY_PA_BASE_URI + "/_agent/";
     private static final String DEFAULT_PORT_NUMBER = "9600";
@@ -219,12 +220,14 @@ public class PerformanceAnalyzerResourceProvider extends BaseRestHandler {
     private HttpURLConnection createHttpsURLConnection(URL url) throws IOException {
         HttpsURLConnection httpsURLConnection = (HttpsURLConnection) url.openConnection();
         httpsURLConnection.setConnectTimeout(HTTP_CLIENT_CONNECTION_TIMEOUT_MILLIS);
+        httpsURLConnection.setReadTimeout(HTTP_READ_CONNECTON_TIMEOUT_MILLIS);
         return httpsURLConnection;
     }
 
     private HttpURLConnection createHttpURLConnection(URL url) throws IOException {
         HttpURLConnection httpURLConnection = (HttpURLConnection) url.openConnection();
         httpURLConnection.setConnectTimeout(HTTP_CLIENT_CONNECTION_TIMEOUT_MILLIS);
+        httpURLConnection.setReadTimeout(HTTP_READ_CONNECTON_TIMEOUT_MILLIS);
         return httpURLConnection;
     }
 
