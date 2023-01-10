@@ -171,6 +171,7 @@ public class PerformanceAnalyzerClusterConfigAction extends BaseRestHandler {
     @Override
     protected RestChannelConsumer prepareRequest(final RestRequest request, final NodeClient client)
             throws IOException {
+        request.param("verbose");
         if (request.method() == RestRequest.Method.POST && request.content().length() > 0) {
             Map<String, Object> map =
                     XContentHelper.convertToMap(request.content(), false, XContentType.JSON).v2();
@@ -208,7 +209,11 @@ public class PerformanceAnalyzerClusterConfigAction extends BaseRestHandler {
             try {
                 XContentBuilder builder = channel.newBuilder();
                 builder.startObject();
-                builder.field(CURRENT, clusterSettingHandler.getCurrentClusterSettingValue());
+                builder.field(
+                        CURRENT,
+                        request.paramAsBoolean("verbose", false)
+                                ? clusterSettingHandler.getCurrentClusterSettingValueVerbose()
+                                : clusterSettingHandler.getCurrentClusterSettingValue());
                 builder.field(SHARDS_PER_COLLECTION, nodeStatsSettingHandler.getNodeStatsSetting());
                 builder.field(
                         BATCH_METRICS_RETENTION_PERIOD_MINUTES,
