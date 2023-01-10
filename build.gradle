@@ -559,6 +559,7 @@ task integTestRemote(type: RestIntegTestTask) {
     classpath = sourceSets.test.runtimeClasspath
     systemProperty 'tests.security.manager', 'false'
     systemProperty 'java.io.tmpdir', opensearch_tmp_dir.absolutePath
+    systemProperty 'clk.tck', 100
 
     systemProperty "https", System.getProperty("https")
     systemProperty "user", System.getProperty("user")
