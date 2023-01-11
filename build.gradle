@@ -239,8 +239,8 @@ checkstyleTest.enabled = false
 
 dependencies {
 
-    def jacksonVersion = "2.13.4"
-    def jacksonDataBindVersion = "2.13.4.2"
+    def jacksonVersion = "2.14.1"
+    def jacksonDataBindVersion = "2.14.1"
     def nettyVersion = "${versions.netty}"
 
     configurations {
