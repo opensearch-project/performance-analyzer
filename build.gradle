@@ -355,6 +355,16 @@ dependencies {
     testImplementation group: 'com.google.code.gson', name: 'gson', version: '2.9.0'
 }
 
+configurations.each {
+    c -> c.resolutionStrategy.dependencySubstitution {
+        all { DependencySubstitution dependency ->
+            if (dependency.requested.group == 'org.apache.bcel') {
+                dependency.useTarget 'org.apache.bcel:bcel:6.6.1'
+            }
+        }
+    }
+}
+
 dependencyLicenses {
     mapping from: /jackson-.*/, to: 'jackson'
 }
