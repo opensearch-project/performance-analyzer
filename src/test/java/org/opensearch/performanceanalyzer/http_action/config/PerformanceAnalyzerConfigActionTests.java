@@ -22,9 +22,10 @@ import org.opensearch.common.bytes.BytesReference;
 import org.opensearch.common.settings.ClusterSettings;
 import org.opensearch.common.settings.Settings;
 import org.opensearch.common.util.concurrent.ThreadContext;
-import org.opensearch.common.xcontent.NamedXContentRegistry;
-import org.opensearch.common.xcontent.XContentBuilder;
 import org.opensearch.common.xcontent.XContentFactory;
+import org.opensearch.common.xcontent.XContentType;
+import org.opensearch.core.xcontent.NamedXContentRegistry;
+import org.opensearch.core.xcontent.XContentBuilder;
 import org.opensearch.indices.breaker.BreakerSettings;
 import org.opensearch.indices.breaker.CircuitBreakerService;
 import org.opensearch.indices.breaker.HierarchyCircuitBreakerService;
@@ -310,7 +311,7 @@ public class PerformanceAnalyzerConfigActionTests {
         return new FakeRestRequest.Builder(NamedXContentRegistry.EMPTY)
                 .withMethod(RestRequest.Method.POST)
                 .withPath(requestPath)
-                .withContent(BytesReference.bytes(builder), builder.contentType())
+                .withContent(BytesReference.bytes(builder), (XContentType) builder.contentType())
                 .build();
     }
 }
