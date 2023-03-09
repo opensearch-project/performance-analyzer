@@ -208,8 +208,8 @@ dependencies {
         compile files("${System.properties['java.home']}/../lib/tools.jar")
     }
 
-    def jacksonVersion = "2.14.1"
-    def jacksonDataBindVersion = "2.14.1"
+    def jacksonVersion = "2.14.2"
+    def jacksonDataBindVersion = "2.14.2"
     def nettyVersion = "4.1.84.Final"
 
     configurations {
