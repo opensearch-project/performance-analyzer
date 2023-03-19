@@ -40,9 +40,12 @@ public class AdmissionControlMetricsCollector extends PerformanceAnalyzerMetrics
     private static final String ADMISSION_CONTROL_SERVICE =
             "com.sonian.opensearch.http.jetty.throttling.JettyAdmissionControlService";
 
+    private final ClassLoader admissionControlClassLoaer;
+
     public AdmissionControlMetricsCollector() {
         super(sTimeInterval, "AdmissionControlMetricsCollector");
         this.value = new StringBuilder();
+        this.admissionControlClassLoaer = this.getClass().getClassLoader().getParent();
     }
 
     @Override
@@ -57,8 +60,11 @@ public class AdmissionControlMetricsCollector extends PerformanceAnalyzerMetrics
 
         long startTimeMillis = System.currentTimeMillis();
         try {
-            Class admissionController = Class.forName(ADMISSION_CONTROLLER);
-            Class jettyAdmissionControlService = Class.forName(ADMISSION_CONTROL_SERVICE);
+            Class admissionController =
+                    Class.forName(ADMISSION_CONTROLLER, false, this.admissionControlClassLoaer);
+            Class jettyAdmissionControlService =
+                    Class.forName(
+                            ADMISSION_CONTROL_SERVICE, false, this.admissionControlClassLoaer);
 
             Method getAdmissionController =
                     jettyAdmissionControlService.getDeclaredMethod(
@@ -172,8 +178,8 @@ public class AdmissionControlMetricsCollector extends PerformanceAnalyzerMetrics
 
     private boolean isAdmissionControlFeatureAvailable() {
         try {
-            Class.forName(ADMISSION_CONTROLLER);
-            Class.forName(ADMISSION_CONTROL_SERVICE);
+            Class.forName(ADMISSION_CONTROLLER, false, this.admissionControlClassLoaer);
+            Class.forName(ADMISSION_CONTROL_SERVICE, false, this.admissionControlClassLoaer);
         } catch (ClassNotFoundException e) {
             return false;
         }
