@@ -40,15 +40,21 @@ public class AdmissionControlMetricsCollector extends PerformanceAnalyzerMetrics
     private static final String ADMISSION_CONTROL_SERVICE =
             "com.sonian.opensearch.http.jetty.throttling.JettyAdmissionControlService";
 
+    private Class admissionControllerClass;
+    private Class jettyAdmissionControllerServiceClass;
+    private final boolean admissionControllerAvailable;
+
+
     public AdmissionControlMetricsCollector() {
         super(sTimeInterval, "AdmissionControlMetricsCollector");
         this.value = new StringBuilder();
+        this.admissionControllerAvailable = canLoadAdmissionControllerClasses();
     }
 
     @Override
     @SuppressWarnings("unchecked")
     public void collectMetrics(long startTime) {
-        if (!isAdmissionControlFeatureAvailable()) {
+        if (!this.admissionControllerAvailable) {
             LOG.debug("AdmissionControl is not available for this domain");
             PerformanceAnalyzerApp.WRITER_METRICS_AGGREGATOR.updateStat(
                     WriterMetrics.ADMISSION_CONTROL_COLLECTOR_NOT_AVAILABLE, "", 1);
@@ -57,11 +63,9 @@ public class AdmissionControlMetricsCollector extends PerformanceAnalyzerMetrics
 
         long startTimeMillis = System.currentTimeMillis();
         try {
-            Class admissionController = Class.forName(ADMISSION_CONTROLLER);
-            Class jettyAdmissionControlService = Class.forName(ADMISSION_CONTROL_SERVICE);
 
             Method getAdmissionController =
-                    jettyAdmissionControlService.getDeclaredMethod(
+                    this.jettyAdmissionControllerServiceClass.getDeclaredMethod(
                             "getAdmissionController", String.class);
 
             Object globalJVMMP = getAdmissionController.invoke(null, GLOBAL_JVMMP);
@@ -73,9 +77,9 @@ public class AdmissionControlMetricsCollector extends PerformanceAnalyzerMetrics
 
             value.setLength(0);
 
-            Method getUsedQuota = admissionController.getDeclaredMethod("getUsedQuota");
-            Method getTotalQuota = admissionController.getDeclaredMethod("getTotalQuota");
-            Method getRejectionCount = admissionController.getDeclaredMethod("getRejectionCount");
+            Method getUsedQuota = this.admissionControllerClass.getDeclaredMethod("getUsedQuota");
+            Method getTotalQuota = this.admissionControllerClass.getDeclaredMethod("getTotalQuota");
+            Method getRejectionCount = this.admissionControllerClass.getDeclaredMethod("getRejectionCount");
 
             if (!Objects.isNull(globalJVMMP)) {
                 value.append(PerformanceAnalyzerMetrics.getJsonCurrentMilliSeconds())
@@ -170,10 +174,13 @@ public class AdmissionControlMetricsCollector extends PerformanceAnalyzerMetrics
         }
     }
 
-    private boolean isAdmissionControlFeatureAvailable() {
+    private boolean canLoadAdmissionControllerClasses() {
         try {
-            Class.forName(ADMISSION_CONTROLLER);
-            Class.forName(ADMISSION_CONTROL_SERVICE);
+            ClassLoader admissionControlClassLoader = this.getClass().getClassLoader().getParent();
+            this.admissionControllerClass =
+                    Class.forName(ADMISSION_CONTROLLER, false, admissionControlClassLoader);
+            this.jettyAdmissionControllerServiceClass =
+                    Class.forName(ADMISSION_CONTROL_SERVICE, false, admissionControlClassLoader);
         } catch (ClassNotFoundException e) {
             return false;
         }
