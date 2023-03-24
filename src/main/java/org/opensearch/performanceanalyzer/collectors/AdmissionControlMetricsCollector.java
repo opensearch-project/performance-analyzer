@@ -48,7 +48,7 @@ public class AdmissionControlMetricsCollector extends PerformanceAnalyzerMetrics
     public AdmissionControlMetricsCollector() {
         super(sTimeInterval, "AdmissionControlMetricsCollector");
         this.value = new StringBuilder();
-        this.admissionControllerAvailable = canLoadAdmissionContollerClasses();
+        this.admissionControllerAvailable = canLoadAdmissionControllerClasses();
     }
 
     @Override
@@ -174,7 +174,7 @@ public class AdmissionControlMetricsCollector extends PerformanceAnalyzerMetrics
         }
     }
 
-    private boolean canLoadAdmissionContollerClasses() {
+    private boolean canLoadAdmissionControllerClasses() {
         try {
             ClassLoader admissionControlClassLoader = this.getClass().getClassLoader().getParent();
             this.admissionControllerClass =
