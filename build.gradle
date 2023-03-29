@@ -91,6 +91,7 @@ allprojects {
 
 apply plugin: 'opensearch.opensearchplugin'
 apply plugin: 'opensearch.pluginzip'
+apply plugin: 'idea'
 
 licenseFile = rootProject.file('LICENSE.txt')
 noticeFile = rootProject.file('NOTICE.txt')
@@ -668,6 +669,7 @@ task "${baseName}#mixedClusterTask"(type: StandaloneRestIntegTestTask) {
     dependsOn "${baseName}#oldVersionClusterTask0"
     doFirst {
         testClusters."${baseName}0".upgradeNodeAndPluginToNextVersion(plugins)
+        testClusters."${baseName}0".waitForAllConditions()
     }
     filter {
         includeTestsMatching "org.opensearch.performanceanalyzer.bwc.*IT"
@@ -686,8 +688,13 @@ task "${baseName}#mixedClusterTask"(type: StandaloneRestIntegTestTask) {
 task "${baseName}#twoThirdsUpgradedClusterTask"(type: StandaloneRestIntegTestTask) {
     dependsOn "${baseName}#mixedClusterTask"
     useCluster testClusters."${baseName}0"
+    println String.format('[MOMO] Starting the twoThirdsUpgradedClusterTask')
+    println String.format('[MOMO] pa_bwc_version(%s)', pa_bwc_version)
     doFirst {
         testClusters."${baseName}0".upgradeNodeAndPluginToNextVersion(plugins)
+        testClusters."${baseName}0".waitForAllConditions()
+        println String.format('[MOMO] sleeping for 100')
+        sleep(100)
     }
     filter {
         includeTestsMatching "org.opensearch.performanceanalyzer.bwc.*IT"
@@ -708,6 +715,7 @@ task "${baseName}#rollingUpgradeClusterTask"(type: StandaloneRestIntegTestTask) 
     useCluster testClusters."${baseName}0"
     doFirst {
         testClusters."${baseName}0".upgradeNodeAndPluginToNextVersion(plugins)
+        testClusters."${baseName}0".waitForAllConditions()
     }
     filter {
         includeTestsMatching "org.opensearch.performanceanalyzer.bwc.*IT"
@@ -728,6 +736,7 @@ task "${baseName}#fullRestartClusterTask"(type: StandaloneRestIntegTestTask) {
     useCluster testClusters."${baseName}1"
     doFirst {
         testClusters."${baseName}1".upgradeAllNodesAndPluginsToNextVersion(plugins)
+        testClusters."${baseName}1".waitForAllConditions()
     }
     filter {
         includeTestsMatching "org.opensearch.performanceanalyzer.bwc.*IT"
