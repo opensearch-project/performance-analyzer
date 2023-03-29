@@ -733,7 +733,7 @@ task "${baseName}#fullRestartClusterTask"(type: StandaloneRestIntegTestTask) {
         includeTestsMatching "org.opensearch.performanceanalyzer.bwc.*IT"
     }
     systemProperty 'tests.rest.bwcsuite', 'upgraded_cluster'
-    systemProperty 'tests.plugin_bwc_version', bwcVersion
+    systemProperty 'tests.plugin_bwc_version', pa_bwc_version
     nonInputProperties.systemProperty('tests.rest.cluster', "${-> testClusters."${baseName}1".allHttpSocketURI.join(",")}")
     nonInputProperties.systemProperty('tests.clustername', "${-> testClusters."${baseName}1".getName()}")
     systemProperty 'tests.security.manager', 'false'
