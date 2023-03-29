@@ -44,7 +44,6 @@ public class AdmissionControlMetricsCollector extends PerformanceAnalyzerMetrics
     private Class jettyAdmissionControllerServiceClass;
     private final boolean admissionControllerAvailable;
 
-
     public AdmissionControlMetricsCollector() {
         super(sTimeInterval, "AdmissionControlMetricsCollector");
         this.value = new StringBuilder();
@@ -79,7 +78,8 @@ public class AdmissionControlMetricsCollector extends PerformanceAnalyzerMetrics
 
             Method getUsedQuota = this.admissionControllerClass.getDeclaredMethod("getUsedQuota");
             Method getTotalQuota = this.admissionControllerClass.getDeclaredMethod("getTotalQuota");
-            Method getRejectionCount = this.admissionControllerClass.getDeclaredMethod("getRejectionCount");
+            Method getRejectionCount =
+                    this.admissionControllerClass.getDeclaredMethod("getRejectionCount");
 
             if (!Objects.isNull(globalJVMMP)) {
                 value.append(PerformanceAnalyzerMetrics.getJsonCurrentMilliSeconds())
