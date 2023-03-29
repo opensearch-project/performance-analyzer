@@ -577,10 +577,8 @@ task integTest(type: RestIntegTestTask) {
 }
 
 tasks.named("check").configure { dependsOn(integTest) }
-println String.format('[MOMO] Starting the Bundle')
 Zip bundle = (Zip) project.getTasks().getByName("bundlePlugin");
 integTest.dependsOn(bundle)
-println String.format('[MOMO] Bundle Files: (%s)', bundle.getArchiveFile())
 integTest.getClusters().forEach{c -> c.plugin(project.getObjects().fileProperty().value(bundle.getArchiveFile()))}
 
 def opensearch_tmp_dir = rootProject.file('build/private/opensearch_tmp').absoluteFile
@@ -688,13 +686,9 @@ task "${baseName}#mixedClusterTask"(type: StandaloneRestIntegTestTask) {
 task "${baseName}#twoThirdsUpgradedClusterTask"(type: StandaloneRestIntegTestTask) {
     dependsOn "${baseName}#mixedClusterTask"
     useCluster testClusters."${baseName}0"
-    println String.format('[MOMO] Starting the twoThirdsUpgradedClusterTask')
-    println String.format('[MOMO] pa_bwc_version(%s)', pa_bwc_version)
     doFirst {
         testClusters."${baseName}0".upgradeNodeAndPluginToNextVersion(plugins)
         testClusters."${baseName}0".waitForAllConditions()
-        println String.format('[MOMO] sleeping for 100')
-        sleep(100)
     }
     filter {
         includeTestsMatching "org.opensearch.performanceanalyzer.bwc.*IT"

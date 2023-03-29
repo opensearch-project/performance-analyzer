@@ -6,23 +6,21 @@
 package org.opensearch.performanceanalyzer.bwc;
 
 
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.junit.Assert;
 import org.opensearch.common.settings.Settings;
 import org.opensearch.performanceanalyzer.PerformanceAnalyzerIntegTestBase;
 import org.opensearch.performanceanalyzer.http_action.config.RestConfig;
 import org.opensearch.test.rest.OpenSearchRestTestCase;
 
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
+
 public class PABackwardsCompatibilityIT extends PerformanceAnalyzerIntegTestBase {
     private static final ClusterType CLUSTER_TYPE =
             ClusterType.parse(System.getProperty("tests.rest.bwcsuite"));
     private static final String CLUSTER_NAME = System.getProperty("tests.clustername");
-    private static final Logger LOG = LogManager.getLogger(PABackwardsCompatibilityIT.class);
 
     @Override
     protected final boolean preserveReposUponCompletion() {
@@ -75,9 +73,7 @@ public class PABackwardsCompatibilityIT extends PerformanceAnalyzerIntegTestBase
                     ensurePAStatus(RestConfig.PA_BASE_URI, false);
                     break;
                 case MIXED:
-                    LOG.info("[MOMO] MIXED BWC test, plugin list: {}", pluginNames.toString());
                     Assert.assertTrue(pluginNames.contains("opensearch-performance-analyzer"));
-                    LOG.info("[MOMO] MIXED BWC test, checking PAStatus");
                     ensurePAStatus(RestConfig.PA_BASE_URI, true);
                     break;
                 case UPGRADED:
