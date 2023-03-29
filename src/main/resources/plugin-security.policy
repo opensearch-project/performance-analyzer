@@ -18,8 +18,11 @@ grant {
   permission java.lang.RuntimePermission "loadLibrary.attach";
   permission java.lang.RuntimePermission "accessClassInPackage.jdk.internal.misc";
   permission java.lang.RuntimePermission "accessClassInPackage.sun.tools.attach";
+
+  // needed to find the classloader to load AD classes
   permission java.lang.RuntimePermission "createClassLoader";
   permission java.lang.RuntimePermission "defineClass";
+  permission java.lang.RuntimePermission "getClassLoader";
 
 };
 
