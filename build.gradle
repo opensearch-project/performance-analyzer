@@ -259,9 +259,11 @@ checkstyleTest.enabled = false
 
 dependencies {
 
-    def jacksonVersion = "2.14.1"
-    def jacksonDataBindVersion = "2.14.1"
+    def jacksonVersion = "${versions.jackson}"
+    def jacksonDataBindVersion = "${versions.jackson_databind}"
     def nettyVersion = "${versions.netty}"
+    def junitVersion = "${versions.junit}"
+    def log4jVersion = "${versions.log4j}"
 
     configurations {
         // jarHell reports class name conflicts between securemock and mockito-core
@@ -273,7 +275,7 @@ dependencies {
 
     configurations.all {
         resolutionStrategy {
-            force 'junit:junit:4.13.1'
+            force "junit:junit:${junitVersion}"
             force "com.fasterxml.jackson.core:jackson-annotations:${jacksonVersion}"
             force "com.fasterxml.jackson.core:jackson-core:${jacksonVersion}"
             force "com.fasterxml.jackson.core:jackson-databind:${jacksonDataBindVersion}"
@@ -298,8 +300,8 @@ dependencies {
     implementation "com.fasterxml.jackson.core:jackson-annotations:${jacksonVersion}"
     implementation "com.fasterxml.jackson.core:jackson-databind:${jacksonDataBindVersion}"
     implementation "com.fasterxml.jackson.module:jackson-module-paranamer:${jacksonVersion}"
-    implementation(group: 'org.apache.logging.log4j', name: 'log4j-api', version: '2.17.1')
-    implementation(group: 'org.apache.logging.log4j', name: 'log4j-core', version: '2.17.1')
+    implementation(group: 'org.apache.logging.log4j', name: 'log4j-api', version: "${log4jVersion}")
+    implementation(group: 'org.apache.logging.log4j', name: 'log4j-core', version: "${log4jVersion}")
     implementation(group: 'com.google.errorprone', name: 'error_prone_annotations', version: '2.9.0') {
         force = 'true'
     }
