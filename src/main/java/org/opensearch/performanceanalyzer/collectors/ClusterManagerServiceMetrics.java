@@ -13,11 +13,13 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.opensearch.cluster.service.PendingClusterTask;
 import org.opensearch.performanceanalyzer.OpenSearchResources;
+import org.opensearch.performanceanalyzer.PerformanceAnalyzerApp;
 import org.opensearch.performanceanalyzer.metrics.AllMetrics.ClusterManagerPendingTaskDimension;
 import org.opensearch.performanceanalyzer.metrics.AllMetrics.ClusterManagerPendingValue;
 import org.opensearch.performanceanalyzer.metrics.MetricsConfiguration;
 import org.opensearch.performanceanalyzer.metrics.MetricsProcessor;
 import org.opensearch.performanceanalyzer.metrics.PerformanceAnalyzerMetrics;
+import org.opensearch.performanceanalyzer.rca.framework.metrics.WriterMetrics;
 
 @SuppressWarnings("unchecked")
 public class ClusterManagerServiceMetrics extends PerformanceAnalyzerMetricsCollector
@@ -97,6 +99,8 @@ public class ClusterManagerServiceMetrics extends PerformanceAnalyzerMetricsColl
                     PerformanceAnalyzerMetrics.CLUSTER_MANAGER_CURRENT,
                     PerformanceAnalyzerMetrics.CLUSTER_MANAGER_META_DATA);
         } catch (Exception ex) {
+            PerformanceAnalyzerApp.WRITER_METRICS_AGGREGATOR.updateStat(
+                    WriterMetrics.CLUSTER_MANAGER_METRICS_ERROR, "", 1);
             LOG.debug(
                     "Exception in Collecting ClusterManager Metrics: {} for startTime {}",
                     () -> ex.toString(),
