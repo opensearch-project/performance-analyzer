@@ -7,18 +7,26 @@ package org.opensearch.performanceanalyzer.collectors;
 
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.opensearch.indices.breaker.CircuitBreakerStats;
 import org.opensearch.performanceanalyzer.OpenSearchResources;
+import org.opensearch.performanceanalyzer.PerformanceAnalyzerApp;
 import org.opensearch.performanceanalyzer.metrics.AllMetrics.CircuitBreakerDimension;
 import org.opensearch.performanceanalyzer.metrics.AllMetrics.CircuitBreakerValue;
 import org.opensearch.performanceanalyzer.metrics.MetricsConfiguration;
 import org.opensearch.performanceanalyzer.metrics.MetricsProcessor;
 import org.opensearch.performanceanalyzer.metrics.PerformanceAnalyzerMetrics;
+import org.opensearch.performanceanalyzer.rca.framework.metrics.ExceptionsAndErrors;
+import org.opensearch.performanceanalyzer.rca.framework.metrics.WriterMetrics;
 
 public class CircuitBreakerCollector extends PerformanceAnalyzerMetricsCollector
         implements MetricsProcessor {
     public static final int SAMPLING_TIME_INTERVAL =
             MetricsConfiguration.CONFIG_MAP.get(CircuitBreakerCollector.class).samplingInterval;
+
+    private static final Logger LOG =
+            LogManager.getLogger(CircuitBreakerCollector.class);
     private static final int KEYS_PATH_LENGTH = 0;
     private StringBuilder value;
 
@@ -33,24 +41,42 @@ public class CircuitBreakerCollector extends PerformanceAnalyzerMetricsCollector
             return;
         }
 
-        CircuitBreakerStats[] allCircuitBreakerStats =
-                OpenSearchResources.INSTANCE.getCircuitBreakerService().stats().getAllStats();
-        // - Reusing the same StringBuilder across exectuions; so clearing before using
-        value.setLength(0);
-        value.append(PerformanceAnalyzerMetrics.getJsonCurrentMilliSeconds());
+        try {
+            long mCurrT = System.currentTimeMillis();
 
-        for (CircuitBreakerStats stats : allCircuitBreakerStats) {
-            value.append(PerformanceAnalyzerMetrics.sMetricNewLineDelimitor)
-                    .append(
-                            new CircuitBreakerStatus(
-                                            stats.getName(),
-                                            stats.getEstimated(),
-                                            stats.getTrippedCount(),
-                                            stats.getLimit())
-                                    .serialize());
+            CircuitBreakerStats[] allCircuitBreakerStats =
+                    OpenSearchResources.INSTANCE.getCircuitBreakerService().stats().getAllStats();
+            // - Reusing the same StringBuilder across exectuions; so clearing before using
+            value.setLength(0);
+            value.append(PerformanceAnalyzerMetrics.getJsonCurrentMilliSeconds());
+
+            for (CircuitBreakerStats stats : allCircuitBreakerStats) {
+                value.append(PerformanceAnalyzerMetrics.sMetricNewLineDelimitor)
+                        .append(
+                                new CircuitBreakerStatus(
+                                        stats.getName(),
+                                        stats.getEstimated(),
+                                        stats.getTrippedCount(),
+                                        stats.getLimit())
+                                        .serialize());
+            }
+
+            saveMetricValues(value.toString(), startTime);
+
+            PerformanceAnalyzerApp.WRITER_METRICS_AGGREGATOR.updateStat(
+                    WriterMetrics.CIRCUIT_BREAKER_COLLECTOR_EXECUTION_TIME,
+                    "",
+                    System.currentTimeMillis() - mCurrT);
+
+        } catch (Exception ex) {
+            PerformanceAnalyzerApp.ERRORS_AND_EXCEPTIONS_AGGREGATOR.updateStat(
+                    ExceptionsAndErrors.CIRCUIT_BREAKER_COLLECTOR_ERROR, "", 1);
+            LOG.debug(
+                    "Exception in Collecting CircuitBreaker Metrics: {} for startTime {}",
+                    () -> ex.toString(),
+                    () -> startTime);
         }
 
-        saveMetricValues(value.toString(), startTime);
     }
 
     @Override
