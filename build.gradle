@@ -32,6 +32,11 @@ plugins {
     id 'checkstyle'
 }
 
+checkstyle {
+    toolVersion = '9.3'
+    configFile file("checkstyle/checkstyle.xml")
+}
+
 spotbugsMain {
     excludeFilter = file("checkstyle/findbugs-exclude.xml")
     effort = 'max'
