@@ -227,6 +227,7 @@ dependencies {
             force "com.fasterxml.jackson.core:jackson-core:${jacksonVersion}"
             force "com.fasterxml.jackson.core:jackson-databind:${jacksonDataBindVersion}"
             force "com.fasterxml.jackson.module:jackson-module-paranamer:${jacksonVersion}"
+            force "org.apache.commons:commons-lang3:3.12.0"
             force "org.apache.bcel:bcel:6.6.0"
         }
     }
