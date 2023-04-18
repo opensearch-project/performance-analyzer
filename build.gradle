@@ -49,6 +49,12 @@ plugins {
     id 'com.github.spotbugs' version '4.6.0'
     id 'jacoco'
     id 'com.diffplug.spotless' version '5.11.0'
+    id 'checkstyle'
+}
+
+checkstyle {
+    toolVersion = '9.3'
+    configFile file("checkstyle/checkstyle.xml")
 }
 
 spotbugsMain {
@@ -242,6 +248,9 @@ dependencies {
           force "com.fasterxml.jackson.core:jackson-core:${jacksonVersion}"
           force "com.fasterxml.jackson.core:jackson-databind:${jacksonVersion}"
           force "com.fasterxml.jackson.module:jackson-module-paranamer:${jacksonVersion}"
+           force "org.apache.commons:commons-lang3:3.12.0"
+           force "org.apache.commons:commons-text:1.10.0"
+           force "org.apache.bcel:bcel:6.6.0"
        }
     }
 
