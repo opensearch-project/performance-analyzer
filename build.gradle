@@ -32,6 +32,11 @@ plugins {
     id 'checkstyle'
 }
 
+checkstyle {
+    toolVersion = '9.3'
+    configFile file("checkstyle/checkstyle.xml")
+}
+
 spotbugsMain {
     excludeFilter = file("checkstyle/findbugs-exclude.xml")
     effort = 'max'
@@ -229,6 +234,9 @@ dependencies {
             force "com.fasterxml.jackson.core:jackson-core:${jacksonVersion}"
             force "com.fasterxml.jackson.core:jackson-databind:${jacksonDataBindVersion}"
             force "com.fasterxml.jackson.module:jackson-module-paranamer:${jacksonVersion}"
+            force "org.apache.commons:commons-lang3:3.12.0"
+            force "org.apache.commons:commons-text:1.10.0"
+            force "org.apache.bcel:bcel:6.6.0"
         }
     }
 
