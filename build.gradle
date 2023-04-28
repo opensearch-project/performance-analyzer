@@ -47,7 +47,7 @@ plugins {
     id 'com.diffplug.spotless' version '5.11.0'
     id 'checkstyle'
     id 'org.ajoberstar.grgit' version '5.0.0'
-    id 'org.gradle.test-retry' version '1.4.1'
+    id 'org.gradle.test-retry' version '1.5.2'
 
 }
 
