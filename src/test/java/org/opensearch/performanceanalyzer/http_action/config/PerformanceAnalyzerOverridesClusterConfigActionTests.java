@@ -13,6 +13,7 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -24,6 +25,7 @@ import org.opensearch.common.settings.Settings;
 import org.opensearch.common.util.concurrent.ThreadContext;
 import org.opensearch.common.xcontent.XContentType;
 import org.opensearch.core.xcontent.NamedXContentRegistry;
+import org.opensearch.identity.IdentityService;
 import org.opensearch.indices.breaker.BreakerSettings;
 import org.opensearch.indices.breaker.CircuitBreakerService;
 import org.opensearch.indices.breaker.HierarchyCircuitBreakerService;
@@ -46,6 +48,7 @@ public class PerformanceAnalyzerOverridesClusterConfigActionTests {
     private NodeClient nodeClient;
     private CircuitBreakerService circuitBreakerService;
     private ClusterSettings clusterSettings;
+    private IdentityService identityService;
 
     @Mock private ConfigOverridesClusterSettingHandler configOverridesClusterSettingHandler;
     @Mock private ConfigOverridesWrapper overridesWrapper;
@@ -62,13 +65,15 @@ public class PerformanceAnalyzerOverridesClusterConfigActionTests {
         UsageService usageService = new UsageService();
         threadPool = new TestThreadPool("test");
         nodeClient = new NodeClient(Settings.EMPTY, threadPool);
+        identityService = new IdentityService(Settings.EMPTY, List.of());
         restController =
                 new RestController(
                         Collections.emptySet(),
                         null,
                         nodeClient,
                         circuitBreakerService,
-                        usageService);
+                        usageService,
+                        identityService);
         configAction =
                 new PerformanceAnalyzerOverridesClusterConfigAction(
                         Settings.EMPTY,
