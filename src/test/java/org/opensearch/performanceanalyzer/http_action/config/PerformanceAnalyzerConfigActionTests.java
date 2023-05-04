@@ -12,6 +12,7 @@ import static org.mockito.MockitoAnnotations.initMocks;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -26,6 +27,7 @@ import org.opensearch.common.xcontent.XContentFactory;
 import org.opensearch.common.xcontent.XContentType;
 import org.opensearch.core.xcontent.NamedXContentRegistry;
 import org.opensearch.core.xcontent.XContentBuilder;
+import org.opensearch.identity.IdentityService;
 import org.opensearch.indices.breaker.BreakerSettings;
 import org.opensearch.indices.breaker.CircuitBreakerService;
 import org.opensearch.indices.breaker.HierarchyCircuitBreakerService;
@@ -46,6 +48,7 @@ public class PerformanceAnalyzerConfigActionTests {
     private NodeClient nodeClient;
     private CircuitBreakerService circuitBreakerService;
     private ClusterSettings clusterSettings;
+    private IdentityService identityService;
 
     @Mock private PerformanceAnalyzerController controller;
 
@@ -61,13 +64,15 @@ public class PerformanceAnalyzerConfigActionTests {
         UsageService usageService = new UsageService();
         threadPool = new TestThreadPool("test");
         nodeClient = new NodeClient(Settings.EMPTY, threadPool);
+        identityService = new IdentityService(Settings.EMPTY, List.of());
         restController =
                 new RestController(
                         Collections.emptySet(),
                         null,
                         nodeClient,
                         circuitBreakerService,
-                        usageService);
+                        usageService,
+                        identityService);
         configAction = new PerformanceAnalyzerConfigAction(restController, controller);
         restController.registerHandler(configAction);
 
