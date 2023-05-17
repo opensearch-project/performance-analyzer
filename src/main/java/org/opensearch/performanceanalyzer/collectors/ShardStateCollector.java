@@ -99,12 +99,12 @@ public class ShardStateCollector extends PerformanceAnalyzerMetricsCollector
                     "",
                     System.currentTimeMillis() - mCurrT);
         } catch (Exception ex) {
-            PerformanceAnalyzerApp.ERRORS_AND_EXCEPTIONS_AGGREGATOR.updateStat(
-                    ExceptionsAndErrors.SHARD_STATE_COLLECTOR_ERROR, "", 1);
             LOG.debug(
                     "Exception in Collecting Shard Metrics: {} for startTime {}",
                     () -> ex.toString(),
                     () -> startTime);
+            PerformanceAnalyzerApp.ERRORS_AND_EXCEPTIONS_AGGREGATOR.updateStat(
+                    ExceptionsAndErrors.SHARD_STATE_COLLECTOR_ERROR, "", 1);
         }
     }
 

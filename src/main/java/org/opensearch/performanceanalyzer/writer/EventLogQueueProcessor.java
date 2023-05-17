@@ -25,7 +25,7 @@ import org.opensearch.performanceanalyzer.config.PluginSettings;
 import org.opensearch.performanceanalyzer.http_action.config.PerformanceAnalyzerConfigAction;
 import org.opensearch.performanceanalyzer.metrics.MetricsConfiguration;
 import org.opensearch.performanceanalyzer.metrics.PerformanceAnalyzerMetrics;
-import org.opensearch.performanceanalyzer.rca.framework.metrics.WriterMetrics;
+import org.opensearch.performanceanalyzer.rca.framework.metrics.ExceptionsAndErrors;
 import org.opensearch.performanceanalyzer.reader_writer_shared.Event;
 import org.opensearch.performanceanalyzer.reader_writer_shared.EventLogFileHandler;
 
@@ -144,8 +144,8 @@ public class EventLogQueueProcessor {
             } else {
                 // increment stale_metrics count when metrics to be collected is falling behind the
                 // current bucket
-                PerformanceAnalyzerApp.WRITER_METRICS_AGGREGATOR.updateStat(
-                        WriterMetrics.STALE_METRICS, "", 1);
+                PerformanceAnalyzerApp.ERRORS_AND_EXCEPTIONS_AGGREGATOR.updateStat(
+                        ExceptionsAndErrors.STALE_METRICS, "", 1);
             }
         }
 

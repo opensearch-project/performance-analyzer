@@ -13,7 +13,7 @@ import org.opensearch.action.bulk.BulkShardRequest;
 import org.opensearch.action.support.replication.TransportReplicationAction.ConcreteShardRequest;
 import org.opensearch.performanceanalyzer.PerformanceAnalyzerApp;
 import org.opensearch.performanceanalyzer.config.PerformanceAnalyzerController;
-import org.opensearch.performanceanalyzer.rca.framework.metrics.WriterMetrics;
+import org.opensearch.performanceanalyzer.rca.framework.metrics.ExceptionsAndErrors;
 import org.opensearch.tasks.Task;
 import org.opensearch.transport.TransportChannel;
 import org.opensearch.transport.TransportRequest;
@@ -93,8 +93,8 @@ public class PerformanceAnalyzerTransportRequestHandler<T extends TransportReque
                 LOG.error(ex);
                 logOnce = true;
             }
-            PerformanceAnalyzerApp.WRITER_METRICS_AGGREGATOR.updateStat(
-                    WriterMetrics.OPENSEARCH_REQUEST_INTERCEPTOR_ERROR, "", 1);
+            PerformanceAnalyzerApp.ERRORS_AND_EXCEPTIONS_AGGREGATOR.updateStat(
+                    ExceptionsAndErrors.OPENSEARCH_REQUEST_INTERCEPTOR_ERROR, "", 1);
         }
 
         return performanceanalyzerChannel;

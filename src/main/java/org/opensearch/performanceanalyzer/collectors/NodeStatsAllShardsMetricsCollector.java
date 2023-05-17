@@ -29,6 +29,7 @@ import org.opensearch.performanceanalyzer.metrics.MetricsConfiguration;
 import org.opensearch.performanceanalyzer.metrics.MetricsProcessor;
 import org.opensearch.performanceanalyzer.metrics.PerformanceAnalyzerMetrics;
 import org.opensearch.performanceanalyzer.rca.framework.metrics.ExceptionsAndErrors;
+import org.opensearch.performanceanalyzer.rca.framework.metrics.WriterMetrics;
 import org.opensearch.performanceanalyzer.util.Utils;
 
 /**
@@ -146,6 +147,8 @@ public class NodeStatsAllShardsMetricsCollector extends PerformanceAnalyzerMetri
             return;
         }
 
+        long mCurrT = System.currentTimeMillis();
+
         try {
             populateCurrentShards();
             populatePerShardStats(indicesService);
@@ -173,6 +176,11 @@ public class NodeStatsAllShardsMetricsCollector extends PerformanceAnalyzerMetri
                         new NodeStatsMetricsAllShardsPerCollectionStatus(currentShardStats);
                 populateDiffMetricValue(
                         prevValue, currValue, startTime, shardId.getIndexName(), shardId.id());
+
+                PerformanceAnalyzerApp.WRITER_METRICS_AGGREGATOR.updateStat(
+                        WriterMetrics.NODE_STATS_ALL_SHARDS_METRICS_COLLECTOR_EXECUTION_TIME,
+                        "",
+                        System.currentTimeMillis() - mCurrT);
             }
         } catch (Exception ex) {
             LOG.debug(
