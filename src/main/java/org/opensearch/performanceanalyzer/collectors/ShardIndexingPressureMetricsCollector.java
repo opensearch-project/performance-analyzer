@@ -232,6 +232,11 @@ public class ShardIndexingPressureMetricsCollector extends PerformanceAnalyzerMe
                                         } catch (JsonProcessingException | ParseException e) {
                                             LOG.debug(
                                                     "Exception raised while parsing string to json object. Skipping IndexingPressureMetricsCollector");
+                                            PerformanceAnalyzerApp.ERRORS_AND_EXCEPTIONS_AGGREGATOR
+                                                    .updateStat(
+                                                            ExceptionsAndErrors.JSON_PARSER_ERROR,
+                                                            getCollectorName(),
+                                                            1);
                                         }
                                     });
                 }
@@ -244,12 +249,12 @@ public class ShardIndexingPressureMetricsCollector extends PerformanceAnalyzerMe
                         System.currentTimeMillis() - mCurrT);
             }
         } catch (Exception ex) {
-            PerformanceAnalyzerApp.ERRORS_AND_EXCEPTIONS_AGGREGATOR.updateStat(
-                    ExceptionsAndErrors.SHARD_INDEXING_PRESSURE_COLLECTOR_ERROR, "", 1);
             LOG.debug(
                     "Exception in Collecting Shard Indexing Pressure Metrics: {} for startTime {}",
                     () -> ex.toString(),
                     () -> startTime);
+            PerformanceAnalyzerApp.ERRORS_AND_EXCEPTIONS_AGGREGATOR.updateStat(
+                    ExceptionsAndErrors.SHARD_INDEXING_PRESSURE_COLLECTOR_ERROR, "", 1);
         }
     }
 

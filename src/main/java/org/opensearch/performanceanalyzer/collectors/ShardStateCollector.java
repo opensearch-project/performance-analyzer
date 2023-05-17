@@ -64,7 +64,7 @@ public class ShardStateCollector extends PerformanceAnalyzerMetricsCollector
             value.append(PerformanceAnalyzerMetrics.getJsonCurrentMilliSeconds())
                     .append(PerformanceAnalyzerMetrics.sMetricNewLineDelimitor);
             RoutingTable routingTable = clusterState.routingTable();
-            String[] indices = routingTable.indicesRouting().keySet().toArray(new String[0]);
+            String[] indices = routingTable.indicesRouting().keys().toArray(String.class);
             for (String index : indices) {
                 List<ShardRouting> allShardsIndex = routingTable.allShards(index);
                 value.append(
@@ -99,12 +99,12 @@ public class ShardStateCollector extends PerformanceAnalyzerMetricsCollector
                     "",
                     System.currentTimeMillis() - mCurrT);
         } catch (Exception ex) {
-            PerformanceAnalyzerApp.ERRORS_AND_EXCEPTIONS_AGGREGATOR.updateStat(
-                    ExceptionsAndErrors.SHARD_STATE_COLLECTOR_ERROR, "", 1);
             LOG.debug(
                     "Exception in Collecting Shard Metrics: {} for startTime {}",
                     () -> ex.toString(),
                     () -> startTime);
+            PerformanceAnalyzerApp.ERRORS_AND_EXCEPTIONS_AGGREGATOR.updateStat(
+                    ExceptionsAndErrors.SHARD_STATE_COLLECTOR_ERROR, "", 1);
         }
     }
 

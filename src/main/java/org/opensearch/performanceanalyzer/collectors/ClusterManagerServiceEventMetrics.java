@@ -27,6 +27,7 @@ import org.opensearch.performanceanalyzer.metrics.MetricsConfiguration;
 import org.opensearch.performanceanalyzer.metrics.MetricsProcessor;
 import org.opensearch.performanceanalyzer.metrics.PerformanceAnalyzerMetrics;
 import org.opensearch.performanceanalyzer.metrics.ThreadIDUtil;
+import org.opensearch.performanceanalyzer.rca.framework.metrics.ExceptionsAndErrors;
 import org.opensearch.performanceanalyzer.rca.framework.metrics.WriterMetrics;
 
 @SuppressWarnings("unchecked")
@@ -82,6 +83,8 @@ public class ClusterManagerServiceEventMetrics extends PerformanceAnalyzerMetric
                             == null) {
                 return;
             }
+
+            long mCurrT = System.currentTimeMillis();
 
             value.setLength(0);
             Queue<Runnable> current = getClusterManagerServiceCurrentQueue();
@@ -145,19 +148,24 @@ public class ClusterManagerServiceEventMetrics extends PerformanceAnalyzerMetric
                             PerformanceAnalyzerMetrics.START_FILE_NAME);
 
                     value.setLength(0);
+                    PerformanceAnalyzerApp.WRITER_METRICS_AGGREGATOR.updateStat(
+                            WriterMetrics
+                                    .CLUSTER_MANAGER_SERVICE_EVENTS_METRICS_COLLECTOR_EXECUTION_TIME,
+                            "",
+                            System.currentTimeMillis() - mCurrT);
                 }
             } else {
                 generateFinishMetrics(startTime);
             }
             LOG.debug(() -> "Successfully collected ClusterManager Event Metrics.");
         } catch (Exception ex) {
-            PerformanceAnalyzerApp.WRITER_METRICS_AGGREGATOR.updateStat(
-                    WriterMetrics.CLUSTER_MANAGER_METRICS_ERROR, "", 1);
             LOG.debug(
                     "Exception in Collecting ClusterManager Metrics: {} for startTime {} with ExceptionCode: {}",
                     () -> ex.toString(),
                     () -> startTime,
                     () -> StatExceptionCode.CLUSTER_MANAGER_METRICS_ERROR.toString());
+            PerformanceAnalyzerApp.ERRORS_AND_EXCEPTIONS_AGGREGATOR.updateStat(
+                    ExceptionsAndErrors.CLUSTER_MANAGER_METRICS_ERROR, "", 1);
         }
     }
 
@@ -235,8 +243,8 @@ public class ClusterManagerServiceEventMetrics extends PerformanceAnalyzerMetric
                                         getPrioritizedTPExecutorCurrentField()
                                                 .get(prioritizedOpenSearchThreadPoolExecutor);
                     } else {
-                        PerformanceAnalyzerApp.WRITER_METRICS_AGGREGATOR.updateStat(
-                                WriterMetrics.CLUSTER_MANAGER_NODE_NOT_UP, "", 1);
+                        PerformanceAnalyzerApp.ERRORS_AND_EXCEPTIONS_AGGREGATOR.updateStat(
+                                ExceptionsAndErrors.CLUSTER_MANAGER_NODE_NOT_UP, "", 1);
                     }
                 }
             }

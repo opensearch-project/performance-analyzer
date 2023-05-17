@@ -80,14 +80,12 @@ public class ElectionTermCollector extends PerformanceAnalyzerMetricsCollector
                     System.currentTimeMillis() - mCurrT);
 
         } catch (Exception ex) {
-            PerformanceAnalyzerApp.ERRORS_AND_EXCEPTIONS_AGGREGATOR.updateStat(
-                    ExceptionsAndErrors.ELECTION_TERM_COLLECTOR_ERROR,
-                    "",
-                    System.currentTimeMillis() - mCurrT);
             LOG.debug(
                     "Exception in Collecting Election term Metrics: {} for startTime {}",
                     () -> ex.toString(),
                     () -> startTime);
+            PerformanceAnalyzerApp.ERRORS_AND_EXCEPTIONS_AGGREGATOR.updateStat(
+                    ExceptionsAndErrors.ELECTION_TERM_COLLECTOR_ERROR, "", 1);
         }
     }
 

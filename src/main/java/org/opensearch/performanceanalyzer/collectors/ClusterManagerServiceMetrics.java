@@ -19,6 +19,7 @@ import org.opensearch.performanceanalyzer.metrics.AllMetrics.ClusterManagerPendi
 import org.opensearch.performanceanalyzer.metrics.MetricsConfiguration;
 import org.opensearch.performanceanalyzer.metrics.MetricsProcessor;
 import org.opensearch.performanceanalyzer.metrics.PerformanceAnalyzerMetrics;
+import org.opensearch.performanceanalyzer.rca.framework.metrics.ExceptionsAndErrors;
 import org.opensearch.performanceanalyzer.rca.framework.metrics.WriterMetrics;
 
 @SuppressWarnings("unchecked")
@@ -57,6 +58,7 @@ public class ClusterManagerServiceMetrics extends PerformanceAnalyzerMetricsColl
                 return;
             }
 
+            long mCurrT = System.currentTimeMillis();
             /*
             pendingTasks API returns object of PendingClusterTask which contains insertOrder, priority, source, timeInQueue.
                 Example :
@@ -98,13 +100,17 @@ public class ClusterManagerServiceMetrics extends PerformanceAnalyzerMetricsColl
                     startTime,
                     PerformanceAnalyzerMetrics.CLUSTER_MANAGER_CURRENT,
                     PerformanceAnalyzerMetrics.CLUSTER_MANAGER_META_DATA);
-        } catch (Exception ex) {
             PerformanceAnalyzerApp.WRITER_METRICS_AGGREGATOR.updateStat(
-                    WriterMetrics.CLUSTER_MANAGER_METRICS_ERROR, "", 1);
+                    WriterMetrics.CLUSTER_MANAGER_SERVICE_METRICS_COLLECTOR_EXECUTION_TIME,
+                    "",
+                    System.currentTimeMillis() - mCurrT);
+        } catch (Exception ex) {
             LOG.debug(
                     "Exception in Collecting ClusterManager Metrics: {} for startTime {}",
                     () -> ex.toString(),
                     () -> startTime);
+            PerformanceAnalyzerApp.ERRORS_AND_EXCEPTIONS_AGGREGATOR.updateStat(
+                    ExceptionsAndErrors.CLUSTER_MANAGER_METRICS_ERROR, "", 1);
         }
     }
 

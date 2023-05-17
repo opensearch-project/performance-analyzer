@@ -24,7 +24,7 @@ import org.opensearch.common.settings.Setting;
 import org.opensearch.common.settings.Settings;
 import org.opensearch.performanceanalyzer.OpenSearchResources;
 import org.opensearch.performanceanalyzer.PerformanceAnalyzerApp;
-import org.opensearch.performanceanalyzer.rca.framework.metrics.WriterMetrics;
+import org.opensearch.performanceanalyzer.rca.framework.metrics.ExceptionsAndErrors;
 
 /**
  * Class that handles updating cluster settings, and notifying the listeners when cluster settings
@@ -224,8 +224,8 @@ public class ClusterSettingsManager implements ClusterStateListener {
             }
         } catch (Exception ex) {
             LOG.error(ex);
-            PerformanceAnalyzerApp.WRITER_METRICS_AGGREGATOR.updateStat(
-                    WriterMetrics.OPENSEARCH_REQUEST_INTERCEPTOR_ERROR, "", 1);
+            PerformanceAnalyzerApp.ERRORS_AND_EXCEPTIONS_AGGREGATOR.updateStat(
+                    ExceptionsAndErrors.OPENSEARCH_REQUEST_INTERCEPTOR_ERROR, "", 1);
         }
     }
 
@@ -246,8 +246,8 @@ public class ClusterSettingsManager implements ClusterStateListener {
             }
         } catch (Exception ex) {
             LOG.error(ex);
-            PerformanceAnalyzerApp.WRITER_METRICS_AGGREGATOR.updateStat(
-                    WriterMetrics.OPENSEARCH_REQUEST_INTERCEPTOR_ERROR, "", 1);
+            PerformanceAnalyzerApp.ERRORS_AND_EXCEPTIONS_AGGREGATOR.updateStat(
+                    ExceptionsAndErrors.OPENSEARCH_REQUEST_INTERCEPTOR_ERROR, "", 1);
         }
     }
     /** Class that handles response to GET /_cluster/settings */
