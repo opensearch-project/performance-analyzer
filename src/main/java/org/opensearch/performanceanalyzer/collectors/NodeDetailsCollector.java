@@ -14,6 +14,7 @@ import org.apache.logging.log4j.Logger;
 import org.opensearch.cluster.node.DiscoveryNode;
 import org.opensearch.cluster.node.DiscoveryNodes;
 import org.opensearch.performanceanalyzer.OpenSearchResources;
+import org.opensearch.performanceanalyzer.PerformanceAnalyzerApp;
 import org.opensearch.performanceanalyzer.config.overrides.ConfigOverridesHelper;
 import org.opensearch.performanceanalyzer.config.overrides.ConfigOverridesWrapper;
 import org.opensearch.performanceanalyzer.metrics.AllMetrics.NodeDetailColumns;
@@ -21,6 +22,8 @@ import org.opensearch.performanceanalyzer.metrics.AllMetrics.NodeRole;
 import org.opensearch.performanceanalyzer.metrics.MetricsConfiguration;
 import org.opensearch.performanceanalyzer.metrics.MetricsProcessor;
 import org.opensearch.performanceanalyzer.metrics.PerformanceAnalyzerMetrics;
+import org.opensearch.performanceanalyzer.rca.framework.metrics.ExceptionsAndErrors;
+import org.opensearch.performanceanalyzer.rca.framework.metrics.WriterMetrics;
 
 public class NodeDetailsCollector extends PerformanceAnalyzerMetricsCollector
         implements MetricsProcessor {
@@ -43,6 +46,8 @@ public class NodeDetailsCollector extends PerformanceAnalyzerMetricsCollector
             return;
         }
 
+        long mCurrT = System.currentTimeMillis();
+
         StringBuilder value = new StringBuilder();
         value.append(PerformanceAnalyzerMetrics.getJsonCurrentMilliSeconds())
                 .append(PerformanceAnalyzerMetrics.sMetricNewLineDelimitor);
@@ -62,6 +67,8 @@ public class NodeDetailsCollector extends PerformanceAnalyzerMetricsCollector
             }
         } catch (IOException ioe) {
             LOG.error("Unable to serialize rca config overrides.", ioe);
+            PerformanceAnalyzerApp.ERRORS_AND_EXCEPTIONS_AGGREGATOR.updateStat(
+                    ExceptionsAndErrors.CONFIG_OVERRIDES_SER_FAILED, "", 1);
         }
         value.append(PerformanceAnalyzerMetrics.sMetricNewLineDelimitor);
 
@@ -87,6 +94,10 @@ public class NodeDetailsCollector extends PerformanceAnalyzerMetricsCollector
                     discoveryNodeIterator.next(), value, localNodeID, clusterManagerNode);
         }
         saveMetricValues(value.toString(), startTime);
+        PerformanceAnalyzerApp.WRITER_METRICS_AGGREGATOR.updateStat(
+                WriterMetrics.NODE_DETAILS_COLLECTOR_EXECUTION_TIME,
+                "",
+                System.currentTimeMillis() - mCurrT);
     }
 
     private void addMetricsToStringBuilder(

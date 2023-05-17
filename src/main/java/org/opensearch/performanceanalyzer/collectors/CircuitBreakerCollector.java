@@ -68,12 +68,12 @@ public class CircuitBreakerCollector extends PerformanceAnalyzerMetricsCollector
                     System.currentTimeMillis() - mCurrT);
 
         } catch (Exception ex) {
-            PerformanceAnalyzerApp.ERRORS_AND_EXCEPTIONS_AGGREGATOR.updateStat(
-                    ExceptionsAndErrors.CIRCUIT_BREAKER_COLLECTOR_ERROR, "", 1);
             LOG.debug(
                     "Exception in Collecting CircuitBreaker Metrics: {} for startTime {}",
                     () -> ex.toString(),
                     () -> startTime);
+            PerformanceAnalyzerApp.ERRORS_AND_EXCEPTIONS_AGGREGATOR.updateStat(
+                    ExceptionsAndErrors.CIRCUIT_BREAKER_COLLECTOR_ERROR, "", 1);
         }
     }
 

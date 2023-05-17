@@ -29,13 +29,14 @@ import org.opensearch.performanceanalyzer.metrics.MetricsConfiguration;
 import org.opensearch.performanceanalyzer.metrics.MetricsProcessor;
 import org.opensearch.performanceanalyzer.metrics.PerformanceAnalyzerMetrics;
 import org.opensearch.performanceanalyzer.rca.framework.metrics.ExceptionsAndErrors;
+import org.opensearch.performanceanalyzer.rca.framework.metrics.WriterMetrics;
 import org.opensearch.performanceanalyzer.util.Utils;
 
 /**
  * This collector collects metrics for fixed number of shards on a node in a single run. These
- * metrics are heavy weight metrics which have performance impacts on the performance of the node.
- * The number of shards is set via a cluster settings api. The parameter to set is
- * shardsPerCollection. The metrics will be populated for these many shards in a single run.
+ * metrics are heavy which have performance impacts on the performance of the node. The number of
+ * shards is set via a cluster settings api. The parameter to set is shardsPerCollection. The
+ * metrics will be populated for these many shards in a single run.
  */
 @SuppressWarnings("unchecked")
 public class NodeStatsFixedShardsMetricsCollector extends PerformanceAnalyzerMetricsCollector
@@ -166,6 +167,8 @@ public class NodeStatsFixedShardsMetricsCollector extends PerformanceAnalyzerMet
             return;
         }
 
+        long mCurrT = System.currentTimeMillis();
+
         try {
             // reach the end of current shardId list. retrieve new shard list from IndexService
             if (!currentShardsIter.hasNext()) {
@@ -203,6 +206,11 @@ public class NodeStatsFixedShardsMetricsCollector extends PerformanceAnalyzerMet
                             startTime,
                             currentIndexShardStats.getShardId().getIndexName(),
                             String.valueOf(currentIndexShardStats.getShardId().id()));
+
+                    PerformanceAnalyzerApp.WRITER_METRICS_AGGREGATOR.updateStat(
+                            WriterMetrics.NODE_STATS_FIXED_SHARDS_METRICS_COLLECTOR_EXECUTION_TIME,
+                            "",
+                            System.currentTimeMillis() - mCurrT);
                 }
             }
         } catch (Exception ex) {

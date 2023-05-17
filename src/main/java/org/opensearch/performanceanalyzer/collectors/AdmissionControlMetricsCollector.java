@@ -60,7 +60,7 @@ public class AdmissionControlMetricsCollector extends PerformanceAnalyzerMetrics
             return;
         }
 
-        long startTimeMillis = System.currentTimeMillis();
+        long mCurrT = System.currentTimeMillis();
         try {
 
             Method getAdmissionController =
@@ -110,17 +110,15 @@ public class AdmissionControlMetricsCollector extends PerformanceAnalyzerMetrics
             PerformanceAnalyzerApp.WRITER_METRICS_AGGREGATOR.updateStat(
                     WriterMetrics.ADMISSION_CONTROL_COLLECTOR_EXECUTION_TIME,
                     "",
-                    System.currentTimeMillis() - startTimeMillis);
+                    System.currentTimeMillis() - mCurrT);
 
         } catch (Exception ex) {
-            PerformanceAnalyzerApp.ERRORS_AND_EXCEPTIONS_AGGREGATOR.updateStat(
-                    ExceptionsAndErrors.ADMISSION_CONTROL_COLLECTOR_ERROR,
-                    getCollectorName(),
-                    System.currentTimeMillis() - startTimeMillis);
             LOG.debug(
                     "Exception in collecting AdmissionControl Metrics: {} for startTime {}",
                     ex::toString,
                     () -> startTime);
+            PerformanceAnalyzerApp.ERRORS_AND_EXCEPTIONS_AGGREGATOR.updateStat(
+                    ExceptionsAndErrors.ADMISSION_CONTROL_COLLECTOR_ERROR, "", 1);
         }
     }
 
@@ -183,6 +181,8 @@ public class AdmissionControlMetricsCollector extends PerformanceAnalyzerMetrics
                     Class.forName(ADMISSION_CONTROL_SERVICE, false, admissionControlClassLoader);
         } catch (Exception e) {
             LOG.debug("Failed to load AdmissionControllerService classes : {}", e::toString);
+            PerformanceAnalyzerApp.ERRORS_AND_EXCEPTIONS_AGGREGATOR.updateStat(
+                    ExceptionsAndErrors.ADMISSION_CONTROL_COLLECTOR_ERROR, "", 1);
             return false;
         }
         return true;

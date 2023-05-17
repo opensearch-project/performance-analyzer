@@ -18,11 +18,14 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.opensearch.common.util.concurrent.SizeBlockingQueue;
 import org.opensearch.performanceanalyzer.OpenSearchResources;
+import org.opensearch.performanceanalyzer.PerformanceAnalyzerApp;
 import org.opensearch.performanceanalyzer.metrics.AllMetrics.ThreadPoolDimension;
 import org.opensearch.performanceanalyzer.metrics.AllMetrics.ThreadPoolValue;
 import org.opensearch.performanceanalyzer.metrics.MetricsConfiguration;
 import org.opensearch.performanceanalyzer.metrics.MetricsProcessor;
 import org.opensearch.performanceanalyzer.metrics.PerformanceAnalyzerMetrics;
+import org.opensearch.performanceanalyzer.rca.framework.metrics.ExceptionsAndErrors;
+import org.opensearch.performanceanalyzer.rca.framework.metrics.WriterMetrics;
 import org.opensearch.threadpool.ThreadPool;
 import org.opensearch.threadpool.ThreadPoolStats.Stats;
 
@@ -46,6 +49,8 @@ public class ThreadPoolMetricsCollector extends PerformanceAnalyzerMetricsCollec
         if (OpenSearchResources.INSTANCE.getThreadPool() == null) {
             return;
         }
+
+        long mCurrT = System.currentTimeMillis();
 
         Iterator<Stats> statsIterator =
                 OpenSearchResources.INSTANCE.getThreadPool().stats().iterator();
@@ -102,6 +107,12 @@ public class ThreadPoolMetricsCollector extends PerformanceAnalyzerMetricsCollec
                                             }
                                         } catch (Exception e) {
                                             LOG.warn("Fail to read queue capacity via reflection");
+                                            PerformanceAnalyzerApp.ERRORS_AND_EXCEPTIONS_AGGREGATOR
+                                                    .updateStat(
+                                                            ExceptionsAndErrors
+                                                                    .THREADPOOL_METRICS_COLLECTOR_ERROR,
+                                                            "",
+                                                            1);
                                         }
                                         return -1;
                                     });
@@ -118,6 +129,10 @@ public class ThreadPoolMetricsCollector extends PerformanceAnalyzerMetricsCollec
                     .append(threadPoolStatus.serialize());
         }
         saveMetricValues(value.toString(), startTime);
+        PerformanceAnalyzerApp.WRITER_METRICS_AGGREGATOR.updateStat(
+                WriterMetrics.THREADPOOL_METRICS_COLLECTOR_EXECUTION_TIME,
+                "",
+                System.currentTimeMillis() - mCurrT);
     }
 
     @Override
