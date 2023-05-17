@@ -259,6 +259,8 @@ dependencies {
     def nettyVersion = "${versions.netty}"
     def junitVersion = "${versions.junit}"
     def log4jVersion = "${versions.log4j}"
+    def guavaVersion = "${versions.guava}"
+    def protobufVersion = "${versions.protobuf}"
 
     configurations {
         // jarHell reports class name conflicts between securemock and mockito-core
@@ -284,7 +286,7 @@ dependencies {
         }
     }
 
-    implementation('com.google.guava:guava:31.1-jre') {
+    implementation("com.google.guava:guava:${guavaVersion}") {
         force = 'true'
     }
     implementation 'org.jooq:jooq:3.10.8'
@@ -303,7 +305,7 @@ dependencies {
     implementation("org.checkerframework:checker-qual:3.29.0") {
         force = 'true'
     }
-    implementation(group: 'com.google.protobuf', name:'protobuf-java', version: '3.21.12') {
+    implementation(group: 'com.google.protobuf', name:'protobuf-java', version: "${protobufVersion}") {
         force = 'true'
     }
     implementation("io.netty:netty-buffer:${nettyVersion}") {
