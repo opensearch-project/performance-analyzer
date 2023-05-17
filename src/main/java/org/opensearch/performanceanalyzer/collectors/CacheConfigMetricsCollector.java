@@ -18,11 +18,13 @@ import org.apache.commons.lang3.reflect.FieldUtils;
 import org.opensearch.common.cache.Cache;
 import org.opensearch.indices.IndicesService;
 import org.opensearch.performanceanalyzer.OpenSearchResources;
+import org.opensearch.performanceanalyzer.PerformanceAnalyzerApp;
 import org.opensearch.performanceanalyzer.metrics.AllMetrics.CacheConfigDimension;
 import org.opensearch.performanceanalyzer.metrics.AllMetrics.CacheConfigValue;
 import org.opensearch.performanceanalyzer.metrics.MetricsConfiguration;
 import org.opensearch.performanceanalyzer.metrics.MetricsProcessor;
 import org.opensearch.performanceanalyzer.metrics.PerformanceAnalyzerMetrics;
+import org.opensearch.performanceanalyzer.rca.framework.metrics.WriterMetrics;
 
 /*
  * Unlike Cache Hit, Miss, Eviction Count and Size, which is tracked on a per shard basis,
@@ -54,6 +56,7 @@ public class CacheConfigMetricsCollector extends PerformanceAnalyzerMetricsColle
             return;
         }
 
+        long mCurrT = System.currentTimeMillis();
         value.setLength(0);
         value.append(PerformanceAnalyzerMetrics.getJsonCurrentMilliSeconds());
         // This is for backward compatibility. Core OpenSearch may or may not emit maxWeight metric.
@@ -117,6 +120,10 @@ public class CacheConfigMetricsCollector extends PerformanceAnalyzerMetricsColle
         value.append(PerformanceAnalyzerMetrics.sMetricNewLineDelimitor)
                 .append(shardRequestCacheMaxSizeStatus.serialize());
         saveMetricValues(value.toString(), startTime);
+        PerformanceAnalyzerApp.WRITER_METRICS_AGGREGATOR.updateStat(
+                WriterMetrics.CACHE_CONFIG_METRICS_COLLECTOR_EXECUTION_TIME,
+                "",
+                System.currentTimeMillis() - mCurrT);
     }
 
     @Override

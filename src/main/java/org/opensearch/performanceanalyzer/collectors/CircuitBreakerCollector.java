@@ -25,8 +25,7 @@ public class CircuitBreakerCollector extends PerformanceAnalyzerMetricsCollector
     public static final int SAMPLING_TIME_INTERVAL =
             MetricsConfiguration.CONFIG_MAP.get(CircuitBreakerCollector.class).samplingInterval;
 
-    private static final Logger LOG =
-            LogManager.getLogger(CircuitBreakerCollector.class);
+    private static final Logger LOG = LogManager.getLogger(CircuitBreakerCollector.class);
     private static final int KEYS_PATH_LENGTH = 0;
     private StringBuilder value;
 
@@ -54,10 +53,10 @@ public class CircuitBreakerCollector extends PerformanceAnalyzerMetricsCollector
                 value.append(PerformanceAnalyzerMetrics.sMetricNewLineDelimitor)
                         .append(
                                 new CircuitBreakerStatus(
-                                        stats.getName(),
-                                        stats.getEstimated(),
-                                        stats.getTrippedCount(),
-                                        stats.getLimit())
+                                                stats.getName(),
+                                                stats.getEstimated(),
+                                                stats.getTrippedCount(),
+                                                stats.getLimit())
                                         .serialize());
             }
 
@@ -69,14 +68,13 @@ public class CircuitBreakerCollector extends PerformanceAnalyzerMetricsCollector
                     System.currentTimeMillis() - mCurrT);
 
         } catch (Exception ex) {
-            PerformanceAnalyzerApp.ERRORS_AND_EXCEPTIONS_AGGREGATOR.updateStat(
-                    ExceptionsAndErrors.CIRCUIT_BREAKER_COLLECTOR_ERROR, "", 1);
             LOG.debug(
                     "Exception in Collecting CircuitBreaker Metrics: {} for startTime {}",
                     () -> ex.toString(),
                     () -> startTime);
+            PerformanceAnalyzerApp.ERRORS_AND_EXCEPTIONS_AGGREGATOR.updateStat(
+                    ExceptionsAndErrors.CIRCUIT_BREAKER_COLLECTOR_ERROR, "", 1);
         }
-
     }
 
     @Override

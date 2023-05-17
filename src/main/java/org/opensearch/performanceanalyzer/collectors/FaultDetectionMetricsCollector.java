@@ -123,14 +123,12 @@ public class FaultDetectionMetricsCollector extends PerformanceAnalyzerMetricsCo
                     "",
                     System.currentTimeMillis() - mCurrT);
         } catch (Exception ex) {
-            PerformanceAnalyzerApp.ERRORS_AND_EXCEPTIONS_AGGREGATOR.updateStat(
-                    ExceptionsAndErrors.FAULT_DETECTION_COLLECTOR_ERROR,
-                    "",
-                    System.currentTimeMillis() - mCurrT);
             LOG.debug(
                     "Exception in Collecting FaultDetection Metrics: {} for startTime {}",
                     () -> ex.toString(),
                     () -> startTime);
+            PerformanceAnalyzerApp.ERRORS_AND_EXCEPTIONS_AGGREGATOR.updateStat(
+                    ExceptionsAndErrors.FAULT_DETECTION_COLLECTOR_ERROR, "", 1);
         }
     }
 

@@ -104,12 +104,12 @@ public class ClusterApplierServiceStatsCollector extends PerformanceAnalyzerMetr
                     "",
                     System.currentTimeMillis() - mCurrT);
         } catch (Exception ex) {
-            PerformanceAnalyzerApp.ERRORS_AND_EXCEPTIONS_AGGREGATOR.updateStat(
-                    ExceptionsAndErrors.CLUSTER_APPLIER_SERVICE_STATS_COLLECTOR_ERROR, "", 1);
             LOG.debug(
                     "Exception in Collecting Cluster Applier Service Metrics: {} for startTime {}",
                     () -> ex.toString(),
                     () -> startTime);
+            PerformanceAnalyzerApp.ERRORS_AND_EXCEPTIONS_AGGREGATOR.updateStat(
+                    ExceptionsAndErrors.CLUSTER_APPLIER_SERVICE_STATS_COLLECTOR_ERROR, "", 1);
         }
     }
 

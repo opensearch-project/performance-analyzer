@@ -85,12 +85,12 @@ public class ClusterManagerThrottlingMetricsCollector extends PerformanceAnalyze
                     System.currentTimeMillis() - mCurrT);
 
         } catch (Exception ex) {
-            PerformanceAnalyzerApp.ERRORS_AND_EXCEPTIONS_AGGREGATOR.updateStat(
-                    ExceptionsAndErrors.CLUSTER_MANAGER_THROTTLING_COLLECTOR_ERROR, "", 1);
             LOG.debug(
                     "Exception in Collecting ClusterManager Throttling Metrics: {} for startTime {}",
                     () -> ex.toString(),
                     () -> startTime);
+            PerformanceAnalyzerApp.ERRORS_AND_EXCEPTIONS_AGGREGATOR.updateStat(
+                    ExceptionsAndErrors.CLUSTER_MANAGER_THROTTLING_COLLECTOR_ERROR, "", 1);
         }
     }
 
