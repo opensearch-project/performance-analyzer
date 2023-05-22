@@ -68,6 +68,9 @@ import org.opensearch.performanceanalyzer.collectors.ShardIndexingPressureMetric
 import org.opensearch.performanceanalyzer.collectors.ShardStateCollector;
 import org.opensearch.performanceanalyzer.collectors.StatsCollector;
 import org.opensearch.performanceanalyzer.collectors.ThreadPoolMetricsCollector;
+import org.opensearch.performanceanalyzer.commons.event_process.EventLog;
+import org.opensearch.performanceanalyzer.commons.event_process.EventLogFileHandler;
+import org.opensearch.performanceanalyzer.commons.metrics.MetricsConfiguration;
 import org.opensearch.performanceanalyzer.config.PerformanceAnalyzerController;
 import org.opensearch.performanceanalyzer.config.PluginSettings;
 import org.opensearch.performanceanalyzer.config.overrides.ConfigOverridesWrapper;
@@ -83,9 +86,6 @@ import org.opensearch.performanceanalyzer.http_action.config.PerformanceAnalyzer
 import org.opensearch.performanceanalyzer.http_action.whoami.TransportWhoAmIAction;
 import org.opensearch.performanceanalyzer.http_action.whoami.WhoAmIAction;
 import org.opensearch.performanceanalyzer.listener.PerformanceAnalyzerSearchListener;
-import org.opensearch.performanceanalyzer.metrics.MetricsConfiguration;
-import org.opensearch.performanceanalyzer.reader_writer_shared.EventLog;
-import org.opensearch.performanceanalyzer.reader_writer_shared.EventLogFileHandler;
 import org.opensearch.performanceanalyzer.transport.PerformanceAnalyzerTransportInterceptor;
 import org.opensearch.performanceanalyzer.util.Utils;
 import org.opensearch.performanceanalyzer.writer.EventLogQueueProcessor;

@@ -21,7 +21,7 @@ import org.opensearch.indices.IndicesService;
 import org.opensearch.performanceanalyzer.OpenSearchResources;
 import org.opensearch.performanceanalyzer.collectors.*;
 import org.opensearch.performanceanalyzer.collectors.ClusterManagerServiceEventMetrics;
-import org.opensearch.performanceanalyzer.metrics.MetricsConfiguration;
+import org.opensearch.performanceanalyzer.commons.metrics.MetricsConfiguration;
 
 public class Utils {
 
