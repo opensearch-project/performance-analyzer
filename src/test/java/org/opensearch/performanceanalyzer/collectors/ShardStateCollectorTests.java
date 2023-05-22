@@ -7,8 +7,8 @@ package org.opensearch.performanceanalyzer.collectors;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
-import static org.opensearch.performanceanalyzer.metrics.AllMetrics.ShardType.SHARD_PRIMARY;
-import static org.opensearch.performanceanalyzer.metrics.AllMetrics.ShardType.SHARD_REPLICA;
+import static org.opensearch.performanceanalyzer.commons.metrics.AllMetrics.ShardType.SHARD_PRIMARY;
+import static org.opensearch.performanceanalyzer.commons.metrics.AllMetrics.ShardType.SHARD_REPLICA;
 import static org.opensearch.test.OpenSearchTestCase.settings;
 
 import com.carrotsearch.randomizedtesting.RandomizedRunner;
@@ -55,7 +55,6 @@ public class ShardStateCollectorTests {
     public void init() {
         clusterService = Mockito.mock(ClusterService.class);
         OpenSearchResources.INSTANCE.setClusterService(clusterService);
-
         System.setProperty("performanceanalyzer.metrics.log.enabled", "False");
         MetricsConfiguration.CONFIG_MAP.put(
                 ShardStateCollector.class, MetricsConfiguration.cdefault);

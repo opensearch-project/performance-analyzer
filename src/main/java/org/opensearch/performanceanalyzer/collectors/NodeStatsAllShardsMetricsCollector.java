@@ -22,13 +22,15 @@ import org.opensearch.index.shard.ShardId;
 import org.opensearch.indices.IndicesService;
 import org.opensearch.indices.NodeIndicesStats;
 import org.opensearch.performanceanalyzer.OpenSearchResources;
-import org.opensearch.performanceanalyzer.PerformanceAnalyzerApp;
+import org.opensearch.performanceanalyzer.commons.collectors.PerformanceAnalyzerMetricsCollector;
+import org.opensearch.performanceanalyzer.commons.collectors.StatExceptionCode;
+import org.opensearch.performanceanalyzer.commons.metrics.AllMetrics.ShardStatsValue;
+import org.opensearch.performanceanalyzer.commons.metrics.ExceptionsAndErrors;
 import org.opensearch.performanceanalyzer.commons.metrics.MetricsConfiguration;
 import org.opensearch.performanceanalyzer.commons.metrics.MetricsProcessor;
 import org.opensearch.performanceanalyzer.commons.metrics.PerformanceAnalyzerMetrics;
+import org.opensearch.performanceanalyzer.commons.stats.CommonStats;
 import org.opensearch.performanceanalyzer.config.PerformanceAnalyzerController;
-import org.opensearch.performanceanalyzer.metrics.AllMetrics.ShardStatsValue;
-import org.opensearch.performanceanalyzer.rca.framework.metrics.ExceptionsAndErrors;
 import org.opensearch.performanceanalyzer.rca.framework.metrics.WriterMetrics;
 import org.opensearch.performanceanalyzer.util.Utils;
 
@@ -177,7 +179,7 @@ public class NodeStatsAllShardsMetricsCollector extends PerformanceAnalyzerMetri
                 populateDiffMetricValue(
                         prevValue, currValue, startTime, shardId.getIndexName(), shardId.id());
 
-                PerformanceAnalyzerApp.WRITER_METRICS_AGGREGATOR.updateStat(
+                CommonStats.WRITER_METRICS_AGGREGATOR.updateStat(
                         WriterMetrics.NODE_STATS_ALL_SHARDS_METRICS_COLLECTOR_EXECUTION_TIME,
                         "",
                         System.currentTimeMillis() - mCurrT);
@@ -188,7 +190,7 @@ public class NodeStatsAllShardsMetricsCollector extends PerformanceAnalyzerMetri
                     () -> ex.toString(),
                     () -> startTime,
                     () -> StatExceptionCode.NODESTATS_COLLECTION_ERROR.toString());
-            PerformanceAnalyzerApp.ERRORS_AND_EXCEPTIONS_AGGREGATOR.updateStat(
+            CommonStats.WRITER_METRICS_AGGREGATOR.updateStat(
                     ExceptionsAndErrors.NODESTATS_COLLECTION_ERROR, "", 1);
         }
     }

@@ -5,8 +5,8 @@
 
 package org.opensearch.performanceanalyzer.collectors;
 
-import static org.opensearch.performanceanalyzer.metrics.AllMetrics.ShardType.SHARD_PRIMARY;
-import static org.opensearch.performanceanalyzer.metrics.AllMetrics.ShardType.SHARD_REPLICA;
+import static org.opensearch.performanceanalyzer.commons.metrics.AllMetrics.ShardType.SHARD_PRIMARY;
+import static org.opensearch.performanceanalyzer.commons.metrics.AllMetrics.ShardType.SHARD_REPLICA;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.List;
@@ -19,14 +19,15 @@ import org.opensearch.cluster.routing.RoutingTable;
 import org.opensearch.cluster.routing.ShardRouting;
 import org.opensearch.cluster.routing.ShardRoutingState;
 import org.opensearch.performanceanalyzer.OpenSearchResources;
-import org.opensearch.performanceanalyzer.PerformanceAnalyzerApp;
+import org.opensearch.performanceanalyzer.commons.collectors.PerformanceAnalyzerMetricsCollector;
+import org.opensearch.performanceanalyzer.commons.metrics.AllMetrics;
+import org.opensearch.performanceanalyzer.commons.metrics.ExceptionsAndErrors;
 import org.opensearch.performanceanalyzer.commons.metrics.MetricsConfiguration;
 import org.opensearch.performanceanalyzer.commons.metrics.MetricsProcessor;
 import org.opensearch.performanceanalyzer.commons.metrics.PerformanceAnalyzerMetrics;
+import org.opensearch.performanceanalyzer.commons.stats.CommonStats;
 import org.opensearch.performanceanalyzer.config.PerformanceAnalyzerController;
 import org.opensearch.performanceanalyzer.config.overrides.ConfigOverridesWrapper;
-import org.opensearch.performanceanalyzer.metrics.AllMetrics;
-import org.opensearch.performanceanalyzer.rca.framework.metrics.ExceptionsAndErrors;
 import org.opensearch.performanceanalyzer.rca.framework.metrics.WriterMetrics;
 
 public class ShardStateCollector extends PerformanceAnalyzerMetricsCollector
@@ -94,7 +95,7 @@ public class ShardStateCollector extends PerformanceAnalyzerMetricsCollector
             if (inActiveShard) {
                 saveMetricValues(value.toString(), startTime);
             }
-            PerformanceAnalyzerApp.WRITER_METRICS_AGGREGATOR.updateStat(
+            CommonStats.WRITER_METRICS_AGGREGATOR.updateStat(
                     WriterMetrics.SHARD_STATE_COLLECTOR_EXECUTION_TIME,
                     "",
                     System.currentTimeMillis() - mCurrT);
@@ -103,7 +104,7 @@ public class ShardStateCollector extends PerformanceAnalyzerMetricsCollector
                     "Exception in Collecting Shard Metrics: {} for startTime {}",
                     () -> ex.toString(),
                     () -> startTime);
-            PerformanceAnalyzerApp.ERRORS_AND_EXCEPTIONS_AGGREGATOR.updateStat(
+            CommonStats.WRITER_METRICS_AGGREGATOR.updateStat(
                     ExceptionsAndErrors.SHARD_STATE_COLLECTOR_ERROR, "", 1);
         }
     }

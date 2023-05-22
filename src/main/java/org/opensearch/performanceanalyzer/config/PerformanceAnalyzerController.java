@@ -16,12 +16,12 @@ import java.util.Scanner;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.opensearch.performanceanalyzer.OpenSearchResources;
-import org.opensearch.performanceanalyzer.PerformanceAnalyzerApp;
 import org.opensearch.performanceanalyzer.PerformanceAnalyzerPlugin;
 import org.opensearch.performanceanalyzer.collectors.ScheduledMetricCollectorsExecutor;
+import org.opensearch.performanceanalyzer.commons.metrics.ExceptionsAndErrors;
 import org.opensearch.performanceanalyzer.commons.metrics.PerformanceAnalyzerMetrics;
+import org.opensearch.performanceanalyzer.commons.stats.CommonStats;
 import org.opensearch.performanceanalyzer.config.overrides.ConfigOverridesWrapper;
-import org.opensearch.performanceanalyzer.rca.framework.metrics.ExceptionsAndErrors;
 
 public class PerformanceAnalyzerController {
     private static final String PERFORMANCE_ANALYZER_ENABLED_CONF =
@@ -329,7 +329,7 @@ public class PerformanceAnalyzerController {
                     try {
                         Path destDir = Paths.get(getDataDirectory());
                         if (!Files.exists(destDir)) {
-                            PerformanceAnalyzerApp.ERRORS_AND_EXCEPTIONS_AGGREGATOR.updateStat(
+                            CommonStats.WRITER_METRICS_AGGREGATOR.updateStat(
                                     ExceptionsAndErrors.CONFIG_DIR_NOT_FOUND, "", 1);
                             Files.createDirectory(destDir);
                         }

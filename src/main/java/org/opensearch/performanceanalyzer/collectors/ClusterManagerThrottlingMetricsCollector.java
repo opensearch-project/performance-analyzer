@@ -12,14 +12,15 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.opensearch.cluster.service.MasterService;
 import org.opensearch.performanceanalyzer.OpenSearchResources;
-import org.opensearch.performanceanalyzer.PerformanceAnalyzerApp;
+import org.opensearch.performanceanalyzer.commons.collectors.PerformanceAnalyzerMetricsCollector;
+import org.opensearch.performanceanalyzer.commons.metrics.AllMetrics;
+import org.opensearch.performanceanalyzer.commons.metrics.ExceptionsAndErrors;
 import org.opensearch.performanceanalyzer.commons.metrics.MetricsConfiguration;
 import org.opensearch.performanceanalyzer.commons.metrics.MetricsProcessor;
 import org.opensearch.performanceanalyzer.commons.metrics.PerformanceAnalyzerMetrics;
+import org.opensearch.performanceanalyzer.commons.stats.CommonStats;
 import org.opensearch.performanceanalyzer.config.PerformanceAnalyzerController;
 import org.opensearch.performanceanalyzer.config.overrides.ConfigOverridesWrapper;
-import org.opensearch.performanceanalyzer.metrics.AllMetrics;
-import org.opensearch.performanceanalyzer.rca.framework.metrics.ExceptionsAndErrors;
 import org.opensearch.performanceanalyzer.rca.framework.metrics.WriterMetrics;
 
 public class ClusterManagerThrottlingMetricsCollector extends PerformanceAnalyzerMetricsCollector
@@ -63,7 +64,7 @@ public class ClusterManagerThrottlingMetricsCollector extends PerformanceAnalyze
             }
             if (!isClusterManagerThrottlingFeatureAvailable()) {
                 LOG.debug("ClusterManager Throttling Feature is not available for this domain");
-                PerformanceAnalyzerApp.WRITER_METRICS_AGGREGATOR.updateStat(
+                CommonStats.WRITER_METRICS_AGGREGATOR.updateStat(
                         WriterMetrics.CLUSTER_MANAGER_THROTTLING_COLLECTOR_NOT_AVAILABLE, "", 1);
                 return;
             }
@@ -79,7 +80,7 @@ public class ClusterManagerThrottlingMetricsCollector extends PerformanceAnalyze
 
             saveMetricValues(value.toString(), startTime);
 
-            PerformanceAnalyzerApp.WRITER_METRICS_AGGREGATOR.updateStat(
+            CommonStats.WRITER_METRICS_AGGREGATOR.updateStat(
                     WriterMetrics.CLUSTER_MANAGER_THROTTLING_COLLECTOR_EXECUTION_TIME,
                     "",
                     System.currentTimeMillis() - mCurrT);
@@ -89,7 +90,7 @@ public class ClusterManagerThrottlingMetricsCollector extends PerformanceAnalyze
                     "Exception in Collecting ClusterManager Throttling Metrics: {} for startTime {}",
                     () -> ex.toString(),
                     () -> startTime);
-            PerformanceAnalyzerApp.ERRORS_AND_EXCEPTIONS_AGGREGATOR.updateStat(
+            CommonStats.WRITER_METRICS_AGGREGATOR.updateStat(
                     ExceptionsAndErrors.CLUSTER_MANAGER_THROTTLING_COLLECTOR_ERROR, "", 1);
         }
     }

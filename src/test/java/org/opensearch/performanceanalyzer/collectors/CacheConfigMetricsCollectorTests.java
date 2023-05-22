@@ -17,10 +17,10 @@ import org.junit.Test;
 import org.opensearch.indices.IndicesService;
 import org.opensearch.performanceanalyzer.OpenSearchResources;
 import org.opensearch.performanceanalyzer.commons.event_process.Event;
+import org.opensearch.performanceanalyzer.commons.metrics.AllMetrics.CacheType;
 import org.opensearch.performanceanalyzer.commons.metrics.MetricsConfiguration;
 import org.opensearch.performanceanalyzer.commons.metrics.PerformanceAnalyzerMetrics;
 import org.opensearch.performanceanalyzer.config.PluginSettings;
-import org.opensearch.performanceanalyzer.metrics.AllMetrics.CacheType;
 import org.opensearch.performanceanalyzer.util.TestUtil;
 import org.opensearch.test.OpenSearchSingleNodeTestCase;
 
@@ -33,7 +33,6 @@ public class CacheConfigMetricsCollectorTests extends OpenSearchSingleNodeTestCa
     public void init() {
         IndicesService indicesService = getInstanceFromNode(IndicesService.class);
         OpenSearchResources.INSTANCE.setIndicesService(indicesService);
-
         MetricsConfiguration.CONFIG_MAP.put(
                 CacheConfigMetricsCollector.class, MetricsConfiguration.cdefault);
         collector = new CacheConfigMetricsCollector();

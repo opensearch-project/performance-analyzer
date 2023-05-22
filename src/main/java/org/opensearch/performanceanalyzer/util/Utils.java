@@ -19,6 +19,7 @@ import org.opensearch.index.shard.IndexShardState;
 import org.opensearch.index.shard.ShardId;
 import org.opensearch.indices.IndicesService;
 import org.opensearch.performanceanalyzer.OpenSearchResources;
+import org.opensearch.performanceanalyzer.PerformanceAnalyzerApp;
 import org.opensearch.performanceanalyzer.collectors.*;
 import org.opensearch.performanceanalyzer.collectors.ClusterManagerServiceEventMetrics;
 import org.opensearch.performanceanalyzer.commons.metrics.MetricsConfiguration;
@@ -26,6 +27,8 @@ import org.opensearch.performanceanalyzer.commons.metrics.MetricsConfiguration;
 public class Utils {
 
     public static void configureMetrics() {
+        // TODO: remove it's needed until the collectors are moved into commons.
+        PerformanceAnalyzerApp.initMetricsConfig();
         MetricsConfiguration.MetricConfig cdefault = MetricsConfiguration.cdefault;
         MetricsConfiguration.CONFIG_MAP.put(AdmissionControlMetricsCollector.class, cdefault);
         MetricsConfiguration.CONFIG_MAP.put(CacheConfigMetricsCollector.class, cdefault);

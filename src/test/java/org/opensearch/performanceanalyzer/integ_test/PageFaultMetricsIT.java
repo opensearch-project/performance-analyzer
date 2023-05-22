@@ -12,11 +12,11 @@ import org.apache.logging.log4j.Logger;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.opensearch.performanceanalyzer.commons.metrics.AllMetrics.OSMetrics;
 import org.opensearch.performanceanalyzer.http_action.config.RestConfig;
 import org.opensearch.performanceanalyzer.integ_test.json.JsonResponseData;
 import org.opensearch.performanceanalyzer.integ_test.json.JsonResponseField;
 import org.opensearch.performanceanalyzer.integ_test.json.JsonResponseNode;
-import org.opensearch.performanceanalyzer.metrics.AllMetrics.OSMetrics;
 
 public class PageFaultMetricsIT extends MetricCollectorIntegTestBase {
     private static final Logger LOG = LogManager.getLogger(PageFaultMetricsIT.class);

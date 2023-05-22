@@ -20,14 +20,16 @@ import org.opensearch.cluster.service.MasterService;
 import org.opensearch.cluster.service.SourcePrioritizedRunnable;
 import org.opensearch.common.util.concurrent.PrioritizedOpenSearchThreadPoolExecutor;
 import org.opensearch.performanceanalyzer.OpenSearchResources;
-import org.opensearch.performanceanalyzer.PerformanceAnalyzerApp;
+import org.opensearch.performanceanalyzer.commons.collectors.PerformanceAnalyzerMetricsCollector;
+import org.opensearch.performanceanalyzer.commons.collectors.StatExceptionCode;
+import org.opensearch.performanceanalyzer.commons.metrics.AllMetrics.ClusterManagerMetricDimensions;
+import org.opensearch.performanceanalyzer.commons.metrics.AllMetrics.ClusterManagerMetricValues;
+import org.opensearch.performanceanalyzer.commons.metrics.ExceptionsAndErrors;
 import org.opensearch.performanceanalyzer.commons.metrics.MetricsConfiguration;
 import org.opensearch.performanceanalyzer.commons.metrics.MetricsProcessor;
 import org.opensearch.performanceanalyzer.commons.metrics.PerformanceAnalyzerMetrics;
-import org.opensearch.performanceanalyzer.metrics.AllMetrics.ClusterManagerMetricDimensions;
-import org.opensearch.performanceanalyzer.metrics.AllMetrics.ClusterManagerMetricValues;
+import org.opensearch.performanceanalyzer.commons.stats.CommonStats;
 import org.opensearch.performanceanalyzer.metrics.ThreadIDUtil;
-import org.opensearch.performanceanalyzer.rca.framework.metrics.ExceptionsAndErrors;
 import org.opensearch.performanceanalyzer.rca.framework.metrics.WriterMetrics;
 
 @SuppressWarnings("unchecked")
@@ -148,7 +150,7 @@ public class ClusterManagerServiceEventMetrics extends PerformanceAnalyzerMetric
                             PerformanceAnalyzerMetrics.START_FILE_NAME);
 
                     value.setLength(0);
-                    PerformanceAnalyzerApp.WRITER_METRICS_AGGREGATOR.updateStat(
+                    CommonStats.WRITER_METRICS_AGGREGATOR.updateStat(
                             WriterMetrics
                                     .CLUSTER_MANAGER_SERVICE_EVENTS_METRICS_COLLECTOR_EXECUTION_TIME,
                             "",
@@ -164,7 +166,7 @@ public class ClusterManagerServiceEventMetrics extends PerformanceAnalyzerMetric
                     () -> ex.toString(),
                     () -> startTime,
                     () -> StatExceptionCode.CLUSTER_MANAGER_METRICS_ERROR.toString());
-            PerformanceAnalyzerApp.ERRORS_AND_EXCEPTIONS_AGGREGATOR.updateStat(
+            CommonStats.WRITER_METRICS_AGGREGATOR.updateStat(
                     ExceptionsAndErrors.CLUSTER_MANAGER_METRICS_ERROR, "", 1);
         }
     }
@@ -243,7 +245,7 @@ public class ClusterManagerServiceEventMetrics extends PerformanceAnalyzerMetric
                                         getPrioritizedTPExecutorCurrentField()
                                                 .get(prioritizedOpenSearchThreadPoolExecutor);
                     } else {
-                        PerformanceAnalyzerApp.ERRORS_AND_EXCEPTIONS_AGGREGATOR.updateStat(
+                        CommonStats.WRITER_METRICS_AGGREGATOR.updateStat(
                                 ExceptionsAndErrors.CLUSTER_MANAGER_NODE_NOT_UP, "", 1);
                     }
                 }
