@@ -5,7 +5,7 @@
 
 package org.opensearch.performanceanalyzer.collectors;
 
-import static org.opensearch.performanceanalyzer.metrics.PerformanceAnalyzerMetrics.addMetricEntry;
+import static org.opensearch.performanceanalyzer.commons.metrics.PerformanceAnalyzerMetrics.addMetricEntry;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.lang.reflect.Field;
@@ -15,14 +15,15 @@ import java.util.concurrent.BlockingQueue;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jooq.tools.StringUtils;
-import org.opensearch.performanceanalyzer.PerformanceAnalyzerApp;
+import org.opensearch.performanceanalyzer.commons.collectors.PerformanceAnalyzerMetricsCollector;
+import org.opensearch.performanceanalyzer.commons.metrics.AllMetrics;
+import org.opensearch.performanceanalyzer.commons.metrics.ExceptionsAndErrors;
+import org.opensearch.performanceanalyzer.commons.metrics.MetricsConfiguration;
+import org.opensearch.performanceanalyzer.commons.metrics.MetricsProcessor;
+import org.opensearch.performanceanalyzer.commons.metrics.PerformanceAnalyzerMetrics;
+import org.opensearch.performanceanalyzer.commons.stats.CommonStats;
 import org.opensearch.performanceanalyzer.config.PerformanceAnalyzerController;
 import org.opensearch.performanceanalyzer.config.overrides.ConfigOverridesWrapper;
-import org.opensearch.performanceanalyzer.metrics.AllMetrics;
-import org.opensearch.performanceanalyzer.metrics.MetricsConfiguration;
-import org.opensearch.performanceanalyzer.metrics.MetricsProcessor;
-import org.opensearch.performanceanalyzer.metrics.PerformanceAnalyzerMetrics;
-import org.opensearch.performanceanalyzer.rca.framework.metrics.ExceptionsAndErrors;
 import org.opensearch.performanceanalyzer.rca.framework.metrics.WriterMetrics;
 
 public class FaultDetectionMetricsCollector extends PerformanceAnalyzerMetricsCollector
@@ -118,7 +119,7 @@ public class FaultDetectionMetricsCollector extends PerformanceAnalyzerMetricsCo
                             PerformanceAnalyzerMetrics.START_FILE_NAME);
                 }
             }
-            PerformanceAnalyzerApp.WRITER_METRICS_AGGREGATOR.updateStat(
+            CommonStats.WRITER_METRICS_AGGREGATOR.updateStat(
                     WriterMetrics.FAULT_DETECTION_COLLECTOR_EXECUTION_TIME,
                     "",
                     System.currentTimeMillis() - mCurrT);
@@ -127,7 +128,7 @@ public class FaultDetectionMetricsCollector extends PerformanceAnalyzerMetricsCo
                     "Exception in Collecting FaultDetection Metrics: {} for startTime {}",
                     () -> ex.toString(),
                     () -> startTime);
-            PerformanceAnalyzerApp.ERRORS_AND_EXCEPTIONS_AGGREGATOR.updateStat(
+            CommonStats.WRITER_METRICS_AGGREGATOR.updateStat(
                     ExceptionsAndErrors.FAULT_DETECTION_COLLECTOR_ERROR, "", 1);
         }
     }

@@ -20,12 +20,13 @@ import org.opensearch.cluster.service.SourcePrioritizedRunnable;
 import org.opensearch.common.Priority;
 import org.opensearch.common.util.concurrent.PrioritizedOpenSearchThreadPoolExecutor;
 import org.opensearch.performanceanalyzer.OpenSearchResources;
+import org.opensearch.performanceanalyzer.commons.event_process.Event;
+import org.opensearch.performanceanalyzer.commons.metrics.AllMetrics;
+import org.opensearch.performanceanalyzer.commons.metrics.MetricsConfiguration;
+import org.opensearch.performanceanalyzer.commons.metrics.PerformanceAnalyzerMetrics;
 import org.opensearch.performanceanalyzer.config.PluginSettings;
-import org.opensearch.performanceanalyzer.metrics.AllMetrics;
-import org.opensearch.performanceanalyzer.metrics.MetricsConfiguration;
-import org.opensearch.performanceanalyzer.metrics.PerformanceAnalyzerMetrics;
-import org.opensearch.performanceanalyzer.reader_writer_shared.Event;
 import org.opensearch.performanceanalyzer.util.TestUtil;
+import org.opensearch.performanceanalyzer.util.Utils;
 import org.opensearch.test.ClusterServiceUtils;
 import org.opensearch.threadpool.TestThreadPool;
 import org.opensearch.threadpool.ThreadPool;
@@ -44,6 +45,7 @@ public class ClusterManagerServiceEventMetricsTests {
 
     @Before
     public void init() {
+        Utils.configureMetrics();
         threadPool = new TestThreadPool("test");
         ClusterService clusterService = ClusterServiceUtils.createClusterService(threadPool);
         OpenSearchResources.INSTANCE.setClusterService(clusterService);

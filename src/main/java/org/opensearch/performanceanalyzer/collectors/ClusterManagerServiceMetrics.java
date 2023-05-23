@@ -13,13 +13,14 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.opensearch.cluster.service.PendingClusterTask;
 import org.opensearch.performanceanalyzer.OpenSearchResources;
-import org.opensearch.performanceanalyzer.PerformanceAnalyzerApp;
-import org.opensearch.performanceanalyzer.metrics.AllMetrics.ClusterManagerPendingTaskDimension;
-import org.opensearch.performanceanalyzer.metrics.AllMetrics.ClusterManagerPendingValue;
-import org.opensearch.performanceanalyzer.metrics.MetricsConfiguration;
-import org.opensearch.performanceanalyzer.metrics.MetricsProcessor;
-import org.opensearch.performanceanalyzer.metrics.PerformanceAnalyzerMetrics;
-import org.opensearch.performanceanalyzer.rca.framework.metrics.ExceptionsAndErrors;
+import org.opensearch.performanceanalyzer.commons.collectors.PerformanceAnalyzerMetricsCollector;
+import org.opensearch.performanceanalyzer.commons.metrics.AllMetrics.ClusterManagerPendingTaskDimension;
+import org.opensearch.performanceanalyzer.commons.metrics.AllMetrics.ClusterManagerPendingValue;
+import org.opensearch.performanceanalyzer.commons.metrics.ExceptionsAndErrors;
+import org.opensearch.performanceanalyzer.commons.metrics.MetricsConfiguration;
+import org.opensearch.performanceanalyzer.commons.metrics.MetricsProcessor;
+import org.opensearch.performanceanalyzer.commons.metrics.PerformanceAnalyzerMetrics;
+import org.opensearch.performanceanalyzer.commons.stats.CommonStats;
 import org.opensearch.performanceanalyzer.rca.framework.metrics.WriterMetrics;
 
 @SuppressWarnings("unchecked")
@@ -100,7 +101,7 @@ public class ClusterManagerServiceMetrics extends PerformanceAnalyzerMetricsColl
                     startTime,
                     PerformanceAnalyzerMetrics.CLUSTER_MANAGER_CURRENT,
                     PerformanceAnalyzerMetrics.CLUSTER_MANAGER_META_DATA);
-            PerformanceAnalyzerApp.WRITER_METRICS_AGGREGATOR.updateStat(
+            CommonStats.WRITER_METRICS_AGGREGATOR.updateStat(
                     WriterMetrics.CLUSTER_MANAGER_SERVICE_METRICS_COLLECTOR_EXECUTION_TIME,
                     "",
                     System.currentTimeMillis() - mCurrT);
@@ -109,7 +110,7 @@ public class ClusterManagerServiceMetrics extends PerformanceAnalyzerMetricsColl
                     "Exception in Collecting ClusterManager Metrics: {} for startTime {}",
                     () -> ex.toString(),
                     () -> startTime);
-            PerformanceAnalyzerApp.ERRORS_AND_EXCEPTIONS_AGGREGATOR.updateStat(
+            CommonStats.WRITER_METRICS_AGGREGATOR.updateStat(
                     ExceptionsAndErrors.CLUSTER_MANAGER_METRICS_ERROR, "", 1);
         }
     }
