@@ -13,11 +13,11 @@ import org.apache.logging.log4j.Logger;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.opensearch.performanceanalyzer.commons.metrics.AllMetrics;
 import org.opensearch.performanceanalyzer.http_action.config.RestConfig;
 import org.opensearch.performanceanalyzer.integ_test.json.JsonResponseData;
 import org.opensearch.performanceanalyzer.integ_test.json.JsonResponseField;
 import org.opensearch.performanceanalyzer.integ_test.json.JsonResponseNode;
-import org.opensearch.performanceanalyzer.metrics.AllMetrics;
 
 /**
  * All the heap tests check the metrics are within a range. We can't check for absolute values as

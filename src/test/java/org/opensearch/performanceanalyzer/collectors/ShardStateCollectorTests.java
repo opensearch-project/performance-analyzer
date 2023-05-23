@@ -7,8 +7,8 @@ package org.opensearch.performanceanalyzer.collectors;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
-import static org.opensearch.performanceanalyzer.metrics.AllMetrics.ShardType.SHARD_PRIMARY;
-import static org.opensearch.performanceanalyzer.metrics.AllMetrics.ShardType.SHARD_REPLICA;
+import static org.opensearch.performanceanalyzer.commons.metrics.AllMetrics.ShardType.SHARD_PRIMARY;
+import static org.opensearch.performanceanalyzer.commons.metrics.AllMetrics.ShardType.SHARD_REPLICA;
 import static org.opensearch.test.OpenSearchTestCase.settings;
 
 import com.carrotsearch.randomizedtesting.RandomizedRunner;
@@ -31,12 +31,12 @@ import org.opensearch.cluster.routing.RoutingTable;
 import org.opensearch.cluster.service.ClusterService;
 import org.opensearch.common.settings.Settings;
 import org.opensearch.performanceanalyzer.OpenSearchResources;
+import org.opensearch.performanceanalyzer.commons.event_process.Event;
+import org.opensearch.performanceanalyzer.commons.metrics.MetricsConfiguration;
+import org.opensearch.performanceanalyzer.commons.metrics.PerformanceAnalyzerMetrics;
 import org.opensearch.performanceanalyzer.config.PerformanceAnalyzerController;
 import org.opensearch.performanceanalyzer.config.PluginSettings;
 import org.opensearch.performanceanalyzer.config.overrides.ConfigOverridesWrapper;
-import org.opensearch.performanceanalyzer.metrics.MetricsConfiguration;
-import org.opensearch.performanceanalyzer.metrics.PerformanceAnalyzerMetrics;
-import org.opensearch.performanceanalyzer.reader_writer_shared.Event;
 import org.opensearch.performanceanalyzer.util.TestUtil;
 
 @RunWith(RandomizedRunner.class)
@@ -55,7 +55,6 @@ public class ShardStateCollectorTests {
     public void init() {
         clusterService = Mockito.mock(ClusterService.class);
         OpenSearchResources.INSTANCE.setClusterService(clusterService);
-
         System.setProperty("performanceanalyzer.metrics.log.enabled", "False");
         MetricsConfiguration.CONFIG_MAP.put(
                 ShardStateCollector.class, MetricsConfiguration.cdefault);
