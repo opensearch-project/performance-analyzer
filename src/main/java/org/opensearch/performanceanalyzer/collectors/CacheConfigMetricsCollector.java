@@ -5,9 +5,9 @@
 
 package org.opensearch.performanceanalyzer.collectors;
 
+import static org.opensearch.performanceanalyzer.commons.metrics.AllMetrics.CacheType.FIELD_DATA_CACHE;
+import static org.opensearch.performanceanalyzer.commons.metrics.AllMetrics.CacheType.SHARD_REQUEST_CACHE;
 import static org.opensearch.performanceanalyzer.decisionmaker.DecisionMakerConsts.CACHE_MAX_WEIGHT;
-import static org.opensearch.performanceanalyzer.metrics.AllMetrics.CacheType.FIELD_DATA_CACHE;
-import static org.opensearch.performanceanalyzer.metrics.AllMetrics.CacheType.SHARD_REQUEST_CACHE;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
@@ -18,12 +18,13 @@ import org.apache.commons.lang3.reflect.FieldUtils;
 import org.opensearch.common.cache.Cache;
 import org.opensearch.indices.IndicesService;
 import org.opensearch.performanceanalyzer.OpenSearchResources;
-import org.opensearch.performanceanalyzer.PerformanceAnalyzerApp;
-import org.opensearch.performanceanalyzer.metrics.AllMetrics.CacheConfigDimension;
-import org.opensearch.performanceanalyzer.metrics.AllMetrics.CacheConfigValue;
-import org.opensearch.performanceanalyzer.metrics.MetricsConfiguration;
-import org.opensearch.performanceanalyzer.metrics.MetricsProcessor;
-import org.opensearch.performanceanalyzer.metrics.PerformanceAnalyzerMetrics;
+import org.opensearch.performanceanalyzer.commons.collectors.PerformanceAnalyzerMetricsCollector;
+import org.opensearch.performanceanalyzer.commons.metrics.AllMetrics.CacheConfigDimension;
+import org.opensearch.performanceanalyzer.commons.metrics.AllMetrics.CacheConfigValue;
+import org.opensearch.performanceanalyzer.commons.metrics.MetricsConfiguration;
+import org.opensearch.performanceanalyzer.commons.metrics.MetricsProcessor;
+import org.opensearch.performanceanalyzer.commons.metrics.PerformanceAnalyzerMetrics;
+import org.opensearch.performanceanalyzer.commons.stats.CommonStats;
 import org.opensearch.performanceanalyzer.rca.framework.metrics.WriterMetrics;
 
 /*
@@ -120,7 +121,7 @@ public class CacheConfigMetricsCollector extends PerformanceAnalyzerMetricsColle
         value.append(PerformanceAnalyzerMetrics.sMetricNewLineDelimitor)
                 .append(shardRequestCacheMaxSizeStatus.serialize());
         saveMetricValues(value.toString(), startTime);
-        PerformanceAnalyzerApp.WRITER_METRICS_AGGREGATOR.updateStat(
+        CommonStats.WRITER_METRICS_AGGREGATOR.updateStat(
                 WriterMetrics.CACHE_CONFIG_METRICS_COLLECTOR_EXECUTION_TIME,
                 "",
                 System.currentTimeMillis() - mCurrT);

@@ -9,8 +9,8 @@ package org.opensearch.performanceanalyzer.util;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import org.opensearch.performanceanalyzer.metrics.PerformanceAnalyzerMetrics;
-import org.opensearch.performanceanalyzer.reader_writer_shared.Event;
+import org.opensearch.performanceanalyzer.commons.event_process.Event;
+import org.opensearch.performanceanalyzer.commons.metrics.PerformanceAnalyzerMetrics;
 
 public class TestUtil {
     public static List<Event> readEvents() {

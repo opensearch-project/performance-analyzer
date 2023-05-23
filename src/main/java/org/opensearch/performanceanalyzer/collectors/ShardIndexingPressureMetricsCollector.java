@@ -18,16 +18,17 @@ import org.jooq.tools.json.JSONParser;
 import org.jooq.tools.json.ParseException;
 import org.opensearch.cluster.service.ClusterService;
 import org.opensearch.performanceanalyzer.OpenSearchResources;
-import org.opensearch.performanceanalyzer.PerformanceAnalyzerApp;
+import org.opensearch.performanceanalyzer.commons.collectors.PerformanceAnalyzerMetricsCollector;
+import org.opensearch.performanceanalyzer.commons.metrics.AllMetrics;
+import org.opensearch.performanceanalyzer.commons.metrics.AllMetrics.ShardIndexingPressureDimension;
+import org.opensearch.performanceanalyzer.commons.metrics.AllMetrics.ShardIndexingPressureValue;
+import org.opensearch.performanceanalyzer.commons.metrics.ExceptionsAndErrors;
+import org.opensearch.performanceanalyzer.commons.metrics.MetricsConfiguration;
+import org.opensearch.performanceanalyzer.commons.metrics.MetricsProcessor;
+import org.opensearch.performanceanalyzer.commons.metrics.PerformanceAnalyzerMetrics;
+import org.opensearch.performanceanalyzer.commons.stats.CommonStats;
 import org.opensearch.performanceanalyzer.config.PerformanceAnalyzerController;
 import org.opensearch.performanceanalyzer.config.overrides.ConfigOverridesWrapper;
-import org.opensearch.performanceanalyzer.metrics.AllMetrics;
-import org.opensearch.performanceanalyzer.metrics.AllMetrics.ShardIndexingPressureDimension;
-import org.opensearch.performanceanalyzer.metrics.AllMetrics.ShardIndexingPressureValue;
-import org.opensearch.performanceanalyzer.metrics.MetricsConfiguration;
-import org.opensearch.performanceanalyzer.metrics.MetricsProcessor;
-import org.opensearch.performanceanalyzer.metrics.PerformanceAnalyzerMetrics;
-import org.opensearch.performanceanalyzer.rca.framework.metrics.ExceptionsAndErrors;
 import org.opensearch.performanceanalyzer.rca.framework.metrics.WriterMetrics;
 
 public class ShardIndexingPressureMetricsCollector extends PerformanceAnalyzerMetricsCollector
@@ -232,18 +233,17 @@ public class ShardIndexingPressureMetricsCollector extends PerformanceAnalyzerMe
                                         } catch (JsonProcessingException | ParseException e) {
                                             LOG.debug(
                                                     "Exception raised while parsing string to json object. Skipping IndexingPressureMetricsCollector");
-                                            PerformanceAnalyzerApp.ERRORS_AND_EXCEPTIONS_AGGREGATOR
-                                                    .updateStat(
-                                                            ExceptionsAndErrors.JSON_PARSER_ERROR,
-                                                            getCollectorName(),
-                                                            1);
+                                            CommonStats.WRITER_METRICS_AGGREGATOR.updateStat(
+                                                    ExceptionsAndErrors.JSON_PARSER_ERROR,
+                                                    getCollectorName(),
+                                                    1);
                                         }
                                     });
                 }
             }
             if (value.length() != 0) {
                 saveMetricValues(value.toString(), startTime);
-                PerformanceAnalyzerApp.WRITER_METRICS_AGGREGATOR.updateStat(
+                CommonStats.WRITER_METRICS_AGGREGATOR.updateStat(
                         WriterMetrics.SHARD_INDEXING_PRESSURE_COLLECTOR_EXECUTION_TIME,
                         "",
                         System.currentTimeMillis() - mCurrT);
@@ -253,7 +253,7 @@ public class ShardIndexingPressureMetricsCollector extends PerformanceAnalyzerMe
                     "Exception in Collecting Shard Indexing Pressure Metrics: {} for startTime {}",
                     () -> ex.toString(),
                     () -> startTime);
-            PerformanceAnalyzerApp.ERRORS_AND_EXCEPTIONS_AGGREGATOR.updateStat(
+            CommonStats.WRITER_METRICS_AGGREGATOR.updateStat(
                     ExceptionsAndErrors.SHARD_INDEXING_PRESSURE_COLLECTOR_ERROR, "", 1);
         }
     }

@@ -21,10 +21,12 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.opensearch.performanceanalyzer.collectors.HeapMetricsCollector;
+import org.opensearch.performanceanalyzer.commons.event_process.EventLog;
+import org.opensearch.performanceanalyzer.commons.event_process.EventLogFileHandler;
+import org.opensearch.performanceanalyzer.commons.metrics.MetricsConfiguration;
+import org.opensearch.performanceanalyzer.commons.metrics.PerformanceAnalyzerMetrics;
 import org.opensearch.performanceanalyzer.config.PerformanceAnalyzerController;
 import org.opensearch.performanceanalyzer.http_action.config.PerformanceAnalyzerConfigAction;
-import org.opensearch.performanceanalyzer.metrics.MetricsConfiguration;
-import org.opensearch.performanceanalyzer.metrics.PerformanceAnalyzerMetrics;
 import org.opensearch.performanceanalyzer.writer.EventLogQueueProcessor;
 
 public class EventLogFileHandlerTests {

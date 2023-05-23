@@ -12,9 +12,9 @@ import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.opensearch.performanceanalyzer.CustomMetricsLocationTestBase;
+import org.opensearch.performanceanalyzer.commons.metrics.PerformanceAnalyzerMetrics;
 import org.opensearch.performanceanalyzer.config.PerformanceAnalyzerController;
 import org.opensearch.performanceanalyzer.config.PluginSettings;
-import org.opensearch.performanceanalyzer.metrics.PerformanceAnalyzerMetrics;
 
 @Ignore
 public class SearchListenerTests extends CustomMetricsLocationTestBase {
