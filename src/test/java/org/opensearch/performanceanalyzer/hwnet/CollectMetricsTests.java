@@ -46,6 +46,7 @@ import org.opensearch.performanceanalyzer.collectors.NetInterfaceSummary;
 import org.opensearch.performanceanalyzer.collectors.NetworkE2ECollector;
 import org.opensearch.performanceanalyzer.collectors.NetworkInterfaceCollector;
 import org.opensearch.performanceanalyzer.collectors.NodeDetailsCollector;
+import org.opensearch.performanceanalyzer.commons.config.PluginSettings;
 import org.opensearch.performanceanalyzer.commons.metrics.AllMetrics.CircuitBreakerDimension;
 import org.opensearch.performanceanalyzer.commons.metrics.AllMetrics.CircuitBreakerValue;
 import org.opensearch.performanceanalyzer.commons.metrics.AllMetrics.IPDimension;
@@ -55,7 +56,6 @@ import org.opensearch.performanceanalyzer.commons.metrics.AllMetrics.TCPDimensio
 import org.opensearch.performanceanalyzer.commons.metrics.AllMetrics.TCPValue;
 import org.opensearch.performanceanalyzer.commons.metrics.MetricsProcessor;
 import org.opensearch.performanceanalyzer.commons.metrics.PerformanceAnalyzerMetrics;
-import org.opensearch.performanceanalyzer.config.PluginSettings;
 import org.opensearch.performanceanalyzer.config.overrides.ConfigOverridesWrapper;
 import org.opensearch.performanceanalyzer.metrics_generator.IPMetricsGenerator;
 import org.opensearch.performanceanalyzer.metrics_generator.TCPMetricsGenerator;

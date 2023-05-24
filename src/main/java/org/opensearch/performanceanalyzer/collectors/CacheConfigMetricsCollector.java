@@ -24,8 +24,8 @@ import org.opensearch.performanceanalyzer.commons.metrics.AllMetrics.CacheConfig
 import org.opensearch.performanceanalyzer.commons.metrics.MetricsConfiguration;
 import org.opensearch.performanceanalyzer.commons.metrics.MetricsProcessor;
 import org.opensearch.performanceanalyzer.commons.metrics.PerformanceAnalyzerMetrics;
+import org.opensearch.performanceanalyzer.commons.metrics.WriterMetrics;
 import org.opensearch.performanceanalyzer.commons.stats.CommonStats;
-import org.opensearch.performanceanalyzer.rca.framework.metrics.WriterMetrics;
 
 /*
  * Unlike Cache Hit, Miss, Eviction Count and Size, which is tracked on a per shard basis,
