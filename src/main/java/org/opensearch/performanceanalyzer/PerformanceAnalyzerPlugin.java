@@ -68,11 +68,11 @@ import org.opensearch.performanceanalyzer.collectors.ShardIndexingPressureMetric
 import org.opensearch.performanceanalyzer.collectors.ShardStateCollector;
 import org.opensearch.performanceanalyzer.collectors.ThreadPoolMetricsCollector;
 import org.opensearch.performanceanalyzer.commons.collectors.StatsCollector;
+import org.opensearch.performanceanalyzer.commons.config.PluginSettings;
 import org.opensearch.performanceanalyzer.commons.event_process.EventLog;
 import org.opensearch.performanceanalyzer.commons.event_process.EventLogFileHandler;
 import org.opensearch.performanceanalyzer.commons.metrics.MetricsConfiguration;
 import org.opensearch.performanceanalyzer.config.PerformanceAnalyzerController;
-import org.opensearch.performanceanalyzer.config.PluginSettings;
 import org.opensearch.performanceanalyzer.config.overrides.ConfigOverridesWrapper;
 import org.opensearch.performanceanalyzer.config.setting.ClusterSettingsManager;
 import org.opensearch.performanceanalyzer.config.setting.PerformanceAnalyzerClusterSettings;
