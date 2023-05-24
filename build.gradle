@@ -294,7 +294,7 @@ dependencies {
     implementation 'org.bouncycastle:bcprov-jdk15on:1.70'
     implementation 'org.bouncycastle:bcpkix-jdk15on:1.70'
     implementation "org.opensearch:performanceanalyzer-rca:${version}"
-    implementation "org.opensearch:performanceanalyzer-commons:${version}"
+    implementation "org.opensearch:performance-analyzer-commons:1.0.0-SNAPSHOT"
     implementation "com.fasterxml.jackson.core:jackson-annotations:${jacksonVersion}"
     implementation "com.fasterxml.jackson.core:jackson-databind:${jacksonDataBindVersion}"
     implementation "com.fasterxml.jackson.module:jackson-module-paranamer:${jacksonVersion}"
