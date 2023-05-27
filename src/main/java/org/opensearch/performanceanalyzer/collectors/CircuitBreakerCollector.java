@@ -5,21 +5,21 @@
 
 package org.opensearch.performanceanalyzer.collectors;
 
+import static org.opensearch.performanceanalyzer.commons.stats.metrics.StatExceptionCode.CIRCUIT_BREAKER_COLLECTOR_ERROR;
+import static org.opensearch.performanceanalyzer.stats.PACollectorMetrics.CIRCUIT_BREAKER_COLLECTOR_EXECUTION_TIME;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.opensearch.indices.breaker.CircuitBreakerStats;
 import org.opensearch.performanceanalyzer.OpenSearchResources;
+import org.opensearch.performanceanalyzer.commons.collectors.MetricStatus;
 import org.opensearch.performanceanalyzer.commons.collectors.PerformanceAnalyzerMetricsCollector;
 import org.opensearch.performanceanalyzer.commons.metrics.AllMetrics.CircuitBreakerDimension;
 import org.opensearch.performanceanalyzer.commons.metrics.AllMetrics.CircuitBreakerValue;
-import org.opensearch.performanceanalyzer.commons.metrics.ExceptionsAndErrors;
 import org.opensearch.performanceanalyzer.commons.metrics.MetricsConfiguration;
 import org.opensearch.performanceanalyzer.commons.metrics.MetricsProcessor;
 import org.opensearch.performanceanalyzer.commons.metrics.PerformanceAnalyzerMetrics;
-import org.opensearch.performanceanalyzer.commons.metrics.WriterMetrics;
-import org.opensearch.performanceanalyzer.commons.stats.CommonStats;
 
 public class CircuitBreakerCollector extends PerformanceAnalyzerMetricsCollector
         implements MetricsProcessor {
@@ -31,7 +31,11 @@ public class CircuitBreakerCollector extends PerformanceAnalyzerMetricsCollector
     private StringBuilder value;
 
     public CircuitBreakerCollector() {
-        super(SAMPLING_TIME_INTERVAL, "CircuitBreaker");
+        super(
+                SAMPLING_TIME_INTERVAL,
+                "CircuitBreaker",
+                CIRCUIT_BREAKER_COLLECTOR_EXECUTION_TIME,
+                CIRCUIT_BREAKER_COLLECTOR_ERROR);
         value = new StringBuilder();
     }
 
@@ -41,41 +45,24 @@ public class CircuitBreakerCollector extends PerformanceAnalyzerMetricsCollector
             return;
         }
 
-        try {
-            long mCurrT = System.currentTimeMillis();
+        CircuitBreakerStats[] allCircuitBreakerStats =
+                OpenSearchResources.INSTANCE.getCircuitBreakerService().stats().getAllStats();
+        // - Reusing the same StringBuilder across exectuions; so clearing before using
+        value.setLength(0);
+        value.append(PerformanceAnalyzerMetrics.getJsonCurrentMilliSeconds());
 
-            CircuitBreakerStats[] allCircuitBreakerStats =
-                    OpenSearchResources.INSTANCE.getCircuitBreakerService().stats().getAllStats();
-            // - Reusing the same StringBuilder across exectuions; so clearing before using
-            value.setLength(0);
-            value.append(PerformanceAnalyzerMetrics.getJsonCurrentMilliSeconds());
-
-            for (CircuitBreakerStats stats : allCircuitBreakerStats) {
-                value.append(PerformanceAnalyzerMetrics.sMetricNewLineDelimitor)
-                        .append(
-                                new CircuitBreakerStatus(
-                                                stats.getName(),
-                                                stats.getEstimated(),
-                                                stats.getTrippedCount(),
-                                                stats.getLimit())
-                                        .serialize());
-            }
-
-            saveMetricValues(value.toString(), startTime);
-
-            CommonStats.WRITER_METRICS_AGGREGATOR.updateStat(
-                    WriterMetrics.CIRCUIT_BREAKER_COLLECTOR_EXECUTION_TIME,
-                    "",
-                    System.currentTimeMillis() - mCurrT);
-
-        } catch (Exception ex) {
-            LOG.debug(
-                    "Exception in Collecting CircuitBreaker Metrics: {} for startTime {}",
-                    () -> ex.toString(),
-                    () -> startTime);
-            CommonStats.WRITER_METRICS_AGGREGATOR.updateStat(
-                    ExceptionsAndErrors.CIRCUIT_BREAKER_COLLECTOR_ERROR, "", 1);
+        for (CircuitBreakerStats stats : allCircuitBreakerStats) {
+            value.append(PerformanceAnalyzerMetrics.sMetricNewLineDelimitor)
+                    .append(
+                            new CircuitBreakerStatus(
+                                            stats.getName(),
+                                            stats.getEstimated(),
+                                            stats.getTrippedCount(),
+                                            stats.getLimit())
+                                    .serialize());
         }
+
+        saveMetricValues(value.toString(), startTime);
     }
 
     @Override

@@ -5,6 +5,7 @@
 
 package org.opensearch.performanceanalyzer.config;
 
+import static org.opensearch.performanceanalyzer.commons.stats.metrics.StatExceptionCode.CONFIG_DIR_NOT_FOUND;
 
 import java.io.File;
 import java.nio.file.Files;
@@ -17,10 +18,9 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.opensearch.performanceanalyzer.OpenSearchResources;
 import org.opensearch.performanceanalyzer.PerformanceAnalyzerPlugin;
-import org.opensearch.performanceanalyzer.collectors.ScheduledMetricCollectorsExecutor;
-import org.opensearch.performanceanalyzer.commons.metrics.ExceptionsAndErrors;
+import org.opensearch.performanceanalyzer.commons.collectors.ScheduledMetricCollectorsExecutor;
+import org.opensearch.performanceanalyzer.commons.collectors.StatsCollector;
 import org.opensearch.performanceanalyzer.commons.metrics.PerformanceAnalyzerMetrics;
-import org.opensearch.performanceanalyzer.commons.stats.CommonStats;
 import org.opensearch.performanceanalyzer.config.overrides.ConfigOverridesWrapper;
 
 public class PerformanceAnalyzerController {
@@ -329,8 +329,7 @@ public class PerformanceAnalyzerController {
                     try {
                         Path destDir = Paths.get(getDataDirectory());
                         if (!Files.exists(destDir)) {
-                            CommonStats.WRITER_METRICS_AGGREGATOR.updateStat(
-                                    ExceptionsAndErrors.CONFIG_DIR_NOT_FOUND, "", 1);
+                            StatsCollector.instance().logException(CONFIG_DIR_NOT_FOUND);
                             Files.createDirectory(destDir);
                         }
                         Files.write(

@@ -5,12 +5,15 @@
 
 package org.opensearch.performanceanalyzer.collectors;
 
+import static org.opensearch.performanceanalyzer.commons.stats.metrics.StatExceptionCode.SHARD_INDEXING_PRESSURE_COLLECTOR_ERROR;
+import static org.opensearch.performanceanalyzer.stats.PACollectorMetrics.SHARD_INDEXING_PRESSURE_COLLECTOR_EXECUTION_TIME;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.lang.reflect.Field;
 import java.util.Map;
+import java.util.Objects;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jooq.tools.json.JSONObject;
@@ -18,16 +21,15 @@ import org.jooq.tools.json.JSONParser;
 import org.jooq.tools.json.ParseException;
 import org.opensearch.cluster.service.ClusterService;
 import org.opensearch.performanceanalyzer.OpenSearchResources;
+import org.opensearch.performanceanalyzer.commons.collectors.MetricStatus;
 import org.opensearch.performanceanalyzer.commons.collectors.PerformanceAnalyzerMetricsCollector;
+import org.opensearch.performanceanalyzer.commons.collectors.StatsCollector;
 import org.opensearch.performanceanalyzer.commons.metrics.AllMetrics;
 import org.opensearch.performanceanalyzer.commons.metrics.AllMetrics.ShardIndexingPressureDimension;
 import org.opensearch.performanceanalyzer.commons.metrics.AllMetrics.ShardIndexingPressureValue;
-import org.opensearch.performanceanalyzer.commons.metrics.ExceptionsAndErrors;
 import org.opensearch.performanceanalyzer.commons.metrics.MetricsConfiguration;
 import org.opensearch.performanceanalyzer.commons.metrics.MetricsProcessor;
 import org.opensearch.performanceanalyzer.commons.metrics.PerformanceAnalyzerMetrics;
-import org.opensearch.performanceanalyzer.commons.metrics.WriterMetrics;
-import org.opensearch.performanceanalyzer.commons.stats.CommonStats;
 import org.opensearch.performanceanalyzer.config.PerformanceAnalyzerController;
 import org.opensearch.performanceanalyzer.config.overrides.ConfigOverridesWrapper;
 
@@ -66,7 +68,11 @@ public class ShardIndexingPressureMetricsCollector extends PerformanceAnalyzerMe
     public ShardIndexingPressureMetricsCollector(
             PerformanceAnalyzerController controller,
             ConfigOverridesWrapper configOverridesWrapper) {
-        super(SAMPLING_TIME_INTERVAL, "ShardIndexingPressureMetricsCollector");
+        super(
+                SAMPLING_TIME_INTERVAL,
+                "ShardIndexingPressureMetricsCollector",
+                SHARD_INDEXING_PRESSURE_COLLECTOR_EXECUTION_TIME,
+                SHARD_INDEXING_PRESSURE_COLLECTOR_ERROR);
         value = new StringBuilder();
         this.configOverridesWrapper = configOverridesWrapper;
         this.controller = controller;
@@ -79,182 +85,159 @@ public class ShardIndexingPressureMetricsCollector extends PerformanceAnalyzerMe
             return;
         }
 
-        long mCurrT = System.currentTimeMillis();
-        try {
-            ClusterService clusterService = OpenSearchResources.INSTANCE.getClusterService();
-            if (clusterService != null) {
-                Object indexingPressure =
-                        getField(CLUSTER_SERVICE_CLASS_NAME, INDEXING_PRESSURE_FIELD_NAME)
-                                .get(clusterService);
-                if (indexingPressure != null) {
-                    Object shardIndexingPressure =
-                            getField(
-                                            INDEXING_PRESSURE_CLASS_NAME,
-                                            SHARD_INDEXING_PRESSURE_FIELD_NAME)
-                                    .get(indexingPressure);
-                    Object shardIndexingPressureStore =
-                            getField(
-                                            SHARD_INDEXING_PRESSURE_CLASS_NAME,
-                                            SHARD_INDEXING_PRESSURE_STORE_FIELD_NAME)
-                                    .get(shardIndexingPressure);
-                    Map<Long, Object> shardIndexingPressureHotStore =
-                            (Map<Long, Object>)
-                                    getField(
-                                                    SHARD_INDEXING_PRESSURE_STORE_CLASS_NAME,
-                                                    SHARD_INDEXING_PRESSURE_HOT_STORE_FIELD_NAME)
-                                            .get(shardIndexingPressureStore);
+        ClusterService clusterService = OpenSearchResources.INSTANCE.getClusterService();
+        if (Objects.isNull(clusterService)) {
+            return;
+        }
 
-                    value.setLength(0);
-                    shardIndexingPressureHotStore.entrySet().stream()
-                            .limit(MAX_HOT_STORE_LIMIT)
-                            .forEach(
-                                    storeObject -> {
-                                        try {
-                                            JSONObject tracker =
-                                                    (JSONObject)
-                                                            parser.parse(
-                                                                    mapper.writeValueAsString(
-                                                                            storeObject
-                                                                                    .getValue()));
-                                            JSONObject shardId =
-                                                    (JSONObject)
-                                                            parser.parse(
-                                                                    mapper.writeValueAsString(
-                                                                            tracker.get(
-                                                                                    "shardId")));
-                                            value.append(
-                                                            PerformanceAnalyzerMetrics
-                                                                    .getJsonCurrentMilliSeconds())
-                                                    .append(
-                                                            PerformanceAnalyzerMetrics
-                                                                    .sMetricNewLineDelimitor);
-                                            value.append(
-                                                            new ShardIndexingPressureStatus(
-                                                                            AllMetrics.IndexingStage
-                                                                                    .COORDINATING
-                                                                                    .toString(),
-                                                                            shardId.get("indexName")
-                                                                                    .toString(),
-                                                                            shardId.get("id")
-                                                                                    .toString(),
-                                                                            Long.parseLong(
-                                                                                    tracker.get(
-                                                                                                    "coordinatingRejections")
-                                                                                            .toString()),
-                                                                            Long.parseLong(
-                                                                                    tracker.get(
-                                                                                                    "currentCoordinatingBytes")
-                                                                                            .toString()),
-                                                                            Long.parseLong(
-                                                                                    tracker.get(
-                                                                                                    "primaryAndCoordinatingLimits")
-                                                                                            .toString()),
-                                                                            Double.longBitsToDouble(
-                                                                                    Long.parseLong(
-                                                                                            tracker.get(
-                                                                                                            "coordinatingThroughputMovingAverage")
-                                                                                                    .toString())),
-                                                                            Long.parseLong(
-                                                                                    tracker.get(
-                                                                                                    "lastSuccessfulCoordinatingRequestTimestamp")
-                                                                                            .toString()))
-                                                                    .serialize())
-                                                    .append(
-                                                            PerformanceAnalyzerMetrics
-                                                                    .sMetricNewLineDelimitor);
-                                            value.append(
-                                                            new ShardIndexingPressureStatus(
-                                                                            AllMetrics.IndexingStage
-                                                                                    .PRIMARY
-                                                                                    .toString(),
-                                                                            shardId.get("indexName")
-                                                                                    .toString(),
-                                                                            shardId.get("id")
-                                                                                    .toString(),
-                                                                            Long.parseLong(
-                                                                                    tracker.get(
-                                                                                                    "primaryRejections")
-                                                                                            .toString()),
-                                                                            Long.parseLong(
-                                                                                    tracker.get(
-                                                                                                    "currentPrimaryBytes")
-                                                                                            .toString()),
-                                                                            Long.parseLong(
-                                                                                    tracker.get(
-                                                                                                    "primaryAndCoordinatingLimits")
-                                                                                            .toString()),
-                                                                            Double.longBitsToDouble(
-                                                                                    Long.parseLong(
-                                                                                            tracker.get(
-                                                                                                            "primaryThroughputMovingAverage")
-                                                                                                    .toString())),
-                                                                            Long.parseLong(
-                                                                                    tracker.get(
-                                                                                                    "lastSuccessfulPrimaryRequestTimestamp")
-                                                                                            .toString()))
-                                                                    .serialize())
-                                                    .append(
-                                                            PerformanceAnalyzerMetrics
-                                                                    .sMetricNewLineDelimitor);
-                                            value.append(
-                                                            new ShardIndexingPressureStatus(
-                                                                            AllMetrics.IndexingStage
-                                                                                    .REPLICA
-                                                                                    .toString(),
-                                                                            shardId.get("indexName")
-                                                                                    .toString(),
-                                                                            shardId.get("id")
-                                                                                    .toString(),
-                                                                            Long.parseLong(
-                                                                                    tracker.get(
-                                                                                                    "replicaRejections")
-                                                                                            .toString()),
-                                                                            Long.parseLong(
-                                                                                    tracker.get(
-                                                                                                    "currentReplicaBytes")
-                                                                                            .toString()),
-                                                                            Long.parseLong(
-                                                                                    tracker.get(
-                                                                                                    "replicaLimits")
-                                                                                            .toString()),
-                                                                            Double.longBitsToDouble(
-                                                                                    Long.parseLong(
-                                                                                            tracker.get(
-                                                                                                            "replicaThroughputMovingAverage")
-                                                                                                    .toString())),
-                                                                            Long.parseLong(
-                                                                                    tracker.get(
-                                                                                                    "lastSuccessfulReplicaRequestTimestamp")
-                                                                                            .toString()))
-                                                                    .serialize())
-                                                    .append(
-                                                            PerformanceAnalyzerMetrics
-                                                                    .sMetricNewLineDelimitor);
-                                        } catch (JsonProcessingException | ParseException e) {
-                                            LOG.debug(
-                                                    "Exception raised while parsing string to json object. Skipping IndexingPressureMetricsCollector");
-                                            CommonStats.WRITER_METRICS_AGGREGATOR.updateStat(
-                                                    ExceptionsAndErrors.JSON_PARSER_ERROR,
-                                                    getCollectorName(),
-                                                    1);
-                                        }
-                                    });
-                }
-            }
+        try {
+            Map<Long, Object> shardIndexingPressureHotStore;
+            Object indexingPressure =
+                    getField(CLUSTER_SERVICE_CLASS_NAME, INDEXING_PRESSURE_FIELD_NAME)
+                            .get(clusterService);
+            Object shardIndexingPressure =
+                    getField(INDEXING_PRESSURE_CLASS_NAME, SHARD_INDEXING_PRESSURE_FIELD_NAME)
+                            .get(indexingPressure);
+            Object shardIndexingPressureStore =
+                    getField(
+                                    SHARD_INDEXING_PRESSURE_CLASS_NAME,
+                                    SHARD_INDEXING_PRESSURE_STORE_FIELD_NAME)
+                            .get(shardIndexingPressure);
+            shardIndexingPressureHotStore =
+                    (Map<Long, Object>)
+                            getField(
+                                            SHARD_INDEXING_PRESSURE_STORE_CLASS_NAME,
+                                            SHARD_INDEXING_PRESSURE_HOT_STORE_FIELD_NAME)
+                                    .get(shardIndexingPressureStore);
+
+            value.setLength(0);
+            shardIndexingPressureHotStore.entrySet().stream()
+                    .limit(MAX_HOT_STORE_LIMIT)
+                    .forEach(
+                            storeObject -> {
+                                JSONObject tracker;
+                                JSONObject shardId;
+                                try {
+                                    tracker =
+                                            (JSONObject)
+                                                    parser.parse(
+                                                            mapper.writeValueAsString(
+                                                                    storeObject.getValue()));
+                                    shardId =
+                                            (JSONObject)
+                                                    parser.parse(
+                                                            mapper.writeValueAsString(
+                                                                    tracker.get("shardId")));
+                                } catch (ParseException | JsonProcessingException e) {
+                                    LOG.debug(
+                                            "[ {} ] Exception raised while parsing Shard Indexing Pressure fields: {} ",
+                                            this::getCollectorName,
+                                            e::getMessage);
+                                    StatsCollector.instance()
+                                            .logException(SHARD_INDEXING_PRESSURE_COLLECTOR_ERROR);
+                                    return;
+                                }
+                                value.append(
+                                                PerformanceAnalyzerMetrics
+                                                        .getJsonCurrentMilliSeconds())
+                                        .append(PerformanceAnalyzerMetrics.sMetricNewLineDelimitor);
+                                value.append(
+                                                new ShardIndexingPressureStatus(
+                                                                AllMetrics.IndexingStage
+                                                                        .COORDINATING
+                                                                        .toString(),
+                                                                shardId.get("indexName").toString(),
+                                                                shardId.get("id").toString(),
+                                                                Long.parseLong(
+                                                                        tracker.get(
+                                                                                        "coordinatingRejections")
+                                                                                .toString()),
+                                                                Long.parseLong(
+                                                                        tracker.get(
+                                                                                        "currentCoordinatingBytes")
+                                                                                .toString()),
+                                                                Long.parseLong(
+                                                                        tracker.get(
+                                                                                        "primaryAndCoordinatingLimits")
+                                                                                .toString()),
+                                                                Double.longBitsToDouble(
+                                                                        Long.parseLong(
+                                                                                tracker.get(
+                                                                                                "coordinatingThroughputMovingAverage")
+                                                                                        .toString())),
+                                                                Long.parseLong(
+                                                                        tracker.get(
+                                                                                        "lastSuccessfulCoordinatingRequestTimestamp")
+                                                                                .toString()))
+                                                        .serialize())
+                                        .append(PerformanceAnalyzerMetrics.sMetricNewLineDelimitor);
+                                value.append(
+                                                new ShardIndexingPressureStatus(
+                                                                AllMetrics.IndexingStage.PRIMARY
+                                                                        .toString(),
+                                                                shardId.get("indexName").toString(),
+                                                                shardId.get("id").toString(),
+                                                                Long.parseLong(
+                                                                        tracker.get(
+                                                                                        "primaryRejections")
+                                                                                .toString()),
+                                                                Long.parseLong(
+                                                                        tracker.get(
+                                                                                        "currentPrimaryBytes")
+                                                                                .toString()),
+                                                                Long.parseLong(
+                                                                        tracker.get(
+                                                                                        "primaryAndCoordinatingLimits")
+                                                                                .toString()),
+                                                                Double.longBitsToDouble(
+                                                                        Long.parseLong(
+                                                                                tracker.get(
+                                                                                                "primaryThroughputMovingAverage")
+                                                                                        .toString())),
+                                                                Long.parseLong(
+                                                                        tracker.get(
+                                                                                        "lastSuccessfulPrimaryRequestTimestamp")
+                                                                                .toString()))
+                                                        .serialize())
+                                        .append(PerformanceAnalyzerMetrics.sMetricNewLineDelimitor);
+                                value.append(
+                                                new ShardIndexingPressureStatus(
+                                                                AllMetrics.IndexingStage.REPLICA
+                                                                        .toString(),
+                                                                shardId.get("indexName").toString(),
+                                                                shardId.get("id").toString(),
+                                                                Long.parseLong(
+                                                                        tracker.get(
+                                                                                        "replicaRejections")
+                                                                                .toString()),
+                                                                Long.parseLong(
+                                                                        tracker.get(
+                                                                                        "currentReplicaBytes")
+                                                                                .toString()),
+                                                                Long.parseLong(
+                                                                        tracker.get("replicaLimits")
+                                                                                .toString()),
+                                                                Double.longBitsToDouble(
+                                                                        Long.parseLong(
+                                                                                tracker.get(
+                                                                                                "replicaThroughputMovingAverage")
+                                                                                        .toString())),
+                                                                Long.parseLong(
+                                                                        tracker.get(
+                                                                                        "lastSuccessfulReplicaRequestTimestamp")
+                                                                                .toString()))
+                                                        .serialize())
+                                        .append(PerformanceAnalyzerMetrics.sMetricNewLineDelimitor);
+                            });
             if (value.length() != 0) {
                 saveMetricValues(value.toString(), startTime);
-                CommonStats.WRITER_METRICS_AGGREGATOR.updateStat(
-                        WriterMetrics.SHARD_INDEXING_PRESSURE_COLLECTOR_EXECUTION_TIME,
-                        "",
-                        System.currentTimeMillis() - mCurrT);
             }
-        } catch (Exception ex) {
+        } catch (IllegalAccessException | NoSuchFieldException | ClassNotFoundException e) {
             LOG.debug(
-                    "Exception in Collecting Shard Indexing Pressure Metrics: {} for startTime {}",
-                    () -> ex.toString(),
-                    () -> startTime);
-            CommonStats.WRITER_METRICS_AGGREGATOR.updateStat(
-                    ExceptionsAndErrors.SHARD_INDEXING_PRESSURE_COLLECTOR_ERROR, "", 1);
+                    "[ {} ] Exception raised while getting Shard Indexing Pressure fields: {} ",
+                    this::getCollectorName,
+                    e::getMessage);
+            StatsCollector.instance().logException(SHARD_INDEXING_PRESSURE_COLLECTOR_ERROR);
         }
     }
 

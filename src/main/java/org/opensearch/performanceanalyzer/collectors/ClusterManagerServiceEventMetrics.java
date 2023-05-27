@@ -5,14 +5,15 @@
 
 package org.opensearch.performanceanalyzer.collectors;
 
+import static org.opensearch.performanceanalyzer.commons.stats.metrics.StatExceptionCode.CLUSTER_MANAGER_METRICS_ERROR;
+import static org.opensearch.performanceanalyzer.commons.stats.metrics.StatExceptionCode.CLUSTER_MANAGER_NODE_NOT_UP;
+import static org.opensearch.performanceanalyzer.stats.PACollectorMetrics.CLUSTER_MANAGER_SERVICE_EVENTS_METRICS_COLLECTOR_EXECUTION_TIME;
 
 import com.google.common.annotations.VisibleForTesting;
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Queue;
+import java.util.*;
 import java.util.concurrent.ThreadPoolExecutor;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -21,15 +22,10 @@ import org.opensearch.cluster.service.SourcePrioritizedRunnable;
 import org.opensearch.common.util.concurrent.PrioritizedOpenSearchThreadPoolExecutor;
 import org.opensearch.performanceanalyzer.OpenSearchResources;
 import org.opensearch.performanceanalyzer.commons.collectors.PerformanceAnalyzerMetricsCollector;
-import org.opensearch.performanceanalyzer.commons.collectors.StatExceptionCode;
+import org.opensearch.performanceanalyzer.commons.collectors.StatsCollector;
+import org.opensearch.performanceanalyzer.commons.metrics.*;
 import org.opensearch.performanceanalyzer.commons.metrics.AllMetrics.ClusterManagerMetricDimensions;
 import org.opensearch.performanceanalyzer.commons.metrics.AllMetrics.ClusterManagerMetricValues;
-import org.opensearch.performanceanalyzer.commons.metrics.ExceptionsAndErrors;
-import org.opensearch.performanceanalyzer.commons.metrics.MetricsConfiguration;
-import org.opensearch.performanceanalyzer.commons.metrics.MetricsProcessor;
-import org.opensearch.performanceanalyzer.commons.metrics.PerformanceAnalyzerMetrics;
-import org.opensearch.performanceanalyzer.commons.metrics.WriterMetrics;
-import org.opensearch.performanceanalyzer.commons.stats.CommonStats;
 import org.opensearch.performanceanalyzer.metrics.ThreadIDUtil;
 
 @SuppressWarnings("unchecked")
@@ -51,7 +47,11 @@ public class ClusterManagerServiceEventMetrics extends PerformanceAnalyzerMetric
     @VisibleForTesting long lastTaskInsertionOrder;
 
     public ClusterManagerServiceEventMetrics() {
-        super(SAMPLING_TIME_INTERVAL, "ClusterManagerServiceEventMetrics");
+        super(
+                SAMPLING_TIME_INTERVAL,
+                "ClusterManagerServiceEventMetrics",
+                CLUSTER_MANAGER_SERVICE_EVENTS_METRICS_COLLECTOR_EXECUTION_TIME,
+                CLUSTER_MANAGER_METRICS_ERROR);
         clusterManagerServiceCurrentQueue = null;
         clusterManagerServiceWorkers = null;
         prioritizedOpenSearchThreadPoolExecutor = null;
@@ -80,18 +80,16 @@ public class ClusterManagerServiceEventMetrics extends PerformanceAnalyzerMetric
     @Override
     public void collectMetrics(long startTime) {
         try {
-            if (OpenSearchResources.INSTANCE.getClusterService() == null
-                    || OpenSearchResources.INSTANCE.getClusterService().getMasterService()
-                            == null) {
+            if (Objects.isNull(OpenSearchResources.INSTANCE.getClusterService())
+                    || Objects.isNull(
+                            OpenSearchResources.INSTANCE.getClusterService().getMasterService())) {
                 return;
             }
-
-            long mCurrT = System.currentTimeMillis();
 
             value.setLength(0);
             Queue<Runnable> current = getClusterManagerServiceCurrentQueue();
 
-            if (current == null || current.size() == 0) {
+            if (Objects.isNull(current) || current.size() == 0) {
                 generateFinishMetrics(startTime);
                 return;
             }
@@ -150,24 +148,20 @@ public class ClusterManagerServiceEventMetrics extends PerformanceAnalyzerMetric
                             PerformanceAnalyzerMetrics.START_FILE_NAME);
 
                     value.setLength(0);
-                    CommonStats.WRITER_METRICS_AGGREGATOR.updateStat(
-                            WriterMetrics
-                                    .CLUSTER_MANAGER_SERVICE_EVENTS_METRICS_COLLECTOR_EXECUTION_TIME,
-                            "",
-                            System.currentTimeMillis() - mCurrT);
                 }
             } else {
                 generateFinishMetrics(startTime);
             }
-            LOG.debug(() -> "Successfully collected ClusterManager Event Metrics.");
-        } catch (Exception ex) {
+        } catch (NoSuchFieldException
+                | NoSuchMethodException
+                | InvocationTargetException
+                | IllegalAccessException
+                | ClassNotFoundException e) {
             LOG.debug(
-                    "Exception in Collecting ClusterManager Metrics: {} for startTime {} with ExceptionCode: {}",
-                    () -> ex.toString(),
-                    () -> startTime,
-                    () -> StatExceptionCode.CLUSTER_MANAGER_METRICS_ERROR.toString());
-            CommonStats.WRITER_METRICS_AGGREGATOR.updateStat(
-                    ExceptionsAndErrors.CLUSTER_MANAGER_METRICS_ERROR, "", 1);
+                    "[ {} ] Exception raised while getting Cluster Manager throttling metrics: {} ",
+                    this::getCollectorName,
+                    e::getMessage);
+            StatsCollector.instance().logException(CLUSTER_MANAGER_METRICS_ERROR);
         }
     }
 
@@ -191,14 +185,14 @@ public class ClusterManagerServiceEventMetrics extends PerformanceAnalyzerMetric
     }
 
     // - Separated to have a unit test; and catch any code changes around this field
-    Field getClusterManagerServiceTPExecutorField() throws Exception {
+    Field getClusterManagerServiceTPExecutorField() throws NoSuchFieldException {
         Field threadPoolExecutorField = MasterService.class.getDeclaredField("threadPoolExecutor");
         threadPoolExecutorField.setAccessible(true);
         return threadPoolExecutorField;
     }
 
     // - Separated to have a unit test; and catch any code changes around this field
-    Field getPrioritizedTPExecutorCurrentField() throws Exception {
+    Field getPrioritizedTPExecutorCurrentField() throws NoSuchFieldException {
         Field currentField =
                 PrioritizedOpenSearchThreadPoolExecutor.class.getDeclaredField("current");
         currentField.setAccessible(true);
@@ -206,14 +200,14 @@ public class ClusterManagerServiceEventMetrics extends PerformanceAnalyzerMetric
     }
 
     // - Separated to have a unit test; and catch any code changes around this field
-    Field getTPExecutorWorkersField() throws Exception {
+    Field getTPExecutorWorkersField() throws NoSuchFieldException {
         Field workersField = ThreadPoolExecutor.class.getDeclaredField("workers");
         workersField.setAccessible(true);
         return workersField;
     }
 
     // - Separated to have a unit test; and catch any code changes around this field
-    Method getPrioritizedTPExecutorAddPendingMethod() throws Exception {
+    Method getPrioritizedTPExecutorAddPendingMethod() throws NoSuchMethodException {
         Class<?>[] classArray = new Class<?>[TPEXECUTOR_ADD_PENDING_PARAM_COUNT];
         classArray[0] = List.class;
         classArray[1] = List.class;
@@ -225,7 +219,8 @@ public class ClusterManagerServiceEventMetrics extends PerformanceAnalyzerMetric
         return addPendingMethod;
     }
 
-    Queue<Runnable> getClusterManagerServiceCurrentQueue() throws Exception {
+    Queue<Runnable> getClusterManagerServiceCurrentQueue()
+            throws NoSuchFieldException, IllegalAccessException {
         if (clusterManagerServiceCurrentQueue == null) {
             if (OpenSearchResources.INSTANCE.getClusterService() != null) {
                 MasterService clusterManagerService =
@@ -245,8 +240,7 @@ public class ClusterManagerServiceEventMetrics extends PerformanceAnalyzerMetric
                                         getPrioritizedTPExecutorCurrentField()
                                                 .get(prioritizedOpenSearchThreadPoolExecutor);
                     } else {
-                        CommonStats.WRITER_METRICS_AGGREGATOR.updateStat(
-                                ExceptionsAndErrors.CLUSTER_MANAGER_NODE_NOT_UP, "", 1);
+                        StatsCollector.instance().logException(CLUSTER_MANAGER_NODE_NOT_UP);
                     }
                 }
             }
@@ -255,7 +249,8 @@ public class ClusterManagerServiceEventMetrics extends PerformanceAnalyzerMetric
         return clusterManagerServiceCurrentQueue;
     }
 
-    HashSet<Object> getClusterManagerServiceWorkers() throws Exception {
+    HashSet<Object> getClusterManagerServiceWorkers()
+            throws NoSuchFieldException, IllegalAccessException {
         if (clusterManagerServiceWorkers == null) {
             if (OpenSearchResources.INSTANCE.getClusterService() != null) {
                 MasterService clusterManagerService =
@@ -280,7 +275,8 @@ public class ClusterManagerServiceEventMetrics extends PerformanceAnalyzerMetric
         return clusterManagerServiceWorkers;
     }
 
-    long getClusterManagerThreadId() throws Exception {
+    long getClusterManagerThreadId()
+            throws NoSuchFieldException, IllegalAccessException, ClassNotFoundException {
         HashSet<Object> currentWorkers = getClusterManagerServiceWorkers();
 
         if (currentWorkers.size() > 0) {
@@ -308,7 +304,7 @@ public class ClusterManagerServiceEventMetrics extends PerformanceAnalyzerMetric
         return currentThreadId;
     }
 
-    Field getWorkerThreadField() throws Exception {
+    Field getWorkerThreadField() throws ClassNotFoundException, NoSuchFieldException {
         Class<?> tpExecutorWorkerClass =
                 Class.forName("java.util.concurrent.ThreadPoolExecutor$Worker");
         Field workerField = tpExecutorWorkerClass.getDeclaredField("thread");
