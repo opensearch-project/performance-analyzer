@@ -5,6 +5,8 @@
 
 package org.opensearch.performanceanalyzer.collectors;
 
+import static org.opensearch.performanceanalyzer.commons.stats.metrics.StatExceptionCode.THREADPOOL_METRICS_COLLECTOR_ERROR;
+import static org.opensearch.performanceanalyzer.stats.PACollectorMetrics.THREADPOOL_METRICS_COLLECTOR_EXECUTION_TIME;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.security.AccessController;
@@ -18,15 +20,14 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.opensearch.common.util.concurrent.SizeBlockingQueue;
 import org.opensearch.performanceanalyzer.OpenSearchResources;
+import org.opensearch.performanceanalyzer.commons.collectors.MetricStatus;
 import org.opensearch.performanceanalyzer.commons.collectors.PerformanceAnalyzerMetricsCollector;
+import org.opensearch.performanceanalyzer.commons.collectors.StatsCollector;
 import org.opensearch.performanceanalyzer.commons.metrics.AllMetrics.ThreadPoolDimension;
 import org.opensearch.performanceanalyzer.commons.metrics.AllMetrics.ThreadPoolValue;
-import org.opensearch.performanceanalyzer.commons.metrics.ExceptionsAndErrors;
 import org.opensearch.performanceanalyzer.commons.metrics.MetricsConfiguration;
 import org.opensearch.performanceanalyzer.commons.metrics.MetricsProcessor;
 import org.opensearch.performanceanalyzer.commons.metrics.PerformanceAnalyzerMetrics;
-import org.opensearch.performanceanalyzer.commons.metrics.WriterMetrics;
-import org.opensearch.performanceanalyzer.commons.stats.CommonStats;
 import org.opensearch.threadpool.ThreadPool;
 import org.opensearch.threadpool.ThreadPoolStats.Stats;
 
@@ -40,7 +41,11 @@ public class ThreadPoolMetricsCollector extends PerformanceAnalyzerMetricsCollec
     private final Map<String, ThreadPoolStatsRecord> statsRecordMap;
 
     public ThreadPoolMetricsCollector() {
-        super(SAMPLING_TIME_INTERVAL, "ThreadPoolMetrics");
+        super(
+                SAMPLING_TIME_INTERVAL,
+                "ThreadPoolMetrics",
+                THREADPOOL_METRICS_COLLECTOR_EXECUTION_TIME,
+                THREADPOOL_METRICS_COLLECTOR_ERROR);
         value = new StringBuilder();
         statsRecordMap = new HashMap<>();
     }
@@ -108,11 +113,9 @@ public class ThreadPoolMetricsCollector extends PerformanceAnalyzerMetricsCollec
                                             }
                                         } catch (Exception e) {
                                             LOG.warn("Fail to read queue capacity via reflection");
-                                            CommonStats.WRITER_METRICS_AGGREGATOR.updateStat(
-                                                    ExceptionsAndErrors
-                                                            .THREADPOOL_METRICS_COLLECTOR_ERROR,
-                                                    "",
-                                                    1);
+                                            StatsCollector.instance()
+                                                    .logException(
+                                                            THREADPOOL_METRICS_COLLECTOR_ERROR);
                                         }
                                         return -1;
                                     });
@@ -129,10 +132,6 @@ public class ThreadPoolMetricsCollector extends PerformanceAnalyzerMetricsCollec
                     .append(threadPoolStatus.serialize());
         }
         saveMetricValues(value.toString(), startTime);
-        CommonStats.WRITER_METRICS_AGGREGATOR.updateStat(
-                WriterMetrics.THREADPOOL_METRICS_COLLECTOR_EXECUTION_TIME,
-                "",
-                System.currentTimeMillis() - mCurrT);
     }
 
     @Override

@@ -5,6 +5,9 @@
 
 package org.opensearch.performanceanalyzer.collectors;
 
+import static org.opensearch.performanceanalyzer.commons.stats.metrics.StatExceptionCode.CONFIG_OVERRIDES_SER_FAILED;
+import static org.opensearch.performanceanalyzer.commons.stats.metrics.StatExceptionCode.NODESTATS_COLLECTION_ERROR;
+import static org.opensearch.performanceanalyzer.stats.PACollectorMetrics.NODE_DETAILS_COLLECTOR_EXECUTION_TIME;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.io.IOException;
@@ -14,15 +17,14 @@ import org.apache.logging.log4j.Logger;
 import org.opensearch.cluster.node.DiscoveryNode;
 import org.opensearch.cluster.node.DiscoveryNodes;
 import org.opensearch.performanceanalyzer.OpenSearchResources;
+import org.opensearch.performanceanalyzer.commons.collectors.MetricStatus;
 import org.opensearch.performanceanalyzer.commons.collectors.PerformanceAnalyzerMetricsCollector;
+import org.opensearch.performanceanalyzer.commons.collectors.StatsCollector;
 import org.opensearch.performanceanalyzer.commons.metrics.AllMetrics.NodeDetailColumns;
 import org.opensearch.performanceanalyzer.commons.metrics.AllMetrics.NodeRole;
-import org.opensearch.performanceanalyzer.commons.metrics.ExceptionsAndErrors;
 import org.opensearch.performanceanalyzer.commons.metrics.MetricsConfiguration;
 import org.opensearch.performanceanalyzer.commons.metrics.MetricsProcessor;
 import org.opensearch.performanceanalyzer.commons.metrics.PerformanceAnalyzerMetrics;
-import org.opensearch.performanceanalyzer.commons.metrics.WriterMetrics;
-import org.opensearch.performanceanalyzer.commons.stats.CommonStats;
 import org.opensearch.performanceanalyzer.config.overrides.ConfigOverridesHelper;
 import org.opensearch.performanceanalyzer.config.overrides.ConfigOverridesWrapper;
 
@@ -35,7 +37,11 @@ public class NodeDetailsCollector extends PerformanceAnalyzerMetricsCollector
     private final ConfigOverridesWrapper configOverridesWrapper;
 
     public NodeDetailsCollector(final ConfigOverridesWrapper configOverridesWrapper) {
-        super(SAMPLING_TIME_INTERVAL, "NodeDetails");
+        super(
+                SAMPLING_TIME_INTERVAL,
+                "NodeDetails",
+                NODE_DETAILS_COLLECTOR_EXECUTION_TIME,
+                NODESTATS_COLLECTION_ERROR);
         this.configOverridesWrapper = configOverridesWrapper;
     }
 
@@ -68,8 +74,7 @@ public class NodeDetailsCollector extends PerformanceAnalyzerMetricsCollector
             }
         } catch (IOException ioe) {
             LOG.error("Unable to serialize rca config overrides.", ioe);
-            CommonStats.WRITER_METRICS_AGGREGATOR.updateStat(
-                    ExceptionsAndErrors.CONFIG_OVERRIDES_SER_FAILED, "", 1);
+            StatsCollector.instance().logException(CONFIG_OVERRIDES_SER_FAILED);
         }
         value.append(PerformanceAnalyzerMetrics.sMetricNewLineDelimitor);
 
@@ -95,10 +100,6 @@ public class NodeDetailsCollector extends PerformanceAnalyzerMetricsCollector
                     discoveryNodeIterator.next(), value, localNodeID, clusterManagerNode);
         }
         saveMetricValues(value.toString(), startTime);
-        CommonStats.WRITER_METRICS_AGGREGATOR.updateStat(
-                WriterMetrics.NODE_DETAILS_COLLECTOR_EXECUTION_TIME,
-                "",
-                System.currentTimeMillis() - mCurrT);
     }
 
     private void addMetricsToStringBuilder(

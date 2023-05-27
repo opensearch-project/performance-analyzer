@@ -20,7 +20,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
-import org.opensearch.performanceanalyzer.collectors.HeapMetricsCollector;
+import org.opensearch.performanceanalyzer.commons.collectors.HeapMetricsCollector;
 import org.opensearch.performanceanalyzer.commons.event_process.EventLog;
 import org.opensearch.performanceanalyzer.commons.event_process.EventLogFileHandler;
 import org.opensearch.performanceanalyzer.commons.metrics.MetricsConfiguration;

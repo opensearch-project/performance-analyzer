@@ -5,23 +5,28 @@
 
 package org.opensearch.performanceanalyzer.collectors;
 
+import static org.opensearch.performanceanalyzer.commons.stats.metrics.StatExceptionCode.CLUSTER_MANAGER_THROTTLING_COLLECTOR_ERROR;
+import static org.opensearch.performanceanalyzer.stats.PACollectorMetrics.CLUSTER_MANAGER_THROTTLING_COLLECTOR_EXECUTION_TIME;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.Objects;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.opensearch.cluster.service.MasterService;
 import org.opensearch.performanceanalyzer.OpenSearchResources;
+import org.opensearch.performanceanalyzer.commons.collectors.MetricStatus;
 import org.opensearch.performanceanalyzer.commons.collectors.PerformanceAnalyzerMetricsCollector;
+import org.opensearch.performanceanalyzer.commons.collectors.StatsCollector;
 import org.opensearch.performanceanalyzer.commons.metrics.AllMetrics;
-import org.opensearch.performanceanalyzer.commons.metrics.ExceptionsAndErrors;
 import org.opensearch.performanceanalyzer.commons.metrics.MetricsConfiguration;
 import org.opensearch.performanceanalyzer.commons.metrics.MetricsProcessor;
 import org.opensearch.performanceanalyzer.commons.metrics.PerformanceAnalyzerMetrics;
-import org.opensearch.performanceanalyzer.commons.metrics.WriterMetrics;
-import org.opensearch.performanceanalyzer.commons.stats.CommonStats;
+import org.opensearch.performanceanalyzer.commons.stats.ServiceMetrics;
 import org.opensearch.performanceanalyzer.config.PerformanceAnalyzerController;
 import org.opensearch.performanceanalyzer.config.overrides.ConfigOverridesWrapper;
+import org.opensearch.performanceanalyzer.stats.PACollectorMetrics;
 
 public class ClusterManagerThrottlingMetricsCollector extends PerformanceAnalyzerMetricsCollector
         implements MetricsProcessor {
@@ -31,6 +36,7 @@ public class ClusterManagerThrottlingMetricsCollector extends PerformanceAnalyze
                     .samplingInterval;
     private static final Logger LOG =
             LogManager.getLogger(ClusterManagerThrottlingMetricsCollector.class);
+
     private static final int KEYS_PATH_LENGTH = 0;
     private static final String CLUSTER_MANAGER_THROTTLING_RETRY_LISTENER_PATH =
             "org.opensearch.action.support.master.MasterThrottlingRetryListener";
@@ -44,7 +50,11 @@ public class ClusterManagerThrottlingMetricsCollector extends PerformanceAnalyze
     public ClusterManagerThrottlingMetricsCollector(
             PerformanceAnalyzerController controller,
             ConfigOverridesWrapper configOverridesWrapper) {
-        super(SAMPLING_TIME_INTERVAL, "ClusterManagerThrottlingMetricsCollector");
+        super(
+                SAMPLING_TIME_INTERVAL,
+                "ClusterManagerThrottlingMetricsCollector",
+                CLUSTER_MANAGER_THROTTLING_COLLECTOR_EXECUTION_TIME,
+                CLUSTER_MANAGER_THROTTLING_COLLECTOR_ERROR);
         value = new StringBuilder();
         this.controller = controller;
         this.configOverridesWrapper = configOverridesWrapper;
@@ -55,44 +65,41 @@ public class ClusterManagerThrottlingMetricsCollector extends PerformanceAnalyze
         if (!controller.isCollectorEnabled(configOverridesWrapper, getCollectorName())) {
             return;
         }
-        try {
-            long mCurrT = System.currentTimeMillis();
-            if (OpenSearchResources.INSTANCE.getClusterService() == null
-                    || OpenSearchResources.INSTANCE.getClusterService().getMasterService()
-                            == null) {
-                return;
-            }
-            if (!isClusterManagerThrottlingFeatureAvailable()) {
-                LOG.debug("ClusterManager Throttling Feature is not available for this domain");
-                CommonStats.WRITER_METRICS_AGGREGATOR.updateStat(
-                        WriterMetrics.CLUSTER_MANAGER_THROTTLING_COLLECTOR_NOT_AVAILABLE, "", 1);
-                return;
-            }
+        if (Objects.isNull(OpenSearchResources.INSTANCE.getClusterService())
+                || Objects.isNull(
+                        OpenSearchResources.INSTANCE.getClusterService().getMasterService())) {
+            return;
+        }
 
-            value.setLength(0);
-            value.append(PerformanceAnalyzerMetrics.getJsonCurrentMilliSeconds())
-                    .append(PerformanceAnalyzerMetrics.sMetricNewLineDelimitor);
+        if (!isClusterManagerThrottlingFeatureAvailable()) {
+            LOG.debug("ClusterManager Throttling Feature is not available for this domain");
+            ServiceMetrics.PA_COLLECTORS_METRICS_AGGREGATOR.updateStat(
+                    PACollectorMetrics.CLUSTER_MANAGER_THROTTLING_COLLECTOR_NOT_AVAILABLE, 1);
+            return;
+        }
+
+        value.setLength(0);
+        value.append(PerformanceAnalyzerMetrics.getJsonCurrentMilliSeconds())
+                .append(PerformanceAnalyzerMetrics.sMetricNewLineDelimitor);
+        try {
             value.append(
                     new ClusterManagerThrottlingMetrics(
                                     getRetryingPendingTaskCount(),
                                     getTotalClusterManagerThrottledTaskCount())
                             .serialize());
-
-            saveMetricValues(value.toString(), startTime);
-
-            CommonStats.WRITER_METRICS_AGGREGATOR.updateStat(
-                    WriterMetrics.CLUSTER_MANAGER_THROTTLING_COLLECTOR_EXECUTION_TIME,
-                    "",
-                    System.currentTimeMillis() - mCurrT);
-
-        } catch (Exception ex) {
+        } catch (ClassNotFoundException
+                | NoSuchMethodException
+                | InvocationTargetException
+                | IllegalAccessException e) {
             LOG.debug(
-                    "Exception in Collecting ClusterManager Throttling Metrics: {} for startTime {}",
-                    () -> ex.toString(),
-                    () -> startTime);
-            CommonStats.WRITER_METRICS_AGGREGATOR.updateStat(
-                    ExceptionsAndErrors.CLUSTER_MANAGER_THROTTLING_COLLECTOR_ERROR, "", 1);
+                    "[ {} ] Exception raised while getting Cluster Manager throttling metrics: {} ",
+                    this::getCollectorName,
+                    e::getMessage);
+            StatsCollector.instance().logException(CLUSTER_MANAGER_THROTTLING_COLLECTOR_ERROR);
+            return;
         }
+
+        saveMetricValues(value.toString(), startTime);
     }
 
     private boolean isClusterManagerThrottlingFeatureAvailable() {
@@ -105,13 +112,16 @@ public class ClusterManagerThrottlingMetricsCollector extends PerformanceAnalyze
         return true;
     }
 
-    private long getTotalClusterManagerThrottledTaskCount() throws Exception {
+    private long getTotalClusterManagerThrottledTaskCount()
+            throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
         Method method = MasterService.class.getMethod(THROTTLED_PENDING_TASK_COUNT_METHOD_NAME);
         return (long)
                 method.invoke(OpenSearchResources.INSTANCE.getClusterService().getMasterService());
     }
 
-    private long getRetryingPendingTaskCount() throws Exception {
+    private long getRetryingPendingTaskCount()
+            throws ClassNotFoundException, NoSuchMethodException, InvocationTargetException,
+                    IllegalAccessException {
         Method method =
                 Class.forName(CLUSTER_MANAGER_THROTTLING_RETRY_LISTENER_PATH)
                         .getMethod(RETRYING_TASK_COUNT_METHOD_NAME);
