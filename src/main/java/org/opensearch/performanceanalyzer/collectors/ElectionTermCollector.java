@@ -5,19 +5,20 @@
 
 package org.opensearch.performanceanalyzer.collectors;
 
+import static org.opensearch.performanceanalyzer.commons.stats.metrics.StatExceptionCode.ELECTION_TERM_COLLECTOR_ERROR;
+import static org.opensearch.performanceanalyzer.stats.PACollectorMetrics.ELECTION_TERM_COLLECTOR_EXECUTION_TIME;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import java.util.Objects;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.opensearch.performanceanalyzer.OpenSearchResources;
+import org.opensearch.performanceanalyzer.commons.collectors.MetricStatus;
 import org.opensearch.performanceanalyzer.commons.collectors.PerformanceAnalyzerMetricsCollector;
 import org.opensearch.performanceanalyzer.commons.metrics.AllMetrics;
-import org.opensearch.performanceanalyzer.commons.metrics.ExceptionsAndErrors;
 import org.opensearch.performanceanalyzer.commons.metrics.MetricsConfiguration;
 import org.opensearch.performanceanalyzer.commons.metrics.MetricsProcessor;
 import org.opensearch.performanceanalyzer.commons.metrics.PerformanceAnalyzerMetrics;
-import org.opensearch.performanceanalyzer.commons.metrics.WriterMetrics;
-import org.opensearch.performanceanalyzer.commons.stats.CommonStats;
 import org.opensearch.performanceanalyzer.config.PerformanceAnalyzerController;
 import org.opensearch.performanceanalyzer.config.overrides.ConfigOverridesWrapper;
 
@@ -37,7 +38,11 @@ public class ElectionTermCollector extends PerformanceAnalyzerMetricsCollector
     public ElectionTermCollector(
             PerformanceAnalyzerController controller,
             ConfigOverridesWrapper configOverridesWrapper) {
-        super(SAMPLING_TIME_INTERVAL, "ElectionTermCollector");
+        super(
+                SAMPLING_TIME_INTERVAL,
+                "ElectionTermCollector",
+                ELECTION_TERM_COLLECTOR_EXECUTION_TIME,
+                ELECTION_TERM_COLLECTOR_ERROR);
         value = new StringBuilder();
         this.controller = controller;
         this.configOverridesWrapper = configOverridesWrapper;
@@ -59,35 +64,19 @@ public class ElectionTermCollector extends PerformanceAnalyzerMetricsCollector
         if (!controller.isCollectorEnabled(configOverridesWrapper, getCollectorName())) {
             return;
         }
-        long mCurrT = System.currentTimeMillis();
-        try {
-            if (OpenSearchResources.INSTANCE.getClusterService() == null
-                    || OpenSearchResources.INSTANCE.getClusterService().state() == null) {
-                return;
-            }
-
-            value.setLength(0);
-            value.append(PerformanceAnalyzerMetrics.getJsonCurrentMilliSeconds())
-                    .append(PerformanceAnalyzerMetrics.sMetricNewLineDelimitor);
-            value.append(
-                    new ElectionTermMetrics(
-                                    OpenSearchResources.INSTANCE.getClusterService().state().term())
-                            .serialize());
-            saveMetricValues(value.toString(), startTime);
-
-            CommonStats.WRITER_METRICS_AGGREGATOR.updateStat(
-                    WriterMetrics.ELECTION_TERM_COLLECTOR_EXECUTION_TIME,
-                    "",
-                    System.currentTimeMillis() - mCurrT);
-
-        } catch (Exception ex) {
-            LOG.debug(
-                    "Exception in Collecting Election term Metrics: {} for startTime {}",
-                    () -> ex.toString(),
-                    () -> startTime);
-            CommonStats.WRITER_METRICS_AGGREGATOR.updateStat(
-                    ExceptionsAndErrors.ELECTION_TERM_COLLECTOR_ERROR, "", 1);
+        if (Objects.isNull(OpenSearchResources.INSTANCE.getClusterService())
+                || Objects.isNull(OpenSearchResources.INSTANCE.getClusterService().state())) {
+            return;
         }
+
+        value.setLength(0);
+        value.append(PerformanceAnalyzerMetrics.getJsonCurrentMilliSeconds())
+                .append(PerformanceAnalyzerMetrics.sMetricNewLineDelimitor);
+        value.append(
+                new ElectionTermMetrics(
+                                OpenSearchResources.INSTANCE.getClusterService().state().term())
+                        .serialize());
+        saveMetricValues(value.toString(), startTime);
     }
 
     public static class ElectionTermMetrics extends MetricStatus {

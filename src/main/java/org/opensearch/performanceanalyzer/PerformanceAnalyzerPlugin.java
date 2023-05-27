@@ -12,12 +12,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.function.Supplier;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -53,20 +48,21 @@ import org.opensearch.performanceanalyzer.collectors.ClusterApplierServiceStatsC
 import org.opensearch.performanceanalyzer.collectors.ClusterManagerServiceEventMetrics;
 import org.opensearch.performanceanalyzer.collectors.ClusterManagerServiceMetrics;
 import org.opensearch.performanceanalyzer.collectors.ClusterManagerThrottlingMetricsCollector;
-import org.opensearch.performanceanalyzer.collectors.DisksCollector;
 import org.opensearch.performanceanalyzer.collectors.ElectionTermCollector;
 import org.opensearch.performanceanalyzer.collectors.FaultDetectionMetricsCollector;
-import org.opensearch.performanceanalyzer.collectors.GCInfoCollector;
-import org.opensearch.performanceanalyzer.collectors.HeapMetricsCollector;
-import org.opensearch.performanceanalyzer.collectors.NetworkInterfaceCollector;
 import org.opensearch.performanceanalyzer.collectors.NodeDetailsCollector;
 import org.opensearch.performanceanalyzer.collectors.NodeStatsAllShardsMetricsCollector;
 import org.opensearch.performanceanalyzer.collectors.NodeStatsFixedShardsMetricsCollector;
-import org.opensearch.performanceanalyzer.collectors.OSMetricsCollector;
-import org.opensearch.performanceanalyzer.collectors.ScheduledMetricCollectorsExecutor;
 import org.opensearch.performanceanalyzer.collectors.ShardIndexingPressureMetricsCollector;
 import org.opensearch.performanceanalyzer.collectors.ShardStateCollector;
 import org.opensearch.performanceanalyzer.collectors.ThreadPoolMetricsCollector;
+import org.opensearch.performanceanalyzer.commons.OSMetricsGeneratorFactory;
+import org.opensearch.performanceanalyzer.commons.collectors.DisksCollector;
+import org.opensearch.performanceanalyzer.commons.collectors.GCInfoCollector;
+import org.opensearch.performanceanalyzer.commons.collectors.HeapMetricsCollector;
+import org.opensearch.performanceanalyzer.commons.collectors.NetworkInterfaceCollector;
+import org.opensearch.performanceanalyzer.commons.collectors.OSMetricsCollector;
+import org.opensearch.performanceanalyzer.commons.collectors.ScheduledMetricCollectorsExecutor;
 import org.opensearch.performanceanalyzer.commons.collectors.StatsCollector;
 import org.opensearch.performanceanalyzer.commons.config.PluginSettings;
 import org.opensearch.performanceanalyzer.commons.event_process.EventLog;
@@ -148,6 +144,7 @@ public final class PerformanceAnalyzerPlugin extends Plugin
     private final ScheduledMetricCollectorsExecutor scheduledMetricCollectorsExecutor;
 
     public PerformanceAnalyzerPlugin(final Settings settings, final java.nio.file.Path configPath) {
+
         OSMetricsGeneratorFactory.getInstance();
 
         OpenSearchResources.INSTANCE.setSettings(settings);
