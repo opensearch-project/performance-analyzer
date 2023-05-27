@@ -6,7 +6,10 @@
 package org.opensearch.performanceanalyzer.collectors;
 
 import static org.opensearch.performanceanalyzer.commons.metrics.PerformanceAnalyzerMetrics.addMetricEntry;
+import static org.opensearch.performanceanalyzer.commons.stats.metrics.StatExceptionCode.FAULT_DETECTION_COLLECTOR_ERROR;
+import static org.opensearch.performanceanalyzer.stats.PACollectorMetrics.FAULT_DETECTION_COLLECTOR_EXECUTION_TIME;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
@@ -16,13 +19,11 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jooq.tools.StringUtils;
 import org.opensearch.performanceanalyzer.commons.collectors.PerformanceAnalyzerMetricsCollector;
+import org.opensearch.performanceanalyzer.commons.collectors.StatsCollector;
 import org.opensearch.performanceanalyzer.commons.metrics.AllMetrics;
-import org.opensearch.performanceanalyzer.commons.metrics.ExceptionsAndErrors;
 import org.opensearch.performanceanalyzer.commons.metrics.MetricsConfiguration;
 import org.opensearch.performanceanalyzer.commons.metrics.MetricsProcessor;
 import org.opensearch.performanceanalyzer.commons.metrics.PerformanceAnalyzerMetrics;
-import org.opensearch.performanceanalyzer.commons.metrics.WriterMetrics;
-import org.opensearch.performanceanalyzer.commons.stats.CommonStats;
 import org.opensearch.performanceanalyzer.config.PerformanceAnalyzerController;
 import org.opensearch.performanceanalyzer.config.overrides.ConfigOverridesWrapper;
 
@@ -44,7 +45,11 @@ public class FaultDetectionMetricsCollector extends PerformanceAnalyzerMetricsCo
     public FaultDetectionMetricsCollector(
             PerformanceAnalyzerController controller,
             ConfigOverridesWrapper configOverridesWrapper) {
-        super(SAMPLING_TIME_INTERVAL, "FaultDetectionMetricsCollector");
+        super(
+                SAMPLING_TIME_INTERVAL,
+                "FaultDetectionMetricsCollector",
+                FAULT_DETECTION_COLLECTOR_EXECUTION_TIME,
+                FAULT_DETECTION_COLLECTOR_ERROR);
         value = new StringBuilder();
         this.configOverridesWrapper = configOverridesWrapper;
         this.controller = controller;
@@ -56,84 +61,86 @@ public class FaultDetectionMetricsCollector extends PerformanceAnalyzerMetricsCo
         if (!controller.isCollectorEnabled(configOverridesWrapper, getCollectorName())) {
             return;
         }
-        long mCurrT = System.currentTimeMillis();
-        Class<?> faultDetectionHandler = null;
+
+        Class<?> faultDetectionHandler;
         try {
             faultDetectionHandler = Class.forName(FAULT_DETECTION_HANDLER_NAME);
         } catch (ClassNotFoundException e) {
             LOG.debug(
-                    "No Handler Detected for Fault Detection. Skipping FaultDetectionMetricsCollector");
+                    "[ {} ] No Handler Detected for Fault Detection. Skipping!",
+                    this::getCollectorName);
+            StatsCollector.instance().logException(FAULT_DETECTION_COLLECTOR_ERROR);
             return;
         }
+
+        BlockingQueue<String> metricQueue;
+        List<ClusterFaultDetectionContext> faultDetectionContextsList;
         try {
-            BlockingQueue<String> metricQueue =
+            metricQueue =
                     (BlockingQueue<String>)
                             getFaultDetectionHandlerMetricsQueue(faultDetectionHandler).get(null);
             List<String> metrics = new ArrayList<>();
             metricQueue.drainTo(metrics);
 
-            List<ClusterFaultDetectionContext> faultDetectionContextsList = new ArrayList<>();
+            faultDetectionContextsList = new ArrayList<>();
             for (String metric : metrics) {
                 faultDetectionContextsList.add(
                         mapper.readValue(metric, ClusterFaultDetectionContext.class));
             }
-
-            for (ClusterFaultDetectionContext clusterFaultDetectionContext :
-                    faultDetectionContextsList) {
-                value.setLength(0);
-                value.append(PerformanceAnalyzerMetrics.getCurrentTimeMetric());
-                addMetricEntry(
-                        value,
-                        AllMetrics.FaultDetectionDimension.SOURCE_NODE_ID.toString(),
-                        clusterFaultDetectionContext.getSourceNodeId());
-                addMetricEntry(
-                        value,
-                        AllMetrics.FaultDetectionDimension.TARGET_NODE_ID.toString(),
-                        clusterFaultDetectionContext.getTargetNodeId());
-
-                if (StringUtils.isEmpty(clusterFaultDetectionContext.getStartTime())) {
-                    addMetricEntry(
-                            value,
-                            AllMetrics.CommonMetric.FINISH_TIME.toString(),
-                            clusterFaultDetectionContext.getFinishTime());
-                    addMetricEntry(
-                            value,
-                            PerformanceAnalyzerMetrics.FAULT,
-                            clusterFaultDetectionContext.getFault());
-                    saveMetricValues(
-                            value.toString(),
-                            startTime,
-                            clusterFaultDetectionContext.getType(),
-                            clusterFaultDetectionContext.getRequestId(),
-                            PerformanceAnalyzerMetrics.FINISH_FILE_NAME);
-                } else {
-                    addMetricEntry(
-                            value,
-                            AllMetrics.CommonMetric.START_TIME.toString(),
-                            clusterFaultDetectionContext.getStartTime());
-                    saveMetricValues(
-                            value.toString(),
-                            startTime,
-                            clusterFaultDetectionContext.getType(),
-                            clusterFaultDetectionContext.getRequestId(),
-                            PerformanceAnalyzerMetrics.START_FILE_NAME);
-                }
-            }
-            CommonStats.WRITER_METRICS_AGGREGATOR.updateStat(
-                    WriterMetrics.FAULT_DETECTION_COLLECTOR_EXECUTION_TIME,
-                    "",
-                    System.currentTimeMillis() - mCurrT);
-        } catch (Exception ex) {
+        } catch (IllegalAccessException | NoSuchFieldException | JsonProcessingException e) {
             LOG.debug(
-                    "Exception in Collecting FaultDetection Metrics: {} for startTime {}",
-                    () -> ex.toString(),
-                    () -> startTime);
-            CommonStats.WRITER_METRICS_AGGREGATOR.updateStat(
-                    ExceptionsAndErrors.FAULT_DETECTION_COLLECTOR_ERROR, "", 1);
+                    "[ {} ] Exception in getting fields for Fault Detection Metrics: {}",
+                    this::getCollectorName,
+                    e::getMessage);
+            StatsCollector.instance().logException(FAULT_DETECTION_COLLECTOR_ERROR);
+            return;
+        }
+
+        for (ClusterFaultDetectionContext clusterFaultDetectionContext :
+                faultDetectionContextsList) {
+            value.setLength(0);
+            value.append(PerformanceAnalyzerMetrics.getCurrentTimeMetric());
+            addMetricEntry(
+                    value,
+                    AllMetrics.FaultDetectionDimension.SOURCE_NODE_ID.toString(),
+                    clusterFaultDetectionContext.getSourceNodeId());
+            addMetricEntry(
+                    value,
+                    AllMetrics.FaultDetectionDimension.TARGET_NODE_ID.toString(),
+                    clusterFaultDetectionContext.getTargetNodeId());
+
+            if (StringUtils.isEmpty(clusterFaultDetectionContext.getStartTime())) {
+                addMetricEntry(
+                        value,
+                        AllMetrics.CommonMetric.FINISH_TIME.toString(),
+                        clusterFaultDetectionContext.getFinishTime());
+                addMetricEntry(
+                        value,
+                        PerformanceAnalyzerMetrics.FAULT,
+                        clusterFaultDetectionContext.getFault());
+                saveMetricValues(
+                        value.toString(),
+                        startTime,
+                        clusterFaultDetectionContext.getType(),
+                        clusterFaultDetectionContext.getRequestId(),
+                        PerformanceAnalyzerMetrics.FINISH_FILE_NAME);
+            } else {
+                addMetricEntry(
+                        value,
+                        AllMetrics.CommonMetric.START_TIME.toString(),
+                        clusterFaultDetectionContext.getStartTime());
+                saveMetricValues(
+                        value.toString(),
+                        startTime,
+                        clusterFaultDetectionContext.getType(),
+                        clusterFaultDetectionContext.getRequestId(),
+                        PerformanceAnalyzerMetrics.START_FILE_NAME);
+            }
         }
     }
 
-    Field getFaultDetectionHandlerMetricsQueue(Class<?> faultDetectionHandler) throws Exception {
+    Field getFaultDetectionHandlerMetricsQueue(Class<?> faultDetectionHandler)
+            throws NoSuchFieldException {
         Field metricsQueue =
                 faultDetectionHandler.getDeclaredField(FAULT_DETECTION_HANDLER_METRIC_QUEUE);
         metricsQueue.setAccessible(true);

@@ -5,6 +5,7 @@
 
 package org.opensearch.performanceanalyzer.config.setting;
 
+import static org.opensearch.performanceanalyzer.commons.stats.metrics.StatExceptionCode.OPENSEARCH_REQUEST_INTERCEPTOR_ERROR;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -23,8 +24,7 @@ import org.opensearch.cluster.ClusterStateListener;
 import org.opensearch.common.settings.Setting;
 import org.opensearch.common.settings.Settings;
 import org.opensearch.performanceanalyzer.OpenSearchResources;
-import org.opensearch.performanceanalyzer.commons.metrics.ExceptionsAndErrors;
-import org.opensearch.performanceanalyzer.commons.stats.CommonStats;
+import org.opensearch.performanceanalyzer.commons.collectors.StatsCollector;
 
 /**
  * Class that handles updating cluster settings, and notifying the listeners when cluster settings
@@ -224,8 +224,7 @@ public class ClusterSettingsManager implements ClusterStateListener {
             }
         } catch (Exception ex) {
             LOG.error(ex);
-            CommonStats.WRITER_METRICS_AGGREGATOR.updateStat(
-                    ExceptionsAndErrors.OPENSEARCH_REQUEST_INTERCEPTOR_ERROR, "", 1);
+            StatsCollector.instance().logException(OPENSEARCH_REQUEST_INTERCEPTOR_ERROR);
         }
     }
 
@@ -246,8 +245,7 @@ public class ClusterSettingsManager implements ClusterStateListener {
             }
         } catch (Exception ex) {
             LOG.error(ex);
-            CommonStats.WRITER_METRICS_AGGREGATOR.updateStat(
-                    ExceptionsAndErrors.OPENSEARCH_REQUEST_INTERCEPTOR_ERROR, "", 1);
+            StatsCollector.instance().logException(OPENSEARCH_REQUEST_INTERCEPTOR_ERROR);
         }
     }
     /** Class that handles response to GET /_cluster/settings */

@@ -80,7 +80,7 @@ public class ClusterManagerServiceMetricsTests {
 
     @Test
     public void testCollectMetrics() {
-        clusterManagerServiceMetrics.collectMetrics(startTimeInMills);
+        clusterManagerServiceMetrics.run();
         String jsonStr = readMetricsInJsonString(1);
         assertFalse(
                 jsonStr.contains(ClusterManagerPendingValue.Constants.PENDING_TASKS_COUNT_VALUE));
@@ -89,18 +89,18 @@ public class ClusterManagerServiceMetricsTests {
     @Test
     public void testWithMockClusterService() {
         OpenSearchResources.INSTANCE.setClusterService(mockedClusterService);
-        clusterManagerServiceMetrics.collectMetrics(startTimeInMills);
+        clusterManagerServiceMetrics.run();
         String jsonStr = readMetricsInJsonString(0);
         assertNull(jsonStr);
 
         OpenSearchResources.INSTANCE.setClusterService(mockedClusterService);
         when(mockedClusterService.getMasterService()).thenThrow(new RuntimeException());
-        clusterManagerServiceMetrics.collectMetrics(startTimeInMills);
+        clusterManagerServiceMetrics.run();
         jsonStr = readMetricsInJsonString(0);
         assertNull(jsonStr);
 
         OpenSearchResources.INSTANCE.setClusterService(null);
-        clusterManagerServiceMetrics.collectMetrics(startTimeInMills);
+        clusterManagerServiceMetrics.run();
         jsonStr = readMetricsInJsonString(0);
         assertNull(jsonStr);
     }
