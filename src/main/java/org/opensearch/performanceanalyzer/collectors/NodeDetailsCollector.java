@@ -20,13 +20,13 @@ import org.opensearch.performanceanalyzer.OpenSearchResources;
 import org.opensearch.performanceanalyzer.commons.collectors.MetricStatus;
 import org.opensearch.performanceanalyzer.commons.collectors.PerformanceAnalyzerMetricsCollector;
 import org.opensearch.performanceanalyzer.commons.collectors.StatsCollector;
+import org.opensearch.performanceanalyzer.commons.config.overrides.ConfigOverridesHelper;
+import org.opensearch.performanceanalyzer.commons.config.overrides.ConfigOverridesWrapper;
 import org.opensearch.performanceanalyzer.commons.metrics.AllMetrics.NodeDetailColumns;
 import org.opensearch.performanceanalyzer.commons.metrics.AllMetrics.NodeRole;
 import org.opensearch.performanceanalyzer.commons.metrics.MetricsConfiguration;
 import org.opensearch.performanceanalyzer.commons.metrics.MetricsProcessor;
 import org.opensearch.performanceanalyzer.commons.metrics.PerformanceAnalyzerMetrics;
-import org.opensearch.performanceanalyzer.config.overrides.ConfigOverridesHelper;
-import org.opensearch.performanceanalyzer.config.overrides.ConfigOverridesWrapper;
 
 public class NodeDetailsCollector extends PerformanceAnalyzerMetricsCollector
         implements MetricsProcessor {

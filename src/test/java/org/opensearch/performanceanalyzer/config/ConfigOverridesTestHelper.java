@@ -10,7 +10,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.Arrays;
 import java.util.List;
-import org.opensearch.performanceanalyzer.config.overrides.ConfigOverrides;
+import org.opensearch.performanceanalyzer.commons.config.overrides.ConfigOverrides;
 
 public class ConfigOverridesTestHelper {
     private static final ObjectMapper MAPPER = new ObjectMapper();

@@ -26,7 +26,7 @@ import org.opensearch.performanceanalyzer.commons.collectors.StatsCollector;
 import org.opensearch.performanceanalyzer.commons.metrics.*;
 import org.opensearch.performanceanalyzer.commons.metrics.AllMetrics.ClusterManagerMetricDimensions;
 import org.opensearch.performanceanalyzer.commons.metrics.AllMetrics.ClusterManagerMetricValues;
-import org.opensearch.performanceanalyzer.metrics.ThreadIDUtil;
+import org.opensearch.performanceanalyzer.commons.util.ThreadIDUtil;
 
 @SuppressWarnings("unchecked")
 public class ClusterManagerServiceEventMetrics extends PerformanceAnalyzerMetricsCollector

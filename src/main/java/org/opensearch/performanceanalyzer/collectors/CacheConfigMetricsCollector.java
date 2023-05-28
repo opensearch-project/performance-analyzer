@@ -7,8 +7,8 @@ package org.opensearch.performanceanalyzer.collectors;
 
 import static org.opensearch.performanceanalyzer.commons.metrics.AllMetrics.CacheType.FIELD_DATA_CACHE;
 import static org.opensearch.performanceanalyzer.commons.metrics.AllMetrics.CacheType.SHARD_REQUEST_CACHE;
+import static org.opensearch.performanceanalyzer.commons.stats.decisionmaker.DecisionMakerConsts.CACHE_MAX_WEIGHT;
 import static org.opensearch.performanceanalyzer.commons.stats.metrics.StatExceptionCode.CACHE_CONFIG_METRICS_COLLECTOR_ERROR;
-import static org.opensearch.performanceanalyzer.decisionmaker.DecisionMakerConsts.CACHE_MAX_WEIGHT;
 import static org.opensearch.performanceanalyzer.stats.PACollectorMetrics.CACHE_CONFIG_METRICS_COLLECTOR_EXECUTION_TIME;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
