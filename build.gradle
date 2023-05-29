@@ -273,6 +273,7 @@ dependencies {
         // Need to continue exclude this group until we figure out how to get rid of
         // this exclusion with opensearch
         all*.exclude group: "org.elasticsearch", module: "securemock"
+        all*.exclude group: "org.jboss.spec.javax.annotation", module: "jboss-annotations-api_1.2_spec"
     }
 
     configurations.all {

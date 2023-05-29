@@ -6,7 +6,7 @@
 package org.opensearch.performanceanalyzer.collectors;
 
 import static org.opensearch.performanceanalyzer.commons.stats.metrics.StatExceptionCode.CLUSTER_MANAGER_THROTTLING_COLLECTOR_ERROR;
-import static org.opensearch.performanceanalyzer.stats.PACollectorMetrics.CLUSTER_MANAGER_THROTTLING_COLLECTOR_EXECUTION_TIME;
+import static org.opensearch.performanceanalyzer.commons.stats.metrics.StatMetrics.CLUSTER_MANAGER_THROTTLING_COLLECTOR_EXECUTION_TIME;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.lang.reflect.InvocationTargetException;
@@ -25,8 +25,8 @@ import org.opensearch.performanceanalyzer.commons.metrics.MetricsConfiguration;
 import org.opensearch.performanceanalyzer.commons.metrics.MetricsProcessor;
 import org.opensearch.performanceanalyzer.commons.metrics.PerformanceAnalyzerMetrics;
 import org.opensearch.performanceanalyzer.commons.stats.ServiceMetrics;
+import org.opensearch.performanceanalyzer.commons.stats.metrics.StatMetrics;
 import org.opensearch.performanceanalyzer.config.PerformanceAnalyzerController;
-import org.opensearch.performanceanalyzer.stats.PACollectorMetrics;
 
 public class ClusterManagerThrottlingMetricsCollector extends PerformanceAnalyzerMetricsCollector
         implements MetricsProcessor {
@@ -73,8 +73,8 @@ public class ClusterManagerThrottlingMetricsCollector extends PerformanceAnalyze
 
         if (!isClusterManagerThrottlingFeatureAvailable()) {
             LOG.debug("ClusterManager Throttling Feature is not available for this domain");
-            ServiceMetrics.PA_COLLECTORS_METRICS_AGGREGATOR.updateStat(
-                    PACollectorMetrics.CLUSTER_MANAGER_THROTTLING_COLLECTOR_NOT_AVAILABLE, 1);
+            ServiceMetrics.COMMONS_STAT_METRICS_AGGREGATOR.updateStat(
+                    StatMetrics.CLUSTER_MANAGER_THROTTLING_COLLECTOR_NOT_AVAILABLE, 1);
             return;
         }
 

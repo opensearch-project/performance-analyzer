@@ -6,7 +6,7 @@
 package org.opensearch.performanceanalyzer.collectors;
 
 import static org.opensearch.performanceanalyzer.commons.stats.metrics.StatExceptionCode.ELECTION_TERM_COLLECTOR_ERROR;
-import static org.opensearch.performanceanalyzer.stats.PACollectorMetrics.ELECTION_TERM_COLLECTOR_EXECUTION_TIME;
+import static org.opensearch.performanceanalyzer.commons.stats.metrics.StatMetrics.ELECTION_TERM_COLLECTOR_EXECUTION_TIME;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.Objects;

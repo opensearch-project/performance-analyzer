@@ -7,7 +7,7 @@ package org.opensearch.performanceanalyzer.collectors;
 
 import static org.opensearch.performanceanalyzer.commons.stats.metrics.StatExceptionCode.CLUSTER_MANAGER_METRICS_ERROR;
 import static org.opensearch.performanceanalyzer.commons.stats.metrics.StatExceptionCode.CLUSTER_MANAGER_NODE_NOT_UP;
-import static org.opensearch.performanceanalyzer.stats.PACollectorMetrics.CLUSTER_MANAGER_SERVICE_EVENTS_METRICS_COLLECTOR_EXECUTION_TIME;
+import static org.opensearch.performanceanalyzer.commons.stats.metrics.StatMetrics.CLUSTER_MANAGER_SERVICE_EVENTS_METRICS_COLLECTOR_EXECUTION_TIME;
 
 import com.google.common.annotations.VisibleForTesting;
 import java.lang.reflect.Field;

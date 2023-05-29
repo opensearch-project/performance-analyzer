@@ -7,7 +7,7 @@ package org.opensearch.performanceanalyzer.collectors;
 
 import static org.opensearch.performanceanalyzer.commons.metrics.PerformanceAnalyzerMetrics.addMetricEntry;
 import static org.opensearch.performanceanalyzer.commons.stats.metrics.StatExceptionCode.FAULT_DETECTION_COLLECTOR_ERROR;
-import static org.opensearch.performanceanalyzer.stats.PACollectorMetrics.FAULT_DETECTION_COLLECTOR_EXECUTION_TIME;
+import static org.opensearch.performanceanalyzer.commons.stats.metrics.StatMetrics.FAULT_DETECTION_COLLECTOR_EXECUTION_TIME;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;

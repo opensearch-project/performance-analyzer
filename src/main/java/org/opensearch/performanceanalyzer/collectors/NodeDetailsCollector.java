@@ -7,7 +7,7 @@ package org.opensearch.performanceanalyzer.collectors;
 
 import static org.opensearch.performanceanalyzer.commons.stats.metrics.StatExceptionCode.CONFIG_OVERRIDES_SER_FAILED;
 import static org.opensearch.performanceanalyzer.commons.stats.metrics.StatExceptionCode.NODESTATS_COLLECTION_ERROR;
-import static org.opensearch.performanceanalyzer.stats.PACollectorMetrics.NODE_DETAILS_COLLECTOR_EXECUTION_TIME;
+import static org.opensearch.performanceanalyzer.commons.stats.metrics.StatMetrics.NODE_DETAILS_COLLECTOR_EXECUTION_TIME;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.io.IOException;
