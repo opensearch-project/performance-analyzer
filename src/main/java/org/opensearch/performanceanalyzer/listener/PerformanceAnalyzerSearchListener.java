@@ -15,8 +15,8 @@ import org.opensearch.performanceanalyzer.commons.metrics.AllMetrics.CommonDimen
 import org.opensearch.performanceanalyzer.commons.metrics.AllMetrics.CommonMetric;
 import org.opensearch.performanceanalyzer.commons.metrics.MetricsProcessor;
 import org.opensearch.performanceanalyzer.commons.metrics.PerformanceAnalyzerMetrics;
+import org.opensearch.performanceanalyzer.commons.util.ThreadIDUtil;
 import org.opensearch.performanceanalyzer.config.PerformanceAnalyzerController;
-import org.opensearch.performanceanalyzer.metrics.ThreadIDUtil;
 import org.opensearch.search.internal.SearchContext;
 
 public class PerformanceAnalyzerSearchListener

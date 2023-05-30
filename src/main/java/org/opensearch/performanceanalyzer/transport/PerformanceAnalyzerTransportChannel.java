@@ -14,7 +14,7 @@ import org.opensearch.performanceanalyzer.commons.metrics.AllMetrics.ShardBulkDi
 import org.opensearch.performanceanalyzer.commons.metrics.AllMetrics.ShardBulkMetric;
 import org.opensearch.performanceanalyzer.commons.metrics.MetricsProcessor;
 import org.opensearch.performanceanalyzer.commons.metrics.PerformanceAnalyzerMetrics;
-import org.opensearch.performanceanalyzer.metrics.ThreadIDUtil;
+import org.opensearch.performanceanalyzer.commons.util.ThreadIDUtil;
 import org.opensearch.transport.TransportChannel;
 import org.opensearch.transport.TransportResponse;
 

@@ -36,9 +36,9 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
 import org.opensearch.common.settings.Setting;
+import org.opensearch.performanceanalyzer.commons.config.overrides.ConfigOverrides;
+import org.opensearch.performanceanalyzer.commons.config.overrides.ConfigOverridesWrapper;
 import org.opensearch.performanceanalyzer.config.ConfigOverridesTestHelper;
-import org.opensearch.performanceanalyzer.config.overrides.ConfigOverrides;
-import org.opensearch.performanceanalyzer.config.overrides.ConfigOverridesWrapper;
 import org.opensearch.performanceanalyzer.config.setting.ClusterSettingsManager;
 
 public class ConfigOverridesClusterSettingHandlerTests {
