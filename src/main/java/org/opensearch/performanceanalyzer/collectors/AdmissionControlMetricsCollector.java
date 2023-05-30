@@ -6,7 +6,7 @@
 package org.opensearch.performanceanalyzer.collectors;
 
 import static org.opensearch.performanceanalyzer.commons.stats.metrics.StatExceptionCode.ADMISSION_CONTROL_COLLECTOR_ERROR;
-import static org.opensearch.performanceanalyzer.stats.PACollectorMetrics.ADMISSION_CONTROL_COLLECTOR_EXECUTION_TIME;
+import static org.opensearch.performanceanalyzer.commons.stats.metrics.StatMetrics.ADMISSION_CONTROL_COLLECTOR_EXECUTION_TIME;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.lang.reflect.InvocationTargetException;
@@ -22,7 +22,7 @@ import org.opensearch.performanceanalyzer.commons.metrics.MetricsConfiguration;
 import org.opensearch.performanceanalyzer.commons.metrics.MetricsProcessor;
 import org.opensearch.performanceanalyzer.commons.metrics.PerformanceAnalyzerMetrics;
 import org.opensearch.performanceanalyzer.commons.stats.ServiceMetrics;
-import org.opensearch.performanceanalyzer.stats.PACollectorMetrics;
+import org.opensearch.performanceanalyzer.commons.stats.metrics.StatMetrics;
 
 /** AdmissionControlMetricsCollector collects `UsedQuota`, `TotalQuota`, RejectionCount */
 public class AdmissionControlMetricsCollector extends PerformanceAnalyzerMetricsCollector
@@ -64,8 +64,8 @@ public class AdmissionControlMetricsCollector extends PerformanceAnalyzerMetrics
     public void collectMetrics(long startTime) {
         if (!this.admissionControllerAvailable) {
             LOG.debug("AdmissionControl is not available for this domain");
-            ServiceMetrics.PA_COLLECTORS_METRICS_AGGREGATOR.updateStat(
-                    PACollectorMetrics.ADMISSION_CONTROL_COLLECTOR_NOT_AVAILABLE, 1);
+            ServiceMetrics.COMMONS_STAT_METRICS_AGGREGATOR.updateStat(
+                    StatMetrics.ADMISSION_CONTROL_COLLECTOR_NOT_AVAILABLE, 1);
             return;
         }
 

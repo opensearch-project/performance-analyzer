@@ -7,7 +7,7 @@ package org.opensearch.performanceanalyzer.collectors;
 
 import static org.opensearch.performanceanalyzer.commons.metrics.PerformanceAnalyzerMetrics.addMetricEntry;
 import static org.opensearch.performanceanalyzer.commons.stats.metrics.StatExceptionCode.FAULT_DETECTION_COLLECTOR_ERROR;
-import static org.opensearch.performanceanalyzer.stats.PACollectorMetrics.FAULT_DETECTION_COLLECTOR_EXECUTION_TIME;
+import static org.opensearch.performanceanalyzer.commons.stats.metrics.StatMetrics.FAULT_DETECTION_COLLECTOR_EXECUTION_TIME;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -20,12 +20,12 @@ import org.apache.logging.log4j.Logger;
 import org.jooq.tools.StringUtils;
 import org.opensearch.performanceanalyzer.commons.collectors.PerformanceAnalyzerMetricsCollector;
 import org.opensearch.performanceanalyzer.commons.collectors.StatsCollector;
+import org.opensearch.performanceanalyzer.commons.config.overrides.ConfigOverridesWrapper;
 import org.opensearch.performanceanalyzer.commons.metrics.AllMetrics;
 import org.opensearch.performanceanalyzer.commons.metrics.MetricsConfiguration;
 import org.opensearch.performanceanalyzer.commons.metrics.MetricsProcessor;
 import org.opensearch.performanceanalyzer.commons.metrics.PerformanceAnalyzerMetrics;
 import org.opensearch.performanceanalyzer.config.PerformanceAnalyzerController;
-import org.opensearch.performanceanalyzer.config.overrides.ConfigOverridesWrapper;
 
 public class FaultDetectionMetricsCollector extends PerformanceAnalyzerMetricsCollector
         implements MetricsProcessor {

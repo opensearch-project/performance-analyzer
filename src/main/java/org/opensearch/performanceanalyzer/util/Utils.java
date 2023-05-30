@@ -22,19 +22,11 @@ import org.opensearch.performanceanalyzer.OpenSearchResources;
 import org.opensearch.performanceanalyzer.collectors.*;
 import org.opensearch.performanceanalyzer.commons.metrics.MetricsConfiguration;
 import org.opensearch.performanceanalyzer.commons.stats.ServiceMetrics;
-import org.opensearch.performanceanalyzer.commons.stats.collectors.SampleAggregator;
-import org.opensearch.performanceanalyzer.stats.PACollectorMetrics;
 
 public class Utils {
 
-    public static void initStatsAggregators() {
-        ServiceMetrics.PA_COLLECTORS_METRICS_AGGREGATOR =
-                new SampleAggregator(PACollectorMetrics.values());
-        ServiceMetrics.initStatsReporter();
-    }
-
     public static void configureMetrics() {
-        initStatsAggregators();
+        ServiceMetrics.initStatsReporter();
         MetricsConfiguration.MetricConfig cdefault = MetricsConfiguration.cdefault;
         MetricsConfiguration.CONFIG_MAP.put(AdmissionControlMetricsCollector.class, cdefault);
         MetricsConfiguration.CONFIG_MAP.put(CacheConfigMetricsCollector.class, cdefault);

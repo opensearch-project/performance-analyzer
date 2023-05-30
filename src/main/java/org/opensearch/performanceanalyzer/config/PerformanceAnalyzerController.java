@@ -20,8 +20,8 @@ import org.opensearch.performanceanalyzer.OpenSearchResources;
 import org.opensearch.performanceanalyzer.PerformanceAnalyzerPlugin;
 import org.opensearch.performanceanalyzer.commons.collectors.ScheduledMetricCollectorsExecutor;
 import org.opensearch.performanceanalyzer.commons.collectors.StatsCollector;
+import org.opensearch.performanceanalyzer.commons.config.overrides.ConfigOverridesWrapper;
 import org.opensearch.performanceanalyzer.commons.metrics.PerformanceAnalyzerMetrics;
-import org.opensearch.performanceanalyzer.config.overrides.ConfigOverridesWrapper;
 
 public class PerformanceAnalyzerController {
     private static final String PERFORMANCE_ANALYZER_ENABLED_CONF =
