@@ -273,6 +273,7 @@ dependencies {
         // Need to continue exclude this group until we figure out how to get rid of
         // this exclusion with opensearch
         all*.exclude group: "org.elasticsearch", module: "securemock"
+        all*.exclude group: "org.jboss.spec.javax.annotation", module: "jboss-annotations-api_1.2_spec"
     }
 
     configurations.all {
@@ -298,7 +299,6 @@ dependencies {
     implementation 'org.apache.commons:commons-lang3:3.9'
     implementation 'org.bouncycastle:bcprov-jdk15on:1.70'
     implementation 'org.bouncycastle:bcpkix-jdk15on:1.70'
-    implementation "org.opensearch:performanceanalyzer-rca:${version}"
     implementation "org.opensearch:performance-analyzer-commons:1.0.0-SNAPSHOT"
     implementation "com.fasterxml.jackson.core:jackson-annotations:${jacksonVersion}"
     implementation "com.fasterxml.jackson.core:jackson-databind:${jacksonDataBindVersion}"

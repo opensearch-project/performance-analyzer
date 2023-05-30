@@ -8,7 +8,7 @@ package org.opensearch.performanceanalyzer.collectors;
 import static org.opensearch.performanceanalyzer.commons.metrics.AllMetrics.ShardType.SHARD_PRIMARY;
 import static org.opensearch.performanceanalyzer.commons.metrics.AllMetrics.ShardType.SHARD_REPLICA;
 import static org.opensearch.performanceanalyzer.commons.stats.metrics.StatExceptionCode.SHARD_STATE_COLLECTOR_ERROR;
-import static org.opensearch.performanceanalyzer.stats.PACollectorMetrics.SHARD_STATE_COLLECTOR_EXECUTION_TIME;
+import static org.opensearch.performanceanalyzer.commons.stats.metrics.StatMetrics.SHARD_STATE_COLLECTOR_EXECUTION_TIME;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.List;
@@ -23,12 +23,12 @@ import org.opensearch.cluster.routing.ShardRoutingState;
 import org.opensearch.performanceanalyzer.OpenSearchResources;
 import org.opensearch.performanceanalyzer.commons.collectors.MetricStatus;
 import org.opensearch.performanceanalyzer.commons.collectors.PerformanceAnalyzerMetricsCollector;
+import org.opensearch.performanceanalyzer.commons.config.overrides.ConfigOverridesWrapper;
 import org.opensearch.performanceanalyzer.commons.metrics.AllMetrics;
 import org.opensearch.performanceanalyzer.commons.metrics.MetricsConfiguration;
 import org.opensearch.performanceanalyzer.commons.metrics.MetricsProcessor;
 import org.opensearch.performanceanalyzer.commons.metrics.PerformanceAnalyzerMetrics;
 import org.opensearch.performanceanalyzer.config.PerformanceAnalyzerController;
-import org.opensearch.performanceanalyzer.config.overrides.ConfigOverridesWrapper;
 
 public class ShardStateCollector extends PerformanceAnalyzerMetricsCollector
         implements MetricsProcessor {

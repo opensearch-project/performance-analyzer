@@ -13,11 +13,11 @@ import java.util.List;
 import org.junit.Test;
 import org.mockito.Mockito;
 import org.opensearch.performanceanalyzer.CustomMetricsLocationTestBase;
+import org.opensearch.performanceanalyzer.commons.config.overrides.ConfigOverridesWrapper;
 import org.opensearch.performanceanalyzer.commons.event_process.Event;
 import org.opensearch.performanceanalyzer.commons.metrics.MetricsConfiguration;
 import org.opensearch.performanceanalyzer.commons.metrics.PerformanceAnalyzerMetrics;
 import org.opensearch.performanceanalyzer.config.PerformanceAnalyzerController;
-import org.opensearch.performanceanalyzer.config.overrides.ConfigOverridesWrapper;
 
 public class ClusterManagerThrottlingMetricsCollectorTests extends CustomMetricsLocationTestBase {
 
