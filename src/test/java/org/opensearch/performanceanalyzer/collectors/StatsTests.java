@@ -13,8 +13,8 @@ import java.util.ListIterator;
 import java.util.Random;
 import java.util.concurrent.atomic.AtomicInteger;
 import org.junit.Test;
-import org.opensearch.performanceanalyzer.commons.collectors.StatExceptionCode;
 import org.opensearch.performanceanalyzer.commons.collectors.StatsCollector;
+import org.opensearch.performanceanalyzer.commons.stats.metrics.StatExceptionCode;
 import org.opensearch.performanceanalyzer.util.Utils;
 
 public class StatsTests {

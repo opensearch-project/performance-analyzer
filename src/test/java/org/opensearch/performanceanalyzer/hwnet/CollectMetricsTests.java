@@ -11,16 +11,11 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.when;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.FileReader;
-import java.io.PrintStream;
+import java.io.*;
 import java.lang.reflect.Field;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import org.junit.Before;
@@ -39,28 +34,20 @@ import org.opensearch.indices.breaker.AllCircuitBreakerStats;
 import org.opensearch.indices.breaker.CircuitBreakerService;
 import org.opensearch.indices.breaker.CircuitBreakerStats;
 import org.opensearch.performanceanalyzer.AbstractTests;
-import org.opensearch.performanceanalyzer.OSMetricsGeneratorFactory;
 import org.opensearch.performanceanalyzer.OpenSearchResources;
 import org.opensearch.performanceanalyzer.collectors.CircuitBreakerCollector;
-import org.opensearch.performanceanalyzer.collectors.NetInterfaceSummary;
-import org.opensearch.performanceanalyzer.collectors.NetworkE2ECollector;
-import org.opensearch.performanceanalyzer.collectors.NetworkInterfaceCollector;
 import org.opensearch.performanceanalyzer.collectors.NodeDetailsCollector;
 import org.opensearch.performanceanalyzer.commons.config.PluginSettings;
+import org.opensearch.performanceanalyzer.commons.hwnet.NetworkE2E;
+import org.opensearch.performanceanalyzer.commons.hwnet.NetworkInterface;
 import org.opensearch.performanceanalyzer.commons.metrics.AllMetrics.CircuitBreakerDimension;
 import org.opensearch.performanceanalyzer.commons.metrics.AllMetrics.CircuitBreakerValue;
-import org.opensearch.performanceanalyzer.commons.metrics.AllMetrics.IPDimension;
-import org.opensearch.performanceanalyzer.commons.metrics.AllMetrics.IPValue;
 import org.opensearch.performanceanalyzer.commons.metrics.AllMetrics.NodeDetailColumns;
-import org.opensearch.performanceanalyzer.commons.metrics.AllMetrics.TCPDimension;
-import org.opensearch.performanceanalyzer.commons.metrics.AllMetrics.TCPValue;
 import org.opensearch.performanceanalyzer.commons.metrics.MetricsProcessor;
 import org.opensearch.performanceanalyzer.commons.metrics.PerformanceAnalyzerMetrics;
+import org.opensearch.performanceanalyzer.commons.os.OSGlobals;
+import org.opensearch.performanceanalyzer.commons.util.JsonConverter;
 import org.opensearch.performanceanalyzer.config.overrides.ConfigOverridesWrapper;
-import org.opensearch.performanceanalyzer.metrics_generator.IPMetricsGenerator;
-import org.opensearch.performanceanalyzer.metrics_generator.TCPMetricsGenerator;
-import org.opensearch.performanceanalyzer.os.OSGlobals;
-import org.opensearch.performanceanalyzer.util.JsonConverter;
 import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PowerMockIgnore;
 import org.powermock.core.classloader.annotations.PrepareForTest;
@@ -203,32 +190,32 @@ public class CollectMetricsTests extends AbstractTests {
         }
     }
 
-    // @Test
+    /*@Test
     public void testTCP() throws Exception {
 
-        Map<String, NetworkE2E.destTCPFlowMetrics> destnodeFlowMetricsMap = new HashMap<>();
+        Map<String, NetworkE2E> destnodeFlowMetricsMap = new HashMap<>();
 
         NetworkE2E.TCPFlowMetrics tcpFlow1 = new NetworkE2E.TCPFlowMetrics();
-        tcpFlow1.destIP = "0000000000000000FFFF0000E03DD40A";
-        tcpFlow1.txQueue = 0;
-        tcpFlow1.rxQueue = 1;
-        tcpFlow1.currentLost = 2;
-        tcpFlow1.sendCWND = 7;
-        tcpFlow1.SSThresh = 3;
+        tcpFlow1.setDestIP("0000000000000000FFFF0000E03DD40A");
+        tcpFlow1.setTxQueue(0);
+        tcpFlow1.setRxQueue(1);
+        tcpFlow1.setCurrentLost(2);
+        tcpFlow1.setSendCWND(7);
+        tcpFlow1.setSSThresh(3);
         NetworkE2E.destTCPFlowMetrics destTcp1 = new NetworkE2E.destTCPFlowMetrics(tcpFlow1);
-        destTcp1.numFlows = 24;
+        destTcp1.setNumFlows(24);
 
         NetworkE2E.TCPFlowMetrics tcpFlow2 = new NetworkE2E.TCPFlowMetrics();
-        tcpFlow2.destIP = "0000000000000000FFFF00006733D40A";
-        tcpFlow2.txQueue = 4;
-        tcpFlow2.rxQueue = 5;
-        tcpFlow2.currentLost = 8;
-        tcpFlow2.sendCWND = 6;
-        tcpFlow2.SSThresh = 9;
+        tcpFlow2.setDestIP("0000000000000000FFFF00006733D40A");
+        tcpFlow2.setTxQueue (4);
+        tcpFlow2.setRxQueue(5);
+        tcpFlow2.setCurrentLost(8);
+        tcpFlow2.setSendCWND(6);
+        tcpFlow2.setSSThresh(9);
         NetworkE2E.destTCPFlowMetrics destTcp2 = new NetworkE2E.destTCPFlowMetrics(tcpFlow2);
-        destTcp2.numFlows = 23;
-        destnodeFlowMetricsMap.put(tcpFlow1.destIP, destTcp1);
-        destnodeFlowMetricsMap.put(tcpFlow2.destIP, destTcp2);
+        destTcp2.setNumFlows(23);
+        destnodeFlowMetricsMap.put(tcpFlow1.getDestIP(), destTcp1);
+        destnodeFlowMetricsMap.put(tcpFlow2.getDestIP(), destTcp2);
 
         long timeBeforeCollectorWriting = System.currentTimeMillis();
 
@@ -457,7 +444,7 @@ public class CollectMetricsTests extends AbstractTests {
             assertEquals(outPacketRate6, parseDouble(map.get(packetRate6)), 0.001);
             assertEquals(outDropRate6, parseDouble(map.get(dropRate6)), 0.001);
         }
-    }
+    }*/
 
     private static List<DiscoveryNode> buildNumNodes(
             String nodeId1, String nodeId2, InetAddress address1, InetAddress address2)

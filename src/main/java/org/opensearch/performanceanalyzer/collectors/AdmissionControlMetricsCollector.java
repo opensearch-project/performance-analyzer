@@ -5,20 +5,24 @@
 
 package org.opensearch.performanceanalyzer.collectors;
 
+import static org.opensearch.performanceanalyzer.commons.stats.metrics.StatExceptionCode.ADMISSION_CONTROL_COLLECTOR_ERROR;
+import static org.opensearch.performanceanalyzer.stats.PACollectorMetrics.ADMISSION_CONTROL_COLLECTOR_EXECUTION_TIME;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Objects;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.opensearch.performanceanalyzer.commons.collectors.MetricStatus;
 import org.opensearch.performanceanalyzer.commons.collectors.PerformanceAnalyzerMetricsCollector;
+import org.opensearch.performanceanalyzer.commons.collectors.StatsCollector;
 import org.opensearch.performanceanalyzer.commons.metrics.AllMetrics;
-import org.opensearch.performanceanalyzer.commons.metrics.ExceptionsAndErrors;
 import org.opensearch.performanceanalyzer.commons.metrics.MetricsConfiguration;
 import org.opensearch.performanceanalyzer.commons.metrics.MetricsProcessor;
 import org.opensearch.performanceanalyzer.commons.metrics.PerformanceAnalyzerMetrics;
-import org.opensearch.performanceanalyzer.commons.metrics.WriterMetrics;
-import org.opensearch.performanceanalyzer.commons.stats.CommonStats;
+import org.opensearch.performanceanalyzer.commons.stats.ServiceMetrics;
+import org.opensearch.performanceanalyzer.stats.PACollectorMetrics;
 
 /** AdmissionControlMetricsCollector collects `UsedQuota`, `TotalQuota`, RejectionCount */
 public class AdmissionControlMetricsCollector extends PerformanceAnalyzerMetricsCollector
@@ -46,7 +50,11 @@ public class AdmissionControlMetricsCollector extends PerformanceAnalyzerMetrics
     private final boolean admissionControllerAvailable;
 
     public AdmissionControlMetricsCollector() {
-        super(sTimeInterval, "AdmissionControlMetricsCollector");
+        super(
+                sTimeInterval,
+                "AdmissionControlMetricsCollector",
+                ADMISSION_CONTROL_COLLECTOR_EXECUTION_TIME,
+                ADMISSION_CONTROL_COLLECTOR_ERROR);
         this.value = new StringBuilder();
         this.admissionControllerAvailable = canLoadAdmissionControllerClasses();
     }
@@ -56,12 +64,11 @@ public class AdmissionControlMetricsCollector extends PerformanceAnalyzerMetrics
     public void collectMetrics(long startTime) {
         if (!this.admissionControllerAvailable) {
             LOG.debug("AdmissionControl is not available for this domain");
-            CommonStats.WRITER_METRICS_AGGREGATOR.updateStat(
-                    WriterMetrics.ADMISSION_CONTROL_COLLECTOR_NOT_AVAILABLE, "", 1);
+            ServiceMetrics.PA_COLLECTORS_METRICS_AGGREGATOR.updateStat(
+                    PACollectorMetrics.ADMISSION_CONTROL_COLLECTOR_NOT_AVAILABLE, 1);
             return;
         }
 
-        long mCurrT = System.currentTimeMillis();
         try {
 
             Method getAdmissionController =
@@ -107,19 +114,12 @@ public class AdmissionControlMetricsCollector extends PerformanceAnalyzerMetrics
             }
 
             saveMetricValues(value.toString(), startTime);
-
-            CommonStats.WRITER_METRICS_AGGREGATOR.updateStat(
-                    WriterMetrics.ADMISSION_CONTROL_COLLECTOR_EXECUTION_TIME,
-                    "",
-                    System.currentTimeMillis() - mCurrT);
-
-        } catch (Exception ex) {
+        } catch (NoSuchMethodException | InvocationTargetException | IllegalAccessException ex) {
             LOG.debug(
-                    "Exception in collecting AdmissionControl Metrics: {} for startTime {}",
-                    ex::toString,
-                    () -> startTime);
-            CommonStats.WRITER_METRICS_AGGREGATOR.updateStat(
-                    ExceptionsAndErrors.ADMISSION_CONTROL_COLLECTOR_ERROR, "", 1);
+                    "[ {} ] Exception in collecting AdmissionControl Metrics: {}",
+                    this::getCollectorName,
+                    ex::getMessage);
+            StatsCollector.instance().logException(ADMISSION_CONTROL_COLLECTOR_ERROR);
         }
     }
 
@@ -180,10 +180,9 @@ public class AdmissionControlMetricsCollector extends PerformanceAnalyzerMetrics
                     Class.forName(ADMISSION_CONTROLLER, false, admissionControlClassLoader);
             this.jettyAdmissionControllerServiceClass =
                     Class.forName(ADMISSION_CONTROL_SERVICE, false, admissionControlClassLoader);
-        } catch (Exception e) {
+        } catch (ClassNotFoundException e) {
             LOG.debug("Failed to load AdmissionControllerService classes : {}", e::toString);
-            CommonStats.WRITER_METRICS_AGGREGATOR.updateStat(
-                    ExceptionsAndErrors.ADMISSION_CONTROL_COLLECTOR_ERROR, "", 1);
+            StatsCollector.instance().logException(ADMISSION_CONTROL_COLLECTOR_ERROR);
             return false;
         }
         return true;
