@@ -180,7 +180,7 @@ public class AdmissionControlMetricsCollector extends PerformanceAnalyzerMetrics
                     Class.forName(ADMISSION_CONTROLLER, false, admissionControlClassLoader);
             this.jettyAdmissionControllerServiceClass =
                     Class.forName(ADMISSION_CONTROL_SERVICE, false, admissionControlClassLoader);
-        } catch (ClassNotFoundException e) {
+        } catch (Exception e) {
             LOG.debug("Failed to load AdmissionControllerService classes : {}", e::toString);
             StatsCollector.instance().logException(ADMISSION_CONTROL_COLLECTOR_ERROR);
             return false;
