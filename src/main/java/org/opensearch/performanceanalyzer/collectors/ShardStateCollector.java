@@ -68,7 +68,7 @@ public class ShardStateCollector extends PerformanceAnalyzerMetricsCollector
         value.append(PerformanceAnalyzerMetrics.getJsonCurrentMilliSeconds())
                 .append(PerformanceAnalyzerMetrics.sMetricNewLineDelimitor);
         RoutingTable routingTable = clusterState.routingTable();
-        String[] indices = routingTable.indicesRouting().keySet().toArray(new String[0]);
+        String[] indices = routingTable.indicesRouting().keys().toArray(String.class);
         for (String index : indices) {
             List<ShardRouting> allShardsIndex = routingTable.allShards(index);
             value.append(
