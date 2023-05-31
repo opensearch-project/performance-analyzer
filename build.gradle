@@ -312,49 +312,75 @@ dependencies {
     implementation "com.fasterxml.jackson.module:jackson-module-paranamer:${jacksonVersion}"
     implementation(group: 'org.apache.logging.log4j', name: 'log4j-api', version: "${log4jVersion}")
     implementation(group: 'org.apache.logging.log4j', name: 'log4j-core', version: "${log4jVersion}")
-    implementation(group: 'com.google.errorprone', name: 'error_prone_annotations', version: '2.9.0') {
-        force = 'true'
+    implementation(group: 'com.google.errorprone', name: 'error_prone_annotations') {
+        version {
+            strictly "2.9.0"
+        }
     }
-    implementation(group: 'com.google.protobuf', name:'protobuf-java', version: "${protobufVersion}") {
-        force = 'true'
+    implementation(group: 'com.google.protobuf', name:'protobuf-java') {
+        version {
+            strictly "${protobufVersion}"
+        }
     }
-    implementation("io.netty:netty-buffer:${nettyVersion}") {
-        force = 'true'
+    implementation("io.netty:netty-buffer") {
+        version {
+            strictly "${nettyVersion}"
+        }
     }
-    implementation("io.netty:netty-codec:${nettyVersion}") {
-        force = 'true'
+    implementation("io.netty:netty-codec:") {
+        version {
+            strictly "${nettyVersion}"
+        }
     }
-    implementation("io.netty:netty-codec-http:${nettyVersion}") {
-        force = 'true'
+    implementation("io.netty:netty-codec-http") {
+        version {
+            strictly "${nettyVersion}"
+        }
     }
-    implementation("io.netty:netty-common:${nettyVersion}") {
-        force = 'true'
+    implementation("io.netty:netty-common") {
+        version {
+            strictly "${nettyVersion}"
+        }
     }
-    implementation("io.netty:netty-handler:${nettyVersion}") {
-        force = 'true'
+    implementation("io.netty:netty-handler") {
+        version {
+            strictly "${nettyVersion}"
+        }
     }
-    implementation("io.netty:netty-resolver:${nettyVersion}") {
-        force = 'true'
+    implementation("io.netty:netty-resolver") {
+        version {
+            strictly "${nettyVersion}"
+        }
     }
-    implementation("io.netty:netty-transport:${nettyVersion}") {
-        force = 'true'
+    implementation("io.netty:netty-transport") {
+        version {
+            strictly "${nettyVersion}"
+        }
     }
-    implementation("io.netty:netty-codec-http2:${nettyVersion}") {
-        force = 'true'
+    implementation("io.netty:netty-codec-http2") {
+        version {
+            strictly "${nettyVersion}"
+        }
     }
-    implementation("io.netty:netty-codec-socks:${nettyVersion}") {
-        force = 'true'
+    implementation("io.netty:netty-codec-socks") {
+        version {
+            strictly "${nettyVersion}"
+        }
     }
-    implementation("io.netty:netty-handler-proxy:${nettyVersion}") {
-        force = 'true'
+    implementation("io.netty:netty-handler-proxy") {
+        version {
+            strictly "${nettyVersion}"
+        }
     }
-
-    implementation("io.netty:netty-transport-native-unix-common:${nettyVersion}") {
-        force = 'true'
+    implementation("io.netty:netty-transport-native-unix-common") {
+            version {
+                strictly "${nettyVersion}"
+            }
     }
-
-    implementation("org.checkerframework:checker-qual:3.29.0") {
-        force = 'true'
+    implementation("org.checkerframework:checker-qual") {
+        version {
+            strictly "3.29.0"
+        }
     }
 
 
@@ -363,8 +389,10 @@ dependencies {
     testImplementation(group: 'org.powermock', name: 'powermock-module-junit4', version: '2.0.0') {
         exclude(group: 'org.hamcrest', module: 'hamcrest-core')
     }
-    testImplementation(group: 'org.mockito', name: 'mockito-core', version: '2.23.0') {
-        force = 'true'
+    implementation("org.mockito:mockito-core") {
+        version {
+            strictly "2.23.0"
+        }
     }
     // Dependency to mock final classes.
     testImplementation group: 'org.mockito', name: 'mockito-inline', version: '2.13.0'
@@ -376,16 +404,26 @@ dependencies {
     testImplementation group: 'org.javassist', name: 'javassist', version: '3.24.0-GA'
     testImplementation group: 'org.powermock', name: 'powermock-reflect', version: '2.0.0'
     //minimum byte-buddy version to be compatible with mockito-core 2.23.0 is 1.9.7+. https://github.com/mockito/mockito/issues/1606
-    testImplementation(group: 'net.bytebuddy', name: 'byte-buddy', version: '1.9.7') {
-        force = 'true'
+    implementation("net.bytebuddy:byte-buddy") {
+        version {
+            strictly "1.9.7"
+        }
     }
-    testImplementation(group: 'net.bytebuddy', name: 'byte-buddy-agent', version: '1.9.7') {
-        force = 'true'
+    implementation("net.bytebuddy:byte-buddy-agent") {
+        version {
+            strictly "1.9.7"
+        }
     }
-    testImplementation(group: 'org.objenesis', name: 'objenesis', version: '3.0.1') {
-        force = 'true'
+    implementation("org.objenesis:objenesis") {
+        version {
+            strictly "3.0.1"
+        }
     }
-    testImplementation group: 'com.google.code.gson', name: 'gson', version: '2.9.0'
+    implementation("com.google.code.gson:gson") {
+        version {
+            strictly "2.9.0"
+        }
+    }
 
     // Needed for BWC tests
     zipArchive group: 'org.opensearch.plugin', name:'performance-analyzer', version: "${pa_bwc_version}-SNAPSHOT"
