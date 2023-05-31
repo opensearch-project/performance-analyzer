@@ -19,15 +19,15 @@ import java.util.stream.Collectors;
 import java.util.stream.LongStream;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.opensearch.performanceanalyzer.PerformanceAnalyzerApp;
+import org.opensearch.performanceanalyzer.commons.event_process.Event;
+import org.opensearch.performanceanalyzer.commons.event_process.EventLogFileHandler;
+import org.opensearch.performanceanalyzer.commons.metrics.ExceptionsAndErrors;
+import org.opensearch.performanceanalyzer.commons.metrics.MetricsConfiguration;
+import org.opensearch.performanceanalyzer.commons.metrics.PerformanceAnalyzerMetrics;
+import org.opensearch.performanceanalyzer.commons.stats.CommonStats;
 import org.opensearch.performanceanalyzer.config.PerformanceAnalyzerController;
 import org.opensearch.performanceanalyzer.config.PluginSettings;
 import org.opensearch.performanceanalyzer.http_action.config.PerformanceAnalyzerConfigAction;
-import org.opensearch.performanceanalyzer.metrics.MetricsConfiguration;
-import org.opensearch.performanceanalyzer.metrics.PerformanceAnalyzerMetrics;
-import org.opensearch.performanceanalyzer.rca.framework.metrics.ExceptionsAndErrors;
-import org.opensearch.performanceanalyzer.reader_writer_shared.Event;
-import org.opensearch.performanceanalyzer.reader_writer_shared.EventLogFileHandler;
 
 public class EventLogQueueProcessor {
     private static final Logger LOG = LogManager.getLogger(EventLogQueueProcessor.class);
@@ -144,7 +144,7 @@ public class EventLogQueueProcessor {
             } else {
                 // increment stale_metrics count when metrics to be collected is falling behind the
                 // current bucket
-                PerformanceAnalyzerApp.ERRORS_AND_EXCEPTIONS_AGGREGATOR.updateStat(
+                CommonStats.WRITER_METRICS_AGGREGATOR.updateStat(
                         ExceptionsAndErrors.STALE_METRICS, "", 1);
             }
         }

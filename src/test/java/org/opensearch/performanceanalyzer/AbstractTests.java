@@ -41,7 +41,6 @@ public class AbstractTests {
 
     @BeforeClass
     public static void setupLogging() {
-        Utils.configureMetrics();
         ConfigurationBuilder<BuiltConfiguration> configurationBuilder =
                 ConfigurationBuilderFactory.newConfigurationBuilder();
         configurationBuilder.setStatusLevel(Level.INFO);
@@ -78,7 +77,7 @@ public class AbstractTests {
     @Before
     public void setUp() throws Exception {
         rootLocation = temporaryFolder.getRoot().getCanonicalPath() + File.separator;
-
+        Utils.configureMetrics();
         System.setProperty("performanceanalyzer.metrics.log.enabled", "False");
     }
 }

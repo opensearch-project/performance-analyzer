@@ -14,6 +14,7 @@ import org.apache.commons.lang3.SystemUtils;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
+import org.opensearch.performanceanalyzer.util.Utils;
 import org.opensearch.transport.TransportChannel;
 import org.opensearch.transport.TransportResponse;
 
@@ -28,7 +29,7 @@ public class PerformanceAnalyzerTransportChannelTests {
         // this test only runs in Linux system
         // as some of the static members of the ThreadList class are specific to Linux
         org.junit.Assume.assumeTrue(SystemUtils.IS_OS_LINUX);
-
+        Utils.configureMetrics();
         initMocks(this);
         channel = new PerformanceAnalyzerTransportChannel();
         channel.set(originalChannel, 0, "testIndex", 1, 0, false);
