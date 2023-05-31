@@ -10,10 +10,10 @@ import org.opensearch.OpenSearchException;
 import org.opensearch.action.ActionListener;
 import org.opensearch.action.bulk.BulkResponse;
 import org.opensearch.action.search.SearchResponse;
-import org.opensearch.performanceanalyzer.metrics.AllMetrics.HttpDimension;
-import org.opensearch.performanceanalyzer.metrics.AllMetrics.HttpMetric;
-import org.opensearch.performanceanalyzer.metrics.MetricsProcessor;
-import org.opensearch.performanceanalyzer.metrics.PerformanceAnalyzerMetrics;
+import org.opensearch.performanceanalyzer.commons.metrics.AllMetrics.HttpDimension;
+import org.opensearch.performanceanalyzer.commons.metrics.AllMetrics.HttpMetric;
+import org.opensearch.performanceanalyzer.commons.metrics.MetricsProcessor;
+import org.opensearch.performanceanalyzer.commons.metrics.PerformanceAnalyzerMetrics;
 
 public class PerformanceAnalyzerActionListener<Response>
         implements ActionListener<Response>, MetricsProcessor {

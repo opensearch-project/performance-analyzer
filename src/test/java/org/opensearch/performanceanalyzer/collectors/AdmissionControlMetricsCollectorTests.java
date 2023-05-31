@@ -11,8 +11,8 @@ import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
 import org.opensearch.performanceanalyzer.CustomMetricsLocationTestBase;
-import org.opensearch.performanceanalyzer.metrics.MetricsConfiguration;
-import org.opensearch.performanceanalyzer.reader_writer_shared.Event;
+import org.opensearch.performanceanalyzer.commons.event_process.Event;
+import org.opensearch.performanceanalyzer.commons.metrics.MetricsConfiguration;
 import org.opensearch.performanceanalyzer.util.TestUtil;
 
 public class AdmissionControlMetricsCollectorTests extends CustomMetricsLocationTestBase {

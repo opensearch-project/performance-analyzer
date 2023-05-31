@@ -19,6 +19,7 @@ import org.opensearch.action.bulk.BulkShardRequest;
 import org.opensearch.action.support.replication.TransportReplicationAction.ConcreteShardRequest;
 import org.opensearch.index.shard.ShardId;
 import org.opensearch.performanceanalyzer.config.PerformanceAnalyzerController;
+import org.opensearch.performanceanalyzer.util.Utils;
 import org.opensearch.tasks.Task;
 import org.opensearch.transport.TransportChannel;
 import org.opensearch.transport.TransportRequest;
@@ -42,7 +43,7 @@ public class PerformanceAnalyzerTransportRequestHandlerTests {
         // this test only runs in Linux system
         // as some of the static members of the ThreadList class are specific to Linux
         org.junit.Assume.assumeTrue(SystemUtils.IS_OS_LINUX);
-
+        Utils.configureMetrics();
         initMocks(this);
         handler =
                 new PerformanceAnalyzerTransportRequestHandler(transportRequestHandler, controller);

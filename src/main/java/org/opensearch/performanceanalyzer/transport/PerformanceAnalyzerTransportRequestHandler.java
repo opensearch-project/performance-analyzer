@@ -11,9 +11,9 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.opensearch.action.bulk.BulkShardRequest;
 import org.opensearch.action.support.replication.TransportReplicationAction.ConcreteShardRequest;
-import org.opensearch.performanceanalyzer.PerformanceAnalyzerApp;
+import org.opensearch.performanceanalyzer.commons.metrics.ExceptionsAndErrors;
+import org.opensearch.performanceanalyzer.commons.stats.CommonStats;
 import org.opensearch.performanceanalyzer.config.PerformanceAnalyzerController;
-import org.opensearch.performanceanalyzer.rca.framework.metrics.ExceptionsAndErrors;
 import org.opensearch.tasks.Task;
 import org.opensearch.transport.TransportChannel;
 import org.opensearch.transport.TransportRequest;
@@ -93,7 +93,7 @@ public class PerformanceAnalyzerTransportRequestHandler<T extends TransportReque
                 LOG.error(ex);
                 logOnce = true;
             }
-            PerformanceAnalyzerApp.ERRORS_AND_EXCEPTIONS_AGGREGATOR.updateStat(
+            CommonStats.WRITER_METRICS_AGGREGATOR.updateStat(
                     ExceptionsAndErrors.OPENSEARCH_REQUEST_INTERCEPTOR_ERROR, "", 1);
         }
 
