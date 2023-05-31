@@ -19,6 +19,7 @@ grant {
   permission java.lang.RuntimePermission "accessClassInPackage.jdk.internal.misc";
   permission java.lang.RuntimePermission "accessClassInPackage.sun.tools.attach";
   permission java.lang.RuntimePermission "createClassLoader";
+  permission java.lang.RuntimePermission "getClassLoader";
   permission java.lang.RuntimePermission "defineClass";
 };
 
