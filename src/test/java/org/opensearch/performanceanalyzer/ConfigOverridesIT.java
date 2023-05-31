@@ -20,7 +20,7 @@ import org.apache.http.HttpStatus;
 import org.junit.Test;
 import org.opensearch.client.Request;
 import org.opensearch.client.Response;
-import org.opensearch.performanceanalyzer.config.overrides.ConfigOverrides;
+import org.opensearch.performanceanalyzer.commons.config.overrides.ConfigOverrides;
 import org.opensearch.performanceanalyzer.http_action.config.RestConfig;
 import org.opensearch.performanceanalyzer.util.WaitFor;
 

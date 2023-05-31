@@ -6,7 +6,7 @@
 package org.opensearch.performanceanalyzer.collectors;
 
 import static org.opensearch.performanceanalyzer.commons.stats.metrics.StatExceptionCode.THREADPOOL_METRICS_COLLECTOR_ERROR;
-import static org.opensearch.performanceanalyzer.stats.PACollectorMetrics.THREADPOOL_METRICS_COLLECTOR_EXECUTION_TIME;
+import static org.opensearch.performanceanalyzer.commons.stats.metrics.StatMetrics.THREADPOOL_METRICS_COLLECTOR_EXECUTION_TIME;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.security.AccessController;
