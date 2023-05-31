@@ -20,7 +20,7 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.opensearch.common.bytes.BytesReference;
 import org.opensearch.common.settings.Settings;
-import org.opensearch.performanceanalyzer.config.PluginSettings;
+import org.opensearch.performanceanalyzer.commons.config.PluginSettings;
 import org.opensearch.rest.RestController;
 import org.opensearch.rest.RestRequest;
 import org.powermock.api.mockito.PowerMockito;
