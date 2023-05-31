@@ -5,10 +5,13 @@
 
 package org.opensearch.performanceanalyzer.collectors;
 
+import static org.opensearch.performanceanalyzer.commons.stats.metrics.StatExceptionCode.CLUSTER_APPLIER_SERVICE_STATS_COLLECTOR_ERROR;
+import static org.opensearch.performanceanalyzer.stats.PACollectorMetrics.CLUSTER_APPLIER_SERVICE_STATS_COLLECTOR_EXECUTION_TIME;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.PropertyAccessor;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.annotations.VisibleForTesting;
@@ -18,14 +21,12 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.opensearch.cluster.service.ClusterApplierService;
 import org.opensearch.performanceanalyzer.OpenSearchResources;
+import org.opensearch.performanceanalyzer.commons.collectors.MetricStatus;
 import org.opensearch.performanceanalyzer.commons.collectors.PerformanceAnalyzerMetricsCollector;
 import org.opensearch.performanceanalyzer.commons.metrics.AllMetrics;
-import org.opensearch.performanceanalyzer.commons.metrics.ExceptionsAndErrors;
 import org.opensearch.performanceanalyzer.commons.metrics.MetricsConfiguration;
 import org.opensearch.performanceanalyzer.commons.metrics.MetricsProcessor;
 import org.opensearch.performanceanalyzer.commons.metrics.PerformanceAnalyzerMetrics;
-import org.opensearch.performanceanalyzer.commons.metrics.WriterMetrics;
-import org.opensearch.performanceanalyzer.commons.stats.CommonStats;
 import org.opensearch.performanceanalyzer.config.PerformanceAnalyzerController;
 import org.opensearch.performanceanalyzer.config.overrides.ConfigOverridesWrapper;
 
@@ -54,7 +55,11 @@ public class ClusterApplierServiceStatsCollector extends PerformanceAnalyzerMetr
     public ClusterApplierServiceStatsCollector(
             PerformanceAnalyzerController controller,
             ConfigOverridesWrapper configOverridesWrapper) {
-        super(SAMPLING_TIME_INTERVAL, ClusterApplierServiceStatsCollector.class.getSimpleName());
+        super(
+                SAMPLING_TIME_INTERVAL,
+                ClusterApplierServiceStatsCollector.class.getSimpleName(),
+                CLUSTER_APPLIER_SERVICE_STATS_COLLECTOR_EXECUTION_TIME,
+                CLUSTER_APPLIER_SERVICE_STATS_COLLECTOR_ERROR);
         value = new StringBuilder();
         this.controller = controller;
         this.configOverridesWrapper = configOverridesWrapper;
@@ -65,53 +70,40 @@ public class ClusterApplierServiceStatsCollector extends PerformanceAnalyzerMetr
         if (!controller.isCollectorEnabled(configOverridesWrapper, getCollectorName())) {
             return;
         }
-        try {
-            long mCurrT = System.currentTimeMillis();
-            if (OpenSearchResources.INSTANCE.getClusterService() == null
-                    || OpenSearchResources.INSTANCE.getClusterService().getClusterApplierService()
-                            == null) {
-                return;
-            }
-            ClusterApplierServiceStats currentClusterApplierServiceStats = null;
-            try {
-                currentClusterApplierServiceStats =
-                        mapper.readValue(
-                                mapper.writeValueAsString(getClusterApplierServiceStats()),
-                                ClusterApplierServiceStats.class);
-            } catch (InvocationTargetException
-                    | IllegalAccessException
-                    | NoSuchMethodException ex) {
-                LOG.warn(
-                        "No method found to get cluster state applier thread stats. "
-                                + "Skipping ClusterApplierServiceStatsCollector");
-                return;
-            }
-            ClusterApplierServiceMetrics clusterApplierServiceMetrics =
-                    new ClusterApplierServiceMetrics(
-                            computeLatency(currentClusterApplierServiceStats),
-                            computeFailure(currentClusterApplierServiceStats));
 
-            value.setLength(0);
-            value.append(PerformanceAnalyzerMetrics.getJsonCurrentMilliSeconds())
-                    .append(PerformanceAnalyzerMetrics.sMetricNewLineDelimitor);
-            value.append(clusterApplierServiceMetrics.serialize());
-            saveMetricValues(value.toString(), startTime);
-
-            ClusterApplierServiceStatsCollector.prevClusterApplierServiceStats =
-                    currentClusterApplierServiceStats;
-
-            CommonStats.WRITER_METRICS_AGGREGATOR.updateStat(
-                    WriterMetrics.CLUSTER_APPLIER_SERVICE_STATS_COLLECTOR_EXECUTION_TIME,
-                    "",
-                    System.currentTimeMillis() - mCurrT);
-        } catch (Exception ex) {
-            LOG.debug(
-                    "Exception in Collecting Cluster Applier Service Metrics: {} for startTime {}",
-                    () -> ex.toString(),
-                    () -> startTime);
-            CommonStats.WRITER_METRICS_AGGREGATOR.updateStat(
-                    ExceptionsAndErrors.CLUSTER_APPLIER_SERVICE_STATS_COLLECTOR_ERROR, "", 1);
+        if (OpenSearchResources.INSTANCE.getClusterService() == null
+                || OpenSearchResources.INSTANCE.getClusterService().getClusterApplierService()
+                        == null) {
+            return;
         }
+        ClusterApplierServiceStats currentClusterApplierServiceStats = null;
+        try {
+            currentClusterApplierServiceStats =
+                    mapper.readValue(
+                            mapper.writeValueAsString(getClusterApplierServiceStats()),
+                            ClusterApplierServiceStats.class);
+        } catch (InvocationTargetException
+                | IllegalAccessException
+                | NoSuchMethodException
+                | JsonProcessingException ex) {
+            LOG.warn(
+                    "No method found to get cluster state applier thread stats. "
+                            + "Skipping ClusterApplierServiceStatsCollector");
+            return;
+        }
+        ClusterApplierServiceMetrics clusterApplierServiceMetrics =
+                new ClusterApplierServiceMetrics(
+                        computeLatency(currentClusterApplierServiceStats),
+                        computeFailure(currentClusterApplierServiceStats));
+
+        value.setLength(0);
+        value.append(PerformanceAnalyzerMetrics.getJsonCurrentMilliSeconds())
+                .append(PerformanceAnalyzerMetrics.sMetricNewLineDelimitor);
+        value.append(clusterApplierServiceMetrics.serialize());
+        saveMetricValues(value.toString(), startTime);
+
+        ClusterApplierServiceStatsCollector.prevClusterApplierServiceStats =
+                currentClusterApplierServiceStats;
     }
 
     @VisibleForTesting
