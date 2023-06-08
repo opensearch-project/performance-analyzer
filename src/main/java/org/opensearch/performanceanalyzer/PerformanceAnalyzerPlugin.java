@@ -53,6 +53,7 @@ import org.opensearch.performanceanalyzer.collectors.FaultDetectionMetricsCollec
 import org.opensearch.performanceanalyzer.collectors.NodeDetailsCollector;
 import org.opensearch.performanceanalyzer.collectors.NodeStatsAllShardsMetricsCollector;
 import org.opensearch.performanceanalyzer.collectors.NodeStatsFixedShardsMetricsCollector;
+import org.opensearch.performanceanalyzer.collectors.SearchBackPressureStatsCollector;
 import org.opensearch.performanceanalyzer.collectors.ShardIndexingPressureMetricsCollector;
 import org.opensearch.performanceanalyzer.collectors.ShardStateCollector;
 import org.opensearch.performanceanalyzer.collectors.ThreadPoolMetricsCollector;
@@ -224,6 +225,11 @@ public final class PerformanceAnalyzerPlugin extends Plugin
         scheduledMetricCollectorsExecutor.addScheduledMetricCollector(
                 new ClusterApplierServiceStatsCollector(
                         performanceAnalyzerController, configOverridesWrapper));
+        scheduledMetricCollectorsExecutor.addScheduledMetricCollector(
+                new SearchBackPressureStatsCollector(
+                        performanceAnalyzerController, configOverridesWrapper));
+        LOG.info("Starting SearchBackPressureStatsCollector");
+
         scheduledMetricCollectorsExecutor.addScheduledMetricCollector(
                 new AdmissionControlMetricsCollector());
         scheduledMetricCollectorsExecutor.addScheduledMetricCollector(
