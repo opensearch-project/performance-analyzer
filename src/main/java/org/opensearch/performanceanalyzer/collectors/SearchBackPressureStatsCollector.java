@@ -25,6 +25,8 @@ import org.opensearch.performanceanalyzer.commons.metrics.MetricsConfiguration;
 import org.opensearch.performanceanalyzer.commons.metrics.MetricsProcessor;
 import org.opensearch.performanceanalyzer.commons.metrics.PerformanceAnalyzerMetrics;
 import org.opensearch.performanceanalyzer.config.PerformanceAnalyzerController;
+import org.opensearch.node.NodeService;
+import org.opensearch.search.backpressure.SearchBackpressureService;
 
 public class SearchBackPressureStatsCollector extends PerformanceAnalyzerMetricsCollector
         implements MetricsProcessor {
@@ -60,6 +62,7 @@ public class SearchBackPressureStatsCollector extends PerformanceAnalyzerMetrics
                 SearchBackPressureStatsCollector.class.getSimpleName(),
                 CLUSTER_APPLIER_SERVICE_STATS_COLLECTOR_EXECUTION_TIME,
                 CLUSTER_APPLIER_SERVICE_STATS_COLLECTOR_ERROR);
+
         this.controller = controller;
         this.configOverridesWrapper = configOverridesWrapper;
         this.value = new StringBuilder();
@@ -72,6 +75,8 @@ public class SearchBackPressureStatsCollector extends PerformanceAnalyzerMetrics
         //  if (!controller.isCollectorEnabled(configOverridesWrapper, getCollectorName())) {
         //     return;
         //  }
+        LOG.info("CollectMetrics of SearchBackPressure is started");
+
         SearchBackPressureStats currentSearchBackPressureStats = null;
         try {
             if (getSearchBackPressureStats() == null) currentSearchBackPressureStats = null;
@@ -90,13 +95,32 @@ public class SearchBackPressureStatsCollector extends PerformanceAnalyzerMetrics
                             + "Skipping SearchBackPressureStatsCollector");
             return;
         }
-        SearchBackPressureMetrics searchBackPressureMetrics =
-                new SearchBackPressureMetrics(computeTestCount(currentSearchBackPressureStats));
+
+        SearchBackPressureMetrics searchBackPressureMetrics = new SearchBackPressureMetrics(2.0);
+        LOG.info(
+                "searchbackpressure test count "
+                        + Double.toString(
+                                searchBackPressureMetrics.getSearchBackPressureStatsTest()));
+
         value.setLength(0);
+        if (currentSearchBackPressureStats == null)
+            LOG.info("currentSearchBackPressureStats is null");
+        else
+            LOG.info(
+                    "currentSearchBackPressureStats is"
+                            + currentSearchBackPressureStats.toString());
+        if (searchBackPressureMetrics == null) LOG.info("searchBackPressureMetrics is null");
+        else LOG.info("searchBackPressureMetrics is" + searchBackPressureMetrics.toString());
+        LOG.info("searchBackPressureMetrics.serialize(): " + searchBackPressureMetrics.serialize());
+
         // Append system current time (required for standardized metrics)
         value.append(PerformanceAnalyzerMetrics.getJsonCurrentMilliSeconds())
                 .append(PerformanceAnalyzerMetrics.sMetricNewLineDelimitor);
         value.append(searchBackPressureMetrics.serialize());
+
+        // print out the value by LOG
+        LOG.info("value is: " + value.toString());
+
         saveMetricValues(value.toString(), startTime);
         // update the previous stats
         // SearchBackPressureStatsCollector.prevSearchBackPressureStats =
@@ -112,13 +136,14 @@ public class SearchBackPressureStatsCollector extends PerformanceAnalyzerMetrics
     @VisibleForTesting
     public Object getSearchBackPressureStats()
             throws InvocationTargetException, IllegalAccessException, NoSuchMethodException {
-        // replace the method with the API that targets the SearchBackPressureService
-        // Method method =
-        //         ClusterApplierService.class.getMethod(
-        //                 GET_CLUSTER_APPLIER_SERVICE_STATS_METHOD_NAME);
-        // return method.invoke(
-        //         OpenSearchResources.INSTANCE.getClusterService().getClusterApplierService());
-        return null;
+        string GET_STATS_METHOD_NAME = "nodeStats";
+        Method method = ClusterApplierService.class.getMethod(GET_STATS_METHOD_NAME);
+
+
+        // create an instance of nodeService
+        // and use the nodeservice to  getSearchBackpressureService()
+        return method.invoke(
+            OpenSearchResources.INSTANCE.getClusterService().getClusterApplierService());
     }
     // compute the test count based on the current stats and previous stats (initially set to 0 for
     // testing)
