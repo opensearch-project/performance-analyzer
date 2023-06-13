@@ -212,12 +212,7 @@ public class SearchBackPressureStatsCollector extends PerformanceAnalyzerMetrics
         return method.invoke(nodeService.getSearchBackpressureService());
         // return null;
     }
-    // compute the test count based on the current stats and previous stats (initially set to 0 for
-    // testing)
-    private double computeTestCount(final SearchBackPressureStats currentStats) {
-        return 1.0;
-    }
-
+    
     @Override
     public String getMetricsPath(long startTime, String... keysPath) {
         if (keysPath.length != KEYS_PATH_LENGTH) {
