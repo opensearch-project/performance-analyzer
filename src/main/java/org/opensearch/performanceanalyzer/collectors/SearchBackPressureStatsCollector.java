@@ -108,6 +108,13 @@ public class SearchBackPressureStatsCollector extends PerformanceAnalyzerMetrics
                 LOG.info(
                         "9. Deserialized SearchBackPressure stats (Mode): "
                                 + currentSearchBackPressureStats.getMode()
+                                + " | cuurentMax of Shard Task: "
+                                + String.valueOf(
+                                        currentSearchBackPressureStats
+                                                .getSearchShardTaskStats()
+                                                .getResourceUsageTrackerStats()
+                                                .get("HEAP_USAGE_TRACKER")
+                                                .getCurrentMax())
                                 + "| All Stats: "
                                 + mapper.writeValueAsString(currentSearchBackPressureStats));
             }
@@ -241,6 +248,26 @@ public class SearchBackPressureStatsCollector extends PerformanceAnalyzerMetrics
         public String getMode() {
             return mode;
         }
+
+        public void setMode(String mode) {
+            this.mode = mode;
+        }
+
+        public SearchShardTaskStats getSearchShardTaskStats() {
+            return searchShardTaskStats;
+        }
+
+        public void setSearchShardTaskStats(SearchShardTaskStats searchShardTaskStats) {
+            this.searchShardTaskStats = searchShardTaskStats;
+        }
+
+        public SearchTaskStats getSearchTaskStats() {
+            return searchTaskStats;
+        }
+
+        public void setSearchTaskStats(SearchTaskStats searchTaskStats) {
+            this.searchTaskStats = searchTaskStats;
+        }
     }
 
     public static class SearchShardTaskStats {
@@ -258,7 +285,32 @@ public class SearchBackPressureStatsCollector extends PerformanceAnalyzerMetrics
             this.limitReachedCount = limitReachedCount;
             this.resourceUsageTrackerStats = resourceUsageTrackerStats;
         }
-        // Getters
+
+        // Getters and Setters
+        public long getCancellationCount() {
+            return cancellationCount;
+        }
+
+        public void setCancellationCount(long cancellationCount) {
+            this.cancellationCount = cancellationCount;
+        }
+
+        public long getLimitReachedCount() {
+            return limitReachedCount;
+        }
+
+        public void setLimitReachedCount(long limitReachedCount) {
+            this.limitReachedCount = limitReachedCount;
+        }
+
+        public Map<String, ResourceUsageTrackerStats> getResourceUsageTrackerStats() {
+            return resourceUsageTrackerStats;
+        }
+
+        public void setResourceUsageTrackerStats(
+                Map<String, ResourceUsageTrackerStats> resourceUsageTrackerStats) {
+            this.resourceUsageTrackerStats = resourceUsageTrackerStats;
+        }
     }
 
     public static class SearchTaskStats {
@@ -276,7 +328,32 @@ public class SearchBackPressureStatsCollector extends PerformanceAnalyzerMetrics
             this.limitReachedCount = limitReachedCount;
             this.resourceUsageTrackerStats = resourceUsageTrackerStats;
         }
-        // Getters
+
+        // Getters and Setters
+        public long getCancellationCount() {
+            return cancellationCount;
+        }
+
+        public void setCancellationCount(long cancellationCount) {
+            this.cancellationCount = cancellationCount;
+        }
+
+        public long getLimitReachedCount() {
+            return limitReachedCount;
+        }
+
+        public void setLimitReachedCount(long limitReachedCount) {
+            this.limitReachedCount = limitReachedCount;
+        }
+
+        public Map<String, ResourceUsageTrackerStats> getResourceUsageTrackerStats() {
+            return resourceUsageTrackerStats;
+        }
+
+        public void setResourceUsageTrackerStats(
+                Map<String, ResourceUsageTrackerStats> resourceUsageTrackerStats) {
+            this.resourceUsageTrackerStats = resourceUsageTrackerStats;
+        }
     }
 
     public static class ResourceUsageTrackerStats {
@@ -299,8 +376,46 @@ public class SearchBackPressureStatsCollector extends PerformanceAnalyzerMetrics
             this.rollingAvg = rollingAvg;
             this.fragment = fragment;
         }
+        // Getters and Setters
+        public long getCancellationCount() {
+            return cancellationCount;
+        }
 
-        // Getters
+        public void setCancellationCount(long cancellationCount) {
+            this.cancellationCount = cancellationCount;
+        }
+
+        public long getCurrentMax() {
+            return currentMax;
+        }
+
+        public void setCurrentMax(long currentMax) {
+            this.currentMax = currentMax;
+        }
+
+        public long getCurrentAvg() {
+            return currentAvg;
+        }
+
+        public void setCurrentAvg(long currentAvg) {
+            this.currentAvg = currentAvg;
+        }
+
+        public long getRollingAvg() {
+            return rollingAvg;
+        }
+
+        public void setRollingAvg(long rollingAvg) {
+            this.rollingAvg = rollingAvg;
+        }
+
+        public boolean isFragment() {
+            return fragment;
+        }
+
+        public void setFragment(boolean fragment) {
+            this.fragment = fragment;
+        }
     }
 
     public static class SearchBackPressureMetrics extends MetricStatus {
