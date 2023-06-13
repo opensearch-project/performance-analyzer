@@ -31,6 +31,9 @@ import org.opensearch.performanceanalyzer.commons.metrics.MetricsProcessor;
 import org.opensearch.performanceanalyzer.commons.metrics.PerformanceAnalyzerMetrics;
 import org.opensearch.performanceanalyzer.config.PerformanceAnalyzerController;
 import org.opensearch.search.backpressure.SearchBackpressureService;
+import org.opensearch.search.backpressure.settings.SearchBackpressureMode;
+import org.opensearch.search.backpressure.stats.SearchShardTaskStats;
+import org.opensearch.search.backpressure.stats.SearchTaskStats;
 
 public class SearchBackPressureStatsCollector extends PerformanceAnalyzerMetricsCollector
         implements MetricsProcessor {
@@ -94,18 +97,17 @@ public class SearchBackPressureStatsCollector extends PerformanceAnalyzerMetrics
         try {
             if (getSearchBackPressureStats() == null) currentSearchBackPressureStats = null;
             else {
-                LOG.info("Object from  getSearchBackPressureStats(): " + getSearchBackPressureStats()); 
                 LOG.info(
-                        "Object from  getSearchBackPressureStats(): "
+                        "7. Object from  getSearchBackPressureStats(): "
                                 + ReflectionToStringBuilder.toString(getSearchBackPressureStats()));
 
                 // currentSearchBackPressureStats =
                 //         mapper.readValue(
                 //                 mapper.writeValueAsString(getSearchBackPressureStats()),
                 //                 SearchBackPressureStats.class);
-                // LOG.info(
-                //         "Object from  getSearchBackPressureStats(): "
-                //                 + ReflectionToStringBuilder.toString(getSearchBackPressureStats()));
+                LOG.info(
+                        "8. POJO STRING: "
+                                + mapper.writeValueAsString(getSearchBackPressureStats()));
                 // LOG.info(
                 //         "the SearchBackPressure stats is NOT NULL: "
                 //                 + currentSearchBackPressureStats.toString());
@@ -114,7 +116,8 @@ public class SearchBackPressureStatsCollector extends PerformanceAnalyzerMetrics
                 | IllegalAccessException
                 | NoSuchMethodException
                 | NoSuchFieldException
-                | ClassNotFoundException ex) {
+                | ClassNotFoundException
+                | JsonProcessingException ex) {
             LOG.warn(
                     "No method found to get Search BackPressure Stats. "
                             + "Skipping SearchBackPressureStatsCollector. Error: "
@@ -220,6 +223,20 @@ public class SearchBackPressureStatsCollector extends PerformanceAnalyzerMetrics
     }
 
     public static class SearchBackPressureStats {
+        private SearchShardTaskStats searchShardTaskStats;
+        private SearchBackpressureMode mode;
+        private SearchTaskStats searchTaskStats;
+
+        @VisibleForTesting
+        public SearchBackPressureStats(
+                SearchShardTaskStats searchShardTaskStats,
+                SearchBackpressureMode mode,
+                SearchTaskStats searchTaskStats) {
+            this.searchShardTaskStats = searchShardTaskStats;
+            this.mode = mode;
+            this.searchTaskStats = searchTaskStats;
+        }
+
         public SearchBackPressureStats() {}
     }
 
