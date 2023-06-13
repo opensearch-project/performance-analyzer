@@ -9,6 +9,7 @@ import static org.opensearch.performanceanalyzer.commons.stats.metrics.StatExcep
 import static org.opensearch.performanceanalyzer.commons.stats.metrics.StatMetrics.CLUSTER_APPLIER_SERVICE_STATS_COLLECTOR_EXECUTION_TIME;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.PropertyAccessor;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -18,6 +19,7 @@ import com.google.common.annotations.VisibleForTesting;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.Map;
 import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -31,7 +33,6 @@ import org.opensearch.performanceanalyzer.commons.metrics.MetricsProcessor;
 import org.opensearch.performanceanalyzer.commons.metrics.PerformanceAnalyzerMetrics;
 import org.opensearch.performanceanalyzer.config.PerformanceAnalyzerController;
 import org.opensearch.search.backpressure.SearchBackpressureService;
-import org.opensearch.search.backpressure.settings.SearchBackpressureMode;
 import org.opensearch.search.backpressure.stats.SearchShardTaskStats;
 import org.opensearch.search.backpressure.stats.SearchTaskStats;
 
@@ -100,17 +101,15 @@ public class SearchBackPressureStatsCollector extends PerformanceAnalyzerMetrics
                 LOG.info(
                         "7. Object from  getSearchBackPressureStats(): "
                                 + ReflectionToStringBuilder.toString(getSearchBackPressureStats()));
-
-                // currentSearchBackPressureStats =
-                //         mapper.readValue(
-                //                 mapper.writeValueAsString(getSearchBackPressureStats()),
-                //                 SearchBackPressureStats.class);
+                String jsonString = mapper.writeValueAsString(getSearchBackPressureStats());
+                LOG.info("8. POJO STRING: " + jsonString);
+                currentSearchBackPressureStats =
+                        mapper.readValue(jsonString, SearchBackPressureStats.class);
                 LOG.info(
-                        "8. POJO STRING: "
-                                + mapper.writeValueAsString(getSearchBackPressureStats()));
-                // LOG.info(
-                //         "the SearchBackPressure stats is NOT NULL: "
-                //                 + currentSearchBackPressureStats.toString());
+                        "9. Deserialized SearchBackPressure stats (Mode): "
+                                + currentSearchBackPressureStats.getMode()
+                                + "| All Stats: "
+                                + mapper.writeValueAsString(currentSearchBackPressureStats));
             }
         } catch (InvocationTargetException
                 | IllegalAccessException
@@ -118,6 +117,7 @@ public class SearchBackPressureStatsCollector extends PerformanceAnalyzerMetrics
                 | NoSuchFieldException
                 | ClassNotFoundException
                 | JsonProcessingException ex) {
+            ex.printStackTrace();
             LOG.warn(
                     "No method found to get Search BackPressure Stats. "
                             + "Skipping SearchBackPressureStatsCollector. Error: "
@@ -125,11 +125,8 @@ public class SearchBackPressureStatsCollector extends PerformanceAnalyzerMetrics
             return;
         }
 
-        SearchBackPressureMetrics searchBackPressureMetrics = new SearchBackPressureMetrics(2.0);
-        LOG.info(
-                "searchbackpressure test count "
-                        + Double.toString(
-                                searchBackPressureMetrics.getSearchBackPressureStatsTest()));
+        SearchBackPressureMetrics searchBackPressureMetrics =
+                new SearchBackPressureMetrics(currentSearchBackPressureStats.getMode());
 
         value.setLength(0);
         if (currentSearchBackPressureStats == null)
@@ -224,28 +221,95 @@ public class SearchBackPressureStatsCollector extends PerformanceAnalyzerMetrics
 
     public static class SearchBackPressureStats {
         private SearchShardTaskStats searchShardTaskStats;
-        private SearchBackpressureMode mode;
+        private String mode;
         private SearchTaskStats searchTaskStats;
 
         @VisibleForTesting
+        @JsonCreator
         public SearchBackPressureStats(
-                SearchShardTaskStats searchShardTaskStats,
-                SearchBackpressureMode mode,
-                SearchTaskStats searchTaskStats) {
+                @JsonProperty("searchShardTaskStats") SearchShardTaskStats searchShardTaskStats,
+                @JsonProperty("mode") String mode,
+                @JsonProperty("searchTaskStats") SearchTaskStats searchTaskStats) {
             this.searchShardTaskStats = searchShardTaskStats;
             this.mode = mode;
             this.searchTaskStats = searchTaskStats;
         }
 
         public SearchBackPressureStats() {}
+
+        // Getters and setters
+        public String getMode() {
+            return mode;
+        }
+    }
+
+    public static class SearchShardTaskStats {
+        private long cancellationCount;
+        private long limitReachedCount;
+        private Map<String, ResourceUsageTrackerStats> resourceUsageTrackerStats;
+
+        @JsonCreator
+        public SearchShardTaskStats(
+                @JsonProperty("cancellationCount") long cancellationCount,
+                @JsonProperty("limitReachedCount") long limitReachedCount,
+                @JsonProperty("resourceUsageTrackerStats")
+                        Map<String, ResourceUsageTrackerStats> resourceUsageTrackerStats) {
+            this.cancellationCount = cancellationCount;
+            this.limitReachedCount = limitReachedCount;
+            this.resourceUsageTrackerStats = resourceUsageTrackerStats;
+        }
+        // Getters
+    }
+
+    public static class SearchTaskStats {
+        private long cancellationCount;
+        private long limitReachedCount;
+        private Map<String, ResourceUsageTrackerStats> resourceUsageTrackerStats;
+
+        @JsonCreator
+        public SearchTaskStats(
+                @JsonProperty("cancellationCount") long cancellationCount,
+                @JsonProperty("limitReachedCount") long limitReachedCount,
+                @JsonProperty("resourceUsageTrackerStats")
+                        Map<String, ResourceUsageTrackerStats> resourceUsageTrackerStats) {
+            this.cancellationCount = cancellationCount;
+            this.limitReachedCount = limitReachedCount;
+            this.resourceUsageTrackerStats = resourceUsageTrackerStats;
+        }
+        // Getters
+    }
+
+    public static class ResourceUsageTrackerStats {
+        private long cancellationCount;
+        private long currentMax;
+        private long currentAvg;
+        private long rollingAvg;
+        private boolean fragment;
+
+        @JsonCreator
+        public ResourceUsageTrackerStats(
+                @JsonProperty("cancellationCount") long cancellationCount,
+                @JsonProperty("currentMax") long currentMax,
+                @JsonProperty("currentAvg") long currentAvg,
+                @JsonProperty("rollingAvg") long rollingAvg,
+                @JsonProperty("fragment") boolean fragment) {
+            this.cancellationCount = cancellationCount;
+            this.currentMax = currentMax;
+            this.currentAvg = currentAvg;
+            this.rollingAvg = rollingAvg;
+            this.fragment = fragment;
+        }
+
+        // Getters
     }
 
     public static class SearchBackPressureMetrics extends MetricStatus {
-        private double searchBackPressureStatsTest;
+        // private double searchBackPressureStatsTest;
+        private String mode;
         // private double clusterStateAppliedFailedCount;
         // private double clusterStateAppliedTimeInMillis;
-        public SearchBackPressureMetrics(double searchBackPressureStats_Test) {
-            this.searchBackPressureStatsTest = searchBackPressureStats_Test;
+        public SearchBackPressureMetrics(String mode) {
+            this.mode = mode;
         }
         // JSON Property maps to the field in ?metrics=DESIRED_PROPERTY_NAME to be searched by user
         // @JsonProperty(
@@ -254,9 +318,14 @@ public class SearchBackPressureStatsCollector extends PerformanceAnalyzerMetrics
         // public double getClusterApplierServiceLatency() {
         //     return clusterStateAppliedTimeInMillis;
         // }
-        @JsonProperty("SearchBackPressureStats_Test")
-        public double getSearchBackPressureStatsTest() {
-            return searchBackPressureStatsTest;
+        // @JsonProperty("SearchBackPressureStats_Test")
+        // public double getSearchBackPressureStatsTest() {
+        //     return searchBackPressureStatsTest;
+        // }
+
+        @JsonProperty("SearchBackPressureStats_Mode")
+        public String getMode() {
+            return mode;
         }
     }
 }
