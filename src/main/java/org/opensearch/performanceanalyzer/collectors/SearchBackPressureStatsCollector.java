@@ -23,6 +23,7 @@ import java.util.Map;
 import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.opensearch.env.NodeEnvironment;
 import org.opensearch.node.Node;
 import org.opensearch.node.NodeService;
 import org.opensearch.performanceanalyzer.commons.collectors.MetricStatus;
@@ -43,7 +44,7 @@ public class SearchBackPressureStatsCollector extends PerformanceAnalyzerMetrics
     public static final int SAMPLING_TIME_INTERVAL =
             MetricsConfiguration.CONFIG_MAP.get(SearchBackPressureStatsCollector.class)
                     .samplingInterval;
-    private static final int KEYS_PATH_LENGTH = 0;
+    private static final int KEYS_PATH_LENGTH = 3;
     private static final Logger LOG = LogManager.getLogger(SearchBackPressureStatsCollector.class);
     private static final ObjectMapper mapper;
 
@@ -52,6 +53,7 @@ public class SearchBackPressureStatsCollector extends PerformanceAnalyzerMetrics
     public static final String BOOTSTRAP_INSTANCE_FIELD_NAME = "INSTANCE";
     public static final String BOOTSTRAP_NODE_FIELD_NAME = "node";
     public static final String NODE_SERVICE_FIELD_NAME = "nodeService";
+    private String nodeId;
 
     // Specify the method name to query for SearchBackPressure Stats
     private static final String GET_SEARCH_BACK_PRESSURE_STATS_METHOD_NAME =
@@ -86,6 +88,15 @@ public class SearchBackPressureStatsCollector extends PerformanceAnalyzerMetrics
         // Log that the collecotr is spinning up
         LOG.info("SearchBackPressureStatsCollector is started");
     }
+
+    public void setNodeId(String nodeId) {
+        this.nodeId = nodeId;
+    }
+
+    public String getNodeId() {
+        return this.nodeId;
+    }
+
     // Override the collectMetrics method to return the Metrics as a String
     @Override
     public void collectMetrics(long startTime) {
@@ -147,14 +158,14 @@ public class SearchBackPressureStatsCollector extends PerformanceAnalyzerMetrics
         LOG.info("searchBackPressureMetrics.serialize(): " + searchBackPressureMetrics.serialize());
 
         // Append system current time (required for standardized metrics)
-        value.append(PerformanceAnalyzerMetrics.getJsonCurrentMilliSeconds())
+        value.append(PerformanceAnalyzerMetrics.getCurrentTimeMetric())
                 .append(PerformanceAnalyzerMetrics.sMetricNewLineDelimitor);
         value.append(searchBackPressureMetrics.serialize());
 
         // print out the value by LOG
         LOG.info("value is: " + value.toString());
 
-        saveMetricValues(value.toString(), startTime);
+        saveMetricValues(value.toString(), startTime, "nodes", getNodeId(), "search_back_pressure");
         // update the previous stats
         // SearchBackPressureStatsCollector.prevSearchBackPressureStats =
         //         currentSearchBackPressureStats;
@@ -196,6 +207,14 @@ public class SearchBackPressureStatsCollector extends PerformanceAnalyzerMetrics
                                 .get(bootStrapSInstance);
 
         LOG.info("3.Node instance from BootStrap Instance created!");
+        NodeEnvironment nodeEnvironment = node.getNodeEnvironment();
+        // if nodeEnvironment is null, then cannot access the node id
+        if (nodeEnvironment == null) {
+            LOG.info("Node Environment is null");
+        } else {
+            LOG.info("Node ID is: " + nodeEnvironment.nodeId());
+            setNodeId(nodeEnvironment.nodeId());
+        }
 
         // Get the NodeService instance from the Node instance
         NodeService nodeService =
@@ -218,7 +237,8 @@ public class SearchBackPressureStatsCollector extends PerformanceAnalyzerMetrics
         if (keysPath.length != KEYS_PATH_LENGTH) {
             throw new RuntimeException("keys length should be " + KEYS_PATH_LENGTH);
         }
-        return PerformanceAnalyzerMetrics.generatePath(startTime, "search_back_pressure");
+        return PerformanceAnalyzerMetrics.generatePath(
+                startTime, keysPath[0], keysPath[1], keysPath[2]);
     }
 
     public static class SearchBackPressureStats {
