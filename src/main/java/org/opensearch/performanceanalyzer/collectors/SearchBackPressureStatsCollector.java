@@ -44,7 +44,7 @@ public class SearchBackPressureStatsCollector extends PerformanceAnalyzerMetrics
     public static final int SAMPLING_TIME_INTERVAL =
             MetricsConfiguration.CONFIG_MAP.get(SearchBackPressureStatsCollector.class)
                     .samplingInterval;
-    private static final int KEYS_PATH_LENGTH = 3;
+    private static final int KEYS_PATH_LENGTH = 0;
     private static final Logger LOG = LogManager.getLogger(SearchBackPressureStatsCollector.class);
     private static final ObjectMapper mapper;
 
@@ -144,7 +144,8 @@ public class SearchBackPressureStatsCollector extends PerformanceAnalyzerMetrics
         }
 
         SearchBackPressureMetrics searchBackPressureMetrics =
-                new SearchBackPressureMetrics(currentSearchBackPressureStats.getMode());
+                new SearchBackPressureMetrics(
+                        currentSearchBackPressureStats.getMode(), getNodeId());
 
         value.setLength(0);
         if (currentSearchBackPressureStats == null)
@@ -165,7 +166,7 @@ public class SearchBackPressureStatsCollector extends PerformanceAnalyzerMetrics
         // print out the value by LOG
         LOG.info("value is: " + value.toString());
 
-        saveMetricValues(value.toString(), startTime, "nodes", getNodeId(), "search_back_pressure");
+        saveMetricValues(value.toString(), startTime);
         // update the previous stats
         // SearchBackPressureStatsCollector.prevSearchBackPressureStats =
         //         currentSearchBackPressureStats;
@@ -237,8 +238,7 @@ public class SearchBackPressureStatsCollector extends PerformanceAnalyzerMetrics
         if (keysPath.length != KEYS_PATH_LENGTH) {
             throw new RuntimeException("keys length should be " + KEYS_PATH_LENGTH);
         }
-        return PerformanceAnalyzerMetrics.generatePath(
-                startTime, keysPath[0], keysPath[1], keysPath[2]);
+        return PerformanceAnalyzerMetrics.generatePath(startTime, "search_back_pressure");
     }
 
     public static class SearchBackPressureStats {
@@ -436,10 +436,12 @@ public class SearchBackPressureStatsCollector extends PerformanceAnalyzerMetrics
     public static class SearchBackPressureMetrics extends MetricStatus {
         // private double searchBackPressureStatsTest;
         private String mode;
+        private String nodeId;
         // private double clusterStateAppliedFailedCount;
         // private double clusterStateAppliedTimeInMillis;
-        public SearchBackPressureMetrics(String mode) {
+        public SearchBackPressureMetrics(String mode, String nodeId) {
             this.mode = mode;
+            this.nodeId = nodeId;
         }
         // JSON Property maps to the field in ?metrics=DESIRED_PROPERTY_NAME to be searched by user
         // @JsonProperty(
@@ -454,8 +456,13 @@ public class SearchBackPressureStatsCollector extends PerformanceAnalyzerMetrics
         // }
 
         @JsonProperty("SearchBackPressureStats_Mode")
-        public String getMode() {
-            return mode;
+        public String getSearchBackPressureStats_Mode() {
+            return this.mode;
+        }
+
+        @JsonProperty("SearchBackPressureStats_NodeId")
+        public String getSearchBackPressureStats_NodeId() {
+            return this.nodeId;
         }
     }
 }

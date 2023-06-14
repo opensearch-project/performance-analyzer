@@ -15,7 +15,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
@@ -61,12 +60,7 @@ public class SearchBackPressureStatsCollectorTests {
                         controller.isCollectorEnabled(
                                 configOverrides, "SearchBackPressureStatsCollector"))
                 .thenReturn(true);
-        searchBackPressureStatsCollector.saveMetricValues(
-                "search_back_pressure",
-                startTimeInMills,
-                "nodes",
-                "gYoAlFK3Ts2IkOsN9sWxow",
-                "search_back_pressure");
+        searchBackPressureStatsCollector.saveMetricValues("search_back_pressure", startTimeInMills);
         List<Event> metrics = new ArrayList<>();
         PerformanceAnalyzerMetrics.metricQueue.drainTo(metrics);
 
@@ -106,7 +100,6 @@ public class SearchBackPressureStatsCollectorTests {
     * Test SearchShardTaskStats
     */
     @Test
-    @Ignore
     public void testSearchBackPressureStats_collectMetrics()
             throws NoSuchMethodException, IllegalAccessException, InvocationTargetException,
                     JsonProcessingException, NoSuchFieldException, ClassNotFoundException {
@@ -119,10 +112,7 @@ public class SearchBackPressureStatsCollectorTests {
         // Mock the behavior of the getSearchBackPressureStats()
         Mockito.doReturn(
                         new SearchBackPressureStatsCollector.SearchBackPressureStats(
-                                new SearchBackPressureStatsCollector.SearchShardTaskStats(
-                                        1, 0, null),
-                                "MONITOR_ONLY",
-                                new SearchBackPressureStatsCollector.SearchTaskStats(1, 1, null)))
+                                null, "MONITOR_ONLY", null))
                 .when(spyCollector)
                 .getSearchBackPressureStats();
 
