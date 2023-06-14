@@ -105,18 +105,18 @@ public class SearchBackPressureStatsCollector extends PerformanceAnalyzerMetrics
                 LOG.info("8. POJO STRING: " + jsonString);
                 currentSearchBackPressureStats =
                         mapper.readValue(jsonString, SearchBackPressureStats.class);
-                LOG.info(
-                        "9. Deserialized SearchBackPressure stats (Mode): "
-                                + currentSearchBackPressureStats.getMode()
-                                + " | cuurentMax of Shard Task: "
-                                + String.valueOf(
-                                        currentSearchBackPressureStats
-                                                .getSearchShardTaskStats()
-                                                .getResourceUsageTrackerStats()
-                                                .get("HEAP_USAGE_TRACKER")
-                                                .getCurrentMax())
-                                + "| All Stats: "
-                                + mapper.writeValueAsString(currentSearchBackPressureStats));
+                // LOG.info(
+                //         "9. Deserialized SearchBackPressure stats (Mode): "
+                //                 + currentSearchBackPressureStats.getMode()
+                //                 + " | cuurentMax of Shard Task: "
+                //                 + String.valueOf(
+                //                         currentSearchBackPressureStats
+                //                                 .getSearchShardTaskStats()
+                //                                 .getResourceUsageTrackerStats()
+                //                                 .get("HEAP_USAGE_TRACKER")
+                //                                 .getCurrentMax())
+                //                 + "| All Stats: "
+                //                 + mapper.writeValueAsString(currentSearchBackPressureStats));
             }
         } catch (InvocationTargetException
                 | IllegalAccessException
@@ -212,7 +212,7 @@ public class SearchBackPressureStatsCollector extends PerformanceAnalyzerMetrics
         return method.invoke(nodeService.getSearchBackpressureService());
         // return null;
     }
-    
+
     @Override
     public String getMetricsPath(long startTime, String... keysPath) {
         if (keysPath.length != KEYS_PATH_LENGTH) {
