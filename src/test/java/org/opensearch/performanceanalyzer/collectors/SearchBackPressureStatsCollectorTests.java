@@ -33,6 +33,8 @@ public class SearchBackPressureStatsCollectorTests {
     private PerformanceAnalyzerController controller;
     private ConfigOverridesWrapper configOverrides;
     private SearchBackPressureStatsCollector searchBackPressureStatsCollector;
+
+    // Required fields needed for search back pressure stats
     private List<String> required_fields_for_searchBackPressureStats =
             Arrays.asList(
                     "searchbp_shard_stats_cancellationCount",
@@ -60,15 +62,13 @@ public class SearchBackPressureStatsCollectorTests {
                     "searchbp_mode",
                     "searchbp_nodeid");
 
-    // Mock Object for
     SearchBackPressureStatsCollector.ResourceUsageTrackerStats HEAP_USAGE_TRACKER_MOCK_STATS;
     SearchBackPressureStatsCollector.ResourceUsageTrackerStats CPU_USAGE_TRACKER_MOCK_STATS;
     SearchBackPressureStatsCollector.ResourceUsageTrackerStats ELAPSED_TIME_TRACKER_MOCK_STATS;
 
     /*
-     *  Sets the Metrics Configuration to the desired internval
-     *  Set the log property to be false
-     *  Set the controller to be a mocked PerforamcneAnalyzerController.clas
+     *  Set the LOG property to be false
+     *  Set the controller to be a mocked PerforamcneAnalyzerController.class
      *  Set the configWrapper to be a mocked ConfigOverridesWrapper
      *  Set the Collector to be a SearchBackPressureServiceCollector
      *  Set the ObjectMapper to be a new ObjectMapper() instance
@@ -114,36 +114,17 @@ public class SearchBackPressureStatsCollectorTests {
             // - expecting exception...1 values passed; 0 expected
             // since keyPath does not match
         }
-
-        System.out.println("SearchBackPressureStatsCollector_saveMetricValues Test Finished");
     }
 
     /*
-     * For the testSearchBackPressureStats_saveMetricsValue
-     * similar to ClusterApplierService
+     * testSearchBackPressureStats_collectMetrics() test collectoMetrics()
+     * Mock the behavior getSearchBackPressureStats() to return a mock SearchBackPressureStats Instance
      */
-
-    /*
-    * For the testSearchBackPressureStats_collectMetrics Test
-    * Open the collectoMetrics() for testing
-    * mock the behavior getSearchBackPressureStats() to return a mock object
-    * Because we cannot use Reflection for testing and there is no public API
-    * Similar to json String
-    * test collect metrics
-    * verify
-    * assertEquals(
-             "MONITOR_ONLY",
-             map.get("SearchBackPressureStats_Mode"));
-    * And other metrics values
-    * Test SearchTaskStats
-    * Test SearchShardTaskStats
-    */
     @Test
     public void testSearchBackPressureStats_collectMetrics()
             throws NoSuchMethodException, IllegalAccessException, InvocationTargetException,
                     JsonProcessingException, NoSuchFieldException, ClassNotFoundException {
         String SEARCH_BACK_PRESSURE_MODE_FIELD_NAME = "searchbp_mode";
-        System.out.println("SearchBackPressureStatsCollector_collectMetrics Test Started");
         SearchBackPressureStatsCollector spyCollector =
                 Mockito.spy(searchBackPressureStatsCollector);
 
@@ -154,8 +135,6 @@ public class SearchBackPressureStatsCollectorTests {
                                 Map.entry("CPU_USAGE_TRACKER", CPU_USAGE_TRACKER_MOCK_STATS),
                                 Map.entry("ELAPSED_TIME_TRACKER", ELAPSED_TIME_TRACKER_MOCK_STATS));
 
-        // Create an mock object for testing
-        // Mock the behavior of the getSearchBackPressureStats()
         Mockito.doReturn(
                         new SearchBackPressureStatsCollector.SearchBackPressureStats(
                                 new SearchBackPressureStatsCollector.SearchShardTaskStats(
@@ -166,7 +145,6 @@ public class SearchBackPressureStatsCollectorTests {
                 .when(spyCollector)
                 .getSearchBackPressureStats();
 
-        // Mock the behavior of the clusterApplierService for enabled
         Mockito.when(
                         controller.isCollectorEnabled(
                                 configOverrides,
@@ -178,19 +156,14 @@ public class SearchBackPressureStatsCollectorTests {
         PerformanceAnalyzerMetrics.metricQueue.drainTo(metrics);
 
         assertEquals(1, metrics.size());
-        // line 0 should be the header: search_back_pressure
 
         String[] lines = metrics.get(0).value.split(System.lineSeparator());
         Map<String, String> map = mapper.readValue(lines[1], Map.class);
-        // assertEquals("MONITOR_ONLY", map.get(SEARCH_BACK_PRESSURE_MODE_FIELD_NAME));
 
         // Verify requried fields are presented in the metrics
         String jsonStr = lines[1];
-        System.out.println("JSON STRING: " + jsonStr);
         for (String required_field : required_fields_for_searchBackPressureStats) {
             assertTrue(jsonStr.contains(required_field));
         }
-
-        assertTrue(jsonStr.contains("dummy_field"));
     }
 }

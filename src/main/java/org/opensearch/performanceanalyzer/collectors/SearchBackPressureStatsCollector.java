@@ -20,7 +20,6 @@ import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Map;
-import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.opensearch.env.NodeEnvironment;
@@ -39,8 +38,7 @@ import org.opensearch.search.backpressure.stats.SearchTaskStats;
 
 public class SearchBackPressureStatsCollector extends PerformanceAnalyzerMetricsCollector
         implements MetricsProcessor {
-    // SAMPLING Interval to collect search back pressure stats (Add the Collector to the Config Map)
-    // Read only (what does the class return)
+    // SAMPLING TIME INTERVAL to collect search back pressure stats
     public static final int SAMPLING_TIME_INTERVAL =
             MetricsConfiguration.CONFIG_MAP.get(SearchBackPressureStatsCollector.class)
                     .samplingInterval;
@@ -58,13 +56,9 @@ public class SearchBackPressureStatsCollector extends PerformanceAnalyzerMetrics
     public static final String CPU_USAGE_TRACKER_FIELD_NAME = "CPU_USAGE_TRACKER";
     public static final String ELAPSED_TIME_USAGE_TRACKER_FIELD_NAME = "ELAPSED_TIME_TRACKER";
 
+    // Headline for search back pressure metrics
+    public static final String PATH_TO_STORE_METRICS = "search_back_pressure";
     private String nodeId;
-
-    // Specify the method name to query for SearchBackPressure Stats
-    private static final String GET_SEARCH_BACK_PRESSURE_STATS_METHOD_NAME =
-            "getSearchBackPressureStats";
-    private static volatile SearchBackPressureStats prevSearchBackPressureStats =
-            new SearchBackPressureStats();
 
     // Metrics to be collected as a String and written in a JSON String
     private final StringBuilder value;
@@ -89,9 +83,6 @@ public class SearchBackPressureStatsCollector extends PerformanceAnalyzerMetrics
         this.controller = controller;
         this.configOverridesWrapper = configOverridesWrapper;
         this.value = new StringBuilder();
-
-        // Log that the collecotr is spinning up
-        LOG.info("SearchBackPressureStatsCollector is started");
     }
 
     private void setNodeId(String nodeId) {
@@ -102,38 +93,19 @@ public class SearchBackPressureStatsCollector extends PerformanceAnalyzerMetrics
         return this.nodeId;
     }
 
-    // Override the collectMetrics method to return the Metrics as a String
     @Override
     public void collectMetrics(long startTime) {
-        //  if (!controller.isCollectorEnabled(configOverridesWrapper, getCollectorName())) {
+        // if (!controller.isCollectorEnabled(configOverridesWrapper, getCollectorName())) {
         //     return;
-        //  }
-        LOG.info("CollectMetrics of SearchBackPressure is started");
+        // }
 
         SearchBackPressureStats currentSearchBackPressureStats = null;
         try {
-            if (getSearchBackPressureStats() == null) currentSearchBackPressureStats = null;
-            else {
-                LOG.info(
-                        "7. Object from  getSearchBackPressureStats(): "
-                                + ReflectionToStringBuilder.toString(getSearchBackPressureStats()));
-                String jsonString = mapper.writeValueAsString(getSearchBackPressureStats());
-                LOG.info("8. POJO STRING: " + jsonString);
-                currentSearchBackPressureStats =
-                        mapper.readValue(jsonString, SearchBackPressureStats.class);
-                // LOG.info(
-                //         "9. Deserialized SearchBackPressure stats (Mode): "
-                //                 + currentSearchBackPressureStats.getMode()
-                //                 + " | cuurentMax of Shard Task: "
-                //                 + String.valueOf(
-                //                         currentSearchBackPressureStats
-                //                                 .getSearchShardTaskStats()
-                //                                 .getResourceUsageTrackerStats()
-                //                                 .get("HEAP_USAGE_TRACKER")
-                //                                 .getCurrentMax())
-                //                 + "| All Stats: "
-                //                 + mapper.writeValueAsString(currentSearchBackPressureStats));
-            }
+            String jsonString = mapper.writeValueAsString(getSearchBackPressureStats());
+            LOG.info("JSON STRING: " + jsonString);
+            currentSearchBackPressureStats =
+                    mapper.readValue(jsonString, SearchBackPressureStats.class);
+
         } catch (InvocationTargetException
                 | IllegalAccessException
                 | NoSuchMethodException
@@ -252,31 +224,13 @@ public class SearchBackPressureStatsCollector extends PerformanceAnalyzerMetrics
                                 .getCurrentAvg());
 
         value.setLength(0);
-        if (currentSearchBackPressureStats == null)
-            LOG.info("currentSearchBackPressureStats is null");
-        else
-            LOG.info(
-                    "currentSearchBackPressureStats is"
-                            + currentSearchBackPressureStats.toString());
-        if (searchBackPressureMetrics == null) LOG.info("searchBackPressureMetrics is null");
-        else LOG.info("searchBackPressureMetrics is" + searchBackPressureMetrics.toString());
-        LOG.info("searchBackPressureMetrics.serialize(): " + searchBackPressureMetrics.serialize());
-
-        // Append system current time (required for standardized metrics)
+        // Append system current time and line seperator
         value.append(PerformanceAnalyzerMetrics.getCurrentTimeMetric())
                 .append(PerformanceAnalyzerMetrics.sMetricNewLineDelimitor);
         value.append(searchBackPressureMetrics.serialize());
-
-        // print out the value by LOG
-        LOG.info("value is: " + value.toString());
-
         saveMetricValues(value.toString(), startTime);
-        // update the previous stats
-        // SearchBackPressureStatsCollector.prevSearchBackPressureStats =
-        //         currentSearchBackPressureStats;
     }
 
-    // getField to use reflection to get private fields (Node node) in BootStrap
     Field getField(String className, String fieldName)
             throws NoSuchFieldException, ClassNotFoundException {
 
@@ -289,52 +243,31 @@ public class SearchBackPressureStatsCollector extends PerformanceAnalyzerMetrics
     }
 
     @VisibleForTesting
-    public void resetPrevSearchBackPressureStats() {
-        SearchBackPressureStatsCollector.prevSearchBackPressureStats =
-                new SearchBackPressureStats();
-    }
-
-    @VisibleForTesting
     public Object getSearchBackPressureStats()
             throws InvocationTargetException, IllegalAccessException, NoSuchMethodException,
                     NoSuchFieldException, NoSuchFieldError, ClassNotFoundException {
 
-        LOG.info("1.getSearchBackPressureStats() start");
         // Get the static instance of Bootstrap
         Object bootStrapSInstance =
                 getField(BOOTSTRAP_CLASS_NAME, BOOTSTRAP_INSTANCE_FIELD_NAME).get(null);
 
-        LOG.info("2.bootStrapSInstance created:" + bootStrapSInstance.toString());
         // Get the Node instance from the Bootstrap instance
         Node node =
                 (Node)
                         getField(BOOTSTRAP_CLASS_NAME, BOOTSTRAP_NODE_FIELD_NAME)
                                 .get(bootStrapSInstance);
 
-        LOG.info("3.Node instance from BootStrap Instance created!");
         NodeEnvironment nodeEnvironment = node.getNodeEnvironment();
-        // if nodeEnvironment is null, then cannot access the node id
-        if (nodeEnvironment == null) {
-            LOG.info("Node Environment is null");
-        } else {
-            LOG.info("Node ID is: " + nodeEnvironment.nodeId());
-            setNodeId(nodeEnvironment.nodeId());
-        }
+        setNodeId(nodeEnvironment.nodeId());
 
         // Get the NodeService instance from the Node instance
         NodeService nodeService =
                 (NodeService) getField(NODE_CLASS_NAME, NODE_SERVICE_FIELD_NAME).get(node);
 
-        LOG.info("4.nodeService created!");
-
         String GET_STATS_METHOD_NAME = "nodeStats";
         Method method = SearchBackpressureService.class.getMethod(GET_STATS_METHOD_NAME);
-        LOG.info("5.NodeService toString(): " + nodeService.toString());
 
-        // create an instance of nodeService
-        // and use the nodeservice to  getSearchBackpressureService()
         return method.invoke(nodeService.getSearchBackpressureService());
-        // return null;
     }
 
     @Override
@@ -342,7 +275,7 @@ public class SearchBackPressureStatsCollector extends PerformanceAnalyzerMetrics
         if (keysPath.length != KEYS_PATH_LENGTH) {
             throw new RuntimeException("keys length should be " + KEYS_PATH_LENGTH);
         }
-        return PerformanceAnalyzerMetrics.generatePath(startTime, "search_back_pressure");
+        return PerformanceAnalyzerMetrics.generatePath(startTime, PATH_TO_STORE_METRICS);
     }
 
     public static class SearchBackPressureStats {
@@ -537,6 +470,7 @@ public class SearchBackPressureStatsCollector extends PerformanceAnalyzerMetrics
         }
     }
 
+    // Flatten the data fields for easier access
     public static class SearchBackPressureMetrics extends MetricStatus {
         // private double searchBackPressureStatsTest;
         private String mode;
