@@ -228,7 +228,6 @@ public final class PerformanceAnalyzerPlugin extends Plugin
         scheduledMetricCollectorsExecutor.addScheduledMetricCollector(
                 new SearchBackPressureStatsCollector(
                         performanceAnalyzerController, configOverridesWrapper));
-        LOG.info("Starting SearchBackPressureStatsCollector");
 
         scheduledMetricCollectorsExecutor.addScheduledMetricCollector(
                 new AdmissionControlMetricsCollector());
