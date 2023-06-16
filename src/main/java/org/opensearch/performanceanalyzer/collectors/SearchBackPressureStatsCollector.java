@@ -125,7 +125,7 @@ public class SearchBackPressureStatsCollector extends PerformanceAnalyzerMetrics
 
         value.setLength(0);
         // Append system current time and line seperator
-        value.append(PerformanceAnalyzerMetrics.getCurrentTimeMetric())
+        value.append(PerformanceAnalyzerMetrics.getJsonCurrentMilliSeconds())
                 .append(PerformanceAnalyzerMetrics.sMetricNewLineDelimitor);
         value.append(searchBackPressureMetrics.serialize());
         saveMetricValues(value.toString(), startTime);
