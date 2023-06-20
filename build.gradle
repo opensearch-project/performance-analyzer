@@ -33,7 +33,7 @@ plugins {
 }
 
 checkstyle {
-    toolVersion = '9.3'
+    toolVersion = '8.45.1'
     configFile file("checkstyle/checkstyle.xml")
 }
 
