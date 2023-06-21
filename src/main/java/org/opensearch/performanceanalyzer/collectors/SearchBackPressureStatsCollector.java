@@ -423,8 +423,6 @@ public class SearchBackPressureStatsCollector extends PerformanceAnalyzerMetrics
     public static class SearchBackPressureMetrics extends MetricStatus {
         private SearchShardTaskStats searchShardTaskStats;
         private SearchTaskStats searchTaskStats;
-
-        // private double searchBackPressureStatsTest;
         private String mode;
         private String nodeId;
 
@@ -482,105 +480,81 @@ public class SearchBackPressureStatsCollector extends PerformanceAnalyzerMetrics
         }
 
         public void populate_shard_task_stats(SearchShardTaskStats searchShardTaskStats) {
+            // Create shard HEAP/CPU/TIME Stats ResourceUsageTrackerStats for simplification
+            ResourceUsageTrackerStats shard_heap_stats =
+                    searchShardTaskStats
+                            .getResourceUsageTrackerStats()
+                            .get(HEAP_USAGE_TRACKER_FIELD_NAME);
+
+            ResourceUsageTrackerStats shard_cpu_stats =
+                    searchShardTaskStats
+                            .getResourceUsageTrackerStats()
+                            .get(CPU_USAGE_TRACKER_FIELD_NAME);
+
+            ResourceUsageTrackerStats shard_time_stats =
+                    searchShardTaskStats
+                            .getResourceUsageTrackerStats()
+                            .get(ELAPSED_TIME_USAGE_TRACKER_FIELD_NAME);
+
             this.searchbp_shard_stats_cancellationCount =
                     searchShardTaskStats.getCancellationCount();
             this.searchbp_shard_stats_limitReachedCount =
                     searchShardTaskStats.getLimitReachedCount();
             this.searchbp_shard_stats_resource_heap_usage_cancellationCount =
-                    searchShardTaskStats
-                            .getResourceUsageTrackerStats()
-                            .get(HEAP_USAGE_TRACKER_FIELD_NAME)
-                            .getCancellationCount();
+                    shard_heap_stats.getCancellationCount();
             this.searchbp_shard_stats_resource_heap_usage_currentMax =
-                    searchShardTaskStats
-                            .getResourceUsageTrackerStats()
-                            .get(HEAP_USAGE_TRACKER_FIELD_NAME)
-                            .getCurrentMax();
+                    shard_heap_stats.getCurrentMax();
             this.searchbp_shard_stats_resource_heap_usage_rollingAvg =
-                    searchShardTaskStats
-                            .getResourceUsageTrackerStats()
-                            .get(HEAP_USAGE_TRACKER_FIELD_NAME)
-                            .getRollingAvg();
+                    shard_heap_stats.getRollingAvg();
             this.searchbp_shard_stats_resource_cpu_usage_cancellationCount =
-                    searchShardTaskStats
-                            .getResourceUsageTrackerStats()
-                            .get(CPU_USAGE_TRACKER_FIELD_NAME)
-                            .getCancellationCount();
+                    shard_cpu_stats.getCancellationCount();
             this.searchbp_shard_stats_resource_cpu_usage_currentMax =
-                    searchShardTaskStats
-                            .getResourceUsageTrackerStats()
-                            .get(CPU_USAGE_TRACKER_FIELD_NAME)
-                            .getCurrentMax();
+                    shard_cpu_stats.getCurrentMax();
             this.searchbp_shard_stats_resource_cpu_usage_currentAvg =
-                    searchShardTaskStats
-                            .getResourceUsageTrackerStats()
-                            .get(CPU_USAGE_TRACKER_FIELD_NAME)
-                            .getCurrentAvg();
+                    shard_cpu_stats.getCurrentAvg();
             this.searchbp_shard_stats_resource_elaspedtime_usage_cancellationCount =
-                    searchShardTaskStats
-                            .getResourceUsageTrackerStats()
-                            .get(ELAPSED_TIME_USAGE_TRACKER_FIELD_NAME)
-                            .getCancellationCount();
+                    shard_time_stats.getCancellationCount();
             this.searchbp_shard_stats_resource_elaspedtime_usage_currentMax =
-                    searchShardTaskStats
-                            .getResourceUsageTrackerStats()
-                            .get(ELAPSED_TIME_USAGE_TRACKER_FIELD_NAME)
-                            .getCurrentMax();
+                    shard_time_stats.getCurrentMax();
             this.searchbp_shard_stats_resource_elaspedtime_usage_currentAvg =
-                    searchShardTaskStats
-                            .getResourceUsageTrackerStats()
-                            .get(ELAPSED_TIME_USAGE_TRACKER_FIELD_NAME)
-                            .getCurrentAvg();
+                    shard_time_stats.getCurrentAvg();
         }
 
         public void populate_task_stats(SearchTaskStats searchTaskStats) {
+            // Create task HEAP/CPU/TIME Stats ResourceUsageTrackerStats for simplification
+            ResourceUsageTrackerStats task_heap_stats =
+                    searchTaskStats
+                            .getResourceUsageTrackerStats()
+                            .get(HEAP_USAGE_TRACKER_FIELD_NAME);
+
+            ResourceUsageTrackerStats task_cpu_stats =
+                    searchTaskStats
+                            .getResourceUsageTrackerStats()
+                            .get(CPU_USAGE_TRACKER_FIELD_NAME);
+
+            ResourceUsageTrackerStats task_time_stats =
+                    searchTaskStats
+                            .getResourceUsageTrackerStats()
+                            .get(ELAPSED_TIME_USAGE_TRACKER_FIELD_NAME);
+
             this.searchbp_task_stats_cancellationCount = searchTaskStats.getCancellationCount();
             this.searchbp_task_stats_limitReachedCount = searchTaskStats.getLimitReachedCount();
             this.searchbp_task_stats_resource_heap_usage_cancellationCount =
-                    searchTaskStats
-                            .getResourceUsageTrackerStats()
-                            .get(HEAP_USAGE_TRACKER_FIELD_NAME)
-                            .getCancellationCount();
+                    task_heap_stats.getCancellationCount();
             this.searchbp_task_stats_resource_heap_usage_currentMax =
-                    searchTaskStats
-                            .getResourceUsageTrackerStats()
-                            .get(HEAP_USAGE_TRACKER_FIELD_NAME)
-                            .getCurrentMax();
+                    task_heap_stats.getCurrentMax();
             this.searchbp_task_stats_resource_heap_usage_rollingAvg =
-                    searchTaskStats
-                            .getResourceUsageTrackerStats()
-                            .get(HEAP_USAGE_TRACKER_FIELD_NAME)
-                            .getRollingAvg();
+                    task_heap_stats.getRollingAvg();
             this.searchbp_task_stats_resource_cpu_usage_cancellationCount =
-                    searchTaskStats
-                            .getResourceUsageTrackerStats()
-                            .get(CPU_USAGE_TRACKER_FIELD_NAME)
-                            .getCancellationCount();
-            this.searchbp_task_stats_resource_cpu_usage_currentMax =
-                    searchTaskStats
-                            .getResourceUsageTrackerStats()
-                            .get(CPU_USAGE_TRACKER_FIELD_NAME)
-                            .getCurrentMax();
-            this.searchbp_task_stats_resource_cpu_usage_currentAvg =
-                    searchTaskStats
-                            .getResourceUsageTrackerStats()
-                            .get(CPU_USAGE_TRACKER_FIELD_NAME)
-                            .getCurrentAvg();
+                    task_cpu_stats.getCancellationCount();
+            this.searchbp_task_stats_resource_cpu_usage_currentMax = task_cpu_stats.getCurrentMax();
+            this.searchbp_task_stats_resource_cpu_usage_currentAvg = task_cpu_stats.getCurrentAvg();
             this.searchbp_task_stats_resource_elaspedtime_usage_cancellationCount =
-                    searchTaskStats
-                            .getResourceUsageTrackerStats()
-                            .get(ELAPSED_TIME_USAGE_TRACKER_FIELD_NAME)
-                            .getCancellationCount();
+                    task_time_stats.getCancellationCount();
             this.searchbp_task_stats_resource_elaspedtime_usage_currentMax =
-                    searchTaskStats
-                            .getResourceUsageTrackerStats()
-                            .get(ELAPSED_TIME_USAGE_TRACKER_FIELD_NAME)
-                            .getCurrentMax();
+                    task_time_stats.getCurrentMax();
             this.searchbp_task_stats_resource_elaspedtime_usage_currentAvg =
-                    searchTaskStats
-                            .getResourceUsageTrackerStats()
-                            .get(ELAPSED_TIME_USAGE_TRACKER_FIELD_NAME)
-                            .getCurrentAvg();
+                    task_time_stats.getCurrentAvg();
         }
 
         @JsonProperty(SearchBackPressureStatsValue.Constants.SEARCHBP_MODE)
