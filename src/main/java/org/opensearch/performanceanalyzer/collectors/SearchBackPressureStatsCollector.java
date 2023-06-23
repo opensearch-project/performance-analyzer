@@ -72,6 +72,10 @@ public class SearchBackPressureStatsCollector extends PerformanceAnalyzerMetrics
         mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
     }
 
+    /*
+     * SearchBackPressureStatsCollector collects SearchBackPressure Related Stats from org.opensearch.search.backpressure.SearchBackpressureService
+     * Example Stats include the cancellation count of search tasks on shard level or node level
+     */
     public SearchBackPressureStatsCollector(
             PerformanceAnalyzerController controller,
             ConfigOverridesWrapper configOverridesWrapper) {
@@ -87,6 +91,9 @@ public class SearchBackPressureStatsCollector extends PerformanceAnalyzerMetrics
         LOG.info("SearchBackPressureStatsCollector started");
     }
 
+    /*
+     * NodeId is an additional field to be added to the searchbackpressure stats returned from SearchBackpressureService
+     */
     private void setNodeId(String nodeId) {
         this.nodeId = nodeId;
     }
@@ -124,11 +131,17 @@ public class SearchBackPressureStatsCollector extends PerformanceAnalyzerMetrics
                         currentSearchBackPressureStats.getSearchShardTaskStats(),
                         currentSearchBackPressureStats.getSearchTaskStats());
 
+        // clear previous buffered value
         value.setLength(0);
+
         // Append system current time and line seperator
         value.append(PerformanceAnalyzerMetrics.getJsonCurrentMilliSeconds())
                 .append(PerformanceAnalyzerMetrics.sMetricNewLineDelimitor);
+
+        // Append search back pressure metrics
         value.append(searchBackPressureMetrics.serialize());
+
+        // Save metrics into /dev/shm folder
         saveMetricValues(value.toString(), startTime);
     }
 
@@ -179,6 +192,9 @@ public class SearchBackPressureStatsCollector extends PerformanceAnalyzerMetrics
         return PerformanceAnalyzerMetrics.generatePath(startTime, PATH_TO_STORE_METRICS);
     }
 
+    /*
+     * POJO Class to deserialize the stats JSON String from SearchBackPressureService
+     */
     public static class SearchBackPressureStats {
         private SearchShardTaskStats searchShardTaskStats;
         private String mode;
@@ -232,6 +248,9 @@ public class SearchBackPressureStatsCollector extends PerformanceAnalyzerMetrics
         }
     }
 
+    /*
+     * POJO Class to deserialize Shard level Search Task Stats
+     */
     public static class SearchShardTaskStats {
         private long cancellationCount;
         private long limitReachedCount;
@@ -283,6 +302,9 @@ public class SearchBackPressureStatsCollector extends PerformanceAnalyzerMetrics
         }
     }
 
+    /*
+     * POJO Class to deserialize Node level Search Task Stats
+     */
     public static class SearchTaskStats {
         private long cancellationCount;
         private long limitReachedCount;
@@ -411,15 +433,10 @@ public class SearchBackPressureStatsCollector extends PerformanceAnalyzerMetrics
         }
     }
 
-    // SearchBackPressureMetrics()
     /*
-     * SearchBackPressureMetrics(
-     *  SearchTaskStats,
-     *  mode,
-     *  SearchShardTaskStats
-     * )
+     * SearchBackPressureMetrics class to be stored
+     * Flatten the data fields for easier access
      */
-    // Flatten the data fields for easier access
     public static class SearchBackPressureMetrics extends MetricStatus {
         private SearchShardTaskStats searchShardTaskStats;
         private SearchTaskStats searchTaskStats;

@@ -62,15 +62,17 @@ public class SearchBackPressureStatsCollectorTests {
                     "searchbp_mode",
                     "searchbp_nodeid");
 
+    // Mock Instance for HEAP/CPU/ELAPSED_TIME usage
     SearchBackPressureStatsCollector.ResourceUsageTrackerStats HEAP_USAGE_TRACKER_MOCK_STATS;
     SearchBackPressureStatsCollector.ResourceUsageTrackerStats CPU_USAGE_TRACKER_MOCK_STATS;
     SearchBackPressureStatsCollector.ResourceUsageTrackerStats ELAPSED_TIME_TRACKER_MOCK_STATS;
 
     /*
+     *  Required Config to be initialized
      *  Set the LOG property to be false
-     *  Set the controller to be a mocked PerforamcneAnalyzerController.class
-     *  Set the configWrapper to be a mocked ConfigOverridesWrapper
-     *  Set the Collector to be a SearchBackPressureServiceCollector
+     *  Set the controller to be a Mock PerforamcneAnalyzerController.class
+     *  Set the configWrapper to be a Mock ConfigOverridesWrapper
+     *  Set the Collector to be a new SearchBackPressureServiceCollector
      *  Set the ObjectMapper to be a new ObjectMapper() instance
      */
     @Before
@@ -93,6 +95,9 @@ public class SearchBackPressureStatsCollectorTests {
                 new SearchBackPressureStatsCollector.ResourceUsageTrackerStats(0, 0, 0, 0, false);
     }
 
+    /*
+     * testSearchBackPressureStats_collectMetrics() test saveMetricValues() for SearchBackPressureStatsCollector
+     */
     @Test
     public void testSearchBackPressureStats_saveMetricValues() {
         Mockito.when(
@@ -103,9 +108,11 @@ public class SearchBackPressureStatsCollectorTests {
         List<Event> metrics = new ArrayList<>();
         PerformanceAnalyzerMetrics.metricQueue.drainTo(metrics);
 
+        // Valid case testing
         assertEquals(1, metrics.size());
         assertEquals("search_back_pressure", metrics.get(0).value);
 
+        // Exception case testing
         try {
             searchBackPressureStatsCollector.saveMetricValues(
                     "search_back_pressure", startTimeInMills, "dummy");
@@ -117,7 +124,7 @@ public class SearchBackPressureStatsCollectorTests {
     }
 
     /*
-     * testSearchBackPressureStats_collectMetrics() test collectoMetrics()
+     * testSearchBackPressureStats_collectMetrics() test collectoMetrics() for SearchBackPressureStatsCollector
      * Mock the behavior getSearchBackPressureStats() to return a mock SearchBackPressureStats Instance
      */
     @Test
@@ -160,7 +167,7 @@ public class SearchBackPressureStatsCollectorTests {
         String[] lines = metrics.get(0).value.split(System.lineSeparator());
         Map<String, String> map = mapper.readValue(lines[1], Map.class);
 
-        // Verify requried fields are presented in the metrics
+        // Verify requried fields are all presented in the metrics
         String jsonStr = lines[1];
         for (String required_field : required_fields_for_searchBackPressureStats) {
             assertTrue(jsonStr.contains(required_field));
