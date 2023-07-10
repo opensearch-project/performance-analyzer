@@ -58,7 +58,7 @@ plugins {
 }
 
 checkstyle {
-    toolVersion = '10.3.3'
+    toolVersion = '10.12.1'
     configFile file("checkstyle/checkstyle.xml")
 }
 
@@ -299,9 +299,6 @@ dependencies {
         }
     }
 
-    implementation("com.google.guava:guava:${guavaVersion}") {
-        force = 'true'
-    }
     implementation 'org.jooq:jooq:3.10.8'
     implementation 'org.apache.commons:commons-lang3:3.9'
     implementation 'org.bouncycastle:bcprov-jdk15to18:1.74'
@@ -312,6 +309,11 @@ dependencies {
     implementation "com.fasterxml.jackson.module:jackson-module-paranamer:${jacksonVersion}"
     implementation(group: 'org.apache.logging.log4j', name: 'log4j-api', version: "${log4jVersion}")
     implementation(group: 'org.apache.logging.log4j', name: 'log4j-core', version: "${log4jVersion}")
+    implementation("com.google.guava:guava:${guavaVersion}") {
+        version {
+            strictly "${guavaVersion}"
+        }
+    }
     implementation(group: 'com.google.errorprone', name: 'error_prone_annotations') {
         version {
             strictly "2.9.0"
