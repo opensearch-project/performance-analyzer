@@ -304,7 +304,7 @@ dependencies {
     }
     implementation 'org.jooq:jooq:3.10.8'
     implementation 'org.apache.commons:commons-lang3:3.9'
-    implementation 'org.bouncycastle:bcprov-jdk15on:1.70'
+    implementation 'org.bouncycastle:bcprov-jdk15to18:1.74'
     implementation 'org.bouncycastle:bcpkix-jdk15on:1.70'
     implementation "org.opensearch:performance-analyzer-commons:${paCommonsVersion}"
     implementation "com.fasterxml.jackson.core:jackson-annotations:${jacksonVersion}"
@@ -918,4 +918,4 @@ task updateVersion {
         }
         ant.replaceregexp(file:'build.gradle', match: '"opensearch.version", "\\d.*"', replace: '"opensearch.version", "' + newVersion.tokenize('-')[0] + '-SNAPSHOT"', flags:'g', byline:true)
     }
-} 
+}
