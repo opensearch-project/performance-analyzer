@@ -6,16 +6,15 @@
 package org.opensearch.performanceanalyzer.bwc;
 
 
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 import org.junit.Assert;
 import org.opensearch.common.settings.Settings;
 import org.opensearch.performanceanalyzer.PerformanceAnalyzerIntegTestBase;
 import org.opensearch.performanceanalyzer.http_action.config.RestConfig;
 import org.opensearch.test.rest.OpenSearchRestTestCase;
-
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 public class PABackwardsCompatibilityIT extends PerformanceAnalyzerIntegTestBase {
     private static final ClusterType CLUSTER_TYPE =
