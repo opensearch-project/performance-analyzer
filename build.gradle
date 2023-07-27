@@ -240,7 +240,7 @@ dependencies {
         }
     }
 
-    compile('com.google.guava:guava:30.1-jre') {
+    compile('com.google.guava:guava:32.0.1-jre') {
         force = 'true'
     }
     compile 'org.jooq:jooq:3.10.8'
