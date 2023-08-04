@@ -1,9 +1,0 @@
-<FindBugsFilter>
-    <Match>
-        <Bug pattern="DM_DEFAULT_ENCODING" />
-    </Match>
-    <Match>
-        <Class name="org.opensearch.performanceanalyzer.collectors.ThreadPoolMetricsCollector"/>
-        <Bug pattern="REC_CATCH_EXCEPTION"/>
-    </Match>
-</FindBugsFilter>

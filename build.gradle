@@ -29,16 +29,9 @@ plugins {
     id 'com.github.spotbugs' version '4.8.0'
     id 'jacoco'
     id 'com.diffplug.spotless' version '5.11.0'
-    id 'checkstyle'
-}
-
-checkstyle {
-    toolVersion = '9.3'
-    configFile file("checkstyle/checkstyle.xml")
 }
 
 spotbugsMain {
-    excludeFilter = file("checkstyle/findbugs-exclude.xml")
     effort = 'max'
     ignoreFailures = true
 
@@ -205,9 +198,6 @@ jacocoTestCoverageVerification {
 // to run coverage verification during the build (and fail when appropriate)
 check.dependsOn jacocoTestCoverageVerification
 
-checkstyleMain.enabled = false
-checkstyleTest.enabled = false
-
 dependencies {
     if (JavaVersion.current() <= JavaVersion.VERSION_1_8) {
         compile files("${System.properties['java.home']}/../lib/tools.jar")
@@ -240,13 +230,13 @@ dependencies {
         }
     }
 
-    compile('com.google.guava:guava:30.1-jre') {
+    compile('com.google.guava:guava:32.0.1-jre') {
         force = 'true'
     }
     compile 'org.jooq:jooq:3.10.8'
     compile 'org.apache.commons:commons-lang3:3.9'
-    compile 'org.bouncycastle:bcprov-jdk15on:1.70'
-    compile 'org.bouncycastle:bcpkix-jdk15on:1.70'
+    compile 'org.bouncycastle:bcprov-jdk15to18:1.74'
+    compile 'org.bouncycastle:bcpkix-jdk15to18:1.74'
     compile "org.opensearch:performanceanalyzer-rca:${version}"
     compile "com.fasterxml.jackson.core:jackson-annotations:${jacksonVersion}"
     compile "com.fasterxml.jackson.core:jackson-databind:${jacksonDataBindVersion}"
