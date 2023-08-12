@@ -10,13 +10,13 @@ import java.io.IOException;
 import java.util.concurrent.atomic.AtomicLong;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.opensearch.core.transport.TransportResponse;
 import org.opensearch.performanceanalyzer.commons.metrics.AllMetrics.ShardBulkDimension;
 import org.opensearch.performanceanalyzer.commons.metrics.AllMetrics.ShardBulkMetric;
 import org.opensearch.performanceanalyzer.commons.metrics.MetricsProcessor;
 import org.opensearch.performanceanalyzer.commons.metrics.PerformanceAnalyzerMetrics;
 import org.opensearch.performanceanalyzer.commons.util.ThreadIDUtil;
 import org.opensearch.transport.TransportChannel;
-import org.opensearch.transport.TransportResponse;
 
 public class PerformanceAnalyzerTransportChannel implements TransportChannel, MetricsProcessor {
     private static final Logger LOG =

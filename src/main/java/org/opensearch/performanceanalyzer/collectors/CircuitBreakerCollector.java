@@ -11,7 +11,7 @@ import static org.opensearch.performanceanalyzer.commons.stats.metrics.StatMetri
 import com.fasterxml.jackson.annotation.JsonProperty;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.opensearch.indices.breaker.CircuitBreakerStats;
+import org.opensearch.core.indices.breaker.CircuitBreakerStats;
 import org.opensearch.performanceanalyzer.OpenSearchResources;
 import org.opensearch.performanceanalyzer.commons.collectors.MetricStatus;
 import org.opensearch.performanceanalyzer.commons.collectors.PerformanceAnalyzerMetricsCollector;
