@@ -7,9 +7,9 @@ package org.opensearch.performanceanalyzer.action;
 
 
 import org.opensearch.OpenSearchException;
-import org.opensearch.action.ActionListener;
 import org.opensearch.action.bulk.BulkResponse;
 import org.opensearch.action.search.SearchResponse;
+import org.opensearch.core.action.ActionListener;
 import org.opensearch.performanceanalyzer.commons.metrics.AllMetrics.HttpDimension;
 import org.opensearch.performanceanalyzer.commons.metrics.AllMetrics.HttpMetric;
 import org.opensearch.performanceanalyzer.commons.metrics.MetricsProcessor;

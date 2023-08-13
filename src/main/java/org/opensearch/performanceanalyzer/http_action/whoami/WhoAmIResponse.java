@@ -7,8 +7,8 @@ package org.opensearch.performanceanalyzer.http_action.whoami;
 
 
 import java.io.IOException;
-import org.opensearch.action.ActionResponse;
-import org.opensearch.common.io.stream.StreamOutput;
+import org.opensearch.core.action.ActionResponse;
+import org.opensearch.core.common.io.stream.StreamOutput;
 import org.opensearch.core.xcontent.ToXContent;
 import org.opensearch.core.xcontent.XContentBuilder;
 
