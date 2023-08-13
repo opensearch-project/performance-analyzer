@@ -17,7 +17,7 @@ import org.mockito.Mockito;
 import org.opensearch.action.bulk.BulkItemRequest;
 import org.opensearch.action.bulk.BulkShardRequest;
 import org.opensearch.action.support.replication.TransportReplicationAction.ConcreteShardRequest;
-import org.opensearch.index.shard.ShardId;
+import org.opensearch.core.index.shard.ShardId;
 import org.opensearch.performanceanalyzer.config.PerformanceAnalyzerController;
 import org.opensearch.performanceanalyzer.util.Utils;
 import org.opensearch.tasks.Task;

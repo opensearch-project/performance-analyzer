@@ -7,7 +7,7 @@ package org.opensearch.performanceanalyzer.http_action.whoami;
 
 
 import org.opensearch.action.ActionType;
-import org.opensearch.common.io.stream.Writeable;
+import org.opensearch.core.common.io.stream.Writeable;
 
 public class WhoAmIAction extends ActionType<WhoAmIResponse> {
 

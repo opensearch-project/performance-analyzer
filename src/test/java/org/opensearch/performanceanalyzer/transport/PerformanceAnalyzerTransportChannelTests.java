@@ -14,9 +14,9 @@ import org.apache.commons.lang3.SystemUtils;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
+import org.opensearch.core.transport.TransportResponse;
 import org.opensearch.performanceanalyzer.util.Utils;
 import org.opensearch.transport.TransportChannel;
-import org.opensearch.transport.TransportResponse;
 
 public class PerformanceAnalyzerTransportChannelTests {
     private PerformanceAnalyzerTransportChannel channel;
