@@ -14,15 +14,15 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 import org.opensearch.OpenSearchException;
-import org.opensearch.action.ActionListener;
-import org.opensearch.action.ActionResponse;
 import org.opensearch.action.bulk.BulkResponse;
 import org.opensearch.action.search.SearchResponse;
+import org.opensearch.core.action.ActionListener;
+import org.opensearch.core.action.ActionResponse;
+import org.opensearch.core.rest.RestStatus;
 import org.opensearch.performanceanalyzer.commons.config.PluginSettings;
 import org.opensearch.performanceanalyzer.commons.event_process.Event;
 import org.opensearch.performanceanalyzer.commons.metrics.PerformanceAnalyzerMetrics;
 import org.opensearch.performanceanalyzer.util.TestUtil;
-import org.opensearch.rest.RestStatus;
 
 @SuppressWarnings("unchecked")
 public class PerformanceAnalyzerActionListenerTests {
