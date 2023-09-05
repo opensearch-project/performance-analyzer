@@ -184,9 +184,7 @@ public class PerformanceAnalyzerClusterConfigActionTests {
         return new FakeRestRequest.Builder(NamedXContentRegistry.EMPTY)
                 .withMethod(RestRequest.Method.POST)
                 .withPath(requestPath)
-                .withContent(
-                        BytesReference.bytes(builder),
-                        XContentType.fromMediaType(builder.contentType()))
+                .withContent(BytesReference.bytes(builder), XContentType.JSON)
                 .build();
     }
 }
