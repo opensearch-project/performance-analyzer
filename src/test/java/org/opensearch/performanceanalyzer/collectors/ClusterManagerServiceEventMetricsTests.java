@@ -119,7 +119,7 @@ public class ClusterManagerServiceEventMetricsTests {
                                 .get(
                                         OpenSearchResources.INSTANCE
                                                 .getClusterService()
-                                                .getMasterService());
+                                                .getClusterManagerService());
         SourcePrioritizedRunnable runnable =
                 new SourcePrioritizedRunnable(Priority.HIGH, "_add_listener_") {
                     @Override
