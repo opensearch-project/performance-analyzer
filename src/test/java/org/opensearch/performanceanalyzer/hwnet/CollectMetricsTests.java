@@ -493,7 +493,7 @@ public class CollectMetricsTests extends AbstractTests {
             discoBuilder = discoBuilder.add(node);
         }
 
-        discoBuilder.masterNodeId(nodeId1);
+        discoBuilder.clusterManagerNodeId(nodeId1);
         discoBuilder.localNodeId(nodeId2);
 
         DiscoveryNodes discoveryNodes = discoBuilder.build();

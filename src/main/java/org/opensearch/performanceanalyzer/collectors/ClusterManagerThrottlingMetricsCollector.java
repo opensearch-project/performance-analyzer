@@ -14,7 +14,7 @@ import java.lang.reflect.Method;
 import java.util.Objects;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.opensearch.cluster.service.MasterService;
+import org.opensearch.cluster.service.ClusterManagerService;
 import org.opensearch.performanceanalyzer.OpenSearchResources;
 import org.opensearch.performanceanalyzer.commons.collectors.MetricStatus;
 import org.opensearch.performanceanalyzer.commons.collectors.PerformanceAnalyzerMetricsCollector;
@@ -67,7 +67,9 @@ public class ClusterManagerThrottlingMetricsCollector extends PerformanceAnalyze
         }
         if (Objects.isNull(OpenSearchResources.INSTANCE.getClusterService())
                 || Objects.isNull(
-                        OpenSearchResources.INSTANCE.getClusterService().getMasterService())) {
+                        OpenSearchResources.INSTANCE
+                                .getClusterService()
+                                .getClusterManagerService())) {
             return;
         }
 
@@ -105,7 +107,7 @@ public class ClusterManagerThrottlingMetricsCollector extends PerformanceAnalyze
     private boolean isClusterManagerThrottlingFeatureAvailable() {
         try {
             Class.forName(CLUSTER_MANAGER_THROTTLING_RETRY_LISTENER_PATH);
-            MasterService.class.getMethod(THROTTLED_PENDING_TASK_COUNT_METHOD_NAME);
+            ClusterManagerService.class.getMethod(THROTTLED_PENDING_TASK_COUNT_METHOD_NAME);
         } catch (ClassNotFoundException | NoSuchMethodException e) {
             return false;
         }
@@ -114,9 +116,13 @@ public class ClusterManagerThrottlingMetricsCollector extends PerformanceAnalyze
 
     private long getTotalClusterManagerThrottledTaskCount()
             throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
-        Method method = MasterService.class.getMethod(THROTTLED_PENDING_TASK_COUNT_METHOD_NAME);
+        Method method =
+                ClusterManagerService.class.getMethod(THROTTLED_PENDING_TASK_COUNT_METHOD_NAME);
         return (long)
-                method.invoke(OpenSearchResources.INSTANCE.getClusterService().getMasterService());
+                method.invoke(
+                        OpenSearchResources.INSTANCE
+                                .getClusterService()
+                                .getClusterManagerService());
     }
 
     private long getRetryingPendingTaskCount()
