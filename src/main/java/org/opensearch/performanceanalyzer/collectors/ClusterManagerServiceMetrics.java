@@ -59,7 +59,9 @@ public class ClusterManagerServiceMetrics extends PerformanceAnalyzerMetricsColl
     public void collectMetrics(long startTime) {
         if (Objects.isNull(OpenSearchResources.INSTANCE.getClusterService())
                 || Objects.isNull(
-                        OpenSearchResources.INSTANCE.getClusterService().getMasterService())) {
+                        OpenSearchResources.INSTANCE
+                                .getClusterService()
+                                .getClusterManagerService())) {
             return;
         }
 
@@ -72,7 +74,10 @@ public class ClusterManagerServiceMetrics extends PerformanceAnalyzerMetricsColl
          *      timeIn_queue: "86ms"
          */
         List<PendingClusterTask> pendingTasks =
-                OpenSearchResources.INSTANCE.getClusterService().getMasterService().pendingTasks();
+                OpenSearchResources.INSTANCE
+                        .getClusterService()
+                        .getClusterManagerService()
+                        .pendingTasks();
         HashMap<String, Integer> pendingTaskCountPerTaskType = new HashMap<>();
 
         pendingTasks.stream()

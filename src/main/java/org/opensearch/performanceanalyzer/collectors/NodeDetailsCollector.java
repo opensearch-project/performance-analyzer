@@ -89,7 +89,7 @@ public class NodeDetailsCollector extends PerformanceAnalyzerMetricsCollector
         DiscoveryNodes discoveryNodes =
                 OpenSearchResources.INSTANCE.getClusterService().state().nodes();
 
-        DiscoveryNode clusterManagerNode = discoveryNodes.getMasterNode();
+        DiscoveryNode clusterManagerNode = discoveryNodes.getClusterManagerNode();
 
         Iterator<DiscoveryNode> discoveryNodeIterator = discoveryNodes.iterator();
         addMetricsToStringBuilder(discoveryNodes.getLocalNode(), value, "", clusterManagerNode);
@@ -124,7 +124,7 @@ public class NodeDetailsCollector extends PerformanceAnalyzerMetricsCollector
         final NodeRole role =
                 node.isDataNode()
                         ? NodeRole.DATA
-                        : node.isMasterNode() ? NodeRole.CLUSTER_MANAGER : NodeRole.UNKNOWN;
+                        : node.isClusterManagerNode() ? NodeRole.CLUSTER_MANAGER : NodeRole.UNKNOWN;
         return role.toString();
     }
 
