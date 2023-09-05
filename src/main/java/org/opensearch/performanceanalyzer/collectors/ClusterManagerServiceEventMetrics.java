@@ -17,7 +17,7 @@ import java.util.*;
 import java.util.concurrent.ThreadPoolExecutor;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.opensearch.cluster.service.MasterService;
+import org.opensearch.cluster.service.ClusterManagerService;
 import org.opensearch.cluster.service.SourcePrioritizedRunnable;
 import org.opensearch.common.util.concurrent.PrioritizedOpenSearchThreadPoolExecutor;
 import org.opensearch.performanceanalyzer.OpenSearchResources;
@@ -82,7 +82,9 @@ public class ClusterManagerServiceEventMetrics extends PerformanceAnalyzerMetric
         try {
             if (Objects.isNull(OpenSearchResources.INSTANCE.getClusterService())
                     || Objects.isNull(
-                            OpenSearchResources.INSTANCE.getClusterService().getMasterService())) {
+                            OpenSearchResources.INSTANCE
+                                    .getClusterService()
+                                    .getClusterManagerService())) {
                 return;
             }
 
@@ -186,7 +188,8 @@ public class ClusterManagerServiceEventMetrics extends PerformanceAnalyzerMetric
 
     // - Separated to have a unit test; and catch any code changes around this field
     Field getClusterManagerServiceTPExecutorField() throws NoSuchFieldException {
-        Field threadPoolExecutorField = MasterService.class.getDeclaredField("threadPoolExecutor");
+        Field threadPoolExecutorField =
+                ClusterManagerService.class.getDeclaredField("threadPoolExecutor");
         threadPoolExecutorField.setAccessible(true);
         return threadPoolExecutorField;
     }
@@ -223,8 +226,8 @@ public class ClusterManagerServiceEventMetrics extends PerformanceAnalyzerMetric
             throws NoSuchFieldException, IllegalAccessException {
         if (clusterManagerServiceCurrentQueue == null) {
             if (OpenSearchResources.INSTANCE.getClusterService() != null) {
-                MasterService clusterManagerService =
-                        OpenSearchResources.INSTANCE.getClusterService().getMasterService();
+                ClusterManagerService clusterManagerService =
+                        OpenSearchResources.INSTANCE.getClusterService().getClusterManagerService();
 
                 if (clusterManagerService != null) {
                     if (prioritizedOpenSearchThreadPoolExecutor == null) {
@@ -253,8 +256,8 @@ public class ClusterManagerServiceEventMetrics extends PerformanceAnalyzerMetric
             throws NoSuchFieldException, IllegalAccessException {
         if (clusterManagerServiceWorkers == null) {
             if (OpenSearchResources.INSTANCE.getClusterService() != null) {
-                MasterService clusterManagerService =
-                        OpenSearchResources.INSTANCE.getClusterService().getMasterService();
+                ClusterManagerService clusterManagerService =
+                        OpenSearchResources.INSTANCE.getClusterService().getClusterManagerService();
 
                 if (clusterManagerService != null) {
                     if (prioritizedOpenSearchThreadPoolExecutor == null) {

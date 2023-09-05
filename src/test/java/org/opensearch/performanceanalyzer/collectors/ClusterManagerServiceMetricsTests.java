@@ -94,7 +94,7 @@ public class ClusterManagerServiceMetricsTests {
         assertNull(jsonStr);
 
         OpenSearchResources.INSTANCE.setClusterService(mockedClusterService);
-        when(mockedClusterService.getMasterService()).thenThrow(new RuntimeException());
+        when(mockedClusterService.getClusterManagerService()).thenThrow(new RuntimeException());
         clusterManagerServiceMetrics.run();
         jsonStr = readMetricsInJsonString(0);
         assertNull(jsonStr);
