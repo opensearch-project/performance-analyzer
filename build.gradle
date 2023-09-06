@@ -18,7 +18,7 @@ buildscript {
         // is a library dependency with hardcoded versioning in PA and RCA repos.
         paCommonsVersion = "1.0.0"
 
-        // 3.0.0-SNAPSHOT -> 3.0.0.0-SNAPSHOT
+        // 2.10.0-SNAPSHOT -> 2.10.0.0-SNAPSHOT
         version_tokens = opensearch_version.tokenize('-')
         opensearch_build = version_tokens[0] + '.0'
         if (buildVersionQualifier) {
@@ -81,7 +81,7 @@ ext {
     // The RCA branch that will be built. Default branch is 2.x for 2.x branch.
     rcaProjectRepo = System.getProperty("performance-analyzer-rca.repo", "https://github.com/opensearch-project/performance-analyzer-rca.git")
     rcaProjectFetch = System.getProperty("performance-analyzer-rca.fetch", "origin")
-    rcaProjectBranch = System.getProperty("performance-analyzer-rca.branch", "${rcaProjectFetch}/2.x")
+    rcaProjectBranch = System.getProperty("performance-analyzer-rca.branch", "${rcaProjectFetch}/2.10")
 
     // If true, then the build will clone the RCA Project into $rcaProjectDir
     cloneRcaProject = "true" == System.getProperty("performance-analyzer-rca.build", "true")
