@@ -188,8 +188,10 @@ public class ClusterManagerServiceEventMetrics extends PerformanceAnalyzerMetric
 
     // - Separated to have a unit test; and catch any code changes around this field
     Field getClusterManagerServiceTPExecutorField() throws NoSuchFieldException {
+        // Currently ClusterManagerService extends MasterService, remove getSuperClass(),
+        // once MasterService contents are moved and class is removed.
         Field threadPoolExecutorField =
-                ClusterManagerService.class.getDeclaredField("threadPoolExecutor");
+                ClusterManagerService.class.getSuperclass().getDeclaredField("threadPoolExecutor");
         threadPoolExecutorField.setAccessible(true);
         return threadPoolExecutorField;
     }
