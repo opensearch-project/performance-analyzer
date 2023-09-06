@@ -20,7 +20,7 @@ elif [ ! -z "$OPENSEARCH_JAVA_HOME" ]; then
   # Use OPENSEARCH_JAVA_HOME if present
   JAVA_HOME=$OPENSEARCH_JAVA_HOME
 elif [ -z "$JAVA_HOME" ]; then
-  # Nor OPENSEARCH_JAVA_HOME nor JAVA_HOME is present, failing 
+  # Nor OPENSEARCH_JAVA_HOME nor JAVA_HOME is present, failing
   echo "OPENSEARCH_JAVA_HOME / JAVA_HOME needs to be set or passed in as the second parameter."
   exit 1
 fi
@@ -34,12 +34,12 @@ export JAVA_HOME=$JAVA_HOME
 # We need to change this file: https://github.com/opensearch-project/opensearch-build/blob/main/release/docker/config/opensearch/opensearch-docker-entrypoint.sh
 
 if ! echo $* | grep -E '(^-d |-d$| -d |--daemonize$|--daemonize )' >/dev/null; then
-  export JAVA_OPTS=-Dopensearch.path.home=$OPENSEARCH_HOME\ -Dlog4j.configurationFile=$OPENSEARCH_HOME/performance-analyzer-rca-3.0.0-SNAPSHOT/config/log4j2.xml
-  exec $OPENSEARCH_HOME/performance-analyzer-rca-3.0.0-SNAPSHOT/bin/performance-analyzer-rca
+  export JAVA_OPTS=-Dopensearch.path.home=$OPENSEARCH_HOME\ -Dlog4j.configurationFile=$OPENSEARCH_HOME/performance-analyzer-rca-2.10.0-SNAPSHOT/config/log4j2.xml
+  exec $OPENSEARCH_HOME/performance-analyzer-rca-2.10.0-SNAPSHOT/bin/performance-analyzer-rca
 else
   echo 'Starting deamon'
-  export JAVA_OPTS=-Dopensearch.path.home=$OPENSEARCH_HOME\ -Dlog4j.configurationFile=$OPENSEARCH_HOME/performance-analyzer-rca-3.0.0-SNAPSHOT/config/log4j2.xml
-  exec $OPENSEARCH_HOME/performance-analyzer-rca-3.0.0-SNAPSHOT/bin/performance-analyzer-rca &
+  export JAVA_OPTS=-Dopensearch.path.home=$OPENSEARCH_HOME\ -Dlog4j.configurationFile=$OPENSEARCH_HOME/performance-analyzer-rca-2.10.0-SNAPSHOT/config/log4j2.xml
+  exec $OPENSEARCH_HOME/performance-analyzer-rca-2.10.0-SNAPSHOT/bin/performance-analyzer-rca &
 
   pid=$!
   PID_LOC=/tmp/performance-analyzer-agent
