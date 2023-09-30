@@ -203,7 +203,6 @@ public class NodeStatsAllShardsMetricsCollector extends PerformanceAnalyzerMetri
                 currentPerShardStats.put(currentIndexShardStats.getShardId(), shardStats);
             }
         }
-        return;
     }
 
     public void populateMetricValue(

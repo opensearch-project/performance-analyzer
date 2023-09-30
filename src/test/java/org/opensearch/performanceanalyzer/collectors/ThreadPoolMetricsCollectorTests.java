@@ -109,7 +109,7 @@ public class ThreadPoolMetricsCollectorTests extends CustomMetricsLocationTestBa
 
     private ThreadPoolStats generateThreadPoolStat(long rejected) {
         List<ThreadPoolStats.Stats> stats = new ArrayList<>();
-        stats.add(new ThreadPoolStats.Stats("write", 0, 0, 0, rejected, 0, 0));
+        stats.add(new ThreadPoolStats.Stats("write", 0, 0, 0, rejected, 0, 0L, 20L));
         return new ThreadPoolStats(stats);
     }
 

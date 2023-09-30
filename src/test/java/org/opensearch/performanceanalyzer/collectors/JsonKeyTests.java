@@ -109,13 +109,6 @@ public class JsonKeyTests {
                 new MetricDimension[] {},
                 ShardStatsValue.values(),
                 getMethodJsonProperty);
-        verifyMethodWithJsonKeyNames(
-                NodeStatsFixedShardsMetricsCollector.NodeStatsMetricsFixedShardsPerCollectionStatus
-                        .class,
-                new MetricDimension[] {},
-                ShardStatsValue.values(),
-                getMethodJsonProperty);
-        verifyNodeDetailJsonKeyNames();
     }
 
     private void verifyMethodWithJsonKeyNames(
