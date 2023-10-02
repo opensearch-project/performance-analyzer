@@ -34,7 +34,6 @@ public class Utils {
         MetricsConfiguration.CONFIG_MAP.put(ThreadPoolMetricsCollector.class, cdefault);
         MetricsConfiguration.CONFIG_MAP.put(NodeDetailsCollector.class, cdefault);
         MetricsConfiguration.CONFIG_MAP.put(NodeStatsAllShardsMetricsCollector.class, cdefault);
-        MetricsConfiguration.CONFIG_MAP.put(NodeStatsFixedShardsMetricsCollector.class, cdefault);
         MetricsConfiguration.CONFIG_MAP.put(
                 ClusterManagerServiceEventMetrics.class,
                 new MetricsConfiguration.MetricConfig(1000, 0));

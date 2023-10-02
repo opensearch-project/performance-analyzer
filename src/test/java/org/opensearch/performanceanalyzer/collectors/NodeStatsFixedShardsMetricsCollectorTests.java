@@ -10,6 +10,7 @@ import static org.mockito.MockitoAnnotations.initMocks;
 import java.util.List;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.Mockito;
@@ -24,6 +25,11 @@ import org.opensearch.performanceanalyzer.config.PerformanceAnalyzerController;
 import org.opensearch.performanceanalyzer.util.TestUtil;
 import org.opensearch.test.OpenSearchSingleNodeTestCase;
 
+@Ignore
+/**
+ * Note: 'NodeStatsAllShardsMetricsCollector' is already released and out of shadow mode,
+ * NodeStatsFixedShardsMetricsCollector class can be deprecated/removed in future versions.
+ */
 public class NodeStatsFixedShardsMetricsCollectorTests extends OpenSearchSingleNodeTestCase {
     private static final String TEST_INDEX = "test";
     private static long startTimeInMills = 1153721339;
