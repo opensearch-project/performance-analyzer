@@ -92,6 +92,7 @@ import org.opensearch.plugins.SearchPlugin;
 import org.opensearch.repositories.RepositoriesService;
 import org.opensearch.rest.RestController;
 import org.opensearch.script.ScriptService;
+import org.opensearch.telemetry.tracing.Tracer;
 import org.opensearch.threadpool.ThreadPool;
 import org.opensearch.transport.Transport;
 import org.opensearch.transport.TransportInterceptor;
@@ -369,7 +370,8 @@ public final class PerformanceAnalyzerPlugin extends Plugin
             PageCacheRecycler pageCacheRecycler,
             CircuitBreakerService circuitBreakerService,
             NamedWriteableRegistry namedWriteableRegistry,
-            NetworkService networkService) {
+            NetworkService networkService,
+            Tracer tracer) {
         OpenSearchResources.INSTANCE.setSettings(settings);
         OpenSearchResources.INSTANCE.setCircuitBreakerService(circuitBreakerService);
         return Collections.emptyMap();
