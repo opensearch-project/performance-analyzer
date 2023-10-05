@@ -34,7 +34,10 @@ import org.opensearch.performanceanalyzer.config.PerformanceAnalyzerController;
 import org.opensearch.performanceanalyzer.util.Utils;
 
 /**
- * This collector collects metrics for fixed number of shards on a node in a single run. These
+ * Note: 'NodeStatsAllShardsMetricsCollector' is already released and out of shadow mode, this class
+ * can be deprecated/removed in future versions.
+ *
+ * <p>This collector collects metrics for fixed number of shards on a node in a single run. These
  * metrics are heavy which have performance impacts on the performance of the node. The number of
  * shards is set via a cluster settings api. The parameter to set is shardsPerCollection. The
  * metrics will be populated for these many shards in a single run.

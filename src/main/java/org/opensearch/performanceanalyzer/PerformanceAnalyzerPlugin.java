@@ -52,7 +52,6 @@ import org.opensearch.performanceanalyzer.collectors.ElectionTermCollector;
 import org.opensearch.performanceanalyzer.collectors.FaultDetectionMetricsCollector;
 import org.opensearch.performanceanalyzer.collectors.NodeDetailsCollector;
 import org.opensearch.performanceanalyzer.collectors.NodeStatsAllShardsMetricsCollector;
-import org.opensearch.performanceanalyzer.collectors.NodeStatsFixedShardsMetricsCollector;
 import org.opensearch.performanceanalyzer.collectors.SearchBackPressureStatsCollector;
 import org.opensearch.performanceanalyzer.collectors.ShardIndexingPressureMetricsCollector;
 import org.opensearch.performanceanalyzer.collectors.ShardStateCollector;
@@ -203,8 +202,6 @@ public final class PerformanceAnalyzerPlugin extends Plugin
                 new NodeDetailsCollector(configOverridesWrapper));
         scheduledMetricCollectorsExecutor.addScheduledMetricCollector(
                 new NodeStatsAllShardsMetricsCollector(performanceAnalyzerController));
-        scheduledMetricCollectorsExecutor.addScheduledMetricCollector(
-                new NodeStatsFixedShardsMetricsCollector(performanceAnalyzerController));
         scheduledMetricCollectorsExecutor.addScheduledMetricCollector(
                 new ClusterManagerServiceMetrics());
         scheduledMetricCollectorsExecutor.addScheduledMetricCollector(
