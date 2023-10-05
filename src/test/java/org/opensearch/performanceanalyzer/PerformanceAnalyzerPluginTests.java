@@ -43,6 +43,7 @@ import org.opensearch.performanceanalyzer.transport.PerformanceAnalyzerTransport
 import org.opensearch.plugins.ActionPlugin.ActionHandler;
 import org.opensearch.rest.RestController;
 import org.opensearch.rest.RestHandler;
+import org.opensearch.telemetry.tracing.noop.NoopTracer;
 import org.opensearch.test.OpenSearchTestCase;
 import org.opensearch.threadpool.TestThreadPool;
 import org.opensearch.threadpool.ThreadPool;
@@ -154,7 +155,14 @@ public class PerformanceAnalyzerPluginTests extends OpenSearchTestCase {
     @Test
     public void testGetTransports() {
         Map<String, Supplier<Transport>> map =
-                plugin.getTransports(settings, threadPool, null, circuitBreakerService, null, null);
+                plugin.getTransports(
+                        settings,
+                        threadPool,
+                        null,
+                        circuitBreakerService,
+                        null,
+                        null,
+                        NoopTracer.INSTANCE);
         assertEquals(0, map.size());
         assertEquals(settings, OpenSearchResources.INSTANCE.getSettings());
         assertEquals(
