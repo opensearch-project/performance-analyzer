@@ -1,6 +1,6 @@
-## Version 2.10.0 Release Notes
+## Version 2.11.0 Release Notes
 
-Compatible with OpenSearch 2.10.0
+Compatible with OpenSearch 2.11.0
 
 ### Bug fixes
 * Update Jooq version and address bind variable failure in AdmissionControl Emitter [#493](https://github.com/opensearch-project/performance-analyzer/pull/493)
