@@ -21,7 +21,7 @@ jobs:
       - name: Build Artifacts
         working-directory: ./tmp/pa
         run: |
-          ./gradlew build buildDeb buildRpm --refresh-dependencies -Dbuild.snapshot=false -Dperformance-analyzer-rca.build=true -Dperformance-analyzer-rca.branch=2.x -x javadoc
+          ./gradlew build buildDeb buildRpm --refresh-dependencies -Dbuild.snapshot=false -Dperformance-analyzer-rca.build=true -Dperformance-analyzer-rca.branch=2.11 -x javadoc
           mkdir artifacts
           artifact=`ls build/distributions/*.zip`
           rpm_artifact=`ls build/distributions/*.rpm`
