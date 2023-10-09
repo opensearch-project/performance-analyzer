@@ -5,7 +5,6 @@
 
 package org.opensearch.performanceanalyzer.collectors;
 
-import static org.opensearch.performanceanalyzer.commons.stats.metrics.StatExceptionCode.CLUSTER_MANAGER_METRICS_ERROR;
 import static org.opensearch.performanceanalyzer.commons.stats.metrics.StatMetrics.CLUSTER_MANAGER_SERVICE_METRICS_COLLECTOR_EXECUTION_TIME;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -39,7 +38,7 @@ public class ClusterManagerServiceMetrics extends PerformanceAnalyzerMetricsColl
                 SAMPLING_TIME_INTERVAL,
                 "ClusterManagerServiceMetrics",
                 CLUSTER_MANAGER_SERVICE_METRICS_COLLECTOR_EXECUTION_TIME,
-                CLUSTER_MANAGER_METRICS_ERROR);
+                CLUSTER_MANAGER_SERVICE_METRICS_COLLECTOR_ERROR);
         value = new StringBuilder();
     }
 

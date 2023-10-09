@@ -63,8 +63,9 @@ public class StatsTests {
 
         LinkedList<StatExceptionCode> exceptionCodeList = new LinkedList<>();
 
-        for (int i = 0; i < CLUSTER_MANAGER_METRICS_ERRORS; i++) {
-            exceptionCodeList.add(StatExceptionCode.CLUSTER_MANAGER_METRICS_ERROR);
+        for (int i = 0; i < CLUSTER_MANAGER_SERVICE_EVENTS_METRICS_COLLECTOR_ERROR; i++) {
+            exceptionCodeList.add(
+                    StatExceptionCode.CLUSTER_MANAGER_SERVICE_EVENTS_METRICS_COLLECTOR_ERROR);
         }
 
         for (int i = 0; i < REQUEST_REMOTE_ERRORS; i++) {
@@ -101,10 +102,12 @@ public class StatsTests {
         assertEquals(
                 sc.getCounters()
                         .getOrDefault(
-                                StatExceptionCode.CLUSTER_MANAGER_METRICS_ERROR.toString(),
+                                StatExceptionCode
+                                        .CLUSTER_MANAGER_SERVICE_EVENTS_METRICS_COLLECTOR_ERROR
+                                        .toString(),
                                 DEFAULT_VAL)
                         .get(),
-                CLUSTER_MANAGER_METRICS_ERRORS);
+                CLUSTER_MANAGER_SERVICE_EVENTS_METRICS_COLLECTOR_ERROR);
         assertEquals(
                 sc.getCounters()
                         .getOrDefault(
