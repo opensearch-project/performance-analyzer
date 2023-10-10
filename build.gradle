@@ -229,7 +229,6 @@ jacocoTestReport {
                     ],
                     exclude: [
                             '**/FaultDetectionMetricsCollector.class',
-                            '**/ClusterManagerThrottlingMetricsCollector.class',
                             '**/ClusterSettingsManager.class',
                     ])
         })
