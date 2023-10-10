@@ -5,8 +5,8 @@
 
 package org.opensearch.performanceanalyzer.collectors;
 
-import static org.opensearch.performanceanalyzer.commons.stats.metrics.StatExceptionCode.CLUSTER_MANAGER_METRICS_ERROR;
 import static org.opensearch.performanceanalyzer.commons.stats.metrics.StatExceptionCode.CLUSTER_MANAGER_NODE_NOT_UP;
+import static org.opensearch.performanceanalyzer.commons.stats.metrics.StatExceptionCode.CLUSTER_MANAGER_SERVICE_EVENTS_METRICS_COLLECTOR_ERROR;
 import static org.opensearch.performanceanalyzer.commons.stats.metrics.StatMetrics.CLUSTER_MANAGER_SERVICE_EVENTS_METRICS_COLLECTOR_EXECUTION_TIME;
 
 import com.google.common.annotations.VisibleForTesting;
@@ -51,7 +51,7 @@ public class ClusterManagerServiceEventMetrics extends PerformanceAnalyzerMetric
                 SAMPLING_TIME_INTERVAL,
                 "ClusterManagerServiceEventMetrics",
                 CLUSTER_MANAGER_SERVICE_EVENTS_METRICS_COLLECTOR_EXECUTION_TIME,
-                CLUSTER_MANAGER_METRICS_ERROR);
+                CLUSTER_MANAGER_SERVICE_EVENTS_METRICS_COLLECTOR_ERROR);
         clusterManagerServiceCurrentQueue = null;
         clusterManagerServiceWorkers = null;
         prioritizedOpenSearchThreadPoolExecutor = null;
@@ -163,7 +163,8 @@ public class ClusterManagerServiceEventMetrics extends PerformanceAnalyzerMetric
                     "[ {} ] Exception raised while getting Cluster Manager throttling metrics: {} ",
                     this::getCollectorName,
                     e::getMessage);
-            StatsCollector.instance().logException(CLUSTER_MANAGER_METRICS_ERROR);
+            StatsCollector.instance()
+                    .logException(CLUSTER_MANAGER_SERVICE_EVENTS_METRICS_COLLECTOR_ERROR);
         }
     }
 
