@@ -47,7 +47,6 @@ import org.opensearch.performanceanalyzer.collectors.CircuitBreakerCollector;
 import org.opensearch.performanceanalyzer.collectors.ClusterApplierServiceStatsCollector;
 import org.opensearch.performanceanalyzer.collectors.ClusterManagerServiceEventMetrics;
 import org.opensearch.performanceanalyzer.collectors.ClusterManagerServiceMetrics;
-import org.opensearch.performanceanalyzer.collectors.ClusterManagerThrottlingMetricsCollector;
 import org.opensearch.performanceanalyzer.collectors.ElectionTermCollector;
 import org.opensearch.performanceanalyzer.collectors.FaultDetectionMetricsCollector;
 import org.opensearch.performanceanalyzer.collectors.NodeDetailsCollector;
@@ -216,9 +215,6 @@ public final class PerformanceAnalyzerPlugin extends Plugin
                         performanceAnalyzerController, configOverridesWrapper));
         scheduledMetricCollectorsExecutor.addScheduledMetricCollector(
                 new ShardStateCollector(performanceAnalyzerController, configOverridesWrapper));
-        scheduledMetricCollectorsExecutor.addScheduledMetricCollector(
-                new ClusterManagerThrottlingMetricsCollector(
-                        performanceAnalyzerController, configOverridesWrapper));
         scheduledMetricCollectorsExecutor.addScheduledMetricCollector(
                 new ClusterApplierServiceStatsCollector(
                         performanceAnalyzerController, configOverridesWrapper));

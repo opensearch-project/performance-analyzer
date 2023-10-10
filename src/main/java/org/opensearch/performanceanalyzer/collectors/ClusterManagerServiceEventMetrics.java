@@ -160,7 +160,7 @@ public class ClusterManagerServiceEventMetrics extends PerformanceAnalyzerMetric
                 | IllegalAccessException
                 | ClassNotFoundException e) {
             LOG.debug(
-                    "[ {} ] Exception raised while getting Cluster Manager throttling metrics: {} ",
+                    "[ {} ] Exception raised while getting Cluster Manager Service Event metrics: {} ",
                     this::getCollectorName,
                     e::getMessage);
             StatsCollector.instance().logException(CLUSTER_MANAGER_METRICS_ERROR);
