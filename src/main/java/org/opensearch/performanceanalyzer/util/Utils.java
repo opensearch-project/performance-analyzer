@@ -40,8 +40,6 @@ public class Utils {
         MetricsConfiguration.CONFIG_MAP.put(ClusterManagerServiceMetrics.class, cdefault);
         MetricsConfiguration.CONFIG_MAP.put(FaultDetectionMetricsCollector.class, cdefault);
         MetricsConfiguration.CONFIG_MAP.put(ShardStateCollector.class, cdefault);
-        MetricsConfiguration.CONFIG_MAP.put(
-                ClusterManagerThrottlingMetricsCollector.class, cdefault);
         MetricsConfiguration.CONFIG_MAP.put(ClusterApplierServiceStatsCollector.class, cdefault);
         MetricsConfiguration.CONFIG_MAP.put(SearchBackPressureStatsCollector.class, cdefault);
         MetricsConfiguration.CONFIG_MAP.put(ElectionTermCollector.class, cdefault);
