@@ -30,7 +30,7 @@ jobs:
       # need to switch to root so that github actions can install runner binary on container without permission issues.
       options: --user root
 
-    name: Building PA package
+    name: Assembling PA package
     steps:
     - name: Set up JDK
       uses: actions/setup-java@v1
