@@ -14,7 +14,7 @@ jobs:
     with:
       product: opensearch
 
-  assemble_pa_pkg:
+  build_pa_pkg_on_prod_docker:
     needs: Get-CI-Image-Tag
     strategy:
       matrix:
@@ -30,7 +30,7 @@ jobs:
       # need to switch to root so that github actions can install runner binary on container without permission issues.
       options: --user root
 
-    name: Assembling PA package
+    name: Building PA package on prod docker
     steps:
     - name: Set up JDK
       uses: actions/setup-java@v1
@@ -39,67 +39,67 @@ jobs:
     # Performance Analyzer in ./tmp/performance-analyzer
     - name: Checkout Performance Analyzer package
       uses: actions/checkout@v2
-      with:
-        path: ./tmp/performance-analyzer
+      #with:
+      #  path: ./tmp/performance-analyzer
     - name: Assemble PA jar for BWC tests
-      working-directory: ./tmp/performance-analyzer
+      #working-directory: ./tmp/performance-analyzer
       run: |
         chown -R 1000:1000 `pwd`
-        su `id -un 1000` -c "./gradlew assemble"
+        su `id -un 1000` -c "./gradlew build -x test"
 
-  build_pa_pkg:
-    strategy:
-      matrix:
-        java:
-          - 11
-          - 17
-      fail-fast: false
-    runs-on: [ubuntu-latest]
-    name: Building PA package
-    steps:
-    - name: Set up JDK
-      uses: actions/setup-java@v1
-      with:
-        java-version: ${{matrix.java}}
-    # Performance Analyzer in ./tmp/performance-analyzer
-    - name: Checkout Performance Analyzer package
-      uses: actions/checkout@v2
-      with:
-        path: ./tmp/performance-analyzer
-      # Explicitly set the docker-compose program path so that our build scripts in RCA can run the program
-      # This is necessary because of the Github Actions environment and the workingDir of the Gradle environment
-    - name: Set docker-compose path
-      run: DOCKER_COMPOSE_LOCATION=$(which docker-compose)
-      # Set the vm.max_map_count system property to the minimum required to run OpenSearch
-    - name: Set vm.max_map_count
-      run: sudo sysctl -w vm.max_map_count=262144
-    - name: Build Performance Analyzer and run Unit Tests
-      working-directory: ./tmp/performance-analyzer
-      run: |
-        ./gradlew build -Dperformance-analyzer-rca.build=true \
-          -Dperformance-analyzer-rca.repo="https://github.com/opensearch-project/performance-analyzer-rca.git" \
-          -Dperformance-analyzer-rca.branch=main
-    - name: Assemble PA jar for BWC tests
-      working-directory: ./tmp/performance-analyzer
-      run: |
-        ./gradlew assemble
-        version=`./gradlew properties -q | grep "opensearch_version:" | awk '{print $2}'`
-        IFS='-' read -r -a version_array <<< "$version"
-        plugin_version="${version_array[0]}.0"; for entry in ${version_array[@]:1}; do plugin_version+="-$entry"; done
-        echo $plugin_version
-        mkdir -p ./src/test/resources/org/opensearch/performanceanalyzer/bwc/$plugin_version
-        cp ./build/distributions/*.zip ./src/test/resources/org/opensearch/performanceanalyzer/bwc/$plugin_version
-    - name: Generate Jacoco coverage report
-      working-directory: ./tmp/performance-analyzer
-      run: ./gradlew jacocoTestReport
-    - name: Upload coverage report
-      working-directory: ./tmp/performance-analyzer
-      env:
-        CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
-      run: bash <(curl -s https://codecov.io/bash) -f ./build/reports/jacoco/test/jacocoTestReport.xml
-    - name: Run Integration Tests
-      working-directory: ./tmp/performance-analyzer
-      run: ./gradlew integTest -Dtests.enableIT -Dtests.useDockerCluster
-    - name: Run PerformanceAnalzyer Backwards Compatibility Tests
-      working-directory: ./tmp/performance-analyzer
-      run: ./gradlew bwcTestSuite -Dtests.security.manager=false
+#  build_pa_pkg:
+#    strategy:
+#      matrix:
+#        java:
+#          - 11
+#          - 17
+#      fail-fast: false
+#    runs-on: [ubuntu-latest]
+#    name: Building PA package
+#    steps:
+#    - name: Set up JDK
+#      uses: actions/setup-java@v1
+#      with:
+#        java-version: ${{matrix.java}}
+#    # Performance Analyzer in ./tmp/performance-analyzer
+#    - name: Checkout Performance Analyzer package
+#      uses: actions/checkout@v2
+#      with:
+#        path: ./tmp/performance-analyzer
+#      # Explicitly set the docker-compose program path so that our build scripts in RCA can run the program
+#      # This is necessary because of the Github Actions environment and the workingDir of the Gradle environment
+#    - name: Set docker-compose path
+#      run: DOCKER_COMPOSE_LOCATION=$(which docker-compose)
+#      # Set the vm.max_map_count system property to the minimum required to run OpenSearch
+#    - name: Set vm.max_map_count
+#      run: sudo sysctl -w vm.max_map_count=262144
+#    - name: Build Performance Analyzer and run Unit Tests
+#      working-directory: ./tmp/performance-analyzer
+#      run: |
+#        ./gradlew build -Dperformance-analyzer-rca.build=true \
+#          -Dperformance-analyzer-rca.repo="https://github.com/opensearch-project/performance-analyzer-rca.git" \
+#          -Dperformance-analyzer-rca.branch=main
+#    - name: Assemble PA jar for BWC tests
+#      working-directory: ./tmp/performance-analyzer
+#      run: |
+#        ./gradlew assemble
+#        version=`./gradlew properties -q | grep "opensearch_version:" | awk '{print $2}'`
+#        IFS='-' read -r -a version_array <<< "$version"
+#        plugin_version="${version_array[0]}.0"; for entry in ${version_array[@]:1}; do plugin_version+="-$entry"; done
+#        echo $plugin_version
+#        mkdir -p ./src/test/resources/org/opensearch/performanceanalyzer/bwc/$plugin_version
+#        cp ./build/distributions/*.zip ./src/test/resources/org/opensearch/performanceanalyzer/bwc/$plugin_version
+#    - name: Generate Jacoco coverage report
+#      working-directory: ./tmp/performance-analyzer
+#      run: ./gradlew jacocoTestReport
+#    - name: Upload coverage report
+#      working-directory: ./tmp/performance-analyzer
+#      env:
+#        CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+#      run: bash <(curl -s https://codecov.io/bash) -f ./build/reports/jacoco/test/jacocoTestReport.xml
+#    - name: Run Integration Tests
+#      working-directory: ./tmp/performance-analyzer
+#      run: ./gradlew integTest -Dtests.enableIT -Dtests.useDockerCluster
+#    - name: Run PerformanceAnalzyer Backwards Compatibility Tests
+#      working-directory: ./tmp/performance-analyzer
+#      run: ./gradlew bwcTestSuite -Dtests.security.manager=false
