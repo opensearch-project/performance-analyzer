@@ -9,6 +9,44 @@ on:
       - "*"
 
 jobs:
+  Get-CI-Image-Tag:
+    uses: opensearch-project/opensearch-build/.github/workflows/get-ci-image-tag.yml@main
+    with:
+      product: opensearch
+
+  assemble_pa_pkg:
+    needs: Get-CI-Image-Tag
+    strategy:
+      matrix:
+        java:
+          - 11
+          - 17
+      fail-fast: false
+    runs-on: [ubuntu-latest]
+    container:
+      # using the same image which is used by opensearch-build team to build the OpenSearch Distribution
+      # this image tag is subject to change as more dependencies and updates will arrive over time
+      image: ${{ needs.Get-CI-Image-Tag.outputs.ci-image-version-linux }}
+      # need to switch to root so that github actions can install runner binary on container without permission issues.
+      options: --user root
+
+    name: Building PA package
+    steps:
+    - name: Set up JDK
+      uses: actions/setup-java@v1
+      with:
+        java-version: ${{matrix.java}}
+    # Performance Analyzer in ./tmp/performance-analyzer
+    - name: Checkout Performance Analyzer package
+      uses: actions/checkout@v2
+      with:
+        path: ./tmp/performance-analyzer
+    - name: Assemble PA jar for BWC tests
+      working-directory: ./tmp/performance-analyzer
+      run: |
+        chown -R 1000:1000 `pwd`
+        su `id -un 1000` -c "./gradlew assemble"
+
   build_pa_pkg:
     strategy:
       matrix:
