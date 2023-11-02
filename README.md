@@ -104,7 +104,7 @@ Please refer to the [technical documentation](https://opensearch.org/docs/monito
 
 The [Architecture](docs/READER.md) document provides a high-level overview of the Performance Analyzer architecture.
 
-You can find a high-level overview of the project file structure [here](docs/HLL.md).
+You can find a high-level overview of the project file structure [here](docs/OVERVIEW.md).
 
 ## Contributing
 
