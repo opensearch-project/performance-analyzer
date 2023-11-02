@@ -41,11 +41,13 @@ jobs:
       uses: actions/checkout@v2
       #with:
       #  path: ./tmp/performance-analyzer
-    - name: Assemble PA jar for BWC tests
+    - name: Build PA with same command on prod docker
       #working-directory: ./tmp/performance-analyzer
       run: |
         chown -R 1000:1000 `pwd`
-        su `id -un 1000` -c "./gradlew build -x test"
+        su `id -un 1000` -c './gradlew build -Dperformance-analyzer-rca.build=true \
+                             -Dperformance-analyzer-rca.repo="https://github.com/opensearch-project/performance-analyzer-rca.git" \
+                             -Dperformance-analyzer-rca.branch=main'
 
 #  build_pa_pkg:
 #    strategy:
