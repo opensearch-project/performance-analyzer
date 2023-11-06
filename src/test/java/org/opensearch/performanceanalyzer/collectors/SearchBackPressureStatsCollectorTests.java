@@ -145,10 +145,10 @@ public class SearchBackPressureStatsCollectorTests {
         Mockito.doReturn(
                         new SearchBackPressureStatsCollector.SearchBackPressureStats(
                                 new SearchBackPressureStatsCollector.SearchShardTaskStats(
-                                        0, 0, resource_usage_mock_stats),
+                                        0, 0, 0, resource_usage_mock_stats),
                                 "MONITOR_ONLY",
                                 new SearchBackPressureStatsCollector.SearchTaskStats(
-                                        0, 0, resource_usage_mock_stats)))
+                                        0, 0, 0, resource_usage_mock_stats)))
                 .when(spyCollector)
                 .getSearchBackPressureStats();
 

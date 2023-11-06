@@ -109,7 +109,6 @@ public class SearchBackPressureStatsCollector extends PerformanceAnalyzerMetrics
             String jsonString = mapper.writeValueAsString(getSearchBackPressureStats());
             currentSearchBackPressureStats =
                     mapper.readValue(jsonString, SearchBackPressureStats.class);
-
         } catch (InvocationTargetException
                 | IllegalAccessException
                 | NoSuchMethodException
@@ -254,6 +253,7 @@ public class SearchBackPressureStatsCollector extends PerformanceAnalyzerMetrics
     public static class SearchShardTaskStats {
         private long cancellationCount;
         private long limitReachedCount;
+        private long completionCount;
         private Map<String, ResourceUsageTrackerStats> resourceUsageTrackerStats;
 
         @JsonCreator
@@ -266,12 +266,14 @@ public class SearchBackPressureStatsCollector extends PerformanceAnalyzerMetrics
                                 SearchBackPressureStatsValue.Constants
                                         .SEARCHBP_SEARCH_SHARD_TASK_STATS_LIMITREACHEDCOUNT)
                         long limitReachedCount,
+                @JsonProperty("completion_count") long completionCount,
                 @JsonProperty(
                                 SearchBackPressureStatsValue.Constants
                                         .SEARCHBP_SEARCH_SHARD_TASK_STATS_RESOURCE_USAGE_TRACKER_STATS)
                         Map<String, ResourceUsageTrackerStats> resourceUsageTrackerStats) {
             this.cancellationCount = cancellationCount;
             this.limitReachedCount = limitReachedCount;
+            this.completionCount = completionCount;
             this.resourceUsageTrackerStats = resourceUsageTrackerStats;
         }
 
@@ -300,6 +302,14 @@ public class SearchBackPressureStatsCollector extends PerformanceAnalyzerMetrics
                 Map<String, ResourceUsageTrackerStats> resourceUsageTrackerStats) {
             this.resourceUsageTrackerStats = resourceUsageTrackerStats;
         }
+
+        public long getCompletionCount() {
+            return completionCount;
+        }
+
+        public void setCompletionCount(long completionCount) {
+            this.completionCount = completionCount;
+        }
     }
 
     /*
@@ -308,6 +318,7 @@ public class SearchBackPressureStatsCollector extends PerformanceAnalyzerMetrics
     public static class SearchTaskStats {
         private long cancellationCount;
         private long limitReachedCount;
+        private long completionCount;
         private Map<String, ResourceUsageTrackerStats> resourceUsageTrackerStats;
 
         @JsonCreator
@@ -320,12 +331,14 @@ public class SearchBackPressureStatsCollector extends PerformanceAnalyzerMetrics
                                 SearchBackPressureStatsValue.Constants
                                         .SEARCHBP_SEARCH_TASK_STATS_LIMITREACHEDCOUNT)
                         long limitReachedCount,
+                @JsonProperty("completion_count") long completionCount,
                 @JsonProperty(
                                 SearchBackPressureStatsValue.Constants
                                         .SEARCHBP_SEARCH_TASK_STATS_RESOURCE_USAGE_TRACKER_STATS)
                         Map<String, ResourceUsageTrackerStats> resourceUsageTrackerStats) {
             this.cancellationCount = cancellationCount;
             this.limitReachedCount = limitReachedCount;
+            this.completionCount = completionCount;
             this.resourceUsageTrackerStats = resourceUsageTrackerStats;
         }
 
@@ -344,6 +357,14 @@ public class SearchBackPressureStatsCollector extends PerformanceAnalyzerMetrics
 
         public void setLimitReachedCount(long limitReachedCount) {
             this.limitReachedCount = limitReachedCount;
+        }
+
+        public long getCompletionCount() {
+            return completionCount;
+        }
+
+        public void setCompletionCount(long completionCount) {
+            this.completionCount = completionCount;
         }
 
         public Map<String, ResourceUsageTrackerStats> getResourceUsageTrackerStats() {
@@ -446,6 +467,7 @@ public class SearchBackPressureStatsCollector extends PerformanceAnalyzerMetrics
         // SearchShardTaskStats related stats (General)
         private long searchbp_shard_stats_cancellationCount;
         private long searchbp_shard_stats_limitReachedCount;
+        private long searchbp_shard_stats_completionCount;
 
         // SearchShardTaskStats related stats (resourceUsageTrackerStats)
         // HEAP_USAGE_TRACKER
@@ -466,6 +488,7 @@ public class SearchBackPressureStatsCollector extends PerformanceAnalyzerMetrics
         // SearchTaskStats related stats (General)
         private long searchbp_task_stats_cancellationCount;
         private long searchbp_task_stats_limitReachedCount;
+        private long searchbp_task_stats_completionCount;
 
         // SearchTaskStats related stats (resourceUsageTrackerStats)
         // HEAP_USAGE_TRACKER
@@ -517,6 +540,7 @@ public class SearchBackPressureStatsCollector extends PerformanceAnalyzerMetrics
                     searchShardTaskStats.getCancellationCount();
             this.searchbp_shard_stats_limitReachedCount =
                     searchShardTaskStats.getLimitReachedCount();
+            this.searchbp_shard_stats_completionCount = searchShardTaskStats.getCompletionCount();
             this.searchbp_shard_stats_resource_heap_usage_cancellationCount =
                     shard_heap_stats.getCancellationCount();
             this.searchbp_shard_stats_resource_heap_usage_currentMax =
@@ -556,6 +580,7 @@ public class SearchBackPressureStatsCollector extends PerformanceAnalyzerMetrics
 
             this.searchbp_task_stats_cancellationCount = searchTaskStats.getCancellationCount();
             this.searchbp_task_stats_limitReachedCount = searchTaskStats.getLimitReachedCount();
+            this.searchbp_task_stats_completionCount = searchTaskStats.getCompletionCount();
             this.searchbp_task_stats_resource_heap_usage_cancellationCount =
                     task_heap_stats.getCancellationCount();
             this.searchbp_task_stats_resource_heap_usage_currentMax =
@@ -592,6 +617,11 @@ public class SearchBackPressureStatsCollector extends PerformanceAnalyzerMetrics
         @JsonProperty(SearchBackPressureStatsValue.Constants.SEARCHBP_SHARD_STATS_LIMITREACHEDCOUNT)
         public long getSearchbp_shard_stats_limitReachedCount() {
             return searchbp_shard_stats_limitReachedCount;
+        }
+
+        @JsonProperty("searchbp_shard_stats_completionCount")
+        public long getSearchbp_shard_stats_completionCount() {
+            return searchbp_shard_stats_completionCount;
         }
 
         @JsonProperty(
@@ -665,6 +695,11 @@ public class SearchBackPressureStatsCollector extends PerformanceAnalyzerMetrics
         @JsonProperty(SearchBackPressureStatsValue.Constants.SEARCHBP_TASK_STATS_LIMITREACHEDCOUNT)
         public long getSearchbp_task_stats_limitReachedCount() {
             return searchbp_task_stats_limitReachedCount;
+        }
+
+        @JsonProperty("searchbp_task_stats_completionCount")
+        public long getSearchbp_task_stats_completionCount() {
+            return searchbp_task_stats_completionCount;
         }
 
         @JsonProperty(
