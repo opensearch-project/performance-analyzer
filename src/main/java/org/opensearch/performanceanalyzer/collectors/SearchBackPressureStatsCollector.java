@@ -266,7 +266,10 @@ public class SearchBackPressureStatsCollector extends PerformanceAnalyzerMetrics
                                 SearchBackPressureStatsValue.Constants
                                         .SEARCHBP_SEARCH_SHARD_TASK_STATS_LIMITREACHEDCOUNT)
                         long limitReachedCount,
-                @JsonProperty("completion_count") long completionCount,
+                @JsonProperty(
+                                SearchBackPressureStatsValue.Constants
+                                        .SEARCHBP_SEARCH_SHARD_TASK_STATS_COMPLETIONCOUNT)
+                        long completionCount,
                 @JsonProperty(
                                 SearchBackPressureStatsValue.Constants
                                         .SEARCHBP_SEARCH_SHARD_TASK_STATS_RESOURCE_USAGE_TRACKER_STATS)
@@ -331,7 +334,10 @@ public class SearchBackPressureStatsCollector extends PerformanceAnalyzerMetrics
                                 SearchBackPressureStatsValue.Constants
                                         .SEARCHBP_SEARCH_TASK_STATS_LIMITREACHEDCOUNT)
                         long limitReachedCount,
-                @JsonProperty("completion_count") long completionCount,
+                @JsonProperty(
+                                SearchBackPressureStatsValue.Constants
+                                        .SEARCHBP_SEARCH_TASK_STATS_COMPLETIONCOUNT)
+                        long completionCount,
                 @JsonProperty(
                                 SearchBackPressureStatsValue.Constants
                                         .SEARCHBP_SEARCH_TASK_STATS_RESOURCE_USAGE_TRACKER_STATS)
@@ -697,7 +703,7 @@ public class SearchBackPressureStatsCollector extends PerformanceAnalyzerMetrics
             return searchbp_task_stats_limitReachedCount;
         }
 
-        @JsonProperty("searchbp_task_stats_completionCount")
+        @JsonProperty(SearchBackPressureStatsValue.Constants.SEARCHBP_TASK_STATS_COMPLETIONCOUNT)
         public long getSearchbp_task_stats_completionCount() {
             return searchbp_task_stats_completionCount;
         }
