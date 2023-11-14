@@ -102,6 +102,10 @@ See the [design doc](https://github.com/opensearch-project/performance-analyzer-
 
 Please refer to the [technical documentation](https://opensearch.org/docs/monitoring-plugins/pa/index/) for detailed information on installing and configuring Performance Analyzer.
 
+The [Architecture](docs/READER.md) document provides a high-level overview of the Performance Analyzer architecture.
+
+You can find a high-level overview of the project file structure [here](docs/OVERVIEW.md).
+
 ## Contributing
 
 See [developer guide](DEVELOPER_GUIDE.md) and [how to contribute to this project](CONTRIBUTING.md).
