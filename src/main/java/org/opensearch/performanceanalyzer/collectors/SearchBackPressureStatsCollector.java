@@ -34,8 +34,6 @@ import org.opensearch.performanceanalyzer.commons.metrics.MetricsProcessor;
 import org.opensearch.performanceanalyzer.commons.metrics.PerformanceAnalyzerMetrics;
 import org.opensearch.performanceanalyzer.config.PerformanceAnalyzerController;
 import org.opensearch.search.backpressure.SearchBackpressureService;
-import org.opensearch.search.backpressure.stats.SearchShardTaskStats;
-import org.opensearch.search.backpressure.stats.SearchTaskStats;
 
 public class SearchBackPressureStatsCollector extends PerformanceAnalyzerMetricsCollector
         implements MetricsProcessor {
@@ -109,7 +107,6 @@ public class SearchBackPressureStatsCollector extends PerformanceAnalyzerMetrics
             String jsonString = mapper.writeValueAsString(getSearchBackPressureStats());
             currentSearchBackPressureStats =
                     mapper.readValue(jsonString, SearchBackPressureStats.class);
-
         } catch (InvocationTargetException
                 | IllegalAccessException
                 | NoSuchMethodException
@@ -254,6 +251,7 @@ public class SearchBackPressureStatsCollector extends PerformanceAnalyzerMetrics
     public static class SearchShardTaskStats {
         private long cancellationCount;
         private long limitReachedCount;
+        private long completionCount;
         private Map<String, ResourceUsageTrackerStats> resourceUsageTrackerStats;
 
         @JsonCreator
@@ -268,10 +266,15 @@ public class SearchBackPressureStatsCollector extends PerformanceAnalyzerMetrics
                         long limitReachedCount,
                 @JsonProperty(
                                 SearchBackPressureStatsValue.Constants
+                                        .SEARCHBP_SEARCH_SHARD_TASK_STATS_COMPLETIONCOUNT)
+                        long completionCount,
+                @JsonProperty(
+                                SearchBackPressureStatsValue.Constants
                                         .SEARCHBP_SEARCH_SHARD_TASK_STATS_RESOURCE_USAGE_TRACKER_STATS)
                         Map<String, ResourceUsageTrackerStats> resourceUsageTrackerStats) {
             this.cancellationCount = cancellationCount;
             this.limitReachedCount = limitReachedCount;
+            this.completionCount = completionCount;
             this.resourceUsageTrackerStats = resourceUsageTrackerStats;
         }
 
@@ -300,6 +303,14 @@ public class SearchBackPressureStatsCollector extends PerformanceAnalyzerMetrics
                 Map<String, ResourceUsageTrackerStats> resourceUsageTrackerStats) {
             this.resourceUsageTrackerStats = resourceUsageTrackerStats;
         }
+
+        public long getCompletionCount() {
+            return completionCount;
+        }
+
+        public void setCompletionCount(long completionCount) {
+            this.completionCount = completionCount;
+        }
     }
 
     /*
@@ -308,6 +319,7 @@ public class SearchBackPressureStatsCollector extends PerformanceAnalyzerMetrics
     public static class SearchTaskStats {
         private long cancellationCount;
         private long limitReachedCount;
+        private long completionCount;
         private Map<String, ResourceUsageTrackerStats> resourceUsageTrackerStats;
 
         @JsonCreator
@@ -322,10 +334,15 @@ public class SearchBackPressureStatsCollector extends PerformanceAnalyzerMetrics
                         long limitReachedCount,
                 @JsonProperty(
                                 SearchBackPressureStatsValue.Constants
+                                        .SEARCHBP_SEARCH_TASK_STATS_COMPLETIONCOUNT)
+                        long completionCount,
+                @JsonProperty(
+                                SearchBackPressureStatsValue.Constants
                                         .SEARCHBP_SEARCH_TASK_STATS_RESOURCE_USAGE_TRACKER_STATS)
                         Map<String, ResourceUsageTrackerStats> resourceUsageTrackerStats) {
             this.cancellationCount = cancellationCount;
             this.limitReachedCount = limitReachedCount;
+            this.completionCount = completionCount;
             this.resourceUsageTrackerStats = resourceUsageTrackerStats;
         }
 
@@ -344,6 +361,14 @@ public class SearchBackPressureStatsCollector extends PerformanceAnalyzerMetrics
 
         public void setLimitReachedCount(long limitReachedCount) {
             this.limitReachedCount = limitReachedCount;
+        }
+
+        public long getCompletionCount() {
+            return completionCount;
+        }
+
+        public void setCompletionCount(long completionCount) {
+            this.completionCount = completionCount;
         }
 
         public Map<String, ResourceUsageTrackerStats> getResourceUsageTrackerStats() {
@@ -444,44 +469,46 @@ public class SearchBackPressureStatsCollector extends PerformanceAnalyzerMetrics
         private String nodeId;
 
         // SearchShardTaskStats related stats (General)
-        private long searchbp_shard_stats_cancellationCount;
-        private long searchbp_shard_stats_limitReachedCount;
+        private long searchbp_shard_task_stats_cancellationCount;
+        private long searchbp_shard_task_stats_limitReachedCount;
+        private long searchbp_shard_task_stats_completionCount;
 
         // SearchShardTaskStats related stats (resourceUsageTrackerStats)
         // HEAP_USAGE_TRACKER
-        private long searchbp_shard_stats_resource_heap_usage_cancellationCount;
-        private long searchbp_shard_stats_resource_heap_usage_currentMax;
-        private long searchbp_shard_stats_resource_heap_usage_rollingAvg;
+        private long searchbp_shard_task_stats_resource_heap_usage_cancellationCount;
+        private long searchbp_shard_task_stats_resource_heap_usage_currentMax;
+        private long searchbp_shard_task_stats_resource_heap_usage_rollingAvg;
 
         // CPU_USAGE_TRACKER
-        private long searchbp_shard_stats_resource_cpu_usage_cancellationCount;
-        private long searchbp_shard_stats_resource_cpu_usage_currentMax;
+        private long searchbp_shard_task_stats_resource_cpu_usage_cancellationCount;
+        private long searchbp_shard_task_stats_resource_cpu_usage_currentMax;
         private long searchbp_shard_stats_resource_cpu_usage_currentAvg;
 
         // ELAPSED_TIME_TRACKER
-        private long searchbp_shard_stats_resource_elaspedtime_usage_cancellationCount;
-        private long searchbp_shard_stats_resource_elaspedtime_usage_currentMax;
-        private long searchbp_shard_stats_resource_elaspedtime_usage_currentAvg;
+        private long searchbp_shard_task_stats_resource_elaspedtime_usage_cancellationCount;
+        private long searchbp_shard_task_stats_resource_elaspedtime_usage_currentMax;
+        private long searchbp_shard_task_stats_resource_elaspedtime_usage_currentAvg;
 
         // SearchTaskStats related stats (General)
-        private long searchbp_task_stats_cancellationCount;
-        private long searchbp_task_stats_limitReachedCount;
+        private long searchbp_search_task_stats_cancellationCount;
+        private long searchbp_search_task_stats_limitReachedCount;
+        private long searchbp_search_task_stats_completionCount;
 
         // SearchTaskStats related stats (resourceUsageTrackerStats)
         // HEAP_USAGE_TRACKER
-        private long searchbp_task_stats_resource_heap_usage_cancellationCount;
-        private long searchbp_task_stats_resource_heap_usage_currentMax;
-        private long searchbp_task_stats_resource_heap_usage_rollingAvg;
+        private long searchbp_search_task_stats_resource_heap_usage_cancellationCount;
+        private long searchbp_search_task_stats_resource_heap_usage_currentMax;
+        private long searchbp_search_task_stats_resource_heap_usage_rollingAvg;
 
         // CPU_USAGE_TRACKER
-        private long searchbp_task_stats_resource_cpu_usage_cancellationCount;
-        private long searchbp_task_stats_resource_cpu_usage_currentMax;
-        private long searchbp_task_stats_resource_cpu_usage_currentAvg;
+        private long searchbp_search_task_stats_resource_cpu_usage_cancellationCount;
+        private long searchbp_search_task_stats_resource_cpu_usage_currentMax;
+        private long searchbp_search_task_stats_resource_cpu_usage_currentAvg;
 
         // ELAPSED_TIME_TRACKER
-        private long searchbp_task_stats_resource_elaspedtime_usage_cancellationCount;
-        private long searchbp_task_stats_resource_elaspedtime_usage_currentMax;
-        private long searchbp_task_stats_resource_elaspedtime_usage_currentAvg;
+        private long searchbp_search_task_stats_resource_elaspedtime_usage_cancellationCount;
+        private long searchbp_search_task_stats_resource_elaspedtime_usage_currentMax;
+        private long searchbp_search_task_stats_resource_elaspedtime_usage_currentAvg;
 
         public SearchBackPressureMetrics(
                 String mode,
@@ -513,27 +540,29 @@ public class SearchBackPressureStatsCollector extends PerformanceAnalyzerMetrics
                             .getResourceUsageTrackerStats()
                             .get(ELAPSED_TIME_USAGE_TRACKER_FIELD_NAME);
 
-            this.searchbp_shard_stats_cancellationCount =
+            this.searchbp_shard_task_stats_cancellationCount =
                     searchShardTaskStats.getCancellationCount();
-            this.searchbp_shard_stats_limitReachedCount =
+            this.searchbp_shard_task_stats_limitReachedCount =
                     searchShardTaskStats.getLimitReachedCount();
-            this.searchbp_shard_stats_resource_heap_usage_cancellationCount =
+            this.searchbp_shard_task_stats_completionCount =
+                    searchShardTaskStats.getCompletionCount();
+            this.searchbp_shard_task_stats_resource_heap_usage_cancellationCount =
                     shard_heap_stats.getCancellationCount();
-            this.searchbp_shard_stats_resource_heap_usage_currentMax =
+            this.searchbp_shard_task_stats_resource_heap_usage_currentMax =
                     shard_heap_stats.getCurrentMax();
-            this.searchbp_shard_stats_resource_heap_usage_rollingAvg =
+            this.searchbp_shard_task_stats_resource_heap_usage_rollingAvg =
                     shard_heap_stats.getRollingAvg();
-            this.searchbp_shard_stats_resource_cpu_usage_cancellationCount =
+            this.searchbp_shard_task_stats_resource_cpu_usage_cancellationCount =
                     shard_cpu_stats.getCancellationCount();
-            this.searchbp_shard_stats_resource_cpu_usage_currentMax =
+            this.searchbp_shard_task_stats_resource_cpu_usage_currentMax =
                     shard_cpu_stats.getCurrentMax();
             this.searchbp_shard_stats_resource_cpu_usage_currentAvg =
                     shard_cpu_stats.getCurrentAvg();
-            this.searchbp_shard_stats_resource_elaspedtime_usage_cancellationCount =
+            this.searchbp_shard_task_stats_resource_elaspedtime_usage_cancellationCount =
                     shard_time_stats.getCancellationCount();
-            this.searchbp_shard_stats_resource_elaspedtime_usage_currentMax =
+            this.searchbp_shard_task_stats_resource_elaspedtime_usage_currentMax =
                     shard_time_stats.getCurrentMax();
-            this.searchbp_shard_stats_resource_elaspedtime_usage_currentAvg =
+            this.searchbp_shard_task_stats_resource_elaspedtime_usage_currentAvg =
                     shard_time_stats.getCurrentAvg();
         }
 
@@ -554,23 +583,28 @@ public class SearchBackPressureStatsCollector extends PerformanceAnalyzerMetrics
                             .getResourceUsageTrackerStats()
                             .get(ELAPSED_TIME_USAGE_TRACKER_FIELD_NAME);
 
-            this.searchbp_task_stats_cancellationCount = searchTaskStats.getCancellationCount();
-            this.searchbp_task_stats_limitReachedCount = searchTaskStats.getLimitReachedCount();
-            this.searchbp_task_stats_resource_heap_usage_cancellationCount =
+            this.searchbp_search_task_stats_cancellationCount =
+                    searchTaskStats.getCancellationCount();
+            this.searchbp_search_task_stats_limitReachedCount =
+                    searchTaskStats.getLimitReachedCount();
+            this.searchbp_search_task_stats_completionCount = searchTaskStats.getCompletionCount();
+            this.searchbp_search_task_stats_resource_heap_usage_cancellationCount =
                     task_heap_stats.getCancellationCount();
-            this.searchbp_task_stats_resource_heap_usage_currentMax =
+            this.searchbp_search_task_stats_resource_heap_usage_currentMax =
                     task_heap_stats.getCurrentMax();
-            this.searchbp_task_stats_resource_heap_usage_rollingAvg =
+            this.searchbp_search_task_stats_resource_heap_usage_rollingAvg =
                     task_heap_stats.getRollingAvg();
-            this.searchbp_task_stats_resource_cpu_usage_cancellationCount =
+            this.searchbp_search_task_stats_resource_cpu_usage_cancellationCount =
                     task_cpu_stats.getCancellationCount();
-            this.searchbp_task_stats_resource_cpu_usage_currentMax = task_cpu_stats.getCurrentMax();
-            this.searchbp_task_stats_resource_cpu_usage_currentAvg = task_cpu_stats.getCurrentAvg();
-            this.searchbp_task_stats_resource_elaspedtime_usage_cancellationCount =
+            this.searchbp_search_task_stats_resource_cpu_usage_currentMax =
+                    task_cpu_stats.getCurrentMax();
+            this.searchbp_search_task_stats_resource_cpu_usage_currentAvg =
+                    task_cpu_stats.getCurrentAvg();
+            this.searchbp_search_task_stats_resource_elaspedtime_usage_cancellationCount =
                     task_time_stats.getCancellationCount();
-            this.searchbp_task_stats_resource_elaspedtime_usage_currentMax =
+            this.searchbp_search_task_stats_resource_elaspedtime_usage_currentMax =
                     task_time_stats.getCurrentMax();
-            this.searchbp_task_stats_resource_elaspedtime_usage_currentAvg =
+            this.searchbp_search_task_stats_resource_elaspedtime_usage_currentAvg =
                     task_time_stats.getCurrentAvg();
         }
 
@@ -584,150 +618,169 @@ public class SearchBackPressureStatsCollector extends PerformanceAnalyzerMetrics
             return this.nodeId;
         }
 
-        @JsonProperty(SearchBackPressureStatsValue.Constants.SEARCHBP_SHARD_STATS_CANCELLATIONCOUNT)
-        public long getSearchbp_shard_stats_cancellationCount() {
-            return searchbp_shard_stats_cancellationCount;
-        }
-
-        @JsonProperty(SearchBackPressureStatsValue.Constants.SEARCHBP_SHARD_STATS_LIMITREACHEDCOUNT)
-        public long getSearchbp_shard_stats_limitReachedCount() {
-            return searchbp_shard_stats_limitReachedCount;
+        @JsonProperty(
+                SearchBackPressureStatsValue.Constants.SEARCHBP_SHARD_TASK_STATS_CANCELLATION_COUNT)
+        public long getSearchbp_shard_task_stats_cancellationCount() {
+            return searchbp_shard_task_stats_cancellationCount;
         }
 
         @JsonProperty(
                 SearchBackPressureStatsValue.Constants
-                        .SEARCHBP_SHARD_STATS_RESOURCE_HEAP_USAGE_CANCELLATIONCOUNT)
-        public long getSearchbp_shard_stats_resource_heap_usage_cancellationCount() {
-            return searchbp_shard_stats_resource_heap_usage_cancellationCount;
+                        .SEARCHBP_SHARD_TASK_STATS_LIMIT_REACHED_COUNT)
+        public long getSearchbp_shard_task_stats_limitReachedCount() {
+            return searchbp_shard_task_stats_limitReachedCount;
+        }
+
+        @JsonProperty(
+                SearchBackPressureStatsValue.Constants.SEARCHBP_SHARD_TASK_STATS_COMPLETION_COUNT)
+        public long getSearchbp_shard_task_stats_completionCount() {
+            return searchbp_shard_task_stats_completionCount;
         }
 
         @JsonProperty(
                 SearchBackPressureStatsValue.Constants
-                        .SEARCHBP_SHARD_STATS_RESOURCE_HEAP_USAGE_CURRENTMAX)
-        public long getSearchbp_shard_stats_resource_heap_usage_currentMax() {
-            return searchbp_shard_stats_resource_heap_usage_currentMax;
+                        .SEARCHBP_SHARD_TASK_STATS_RESOURCE_HEAP_USAGE_CANCELLATION_COUNT)
+        public long getSearchbp_shard_task_stats_resource_heap_usage_cancellationCount() {
+            return searchbp_shard_task_stats_resource_heap_usage_cancellationCount;
         }
 
         @JsonProperty(
                 SearchBackPressureStatsValue.Constants
-                        .SEARCHBP_SHARD_STATS_RESOURCE_HEAP_USAGE_ROLLINGAVG)
+                        .SEARCHBP_SHARD_TASK_STATS_RESOURCE_HEAP_USAGE_CURRENT_MAX)
+        public long getSearchbp_shard_task_stats_resource_heap_usage_currentMax() {
+            return searchbp_shard_task_stats_resource_heap_usage_currentMax;
+        }
+
+        @JsonProperty(
+                SearchBackPressureStatsValue.Constants
+                        .SEARCHBP_SHARD_TASK_STATS_RESOURCE_HEAP_USAGE_ROLLING_AVG)
         public long getsearchbp_shard_stats_resource_heap_usage_rollingAvg() {
-            return searchbp_shard_stats_resource_heap_usage_rollingAvg;
+            return searchbp_shard_task_stats_resource_heap_usage_rollingAvg;
         }
 
         @JsonProperty(
                 SearchBackPressureStatsValue.Constants
-                        .SEARCHBP_SHARD_STATS_RESOURCE_CPU_USAGE_CANCELLATIONCOUNT)
-        public long getSearchbp_shard_stats_resource_cpu_usage_cancellationCount() {
-            return searchbp_shard_stats_resource_cpu_usage_cancellationCount;
+                        .SEARCHBP_SHARD_TASK_STATS_RESOURCE_CPU_USAGE_CANCELLATION_COUNT)
+        public long getSearchbp_shard_task_stats_resource_cpu_usage_cancellationCount() {
+            return searchbp_shard_task_stats_resource_cpu_usage_cancellationCount;
         }
 
         @JsonProperty(
                 SearchBackPressureStatsValue.Constants
-                        .SEARCHBP_SHARD_STATS_RESOURCE_CPU_USAGE_CURRENTMAX)
-        public long getSearchbp_shard_stats_resource_cpu_usage_currentMax() {
-            return searchbp_shard_stats_resource_cpu_usage_currentMax;
+                        .SEARCHBP_SHARD_TASK_STATS_RESOURCE_CPU_USAGE_CURRENT_MAX)
+        public long getSearchbp_shard_task_stats_resource_cpu_usage_currentMax() {
+            return searchbp_shard_task_stats_resource_cpu_usage_currentMax;
         }
 
         @JsonProperty(
                 SearchBackPressureStatsValue.Constants
-                        .SEARCHBP_SHARD_STATS_RESOURCE_CPU_USAGE_CURRENTAVG)
+                        .SEARCHBP_SHARD_TASK_STATS_RESOURCE_CPU_USAGE_CURRENT_AVG)
         public long getSearchbp_shard_stats_resource_cpu_usage_currentAvg() {
             return searchbp_shard_stats_resource_cpu_usage_currentAvg;
         }
 
         @JsonProperty(
                 SearchBackPressureStatsValue.Constants
-                        .SEARCHBP_SHARD_STATS_RESOURCE_ELASPEDTIME_USAGE_CANCELLATIONCOUNT)
-        public long getSearchbp_shard_stats_resource_elaspedtime_usage_cancellationCount() {
-            return searchbp_shard_stats_resource_elaspedtime_usage_cancellationCount;
+                        .SEARCHBP_SHARD_TASK_STATS_RESOURCE_ELASPEDTIME_USAGE_CANCELLATION_COUNT)
+        public long getSearchbp_shard_task_stats_resource_elaspedtime_usage_cancellationCount() {
+            return searchbp_shard_task_stats_resource_elaspedtime_usage_cancellationCount;
         }
 
         @JsonProperty(
                 SearchBackPressureStatsValue.Constants
-                        .SEARCHBP_SHARD_STATS_RESOURCE_ELASPEDTIME_USAGE_CURRENTMAX)
-        public long getSearchbp_shard_stats_resource_elaspedtime_usage_currentMax() {
-            return searchbp_shard_stats_resource_elaspedtime_usage_currentMax;
+                        .SEARCHBP_SHARD_TASK_STATS_RESOURCE_ELASPEDTIME_USAGE_CURRENT_MAX)
+        public long getSearchbp_shard_task_stats_resource_elaspedtime_usage_currentMax() {
+            return searchbp_shard_task_stats_resource_elaspedtime_usage_currentMax;
         }
 
         @JsonProperty(
                 SearchBackPressureStatsValue.Constants
-                        .SEARCHBP_SHARD_STATS_RESOURCE_ELASPEDTIME_USAGE_CURRENTAVG)
-        public long getSearchbp_shard_stats_resource_elaspedtime_usage_currentAvg() {
-            return searchbp_shard_stats_resource_elaspedtime_usage_currentAvg;
-        }
-
-        @JsonProperty(SearchBackPressureStatsValue.Constants.SEARCHBP_TASK_STATS_CANCELLATIONCOUNT)
-        public long getSearchbp_task_stats_cancellationCount() {
-            return searchbp_task_stats_cancellationCount;
-        }
-
-        @JsonProperty(SearchBackPressureStatsValue.Constants.SEARCHBP_TASK_STATS_LIMITREACHEDCOUNT)
-        public long getSearchbp_task_stats_limitReachedCount() {
-            return searchbp_task_stats_limitReachedCount;
+                        .SEARCHBP_SHARD_TASK_STATS_RESOURCE_ELASPEDTIME_USAGE_CURRENT_AVG)
+        public long getSearchbp_shard_task_stats_resource_elaspedtime_usage_currentAvg() {
+            return searchbp_shard_task_stats_resource_elaspedtime_usage_currentAvg;
         }
 
         @JsonProperty(
                 SearchBackPressureStatsValue.Constants
-                        .SEARCHBP_TASK_STATS_RESOURCE_HEAP_USAGE_CANCELLATIONCOUNT)
-        public long getSearchbp_task_stats_resource_heap_usage_cancellationCount() {
-            return searchbp_task_stats_resource_heap_usage_cancellationCount;
+                        .SEARCHBP_SEARCH_TASK_STATS_CANCELLATION_COUNT)
+        public long getSearchbp_search_task_stats_cancellationCount() {
+            return searchbp_search_task_stats_cancellationCount;
         }
 
         @JsonProperty(
                 SearchBackPressureStatsValue.Constants
-                        .SEARCHBP_TASK_STATS_RESOURCE_HEAP_USAGE_CURRENTMAX)
-        public long getSearchbp_task_stats_resource_heap_usage_currentMax() {
-            return searchbp_task_stats_resource_heap_usage_currentMax;
+                        .SEARCHBP_SEARCH_TASK_STATS_LIMIT_REACHED_COUNT)
+        public long getSearchbp_search_task_stats_limitReachedCount() {
+            return searchbp_search_task_stats_limitReachedCount;
+        }
+
+        @JsonProperty(
+                SearchBackPressureStatsValue.Constants.SEARCHBP_SEARCH_TASK_STATS_COMPLETION_COUNT)
+        public long getSearchbp_search_task_stats_completionCount() {
+            return searchbp_search_task_stats_completionCount;
         }
 
         @JsonProperty(
                 SearchBackPressureStatsValue.Constants
-                        .SEARCHBP_TASK_STATS_RESOURCE_HEAP_USAGE_ROLLINGAVG)
+                        .SEARCHBP_SEARCH_TASK_STATS_RESOURCE_HEAP_USAGE_CANCELLATION_COUNT)
+        public long getSearchbp_search_task_stats_resource_heap_usage_cancellationCount() {
+            return searchbp_search_task_stats_resource_heap_usage_cancellationCount;
+        }
+
+        @JsonProperty(
+                SearchBackPressureStatsValue.Constants
+                        .SEARCHBP_SEARCH_TASK_STATS_RESOURCE_HEAP_USAGE_CURRENT_MAX)
+        public long getSearchbp_search_task_stats_resource_heap_usage_currentMax() {
+            return searchbp_search_task_stats_resource_heap_usage_currentMax;
+        }
+
+        @JsonProperty(
+                SearchBackPressureStatsValue.Constants
+                        .SEARCHBP_SEARCH_TASK_STATS_RESOURCE_HEAP_USAGE_ROLLING_AVG)
         public long getsearchbp_task_stats_resource_heap_usage_rollingAvg() {
-            return searchbp_task_stats_resource_heap_usage_rollingAvg;
+            return searchbp_search_task_stats_resource_heap_usage_rollingAvg;
         }
 
         @JsonProperty(
                 SearchBackPressureStatsValue.Constants
-                        .SEARCHBP_TASK_STATS_RESOURCE_CPU_USAGE_CANCELLATIONCOUNT)
-        public long getSearchbp_task_stats_resource_cpu_usage_cancellationCount() {
-            return searchbp_task_stats_resource_cpu_usage_cancellationCount;
+                        .SEARCHBP_SEARCH_TASK_STATS_RESOURCE_CPU_USAGE_CANCELLATION_COUNT)
+        public long getSearchbp_search_task_stats_resource_cpu_usage_cancellationCount() {
+            return searchbp_search_task_stats_resource_cpu_usage_cancellationCount;
         }
 
         @JsonProperty(
                 SearchBackPressureStatsValue.Constants
-                        .SEARCHBP_TASK_STATS_RESOURCE_CPU_USAGE_CURRENTMAX)
-        public long getSearchbp_task_stats_resource_cpu_usage_currentMax() {
-            return searchbp_task_stats_resource_cpu_usage_currentMax;
+                        .SEARCHBP_SEARCH_TASK_STATS_RESOURCE_CPU_USAGE_CURRENT_MAX)
+        public long getSearchbp_search_task_stats_resource_cpu_usage_currentMax() {
+            return searchbp_search_task_stats_resource_cpu_usage_currentMax;
         }
 
         @JsonProperty(
                 SearchBackPressureStatsValue.Constants
-                        .SEARCHBP_TASK_STATS_RESOURCE_CPU_USAGE_CURRENTAVG)
-        public long getSearchbp_task_stats_resource_cpu_usage_currentAvg() {
-            return searchbp_task_stats_resource_cpu_usage_currentAvg;
+                        .SEARCHBP_SEARCH_TASK_STATS_RESOURCE_CPU_USAGE_CURRENT_AVG)
+        public long getSearchbp_search_task_stats_resource_cpu_usage_currentAvg() {
+            return searchbp_search_task_stats_resource_cpu_usage_currentAvg;
         }
 
         @JsonProperty(
                 SearchBackPressureStatsValue.Constants
-                        .SEARCHBP_TASK_STATS_RESOURCE_ELASPEDTIME_USAGE_CANCELLATIONCOUNT)
-        public long getSearchbp_task_stats_resource_elaspedtime_usage_cancellationCount() {
-            return searchbp_task_stats_resource_elaspedtime_usage_cancellationCount;
+                        .SEARCHBP_SEARCH_TASK_STATS_RESOURCE_ELASPEDTIME_USAGE_CANCELLATION_COUNT)
+        public long getSearchbp_search_task_stats_resource_elaspedtime_usage_cancellationCount() {
+            return searchbp_search_task_stats_resource_elaspedtime_usage_cancellationCount;
         }
 
         @JsonProperty(
                 SearchBackPressureStatsValue.Constants
-                        .SEARCHBP_TASK_STATS_RESOURCE_ELASPEDTIME_USAGE_CURRENTMAX)
-        public long getSearchbp_task_stats_resource_elaspedtime_usage_currentMax() {
-            return searchbp_task_stats_resource_elaspedtime_usage_currentMax;
+                        .SEARCHBP_SEARCH_TASK_STATS_RESOURCE_ELASPEDTIME_USAGE_CURRENT_MAX)
+        public long getSearchbp_search_task_stats_resource_elaspedtime_usage_currentMax() {
+            return searchbp_search_task_stats_resource_elaspedtime_usage_currentMax;
         }
 
         @JsonProperty(
                 SearchBackPressureStatsValue.Constants
-                        .SEARCHBP_TASK_STATS_RESOURCE_ELASPEDTIME_USAGE_CURRENTAVG)
-        public long getSearchbp_task_stats_resource_elaspedtime_usage_currentAvg() {
-            return searchbp_task_stats_resource_elaspedtime_usage_currentAvg;
+                        .SEARCHBP_SEARCH_TASK_STATS_RESOURCE_ELASPEDTIME_USAGE_CURRENT_AVG)
+        public long getSearchbp_search_task_stats_resource_elaspedtime_usage_currentAvg() {
+            return searchbp_search_task_stats_resource_elaspedtime_usage_currentAvg;
         }
     }
 }
