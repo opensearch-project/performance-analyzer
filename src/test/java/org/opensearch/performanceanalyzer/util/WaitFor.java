@@ -5,7 +5,6 @@
 
 package org.opensearch.performanceanalyzer.util;
 
-
 import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;

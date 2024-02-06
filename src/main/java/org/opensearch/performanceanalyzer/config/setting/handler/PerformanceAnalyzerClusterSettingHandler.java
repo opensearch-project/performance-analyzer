@@ -5,7 +5,6 @@
 
 package org.opensearch.performanceanalyzer.config.setting.handler;
 
-
 import java.util.LinkedHashMap;
 import java.util.Map;
 import org.opensearch.performanceanalyzer.config.PerformanceAnalyzerController;

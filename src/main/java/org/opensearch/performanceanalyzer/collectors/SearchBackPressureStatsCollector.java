@@ -155,8 +155,12 @@ public class SearchBackPressureStatsCollector extends PerformanceAnalyzerMetrics
 
     @VisibleForTesting
     public Object getSearchBackPressureStats()
-            throws InvocationTargetException, IllegalAccessException, NoSuchMethodException,
-                    NoSuchFieldException, NoSuchFieldError, ClassNotFoundException {
+            throws InvocationTargetException,
+                    IllegalAccessException,
+                    NoSuchMethodException,
+                    NoSuchFieldException,
+                    NoSuchFieldError,
+                    ClassNotFoundException {
 
         // Get the static instance of Bootstrap
         Object bootStrapSInstance =
@@ -416,6 +420,7 @@ public class SearchBackPressureStatsCollector extends PerformanceAnalyzerMetrics
             this.rollingAvg = rollingAvg;
             this.fragment = fragment;
         }
+
         // Getters and Setters
         public long getCancellationCount() {
             return cancellationCount;

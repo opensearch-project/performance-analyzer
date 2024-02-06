@@ -73,7 +73,9 @@ public class ClusterApplierServiceStatsCollectorTests extends CustomMetricsLocat
     @Ignore
     @Test
     public void testClusterApplierServiceStats_collectMetrics()
-            throws NoSuchMethodException, IllegalAccessException, InvocationTargetException,
+            throws NoSuchMethodException,
+                    IllegalAccessException,
+                    InvocationTargetException,
                     JsonProcessingException {
         System.out.println("test 1");
         MetricsConfiguration.CONFIG_MAP.put(
@@ -128,7 +130,9 @@ public class ClusterApplierServiceStatsCollectorTests extends CustomMetricsLocat
     @SuppressWarnings("unchecked")
     @Test
     public void testClusterApplierServiceStats_collectMetricsWithPreviousClusterApplierMetrics()
-            throws NoSuchMethodException, IllegalAccessException, InvocationTargetException,
+            throws NoSuchMethodException,
+                    IllegalAccessException,
+                    InvocationTargetException,
                     JsonProcessingException {
         System.out.println("test 2");
         MetricsConfiguration.CONFIG_MAP.put(

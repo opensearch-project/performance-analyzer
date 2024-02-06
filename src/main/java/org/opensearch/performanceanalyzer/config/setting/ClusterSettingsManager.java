@@ -88,6 +88,7 @@ public class ClusterSettingsManager implements ClusterStateListener {
             stringSettingListenerMap.put(setting, Collections.singletonList(listener));
         }
     }
+
     /** Bootstraps the listeners and tries to read initial values for cluster settings. */
     public void initialize() {
         if (!initialized) {
@@ -248,6 +249,7 @@ public class ClusterSettingsManager implements ClusterStateListener {
             StatsCollector.instance().logException(OPENSEARCH_REQUEST_INTERCEPTOR_ERROR);
         }
     }
+
     /** Class that handles response to GET /_cluster/settings */
     private class ClusterSettingsResponseHandler implements ActionListener<ClusterStateResponse> {
         /**
