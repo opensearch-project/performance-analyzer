@@ -5,7 +5,6 @@
 
 package org.opensearch.performanceanalyzer.collectors;
 
-
 import org.opensearch.action.admin.indices.stats.ShardStats;
 
 @FunctionalInterface

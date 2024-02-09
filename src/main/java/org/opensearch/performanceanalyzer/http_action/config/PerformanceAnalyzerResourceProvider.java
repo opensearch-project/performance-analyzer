@@ -5,7 +5,6 @@
 
 package org.opensearch.performanceanalyzer.http_action.config;
 
-
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableSet;
 import java.io.BufferedReader;
