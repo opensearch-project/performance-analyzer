@@ -5,7 +5,6 @@
 
 package org.opensearch.performanceanalyzer.config.setting;
 
-
 import org.opensearch.common.settings.Setting;
 
 public final class PerformanceAnalyzerClusterSettings {

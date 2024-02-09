@@ -5,7 +5,6 @@
 
 package org.opensearch.performanceanalyzer.http_action.whoami;
 
-
 import org.opensearch.action.support.ActionFilters;
 import org.opensearch.action.support.HandledTransportAction;
 import org.opensearch.common.inject.Inject;

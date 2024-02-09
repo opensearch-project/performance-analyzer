@@ -5,7 +5,6 @@
 
 package org.opensearch.performanceanalyzer.action;
 
-
 import org.opensearch.OpenSearchException;
 import org.opensearch.action.bulk.BulkResponse;
 import org.opensearch.action.search.SearchResponse;
