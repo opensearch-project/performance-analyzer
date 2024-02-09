@@ -5,7 +5,6 @@
 
 package org.opensearch.performanceanalyzer.http_action.whoami;
 
-
 import java.io.IOException;
 import org.opensearch.core.action.ActionResponse;
 import org.opensearch.core.common.io.stream.StreamOutput;

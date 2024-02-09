@@ -5,7 +5,6 @@
 
 package org.opensearch.performanceanalyzer.integ_test.json;
 
-
 import com.google.gson.annotations.SerializedName;
 import java.util.Arrays;
 

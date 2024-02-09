@@ -5,7 +5,6 @@
 
 package org.opensearch.performanceanalyzer.integ_test.json;
 
-
 import com.google.gson.annotations.SerializedName;
 
 /** "node1": { "data": { ....... }, "timestamp": 1606861740000 } */

@@ -5,7 +5,6 @@
 
 package org.opensearch.performanceanalyzer;
 
-
 import java.io.File;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.core.Filter;

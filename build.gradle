@@ -6,11 +6,11 @@
 buildscript {
 
     ext {
-        opensearch_version = System.getProperty("opensearch.version", "2.12.0-SNAPSHOT")
+        opensearch_version = System.getProperty("opensearch.version", "2.13.0-SNAPSHOT")
         isSnapshot = "true" == System.getProperty("build.snapshot", "true")
         buildVersionQualifier = System.getProperty("build.version_qualifier", "")
 
-        default_bwc_version = System.getProperty("bwc.version", "2.10.0.0")
+        default_bwc_version = System.getProperty("bwc.version", "2.12.0.0")
         pa_bwc_version = System.getProperty("tests.bwc.version", default_bwc_version)
         baseName = "paBwcCluster"
 
@@ -48,9 +48,9 @@ buildscript {
 plugins {
     id 'java'
     id 'com.netflix.nebula.ospackage' version "11.6.0"
-    id 'com.github.spotbugs' version '5.0.13'
+    id 'com.github.spotbugs' version '6.0.7'
     id 'jacoco'
-    id 'com.diffplug.spotless' version '5.11.0'
+    id 'com.diffplug.spotless' version '6.25.0'
     id 'checkstyle'
     id 'org.ajoberstar.grgit' version '5.0.0'
     id 'org.gradle.test-retry' version '1.5.2'
@@ -64,7 +64,7 @@ checkstyle {
 
 spotbugsMain {
     excludeFilter = file("checkstyle/findbugs-exclude.xml")
-    effort = 'max'
+    effort = com.github.spotbugs.snom.Effort.MAX
     ignoreFailures = true
 
     reports {
@@ -104,7 +104,7 @@ noticeFile = rootProject.file('NOTICE.txt')
 spotless {
     java {
         licenseHeaderFile(file('license-header'))
-        googleJavaFormat('1.12.0').aosp()
+        googleJavaFormat('1.17.0').aosp()
         importOrder()
         removeUnusedImports()
         trimTrailingWhitespace()
@@ -212,7 +212,7 @@ tasks.withType(JavaCompile) {
 }
 
 jacoco {
-    toolVersion = "0.8.7"
+    toolVersion = "0.8.11"
 }
 
 jacocoTestReport {
@@ -295,6 +295,7 @@ dependencies {
             force "org.apache.commons:commons-lang3:${versions.commonslang}"
             force "org.slf4j:slf4j-api:2.0.0"
             force "org.apache.bcel:bcel:6.6.0" // This line should be removed once Spotbugs is upgraded to 4.7.4
+            force "com.google.guava:guava:${guavaVersion}"
         }
     }
 
@@ -668,7 +669,7 @@ task integTestRemote(type: RestIntegTestTask) {
     testClusters {
         "${baseName}$i" {
             testDistribution = "ARCHIVE"
-            versions = ["2.10.0-SNAPSHOT", opensearch_version]
+            versions = ["2.12.0-SNAPSHOT", opensearch_version]
             numberOfNodes = 3
             plugin(provider(new Callable<RegularFile>() {
                 @Override
