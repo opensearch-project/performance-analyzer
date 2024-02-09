@@ -5,7 +5,6 @@
 
 package org.opensearch.performanceanalyzer.integ_test;
 
-
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;

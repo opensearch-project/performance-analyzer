@@ -5,7 +5,6 @@
 
 package org.opensearch.performanceanalyzer.http_action.whoami;
 
-
 import org.opensearch.action.ActionType;
 import org.opensearch.core.common.io.stream.Writeable;
 
