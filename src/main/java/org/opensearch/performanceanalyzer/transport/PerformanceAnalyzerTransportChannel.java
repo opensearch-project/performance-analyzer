@@ -5,7 +5,6 @@
 
 package org.opensearch.performanceanalyzer.transport;
 
-
 import java.io.IOException;
 import java.util.concurrent.atomic.AtomicLong;
 import org.apache.logging.log4j.LogManager;

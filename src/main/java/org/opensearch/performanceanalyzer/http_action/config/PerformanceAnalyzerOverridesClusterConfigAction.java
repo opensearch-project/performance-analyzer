@@ -78,7 +78,9 @@ public class PerformanceAnalyzerOverridesClusterConfigAction extends BaseRestHan
         return REPLACED_ROUTES;
     }
 
-    /** @return the name of this handler. */
+    /**
+     * @return the name of this handler.
+     */
     @Override
     public String getName() {
         return PerformanceAnalyzerOverridesClusterConfigAction.class.getSimpleName();

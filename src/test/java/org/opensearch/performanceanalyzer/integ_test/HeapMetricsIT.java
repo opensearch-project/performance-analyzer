@@ -5,7 +5,6 @@
 
 package org.opensearch.performanceanalyzer.integ_test;
 
-
 import java.util.List;
 import java.util.function.DoublePredicate;
 import org.apache.logging.log4j.LogManager;
