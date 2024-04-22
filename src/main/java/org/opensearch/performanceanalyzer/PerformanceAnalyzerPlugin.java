@@ -55,10 +55,10 @@ import org.opensearch.performanceanalyzer.collectors.SearchBackPressureStatsColl
 import org.opensearch.performanceanalyzer.collectors.ShardIndexingPressureMetricsCollector;
 import org.opensearch.performanceanalyzer.collectors.ShardStateCollector;
 import org.opensearch.performanceanalyzer.collectors.ThreadPoolMetricsCollector;
+import org.opensearch.performanceanalyzer.collectors.rtf.RTFHeapMetricsCollector;
 import org.opensearch.performanceanalyzer.commons.OSMetricsGeneratorFactory;
 import org.opensearch.performanceanalyzer.commons.collectors.DisksCollector;
 import org.opensearch.performanceanalyzer.commons.collectors.GCInfoCollector;
-import org.opensearch.performanceanalyzer.commons.collectors.HeapMetricsCollector;
 import org.opensearch.performanceanalyzer.commons.collectors.NetworkInterfaceCollector;
 import org.opensearch.performanceanalyzer.commons.collectors.OSMetricsCollector;
 import org.opensearch.performanceanalyzer.commons.collectors.ScheduledMetricCollectorsExecutor;
@@ -196,8 +196,10 @@ public final class PerformanceAnalyzerPlugin extends Plugin
         scheduledMetricCollectorsExecutor.addScheduledMetricCollector(
                 new CircuitBreakerCollector());
         scheduledMetricCollectorsExecutor.addScheduledMetricCollector(new OSMetricsCollector());
-        scheduledMetricCollectorsExecutor.addScheduledMetricCollector(new HeapMetricsCollector());
-
+        //        scheduledMetricCollectorsExecutor.addScheduledMetricCollector(new
+        // HeapMetricsCollector());
+        scheduledMetricCollectorsExecutor.addScheduledMetricCollector(
+                new RTFHeapMetricsCollector());
         scheduledMetricCollectorsExecutor.addScheduledMetricCollector(
                 new NodeDetailsCollector(configOverridesWrapper));
         scheduledMetricCollectorsExecutor.addScheduledMetricCollector(
