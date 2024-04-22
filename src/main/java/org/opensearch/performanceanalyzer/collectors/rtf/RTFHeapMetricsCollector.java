@@ -55,7 +55,6 @@ public class RTFHeapMetricsCollector extends PerformanceAnalyzerMetricsCollector
                 Tags.create()
                         .addTag(
                                 AllMetrics.HeapDimension.Constants.TYPE_VALUE,
-                                AllMetrics.GCType.TOT_YOUNG_GC.toString()
-                        ));
+                                AllMetrics.GCType.TOT_YOUNG_GC.toString()));
     }
 }
