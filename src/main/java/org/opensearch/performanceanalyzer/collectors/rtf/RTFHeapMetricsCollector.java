@@ -27,7 +27,7 @@ public class RTFHeapMetricsCollector extends PerformanceAnalyzerMetricsCollector
                                     .HeapMetricsCollector.class)
                     .samplingInterval;
     private Histogram myHistogram;
-    private final MetricsRegistry metricsRegistry;
+    private MetricsRegistry metricsRegistry;
 
     public RTFHeapMetricsCollector() {
         super(
@@ -35,20 +35,16 @@ public class RTFHeapMetricsCollector extends PerformanceAnalyzerMetricsCollector
                 "HeapMetrics",
                 StatMetrics.HEAP_METRICS_COLLECTOR_EXECUTION_TIME,
                 StatExceptionCode.HEAP_METRICS_COLLECTOR_ERROR);
-
-        metricsRegistry = OpenSearchResources.INSTANCE.getMetricsRegistry();
-        if (metricsRegistry == null) {
-            LOG.error("Unable to get the instance of MetricsRegistry class");
-        } else {
-            myHistogram = metricsRegistry.createHistogram("my.histogram", "test histogram", "1");
-        }
     }
 
     @Override
     public void collectMetrics(long startTime) {
+        metricsRegistry = OpenSearchResources.INSTANCE.getMetricsRegistry();
         if (metricsRegistry == null) {
-            LOG.error("Unable to get the instance of MetricsRegistry class. Returning.");
+            LOG.error("could not get the instance of MetricsRegistry class");
             return;
+        } else {
+            myHistogram = metricsRegistry.createHistogram("my.histogram", "test histogram", "1");
         }
 
         GCMetrics.runGCMetrics();
@@ -58,7 +54,8 @@ public class RTFHeapMetricsCollector extends PerformanceAnalyzerMetricsCollector
                 GCMetrics.getTotYoungGCCollectionCount(),
                 Tags.create()
                         .addTag(
-                                AllMetrics.GCType.TOT_YOUNG_GC.toString(),
-                                AllMetrics.HeapDimension.Constants.TYPE_VALUE));
+                                AllMetrics.HeapDimension.Constants.TYPE_VALUE,
+                                AllMetrics.GCType.TOT_YOUNG_GC.toString()
+                        ));
     }
 }

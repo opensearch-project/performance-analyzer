@@ -43,6 +43,7 @@ import org.opensearch.performanceanalyzer.transport.PerformanceAnalyzerTransport
 import org.opensearch.plugins.ActionPlugin.ActionHandler;
 import org.opensearch.rest.RestController;
 import org.opensearch.rest.RestHandler;
+import org.opensearch.telemetry.metrics.noop.NoopMetricsRegistry;
 import org.opensearch.telemetry.tracing.noop.NoopTracer;
 import org.opensearch.test.OpenSearchTestCase;
 import org.opensearch.threadpool.TestThreadPool;
@@ -162,7 +163,8 @@ public class PerformanceAnalyzerPluginTests extends OpenSearchTestCase {
                         circuitBreakerService,
                         null,
                         null,
-                        NoopTracer.INSTANCE);
+                        NoopTracer.INSTANCE,
+                        NoopMetricsRegistry.INSTANCE);
         assertEquals(0, map.size());
         assertEquals(settings, OpenSearchResources.INSTANCE.getSettings());
         assertEquals(
