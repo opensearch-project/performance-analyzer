@@ -48,7 +48,7 @@ public class RTFHeapMetricsCollector extends PerformanceAnalyzerMetricsCollector
         }
 
         GCMetrics.runGCMetrics();
-        LOG.info("Running collect metrics for RTFHeapMetricsCollector");
+        LOG.info("Executing collect metrics for RTFHeapMetricsCollector");
 
         myHistogram.record(
                 GCMetrics.getTotYoungGCCollectionCount(),
