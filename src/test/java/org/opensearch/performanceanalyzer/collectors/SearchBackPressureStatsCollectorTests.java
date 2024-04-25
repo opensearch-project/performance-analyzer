@@ -129,8 +129,12 @@ public class SearchBackPressureStatsCollectorTests {
      */
     @Test
     public void testSearchBackPressureStats_collectMetrics()
-            throws NoSuchMethodException, IllegalAccessException, InvocationTargetException,
-                    JsonProcessingException, NoSuchFieldException, ClassNotFoundException {
+            throws NoSuchMethodException,
+                    IllegalAccessException,
+                    InvocationTargetException,
+                    JsonProcessingException,
+                    NoSuchFieldException,
+                    ClassNotFoundException {
         String SEARCH_BACK_PRESSURE_MODE_FIELD_NAME = "searchbp_mode";
         SearchBackPressureStatsCollector spyCollector =
                 Mockito.spy(searchBackPressureStatsCollector);

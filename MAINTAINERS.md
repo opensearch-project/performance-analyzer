@@ -16,6 +16,8 @@ This document contains a list of maintainers in this repo. See [opensearch-proje
 | DevJhaAbhishek            | [DevJhaAbhishek](https://github.com/DevJhaAbhishek)   | Amazon      |
 | Varunsrivathsa Venkatesha | [varunsrivathsav](https://github.com/varunsrivathsav) | Amazon      |
 | Ranjith Ramachandra       | [rramachand21](https://github.com/rramachand21)       | Amazon      |
+| Dharmesh Singh            | [psychbot](https://github.com/psychbot)       | Amazon      |
+| Gagan Juneja              | [Gaganjuneja](https://github.com/Gaganjuneja)       | Amazon      |
 
 
 ## Previous Maintainers

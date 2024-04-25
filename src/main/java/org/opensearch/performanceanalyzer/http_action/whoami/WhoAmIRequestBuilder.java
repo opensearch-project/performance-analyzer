@@ -5,7 +5,6 @@
 
 package org.opensearch.performanceanalyzer.http_action.whoami;
 
-
 import org.opensearch.action.ActionRequestBuilder;
 import org.opensearch.client.ClusterAdminClient;
 import org.opensearch.client.OpenSearchClient;

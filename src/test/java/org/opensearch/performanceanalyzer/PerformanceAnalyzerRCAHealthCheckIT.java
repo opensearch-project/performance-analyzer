@@ -5,7 +5,6 @@
 
 package org.opensearch.performanceanalyzer;
 
-
 import com.fasterxml.jackson.databind.JsonNode;
 import java.util.Iterator;
 import java.util.Objects;

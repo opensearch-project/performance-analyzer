@@ -5,7 +5,6 @@
 
 package org.opensearch.performanceanalyzer;
 
-
 import org.opensearch.client.Client;
 import org.opensearch.cluster.service.ClusterService;
 import org.opensearch.common.settings.Settings;
