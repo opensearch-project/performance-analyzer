@@ -54,9 +54,9 @@ import org.opensearch.performanceanalyzer.collectors.NodeStatsAllShardsMetricsCo
 import org.opensearch.performanceanalyzer.collectors.SearchBackPressureStatsCollector;
 import org.opensearch.performanceanalyzer.collectors.ShardIndexingPressureMetricsCollector;
 import org.opensearch.performanceanalyzer.collectors.ShardStateCollector;
-import org.opensearch.performanceanalyzer.collectors.ThreadPoolMetricsCollector;
 import org.opensearch.performanceanalyzer.collectors.telemetry.RTFGCInfoCollector;
 import org.opensearch.performanceanalyzer.collectors.telemetry.RTFHeapMetricsCollector;
+import org.opensearch.performanceanalyzer.collectors.telemetry.RTFThreadPoolMetricsCollector;
 import org.opensearch.performanceanalyzer.commons.OSMetricsGeneratorFactory;
 import org.opensearch.performanceanalyzer.commons.collectors.DisksCollector;
 import org.opensearch.performanceanalyzer.commons.collectors.NetworkInterfaceCollector;
@@ -190,8 +190,10 @@ public final class PerformanceAnalyzerPlugin extends Plugin
         clusterSettingsManager.addSubscriberForIntSetting(
                 PerformanceAnalyzerClusterSettings.PA_NODE_STATS_SETTING, nodeStatsSettingHandler);
 
+        //        scheduledMetricCollectorsExecutor.addScheduledMetricCollector(
+        //                new ThreadPoolMetricsCollector());
         scheduledMetricCollectorsExecutor.addScheduledMetricCollector(
-                new ThreadPoolMetricsCollector());
+                new RTFThreadPoolMetricsCollector());
         scheduledMetricCollectorsExecutor.addScheduledMetricCollector(
                 new CacheConfigMetricsCollector());
         scheduledMetricCollectorsExecutor.addScheduledMetricCollector(
