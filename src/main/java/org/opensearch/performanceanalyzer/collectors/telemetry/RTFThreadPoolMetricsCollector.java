@@ -132,20 +132,25 @@ public class RTFThreadPoolMetricsCollector extends PerformanceAnalyzerMetricsCol
                                         return -1;
                                     });
 
-            Tags ThreadPoolTypeTag =
-                    Tags.create()
-                            .addTag(
-                                    AllMetrics.ThreadPoolDimension.Constants.TYPE_VALUE,
-                                    stats.getName());
+            recordMetrics(stats, finalRejectionDelta, capacity);
+        }
+    }
 
-            ThreadPoolQueueSizeMetrics.record(stats.getQueue(), ThreadPoolTypeTag);
-            ThreadPoolRejectedReqsMetrics.record(finalRejectionDelta, ThreadPoolTypeTag);
-            ThreadPoolActiveThreadsMetrics.record(stats.getActive(), ThreadPoolTypeTag);
-            ThreadPoolTotalThreadsMetrics.record(stats.getThreads(), ThreadPoolTypeTag);
+    private void recordMetrics(
+            ThreadPoolStats.Stats stats, long finalRejectionDelta, int capacity) {
+        Tags ThreadPoolTypeTag =
+                Tags.create()
+                        .addTag(
+                                AllMetrics.ThreadPoolDimension.Constants.TYPE_VALUE,
+                                stats.getName());
 
-            if (capacity >= 0) {
-                ThreadPoolQueueCapacityMetrics.record(capacity, ThreadPoolTypeTag);
-            }
+        ThreadPoolQueueSizeMetrics.record(stats.getQueue(), ThreadPoolTypeTag);
+        ThreadPoolRejectedReqsMetrics.record(finalRejectionDelta, ThreadPoolTypeTag);
+        ThreadPoolActiveThreadsMetrics.record(stats.getActive(), ThreadPoolTypeTag);
+        ThreadPoolTotalThreadsMetrics.record(stats.getThreads(), ThreadPoolTypeTag);
+
+        if (capacity >= 0) {
+            ThreadPoolQueueCapacityMetrics.record(capacity, ThreadPoolTypeTag);
         }
     }
 

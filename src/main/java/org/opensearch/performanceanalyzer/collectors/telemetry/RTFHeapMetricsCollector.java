@@ -5,7 +5,6 @@
 
 package org.opensearch.performanceanalyzer.collectors.telemetry;
 
-
 import java.lang.management.MemoryUsage;
 import java.util.Map;
 import java.util.function.Supplier;

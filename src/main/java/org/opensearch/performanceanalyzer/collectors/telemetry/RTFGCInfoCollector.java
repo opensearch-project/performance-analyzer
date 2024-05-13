@@ -5,7 +5,6 @@
 
 package org.opensearch.performanceanalyzer.collectors.telemetry;
 
-
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.opensearch.performanceanalyzer.OpenSearchResources;
