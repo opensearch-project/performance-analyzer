@@ -41,7 +41,6 @@ import org.opensearch.performanceanalyzer.collectors.*;
 import org.opensearch.performanceanalyzer.collectors.telemetry.*;
 import org.opensearch.performanceanalyzer.commons.OSMetricsGeneratorFactory;
 import org.opensearch.performanceanalyzer.commons.collectors.NetworkInterfaceCollector;
-import org.opensearch.performanceanalyzer.commons.collectors.OSMetricsCollector;
 import org.opensearch.performanceanalyzer.commons.collectors.ScheduledMetricCollectorsExecutor;
 import org.opensearch.performanceanalyzer.commons.collectors.StatsCollector;
 import org.opensearch.performanceanalyzer.commons.config.PluginSettings;
@@ -177,7 +176,8 @@ public final class PerformanceAnalyzerPlugin extends Plugin
                 new CacheConfigMetricsCollector());
         scheduledMetricCollectorsExecutor.addScheduledMetricCollector(
                 new CircuitBreakerCollector());
-        scheduledMetricCollectorsExecutor.addScheduledMetricCollector(new OSMetricsCollector());
+        //        scheduledMetricCollectorsExecutor.addScheduledMetricCollector(new
+        // OSMetricsCollector());
         //        scheduledMetricCollectorsExecutor.addScheduledMetricCollector(new
         // HeapMetricsCollector());
         scheduledMetricCollectorsExecutor.addScheduledMetricCollector(

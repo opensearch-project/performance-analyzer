@@ -19,7 +19,6 @@ import org.opensearch.performanceanalyzer.commons.metrics.AllMetrics;
 import org.opensearch.performanceanalyzer.commons.metrics.MetricsConfiguration;
 import org.opensearch.performanceanalyzer.commons.stats.metrics.StatExceptionCode;
 import org.opensearch.performanceanalyzer.commons.stats.metrics.StatMetrics;
-import org.opensearch.telemetry.metrics.Counter;
 import org.opensearch.telemetry.metrics.Histogram;
 import org.opensearch.telemetry.metrics.MetricsRegistry;
 import org.opensearch.telemetry.metrics.tags.Tags;
@@ -33,7 +32,6 @@ public class RTFHeapMetricsCollector extends PerformanceAnalyzerMetricsCollector
     private Histogram GCCollectionEventMetrics;
     private Histogram GCCollectionTimeMetrics;
     private Histogram HeapUsedMetrics;
-    private Counter HeapMaxMetrics;
     private MetricsRegistry metricsRegistry;
 
     public RTFHeapMetricsCollector() {
@@ -76,10 +74,6 @@ public class RTFHeapMetricsCollector extends PerformanceAnalyzerMetricsCollector
         HeapUsedMetrics =
                 metricsRegistry.createHistogram(
                         AllMetrics.HeapValue.Constants.USED_VALUE, "GC Heap Used PA Metrics", "1");
-
-        HeapMaxMetrics =
-                metricsRegistry.createCounter(
-                        AllMetrics.HeapValue.Constants.MAX_VALUE, "Heap Max PA metrics", "1");
     }
 
     private void recordMetrics() {
@@ -117,8 +111,18 @@ public class RTFHeapMetricsCollector extends PerformanceAnalyzerMetricsCollector
             for (Map.Entry<String, Supplier<MemoryUsage>> entry :
                     HeapMetrics.getMemoryUsageSuppliers().entrySet()) {
                 MemoryUsage memoryUsage = entry.getValue().get();
-                HeapMaxMetrics.add(
-                        memoryUsage.getMax(),
+                //                HeapMaxMetrics.add(
+                //                        memoryUsage.getMax(),
+                //                        Tags.create()
+                //                                .addTag(
+                //
+                // AllMetrics.HeapDimension.Constants.TYPE_VALUE,
+                //                                        entry.getKey()));
+                metricsRegistry.createGauge(
+                        AllMetrics.HeapValue.Constants.MAX_VALUE,
+                        "Heap Max PA metrics",
+                        "1",
+                        () -> (double) memoryUsage.getMax(),
                         Tags.create()
                                 .addTag(
                                         AllMetrics.HeapDimension.Constants.TYPE_VALUE,
