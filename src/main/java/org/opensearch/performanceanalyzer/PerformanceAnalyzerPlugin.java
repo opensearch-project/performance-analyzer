@@ -64,10 +64,7 @@ import org.opensearch.performanceanalyzer.listener.PerformanceAnalyzerSearchList
 import org.opensearch.performanceanalyzer.transport.PerformanceAnalyzerTransportInterceptor;
 import org.opensearch.performanceanalyzer.util.Utils;
 import org.opensearch.performanceanalyzer.writer.EventLogQueueProcessor;
-import org.opensearch.plugins.ActionPlugin;
-import org.opensearch.plugins.NetworkPlugin;
-import org.opensearch.plugins.Plugin;
-import org.opensearch.plugins.SearchPlugin;
+import org.opensearch.plugins.*;
 import org.opensearch.repositories.RepositoriesService;
 import org.opensearch.rest.RestController;
 import org.opensearch.script.ScriptService;
@@ -79,7 +76,7 @@ import org.opensearch.transport.TransportInterceptor;
 import org.opensearch.watcher.ResourceWatcherService;
 
 public final class PerformanceAnalyzerPlugin extends Plugin
-        implements ActionPlugin, NetworkPlugin, SearchPlugin {
+        implements ActionPlugin, NetworkPlugin, SearchPlugin, TelemetryAwarePlugin {
     private static final Logger LOG = LogManager.getLogger(PerformanceAnalyzerPlugin.class);
     public static final String PLUGIN_NAME = "opensearch-performance-analyzer";
     private static final String ADD_FAULT_DETECTION_METHOD = "addFaultDetectionListener";
@@ -341,12 +338,14 @@ public final class PerformanceAnalyzerPlugin extends Plugin
             NodeEnvironment nodeEnvironment,
             NamedWriteableRegistry namedWriteableRegistry,
             IndexNameExpressionResolver indexNameExpressionResolver,
-            Supplier<RepositoriesService> repositoriesServiceSupplier) {
+            Supplier<RepositoriesService> repositoriesServiceSupplier,
+            Tracer tracer,
+            MetricsRegistry metricsRegistry) {
         OpenSearchResources.INSTANCE.setClusterService(clusterService);
         OpenSearchResources.INSTANCE.setThreadPool(threadPool);
         OpenSearchResources.INSTANCE.setEnvironment(environment);
         OpenSearchResources.INSTANCE.setClient(client);
-
+        OpenSearchResources.INSTANCE.setMetricsRegistry(metricsRegistry);
         // ClusterSettingsManager needs ClusterService to have been created before we can
         // initialize it. This is the earliest point at which we know ClusterService is created.
         // So, call the initialize method here.
@@ -362,11 +361,9 @@ public final class PerformanceAnalyzerPlugin extends Plugin
             CircuitBreakerService circuitBreakerService,
             NamedWriteableRegistry namedWriteableRegistry,
             NetworkService networkService,
-            Tracer tracer,
-            MetricsRegistry metricsRegistry) {
+            Tracer tracer) {
         OpenSearchResources.INSTANCE.setSettings(settings);
         OpenSearchResources.INSTANCE.setCircuitBreakerService(circuitBreakerService);
-        OpenSearchResources.INSTANCE.setMetricsRegistry(metricsRegistry);
         return Collections.emptyMap();
     }
 
