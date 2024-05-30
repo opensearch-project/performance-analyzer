@@ -81,15 +81,10 @@ public class RTFHeapMetricsCollector extends PerformanceAnalyzerMetricsCollector
     private void recordMetrics() {
         Tags TotYoungGCTag =
                 Tags.create()
-                        .addTag(
-                                MemTypeAttributeKey,
-                                AllMetrics.GCType.TOT_YOUNG_GC.toString());
+                        .addTag(MemTypeAttributeKey, AllMetrics.GCType.TOT_YOUNG_GC.toString());
 
         Tags TotFullGCTag =
-                Tags.create()
-                        .addTag(
-                                MemTypeAttributeKey,
-                                AllMetrics.GCType.TOT_FULL_GC.toString());
+                Tags.create().addTag(MemTypeAttributeKey, AllMetrics.GCType.TOT_FULL_GC.toString());
 
         GCCollectionEventMetrics.record(GCMetrics.getTotYoungGCCollectionCount(), TotYoungGCTag);
 
@@ -104,8 +99,7 @@ public class RTFHeapMetricsCollector extends PerformanceAnalyzerMetricsCollector
             MemoryUsage memoryUsage = entry.getValue().get();
             HeapUsedMetrics.record(
                     memoryUsage.getUsed(),
-                    Tags.create()
-                            .addTag(MemTypeAttributeKey, entry.getKey()));
+                    Tags.create().addTag(MemTypeAttributeKey, entry.getKey()));
         }
 
         if (count == 12) {
@@ -118,10 +112,7 @@ public class RTFHeapMetricsCollector extends PerformanceAnalyzerMetricsCollector
                         "Heap Max PA metrics",
                         "1",
                         () -> (double) memoryUsage.getMax(),
-                        Tags.create()
-                                .addTag(
-                                        MemTypeAttributeKey,
-                                        entry.getKey()));
+                        Tags.create().addTag(MemTypeAttributeKey, entry.getKey()));
             }
         }
     }
