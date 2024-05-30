@@ -34,6 +34,8 @@ public class RTFHeapMetricsCollector extends PerformanceAnalyzerMetricsCollector
     private Histogram HeapUsedMetrics;
     private MetricsRegistry metricsRegistry;
 
+    private final String MemTypeAttributeKey = "mem_type";
+
     public RTFHeapMetricsCollector() {
         super(
                 SAMPLING_TIME_INTERVAL,
@@ -80,13 +82,13 @@ public class RTFHeapMetricsCollector extends PerformanceAnalyzerMetricsCollector
         Tags TotYoungGCTag =
                 Tags.create()
                         .addTag(
-                                AllMetrics.HeapDimension.Constants.TYPE_VALUE,
+                                MemTypeAttributeKey,
                                 AllMetrics.GCType.TOT_YOUNG_GC.toString());
 
         Tags TotFullGCTag =
                 Tags.create()
                         .addTag(
-                                AllMetrics.HeapDimension.Constants.TYPE_VALUE,
+                                MemTypeAttributeKey,
                                 AllMetrics.GCType.TOT_FULL_GC.toString());
 
         GCCollectionEventMetrics.record(GCMetrics.getTotYoungGCCollectionCount(), TotYoungGCTag);
@@ -103,7 +105,7 @@ public class RTFHeapMetricsCollector extends PerformanceAnalyzerMetricsCollector
             HeapUsedMetrics.record(
                     memoryUsage.getUsed(),
                     Tags.create()
-                            .addTag(AllMetrics.HeapDimension.Constants.TYPE_VALUE, entry.getKey()));
+                            .addTag(MemTypeAttributeKey, entry.getKey()));
         }
 
         if (count == 12) {
@@ -111,13 +113,6 @@ public class RTFHeapMetricsCollector extends PerformanceAnalyzerMetricsCollector
             for (Map.Entry<String, Supplier<MemoryUsage>> entry :
                     HeapMetrics.getMemoryUsageSuppliers().entrySet()) {
                 MemoryUsage memoryUsage = entry.getValue().get();
-                //                HeapMaxMetrics.add(
-                //                        memoryUsage.getMax(),
-                //                        Tags.create()
-                //                                .addTag(
-                //
-                // AllMetrics.HeapDimension.Constants.TYPE_VALUE,
-                //                                        entry.getKey()));
                 metricsRegistry.createGauge(
                         AllMetrics.HeapValue.Constants.MAX_VALUE,
                         "Heap Max PA metrics",
@@ -125,7 +120,7 @@ public class RTFHeapMetricsCollector extends PerformanceAnalyzerMetricsCollector
                         () -> (double) memoryUsage.getMax(),
                         Tags.create()
                                 .addTag(
-                                        AllMetrics.HeapDimension.Constants.TYPE_VALUE,
+                                        MemTypeAttributeKey,
                                         entry.getKey()));
             }
         }

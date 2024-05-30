@@ -141,7 +141,7 @@ public class RTFThreadPoolMetricsCollector extends PerformanceAnalyzerMetricsCol
         Tags ThreadPoolTypeTag =
                 Tags.create()
                         .addTag(
-                                AllMetrics.ThreadPoolDimension.Constants.TYPE_VALUE,
+                                "thread_pool_type",
                                 stats.getName());
 
         ThreadPoolQueueSizeMetrics.record(stats.getQueue(), ThreadPoolTypeTag);
