@@ -50,7 +50,7 @@ public class RTFThreadPoolMetricsCollector extends PerformanceAnalyzerMetricsCol
     public RTFThreadPoolMetricsCollector() {
         super(
                 SAMPLING_TIME_INTERVAL,
-                "ThreadPoolMetrics",
+                "RTFThreadPoolMetricsCollector",
                 THREADPOOL_METRICS_COLLECTOR_EXECUTION_TIME,
                 THREADPOOL_METRICS_COLLECTOR_ERROR);
         statsRecordMap = new HashMap<>();

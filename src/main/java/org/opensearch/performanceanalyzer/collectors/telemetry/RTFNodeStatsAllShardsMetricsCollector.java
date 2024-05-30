@@ -28,7 +28,6 @@ import org.opensearch.performanceanalyzer.commons.collectors.MetricStatus;
 import org.opensearch.performanceanalyzer.commons.collectors.PerformanceAnalyzerMetricsCollector;
 import org.opensearch.performanceanalyzer.commons.metrics.AllMetrics;
 import org.opensearch.performanceanalyzer.commons.metrics.MetricsConfiguration;
-import org.opensearch.performanceanalyzer.config.PerformanceAnalyzerController;
 import org.opensearch.performanceanalyzer.util.Utils;
 import org.opensearch.telemetry.metrics.Counter;
 import org.opensearch.telemetry.metrics.MetricsRegistry;
@@ -43,7 +42,6 @@ public class RTFNodeStatsAllShardsMetricsCollector extends PerformanceAnalyzerMe
     private HashMap<ShardId, IndexShard> currentShards;
     private HashMap<ShardId, ShardStats> currentPerShardStats;
     private HashMap<ShardId, ShardStats> prevPerShardStats;
-    private final PerformanceAnalyzerController controller;
     private MetricsRegistry metricsRegistry;
     private Counter CacheQueryHitMetrics;
     private Counter CacheQueryMissMetrics;
@@ -55,16 +53,15 @@ public class RTFNodeStatsAllShardsMetricsCollector extends PerformanceAnalyzerMe
     private Counter CacheRequestEvictionMetrics;
     private Counter CacheRequestSizeMetrics;
 
-    public RTFNodeStatsAllShardsMetricsCollector(final PerformanceAnalyzerController controller) {
+    public RTFNodeStatsAllShardsMetricsCollector() {
         super(
                 SAMPLING_TIME_INTERVAL,
-                "RTFNodeStatsMetrics",
+                "RTFNodeStatsMetricsCollector",
                 NODE_STATS_ALL_SHARDS_METRICS_COLLECTOR_EXECUTION_TIME,
                 NODESTATS_COLLECTION_ERROR);
         currentShards = new HashMap<>();
         prevPerShardStats = new HashMap<>();
         currentPerShardStats = new HashMap<>();
-        this.controller = controller;
     }
 
     private void populateCurrentShards() {

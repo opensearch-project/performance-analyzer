@@ -40,7 +40,11 @@ import org.opensearch.performanceanalyzer.action.PerformanceAnalyzerActionFilter
 import org.opensearch.performanceanalyzer.collectors.*;
 import org.opensearch.performanceanalyzer.collectors.telemetry.*;
 import org.opensearch.performanceanalyzer.commons.OSMetricsGeneratorFactory;
+import org.opensearch.performanceanalyzer.commons.collectors.DisksCollector;
+import org.opensearch.performanceanalyzer.commons.collectors.GCInfoCollector;
+import org.opensearch.performanceanalyzer.commons.collectors.HeapMetricsCollector;
 import org.opensearch.performanceanalyzer.commons.collectors.NetworkInterfaceCollector;
+import org.opensearch.performanceanalyzer.commons.collectors.OSMetricsCollector;
 import org.opensearch.performanceanalyzer.commons.collectors.ScheduledMetricCollectorsExecutor;
 import org.opensearch.performanceanalyzer.commons.collectors.StatsCollector;
 import org.opensearch.performanceanalyzer.commons.config.PluginSettings;
@@ -167,30 +171,19 @@ public final class PerformanceAnalyzerPlugin extends Plugin
         clusterSettingsManager.addSubscriberForIntSetting(
                 PerformanceAnalyzerClusterSettings.PA_NODE_STATS_SETTING, nodeStatsSettingHandler);
 
-        //        scheduledMetricCollectorsExecutor.addScheduledMetricCollector(
-        //                new ThreadPoolMetricsCollector());
         scheduledMetricCollectorsExecutor.addScheduledMetricCollector(
                 new CacheConfigMetricsCollector());
         scheduledMetricCollectorsExecutor.addScheduledMetricCollector(
                 new CircuitBreakerCollector());
-        //        scheduledMetricCollectorsExecutor.addScheduledMetricCollector(new
-        // OSMetricsCollector());
-        //        scheduledMetricCollectorsExecutor.addScheduledMetricCollector(new
-        // HeapMetricsCollector());
+        scheduledMetricCollectorsExecutor.addScheduledMetricCollector(new OSMetricsCollector());
         scheduledMetricCollectorsExecutor.addScheduledMetricCollector(
                 new NodeDetailsCollector(configOverridesWrapper));
-        //        scheduledMetricCollectorsExecutor.addScheduledMetricCollector(
-        //                new NodeStatsAllShardsMetricsCollector(performanceAnalyzerController));
         scheduledMetricCollectorsExecutor.addScheduledMetricCollector(
                 new ClusterManagerServiceMetrics());
         scheduledMetricCollectorsExecutor.addScheduledMetricCollector(
                 new ClusterManagerServiceEventMetrics());
-        //        scheduledMetricCollectorsExecutor.addScheduledMetricCollector(new
-        // DisksCollector());
         scheduledMetricCollectorsExecutor.addScheduledMetricCollector(
                 new NetworkInterfaceCollector());
-        //        scheduledMetricCollectorsExecutor.addScheduledMetricCollector(new
-        // GCInfoCollector());
         scheduledMetricCollectorsExecutor.addScheduledMetricCollector(StatsCollector.instance());
         scheduledMetricCollectorsExecutor.addScheduledMetricCollector(
                 new FaultDetectionMetricsCollector(
@@ -208,16 +201,28 @@ public final class PerformanceAnalyzerPlugin extends Plugin
                 new AdmissionControlMetricsCollector());
         scheduledMetricCollectorsExecutor.addScheduledMetricCollector(
                 new ElectionTermCollector(performanceAnalyzerController, configOverridesWrapper));
+        scheduledMetricCollectorsExecutor.addScheduledMetricCollector(new GCInfoCollector());
 
-        // Adding RTF Collectors
-        scheduledMetricCollectorsExecutor.addScheduledMetricCollector(new RTFGCInfoCollector());
-        scheduledMetricCollectorsExecutor.addScheduledMetricCollector(new RTFDisksCollector());
-        scheduledMetricCollectorsExecutor.addScheduledMetricCollector(
-                new RTFHeapMetricsCollector());
-        scheduledMetricCollectorsExecutor.addScheduledMetricCollector(
-                new RTFThreadPoolMetricsCollector());
-        scheduledMetricCollectorsExecutor.addScheduledMetricCollector(
-                new RTFNodeStatsAllShardsMetricsCollector(performanceAnalyzerController));
+        // Adding RTF Collectors if flag is enabled in performance-analyzer.properties
+        if (PluginSettings.instance().isTelemetryCollectorsEnabled()) {
+            LOG.info("Telemetry Collectors are enabled!");
+            scheduledMetricCollectorsExecutor.addScheduledMetricCollector(new RTFDisksCollector());
+            scheduledMetricCollectorsExecutor.addScheduledMetricCollector(
+                    new RTFHeapMetricsCollector());
+            scheduledMetricCollectorsExecutor.addScheduledMetricCollector(
+                    new RTFThreadPoolMetricsCollector());
+            scheduledMetricCollectorsExecutor.addScheduledMetricCollector(
+                    new RTFNodeStatsAllShardsMetricsCollector());
+        } else {
+            LOG.info("Telemetry Collectors are disabled!");
+            scheduledMetricCollectorsExecutor.addScheduledMetricCollector(
+                    new ThreadPoolMetricsCollector());
+            scheduledMetricCollectorsExecutor.addScheduledMetricCollector(
+                    new HeapMetricsCollector());
+            scheduledMetricCollectorsExecutor.addScheduledMetricCollector(
+                    new NodeStatsAllShardsMetricsCollector(performanceAnalyzerController));
+            scheduledMetricCollectorsExecutor.addScheduledMetricCollector(new DisksCollector());
+        }
 
         try {
             Class.forName(ShardIndexingPressureMetricsCollector.SHARD_INDEXING_PRESSURE_CLASS_NAME);

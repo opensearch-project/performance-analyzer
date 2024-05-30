@@ -37,7 +37,7 @@ public class RTFHeapMetricsCollector extends PerformanceAnalyzerMetricsCollector
     public RTFHeapMetricsCollector() {
         super(
                 SAMPLING_TIME_INTERVAL,
-                "RTFHeapMetrics",
+                "RTFHeapMetricsCollector",
                 StatMetrics.HEAP_METRICS_COLLECTOR_EXECUTION_TIME,
                 StatExceptionCode.HEAP_METRICS_COLLECTOR_ERROR);
         this.count = 0;

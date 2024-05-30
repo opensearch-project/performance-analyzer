@@ -85,6 +85,12 @@ public class PerformanceAnalyzerPluginTests extends OpenSearchTestCase {
         clusterService = new ClusterService(settings, clusterSettings, threadPool);
         NoopMetricsRegistryFactory metricsRegistryFactory = new NoopMetricsRegistryFactory();
         metricsRegistry = metricsRegistryFactory.getMetricsRegistry();
+        try {
+            metricsRegistryFactory.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
         identityService = new IdentityService(Settings.EMPTY, List.of());
         restController =
                 new RestController(
