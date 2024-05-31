@@ -104,10 +104,14 @@ public class CacheConfigMetricsCollector extends PerformanceAnalyzerMetricsColle
                                                         indicesService,
                                                         "indicesRequestCache",
                                                         true);
+                                        Object openSearchOnHeapCache =
+                                                FieldUtils.readField(reqCache, "cache", true);
                                         Cache requestCache =
                                                 (Cache)
                                                         FieldUtils.readField(
-                                                                reqCache, "cache", true);
+                                                                openSearchOnHeapCache,
+                                                                "cache",
+                                                                true);
                                         Long requestCacheMaxSize =
                                                 (Long)
                                                         FieldUtils.readField(
@@ -118,10 +122,15 @@ public class CacheConfigMetricsCollector extends PerformanceAnalyzerMetricsColle
                                                 SHARD_REQUEST_CACHE.toString(),
                                                 requestCacheMaxSize);
                                     } catch (Exception e) {
-                                        return new CacheMaxSizeStatus(
-                                                SHARD_REQUEST_CACHE.toString(), null);
+                                        e.printStackTrace();
+                                        return null;
                                     }
                                 });
+
+        if (shardRequestCacheMaxSizeStatus == null) {
+            return;
+        }
+
         value.append(PerformanceAnalyzerMetrics.sMetricNewLineDelimitor)
                 .append(shardRequestCacheMaxSizeStatus.serialize());
         saveMetricValues(value.toString(), startTime);
