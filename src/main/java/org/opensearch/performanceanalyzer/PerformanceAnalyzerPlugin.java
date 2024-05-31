@@ -229,7 +229,7 @@ public final class PerformanceAnalyzerPlugin extends Plugin
 
         // Adding RTF Collectors if flag is enabled in performance-analyzer.properties
         if (PluginSettings.instance().isTelemetryCollectorsEnabled()) {
-            LOG.info("Telemetry Collectors are enabled!");
+            LOG.info("Scheduling Telemetry Collectors");
             scheduledMetricCollectorsExecutor.addScheduledMetricCollector(new RTFDisksCollector());
             scheduledMetricCollectorsExecutor.addScheduledMetricCollector(
                     new RTFHeapMetricsCollector());
@@ -237,8 +237,11 @@ public final class PerformanceAnalyzerPlugin extends Plugin
                     new RTFThreadPoolMetricsCollector());
             scheduledMetricCollectorsExecutor.addScheduledMetricCollector(
                     new RTFNodeStatsAllShardsMetricsCollector());
-        } else {
-            LOG.info("Telemetry Collectors are disabled!");
+        }
+
+        // Adding RCA Collectors if flag is enabled in performance-analyzer.properties
+        if (PluginSettings.instance().isRcaCollectorsEnabled()) {
+            LOG.info("Scheduling RCA Collectors");
             scheduledMetricCollectorsExecutor.addScheduledMetricCollector(
                     new ThreadPoolMetricsCollector());
             scheduledMetricCollectorsExecutor.addScheduledMetricCollector(
