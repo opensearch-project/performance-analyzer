@@ -29,12 +29,12 @@ public class RTFHeapMetricsCollector extends PerformanceAnalyzerMetricsCollector
             MetricsConfiguration.CONFIG_MAP.get(HeapMetricsCollector.class).samplingInterval;
 
     private int count;
-    private Histogram GCCollectionEventMetrics;
-    private Histogram GCCollectionTimeMetrics;
-    private Histogram HeapUsedMetrics;
+    private Histogram gcCollectionEventMetrics;
+    private Histogram gcCollectionTimeMetrics;
+    private Histogram heapUsedMetrics;
     private MetricsRegistry metricsRegistry;
-
-    private final String MemTypeAttributeKey = "mem_type";
+    private final String memTypeAttributeKey = "mem_type";
+    private boolean metricsInitialised;
 
     public RTFHeapMetricsCollector() {
         super(
@@ -43,6 +43,7 @@ public class RTFHeapMetricsCollector extends PerformanceAnalyzerMetricsCollector
                 StatMetrics.HEAP_METRICS_COLLECTOR_EXECUTION_TIME,
                 StatExceptionCode.HEAP_METRICS_COLLECTOR_ERROR);
         this.count = 0;
+        this.metricsInitialised = false;
     }
 
     @Override
@@ -54,52 +55,57 @@ public class RTFHeapMetricsCollector extends PerformanceAnalyzerMetricsCollector
             return;
         }
 
-        initialiseMetrics();
+        initialiseMetricsIfNeeded();
         GCMetrics.runGCMetrics();
-        LOG.info("Executing collect metrics for RTFHeapMetricsCollector");
+        LOG.debug("Executing collect metrics for RTFHeapMetricsCollector");
         recordMetrics();
     }
 
-    private void initialiseMetrics() {
-        GCCollectionEventMetrics =
-                metricsRegistry.createHistogram(
-                        AllMetrics.HeapValue.Constants.COLLECTION_COUNT_VALUE,
-                        "GC Collection Event PA Metrics",
-                        "1");
+    private void initialiseMetricsIfNeeded() {
+        if (metricsInitialised == false) {
+            gcCollectionEventMetrics =
+                    metricsRegistry.createHistogram(
+                            AllMetrics.HeapValue.Constants.COLLECTION_COUNT_VALUE,
+                            "GC Collection Event PA Metrics",
+                            "");
 
-        GCCollectionTimeMetrics =
-                metricsRegistry.createHistogram(
-                        AllMetrics.HeapValue.Constants.COLLECTION_TIME_VALUE,
-                        "GC Collection Time PA Metrics",
-                        "1");
+            gcCollectionTimeMetrics =
+                    metricsRegistry.createHistogram(
+                            AllMetrics.HeapValue.Constants.COLLECTION_TIME_VALUE,
+                            "GC Collection Time PA Metrics",
+                            "");
 
-        HeapUsedMetrics =
-                metricsRegistry.createHistogram(
-                        AllMetrics.HeapValue.Constants.USED_VALUE, "GC Heap Used PA Metrics", "1");
+            heapUsedMetrics =
+                    metricsRegistry.createHistogram(
+                            AllMetrics.HeapValue.Constants.USED_VALUE,
+                            "GC Heap Used PA Metrics",
+                            "");
+            metricsInitialised = true;
+        }
     }
 
     private void recordMetrics() {
         Tags TotYoungGCTag =
                 Tags.create()
-                        .addTag(MemTypeAttributeKey, AllMetrics.GCType.TOT_YOUNG_GC.toString());
+                        .addTag(memTypeAttributeKey, AllMetrics.GCType.TOT_YOUNG_GC.toString());
 
         Tags TotFullGCTag =
-                Tags.create().addTag(MemTypeAttributeKey, AllMetrics.GCType.TOT_FULL_GC.toString());
+                Tags.create().addTag(memTypeAttributeKey, AllMetrics.GCType.TOT_FULL_GC.toString());
 
-        GCCollectionEventMetrics.record(GCMetrics.getTotYoungGCCollectionCount(), TotYoungGCTag);
+        gcCollectionEventMetrics.record(GCMetrics.getTotYoungGCCollectionCount(), TotYoungGCTag);
 
-        GCCollectionEventMetrics.record(GCMetrics.getTotFullGCCollectionCount(), TotFullGCTag);
+        gcCollectionEventMetrics.record(GCMetrics.getTotFullGCCollectionCount(), TotFullGCTag);
 
-        GCCollectionTimeMetrics.record(GCMetrics.getTotYoungGCCollectionTime(), TotYoungGCTag);
+        gcCollectionTimeMetrics.record(GCMetrics.getTotYoungGCCollectionTime(), TotYoungGCTag);
 
-        GCCollectionTimeMetrics.record(GCMetrics.getTotFullGCCollectionTime(), TotFullGCTag);
+        gcCollectionTimeMetrics.record(GCMetrics.getTotFullGCCollectionTime(), TotFullGCTag);
 
         for (Map.Entry<String, Supplier<MemoryUsage>> entry :
                 HeapMetrics.getMemoryUsageSuppliers().entrySet()) {
             MemoryUsage memoryUsage = entry.getValue().get();
-            HeapUsedMetrics.record(
+            heapUsedMetrics.record(
                     memoryUsage.getUsed(),
-                    Tags.create().addTag(MemTypeAttributeKey, entry.getKey()));
+                    Tags.create().addTag(memTypeAttributeKey, entry.getKey()));
         }
 
         if (count == 12) {
@@ -110,9 +116,9 @@ public class RTFHeapMetricsCollector extends PerformanceAnalyzerMetricsCollector
                 metricsRegistry.createGauge(
                         AllMetrics.HeapValue.Constants.MAX_VALUE,
                         "Heap Max PA metrics",
-                        "1",
+                        "",
                         () -> (double) memoryUsage.getMax(),
-                        Tags.create().addTag(MemTypeAttributeKey, entry.getKey()));
+                        Tags.create().addTag(memTypeAttributeKey, entry.getKey()));
             }
         }
     }

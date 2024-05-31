@@ -32,20 +32,21 @@ import org.opensearch.threadpool.ThreadPoolStats;
 
 public class RTFThreadPoolMetricsCollector extends PerformanceAnalyzerMetricsCollector {
 
-    private static final Logger LOG = LogManager.getLogger(ThreadPoolMetricsCollector.class);
+    private static final Logger LOG = LogManager.getLogger(RTFThreadPoolMetricsCollector.class);
     public static final int SAMPLING_TIME_INTERVAL =
             MetricsConfiguration.CONFIG_MAP.get(ThreadPoolMetricsCollector.class).samplingInterval;
     private final Map<String, ThreadPoolStatsRecord> statsRecordMap;
-    private Histogram ThreadPoolQueueSizeMetrics;
-    private Histogram ThreadPoolRejectedReqsMetrics;
-    private Histogram ThreadPoolTotalThreadsMetrics;
-    private Histogram ThreadPoolActiveThreadsMetrics;
+    private Histogram threadPoolQueueSizeMetrics;
+    private Histogram threadPoolRejectedReqsMetrics;
+    private Histogram threadPoolTotalThreadsMetrics;
+    private Histogram threadPoolActiveThreadsMetrics;
 
     //  Skipping ThreadPoolQueueLatencyMetrics since they are always emitting -1 in the original
     // collector
     //  private Histogram ThreadPoolQueueLatencyMetrics;
     private Histogram ThreadPoolQueueCapacityMetrics;
     private MetricsRegistry metricsRegistry;
+    private boolean metricsInitialised;
 
     public RTFThreadPoolMetricsCollector() {
         super(
@@ -54,6 +55,7 @@ public class RTFThreadPoolMetricsCollector extends PerformanceAnalyzerMetricsCol
                 THREADPOOL_METRICS_COLLECTOR_EXECUTION_TIME,
                 THREADPOOL_METRICS_COLLECTOR_ERROR);
         statsRecordMap = new HashMap<>();
+        this.metricsInitialised = false;
     }
 
     @Override
@@ -68,9 +70,9 @@ public class RTFThreadPoolMetricsCollector extends PerformanceAnalyzerMetricsCol
             return;
         }
 
-        LOG.info("Executing collect metrics for RTFThreadPoolMetricsCollector");
+        LOG.debug("Executing collect metrics for RTFThreadPoolMetricsCollector");
 
-        initialiseMetrics();
+        initialiseMetricsIfNeeded();
 
         Iterator<ThreadPoolStats.Stats> statsIterator =
                 OpenSearchResources.INSTANCE.getThreadPool().stats().iterator();
@@ -140,46 +142,49 @@ public class RTFThreadPoolMetricsCollector extends PerformanceAnalyzerMetricsCol
             ThreadPoolStats.Stats stats, long finalRejectionDelta, int capacity) {
         Tags ThreadPoolTypeTag = Tags.create().addTag("thread_pool_type", stats.getName());
 
-        ThreadPoolQueueSizeMetrics.record(stats.getQueue(), ThreadPoolTypeTag);
-        ThreadPoolRejectedReqsMetrics.record(finalRejectionDelta, ThreadPoolTypeTag);
-        ThreadPoolActiveThreadsMetrics.record(stats.getActive(), ThreadPoolTypeTag);
-        ThreadPoolTotalThreadsMetrics.record(stats.getThreads(), ThreadPoolTypeTag);
+        threadPoolQueueSizeMetrics.record(stats.getQueue(), ThreadPoolTypeTag);
+        threadPoolRejectedReqsMetrics.record(finalRejectionDelta, ThreadPoolTypeTag);
+        threadPoolActiveThreadsMetrics.record(stats.getActive(), ThreadPoolTypeTag);
+        threadPoolTotalThreadsMetrics.record(stats.getThreads(), ThreadPoolTypeTag);
 
         if (capacity >= 0) {
             ThreadPoolQueueCapacityMetrics.record(capacity, ThreadPoolTypeTag);
         }
     }
 
-    private void initialiseMetrics() {
-        ThreadPoolQueueSizeMetrics =
-                metricsRegistry.createHistogram(
-                        AllMetrics.ThreadPoolValue.Constants.QUEUE_SIZE_VALUE,
-                        "ThreadPool Queue Size Metrics",
-                        "1");
+    private void initialiseMetricsIfNeeded() {
+        if (metricsInitialised == false) {
+            threadPoolQueueSizeMetrics =
+                    metricsRegistry.createHistogram(
+                            AllMetrics.ThreadPoolValue.Constants.QUEUE_SIZE_VALUE,
+                            "ThreadPool Queue Size Metrics",
+                            "");
 
-        ThreadPoolRejectedReqsMetrics =
-                metricsRegistry.createHistogram(
-                        AllMetrics.ThreadPoolValue.Constants.REJECTED_VALUE,
-                        "ThreadPool Rejected Reqs Metrics",
-                        "1");
+            threadPoolRejectedReqsMetrics =
+                    metricsRegistry.createHistogram(
+                            AllMetrics.ThreadPoolValue.Constants.REJECTED_VALUE,
+                            "ThreadPool Rejected Reqs Metrics",
+                            "");
 
-        ThreadPoolTotalThreadsMetrics =
-                metricsRegistry.createHistogram(
-                        AllMetrics.ThreadPoolValue.Constants.THREADS_COUNT_VALUE,
-                        "ThreadPool Total Threads Metrics",
-                        "1");
+            threadPoolTotalThreadsMetrics =
+                    metricsRegistry.createHistogram(
+                            AllMetrics.ThreadPoolValue.Constants.THREADS_COUNT_VALUE,
+                            "ThreadPool Total Threads Metrics",
+                            "");
 
-        ThreadPoolActiveThreadsMetrics =
-                metricsRegistry.createHistogram(
-                        AllMetrics.ThreadPoolValue.Constants.THREADS_ACTIVE_VALUE,
-                        "ThreadPool Active Threads Metrics",
-                        "1");
+            threadPoolActiveThreadsMetrics =
+                    metricsRegistry.createHistogram(
+                            AllMetrics.ThreadPoolValue.Constants.THREADS_ACTIVE_VALUE,
+                            "ThreadPool Active Threads Metrics",
+                            "");
 
-        ThreadPoolQueueCapacityMetrics =
-                metricsRegistry.createHistogram(
-                        AllMetrics.ThreadPoolValue.Constants.QUEUE_CAPACITY_VALUE,
-                        "ThreadPool Queue Capacity Metrics",
-                        "1");
+            ThreadPoolQueueCapacityMetrics =
+                    metricsRegistry.createHistogram(
+                            AllMetrics.ThreadPoolValue.Constants.QUEUE_CAPACITY_VALUE,
+                            "ThreadPool Queue Capacity Metrics",
+                            "");
+            metricsInitialised = true;
+        }
     }
 
     private static class ThreadPoolStatsRecord {

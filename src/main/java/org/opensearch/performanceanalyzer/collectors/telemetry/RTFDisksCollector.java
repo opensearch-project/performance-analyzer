@@ -23,11 +23,11 @@ import org.opensearch.telemetry.metrics.tags.Tags;
 
 public class RTFDisksCollector extends PerformanceAnalyzerMetricsCollector {
 
-    private Histogram DiskWaitTimeMetrics;
-    private Histogram DiskServiceRateMetrics;
-    private Histogram DiskUtilizationMetrics;
-
+    private Histogram diskWaitTimeMetrics;
+    private Histogram diskServiceRateMetrics;
+    private Histogram diskUtilizationMetrics;
     private MetricsRegistry metricsRegistry;
+    private boolean metricsInitialised;
     private static final Logger LOG = LogManager.getLogger(RTFDisksCollector.class);
 
     public RTFDisksCollector() {
@@ -36,6 +36,7 @@ public class RTFDisksCollector extends PerformanceAnalyzerMetricsCollector {
                 "RTFDisksCollector",
                 StatMetrics.DISKS_COLLECTOR_EXECUTION_TIME,
                 StatExceptionCode.DISK_METRICS_COLLECTOR_ERROR);
+        this.metricsInitialised = false;
     }
 
     @Override
@@ -52,9 +53,9 @@ public class RTFDisksCollector extends PerformanceAnalyzerMetricsCollector {
             return;
         }
 
-        LOG.info("Executing collect metrics for RTFDisksCollector");
+        LOG.debug("Executing collect metrics for RTFDisksCollector");
 
-        initialiseMetrics();
+        initialiseMetricsIfNeeded();
         DiskMetricsGenerator diskMetricsGenerator = generator.getDiskMetricsGenerator();
         diskMetricsGenerator.addSample();
 
@@ -67,21 +68,28 @@ public class RTFDisksCollector extends PerformanceAnalyzerMetricsCollector {
             double Disk_WaitTime = diskMetricsGenerator.getAwait(disk);
             double Disk_ServiceRate = diskMetricsGenerator.getServiceRate(disk);
             double Disk_Utilization = diskMetricsGenerator.getDiskUtilization(disk);
-            DiskWaitTimeMetrics.record(Disk_WaitTime, DiskNameTag);
-            DiskUtilizationMetrics.record(Disk_Utilization, DiskNameTag);
-            DiskServiceRateMetrics.record(Disk_ServiceRate, DiskNameTag);
+            diskWaitTimeMetrics.record(Disk_WaitTime, DiskNameTag);
+            diskUtilizationMetrics.record(Disk_Utilization, DiskNameTag);
+            diskServiceRateMetrics.record(Disk_ServiceRate, DiskNameTag);
         }
     }
 
-    private void initialiseMetrics() {
-        DiskWaitTimeMetrics =
-                metricsRegistry.createHistogram(
-                        AllMetrics.DiskValue.Constants.WAIT_VALUE, "DiskWaitTimeMetrics", "1");
-        DiskServiceRateMetrics =
-                metricsRegistry.createHistogram(
-                        AllMetrics.DiskValue.Constants.SRATE_VALUE, "DiskServiceRateMetrics", "1");
-        DiskUtilizationMetrics =
-                metricsRegistry.createHistogram(
-                        AllMetrics.DiskValue.Constants.UTIL_VALUE, "DiskUtilizationMetrics", "1");
+    private void initialiseMetricsIfNeeded() {
+        if (metricsInitialised == false) {
+            diskWaitTimeMetrics =
+                    metricsRegistry.createHistogram(
+                            AllMetrics.DiskValue.Constants.WAIT_VALUE, "DiskWaitTimeMetrics", "");
+            diskServiceRateMetrics =
+                    metricsRegistry.createHistogram(
+                            AllMetrics.DiskValue.Constants.SRATE_VALUE,
+                            "DiskServiceRateMetrics",
+                            "");
+            diskUtilizationMetrics =
+                    metricsRegistry.createHistogram(
+                            AllMetrics.DiskValue.Constants.UTIL_VALUE,
+                            "DiskUtilizationMetrics",
+                            "");
+            metricsInitialised = true;
+        }
     }
 }

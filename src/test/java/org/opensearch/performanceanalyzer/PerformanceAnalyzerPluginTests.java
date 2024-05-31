@@ -22,6 +22,7 @@ import org.junit.Test;
 import org.opensearch.action.ActionRequest;
 import org.opensearch.action.support.ActionFilter;
 import org.opensearch.client.node.NodeClient;
+import org.opensearch.cluster.ClusterManagerMetrics;
 import org.opensearch.cluster.service.ClusterService;
 import org.opensearch.common.settings.ClusterSettings;
 import org.opensearch.common.settings.Setting;
@@ -82,7 +83,6 @@ public class PerformanceAnalyzerPluginTests extends OpenSearchTestCase {
         threadPool = new TestThreadPool("test");
         nodeClient = new NodeClient(settings, threadPool);
         environment = TestEnvironment.newEnvironment(settings);
-        clusterService = new ClusterService(settings, clusterSettings, threadPool);
         NoopMetricsRegistryFactory metricsRegistryFactory = new NoopMetricsRegistryFactory();
         metricsRegistry = metricsRegistryFactory.getMetricsRegistry();
         try {
@@ -90,7 +90,12 @@ public class PerformanceAnalyzerPluginTests extends OpenSearchTestCase {
         } catch (Exception e) {
             e.printStackTrace();
         }
-
+        clusterService =
+                new ClusterService(
+                        settings,
+                        clusterSettings,
+                        threadPool,
+                        new ClusterManagerMetrics(metricsRegistry));
         identityService = new IdentityService(Settings.EMPTY, List.of());
         restController =
                 new RestController(
