@@ -195,6 +195,48 @@ public final class PerformanceAnalyzerPlugin extends Plugin
         clusterSettingsManager.addSubscriberForIntSetting(
                 PerformanceAnalyzerClusterSettings.PA_NODE_STATS_SETTING, nodeStatsSettingHandler);
 
+        // Adding RTF Collectors if flag is enabled in performance-analyzer.properties
+        if (PluginSettings.instance().isTelemetryCollectorsEnabled()) {
+            LOG.info("Scheduling Telemetry Collectors");
+            scheduleTelemetryCollectors();
+        }
+
+        // Adding RCA Collectors if flag is enabled in performance-analyzer.properties
+        if (PluginSettings.instance().isRcaCollectorsEnabled()) {
+            LOG.info("Scheduling RCA Collectors");
+            scheduleRcaCollectors();
+        }
+
+        scheduledMetricCollectorsExecutor.start();
+
+        EventLog eventLog = new EventLog();
+        EventLogFileHandler eventLogFileHandler =
+                new EventLogFileHandler(eventLog, PluginSettings.instance().getMetricsLocation());
+        new EventLogQueueProcessor(
+                        eventLogFileHandler,
+                        MetricsConfiguration.SAMPLING_INTERVAL,
+                        QUEUE_PURGE_INTERVAL_MS,
+                        performanceAnalyzerController)
+                .scheduleExecutor();
+    }
+
+    private void scheduleTelemetryCollectors() {
+        scheduledMetricCollectorsExecutor.addScheduledMetricCollector(new RTFDisksCollector());
+        scheduledMetricCollectorsExecutor.addScheduledMetricCollector(
+                new RTFHeapMetricsCollector());
+        scheduledMetricCollectorsExecutor.addScheduledMetricCollector(
+                new RTFThreadPoolMetricsCollector());
+        scheduledMetricCollectorsExecutor.addScheduledMetricCollector(
+                new RTFNodeStatsAllShardsMetricsCollector());
+    }
+
+    private void scheduleRcaCollectors() {
+        scheduledMetricCollectorsExecutor.addScheduledMetricCollector(
+                new ThreadPoolMetricsCollector());
+        scheduledMetricCollectorsExecutor.addScheduledMetricCollector(new HeapMetricsCollector());
+        scheduledMetricCollectorsExecutor.addScheduledMetricCollector(
+                new NodeStatsAllShardsMetricsCollector(performanceAnalyzerController));
+        scheduledMetricCollectorsExecutor.addScheduledMetricCollector(new DisksCollector());
         scheduledMetricCollectorsExecutor.addScheduledMetricCollector(
                 new CacheConfigMetricsCollector());
         scheduledMetricCollectorsExecutor.addScheduledMetricCollector(
@@ -220,37 +262,11 @@ public final class PerformanceAnalyzerPlugin extends Plugin
         scheduledMetricCollectorsExecutor.addScheduledMetricCollector(
                 new SearchBackPressureStatsCollector(
                         performanceAnalyzerController, configOverridesWrapper));
-
         scheduledMetricCollectorsExecutor.addScheduledMetricCollector(
                 new AdmissionControlMetricsCollector());
         scheduledMetricCollectorsExecutor.addScheduledMetricCollector(
                 new ElectionTermCollector(performanceAnalyzerController, configOverridesWrapper));
         scheduledMetricCollectorsExecutor.addScheduledMetricCollector(new GCInfoCollector());
-
-        // Adding RTF Collectors if flag is enabled in performance-analyzer.properties
-        if (PluginSettings.instance().isTelemetryCollectorsEnabled()) {
-            LOG.info("Scheduling Telemetry Collectors");
-            scheduledMetricCollectorsExecutor.addScheduledMetricCollector(new RTFDisksCollector());
-            scheduledMetricCollectorsExecutor.addScheduledMetricCollector(
-                    new RTFHeapMetricsCollector());
-            scheduledMetricCollectorsExecutor.addScheduledMetricCollector(
-                    new RTFThreadPoolMetricsCollector());
-            scheduledMetricCollectorsExecutor.addScheduledMetricCollector(
-                    new RTFNodeStatsAllShardsMetricsCollector());
-        }
-
-        // Adding RCA Collectors if flag is enabled in performance-analyzer.properties
-        if (PluginSettings.instance().isRcaCollectorsEnabled()) {
-            LOG.info("Scheduling RCA Collectors");
-            scheduledMetricCollectorsExecutor.addScheduledMetricCollector(
-                    new ThreadPoolMetricsCollector());
-            scheduledMetricCollectorsExecutor.addScheduledMetricCollector(
-                    new HeapMetricsCollector());
-            scheduledMetricCollectorsExecutor.addScheduledMetricCollector(
-                    new NodeStatsAllShardsMetricsCollector(performanceAnalyzerController));
-            scheduledMetricCollectorsExecutor.addScheduledMetricCollector(new DisksCollector());
-        }
-
         try {
             Class.forName(ShardIndexingPressureMetricsCollector.SHARD_INDEXING_PRESSURE_CLASS_NAME);
             scheduledMetricCollectorsExecutor.addScheduledMetricCollector(
@@ -260,17 +276,6 @@ public final class PerformanceAnalyzerPlugin extends Plugin
             LOG.info(
                     "Shard IndexingPressure not present in this OpenSearch version. Skipping ShardIndexingPressureMetricsCollector");
         }
-        scheduledMetricCollectorsExecutor.start();
-
-        EventLog eventLog = new EventLog();
-        EventLogFileHandler eventLogFileHandler =
-                new EventLogFileHandler(eventLog, PluginSettings.instance().getMetricsLocation());
-        new EventLogQueueProcessor(
-                        eventLogFileHandler,
-                        MetricsConfiguration.SAMPLING_INTERVAL,
-                        QUEUE_PURGE_INTERVAL_MS,
-                        performanceAnalyzerController)
-                .scheduleExecutor();
     }
 
     // - http level: bulk, search

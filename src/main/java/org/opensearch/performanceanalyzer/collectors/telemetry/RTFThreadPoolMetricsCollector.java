@@ -140,15 +140,15 @@ public class RTFThreadPoolMetricsCollector extends PerformanceAnalyzerMetricsCol
 
     private void recordMetrics(
             ThreadPoolStats.Stats stats, long finalRejectionDelta, int capacity) {
-        Tags ThreadPoolTypeTag = Tags.create().addTag("thread_pool_type", stats.getName());
+        Tags threadPoolTypeTag = Tags.create().addTag("thread_pool_type", stats.getName());
 
-        threadPoolQueueSizeMetrics.record(stats.getQueue(), ThreadPoolTypeTag);
-        threadPoolRejectedReqsMetrics.record(finalRejectionDelta, ThreadPoolTypeTag);
-        threadPoolActiveThreadsMetrics.record(stats.getActive(), ThreadPoolTypeTag);
-        threadPoolTotalThreadsMetrics.record(stats.getThreads(), ThreadPoolTypeTag);
+        threadPoolQueueSizeMetrics.record(stats.getQueue(), threadPoolTypeTag);
+        threadPoolRejectedReqsMetrics.record(finalRejectionDelta, threadPoolTypeTag);
+        threadPoolActiveThreadsMetrics.record(stats.getActive(), threadPoolTypeTag);
+        threadPoolTotalThreadsMetrics.record(stats.getThreads(), threadPoolTypeTag);
 
         if (capacity >= 0) {
-            ThreadPoolQueueCapacityMetrics.record(capacity, ThreadPoolTypeTag);
+            ThreadPoolQueueCapacityMetrics.record(capacity, threadPoolTypeTag);
         }
     }
 

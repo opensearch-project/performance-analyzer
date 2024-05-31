@@ -232,20 +232,20 @@ public class RTFNodeStatsAllShardsMetricsCollector extends PerformanceAnalyzerMe
             NodeStatsMetricsAllShardsPerCollectionStatus metrics,
             String IndexName,
             String ShardId) {
-        Tags NodeStatsMetricsTag =
+        Tags nodeStatsMetricsTag =
                 Tags.create().addTag("index_name", IndexName).addTag("shard_id", ShardId);
 
-        cacheQueryMissMetrics.add(metrics.getQueryCacheMissCount(), NodeStatsMetricsTag);
-        cacheQuerySizeMetrics.add(metrics.getQueryCacheInBytes(), NodeStatsMetricsTag);
-        cacheQueryHitMetrics.add(metrics.getQueryCacheHitCount(), NodeStatsMetricsTag);
+        cacheQueryMissMetrics.add(metrics.getQueryCacheMissCount(), nodeStatsMetricsTag);
+        cacheQuerySizeMetrics.add(metrics.getQueryCacheInBytes(), nodeStatsMetricsTag);
+        cacheQueryHitMetrics.add(metrics.getQueryCacheHitCount(), nodeStatsMetricsTag);
 
-        cacheFieldDataEvictionMetrics.add(metrics.getFieldDataEvictions(), NodeStatsMetricsTag);
-        cacheFieldDataSizeMetrics.add(metrics.getFieldDataInBytes(), NodeStatsMetricsTag);
+        cacheFieldDataEvictionMetrics.add(metrics.getFieldDataEvictions(), nodeStatsMetricsTag);
+        cacheFieldDataSizeMetrics.add(metrics.getFieldDataInBytes(), nodeStatsMetricsTag);
 
-        cacheRequestEvictionMetrics.add(metrics.getRequestCacheEvictions(), NodeStatsMetricsTag);
-        cacheRequestHitMetrics.add(metrics.getRequestCacheHitCount(), NodeStatsMetricsTag);
-        cacheRequestMissMetrics.add(metrics.getRequestCacheMissCount(), NodeStatsMetricsTag);
-        cacheRequestSizeMetrics.add(metrics.getRequestCacheInBytes(), NodeStatsMetricsTag);
+        cacheRequestEvictionMetrics.add(metrics.getRequestCacheEvictions(), nodeStatsMetricsTag);
+        cacheRequestHitMetrics.add(metrics.getRequestCacheHitCount(), nodeStatsMetricsTag);
+        cacheRequestMissMetrics.add(metrics.getRequestCacheMissCount(), nodeStatsMetricsTag);
+        cacheRequestSizeMetrics.add(metrics.getRequestCacheInBytes(), nodeStatsMetricsTag);
     }
 
     public void populateDiffMetricValue(

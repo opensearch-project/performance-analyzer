@@ -27,8 +27,6 @@ public class RTFHeapMetricsCollector extends PerformanceAnalyzerMetricsCollector
     private static final Logger LOG = LogManager.getLogger(RTFHeapMetricsCollector.class);
     public static final int SAMPLING_TIME_INTERVAL =
             MetricsConfiguration.CONFIG_MAP.get(HeapMetricsCollector.class).samplingInterval;
-
-    private int count;
     private Histogram gcCollectionEventMetrics;
     private Histogram gcCollectionTimeMetrics;
     private Histogram heapUsedMetrics;
@@ -42,13 +40,11 @@ public class RTFHeapMetricsCollector extends PerformanceAnalyzerMetricsCollector
                 "RTFHeapMetricsCollector",
                 StatMetrics.HEAP_METRICS_COLLECTOR_EXECUTION_TIME,
                 StatExceptionCode.HEAP_METRICS_COLLECTOR_ERROR);
-        this.count = 0;
         this.metricsInitialised = false;
     }
 
     @Override
     public void collectMetrics(long startTime) {
-        count += 1;
         metricsRegistry = OpenSearchResources.INSTANCE.getMetricsRegistry();
         if (metricsRegistry == null) {
             LOG.error("could not get the instance of MetricsRegistry class");
@@ -85,20 +81,20 @@ public class RTFHeapMetricsCollector extends PerformanceAnalyzerMetricsCollector
     }
 
     private void recordMetrics() {
-        Tags TotYoungGCTag =
+        Tags totYoungGCTag =
                 Tags.create()
                         .addTag(memTypeAttributeKey, AllMetrics.GCType.TOT_YOUNG_GC.toString());
 
-        Tags TotFullGCTag =
+        Tags totFullGCTag =
                 Tags.create().addTag(memTypeAttributeKey, AllMetrics.GCType.TOT_FULL_GC.toString());
 
-        gcCollectionEventMetrics.record(GCMetrics.getTotYoungGCCollectionCount(), TotYoungGCTag);
+        gcCollectionEventMetrics.record(GCMetrics.getTotYoungGCCollectionCount(), totYoungGCTag);
 
-        gcCollectionEventMetrics.record(GCMetrics.getTotFullGCCollectionCount(), TotFullGCTag);
+        gcCollectionEventMetrics.record(GCMetrics.getTotFullGCCollectionCount(), totFullGCTag);
 
-        gcCollectionTimeMetrics.record(GCMetrics.getTotYoungGCCollectionTime(), TotYoungGCTag);
+        gcCollectionTimeMetrics.record(GCMetrics.getTotYoungGCCollectionTime(), totYoungGCTag);
 
-        gcCollectionTimeMetrics.record(GCMetrics.getTotFullGCCollectionTime(), TotFullGCTag);
+        gcCollectionTimeMetrics.record(GCMetrics.getTotFullGCCollectionTime(), totFullGCTag);
 
         for (Map.Entry<String, Supplier<MemoryUsage>> entry :
                 HeapMetrics.getMemoryUsageSuppliers().entrySet()) {
@@ -106,20 +102,12 @@ public class RTFHeapMetricsCollector extends PerformanceAnalyzerMetricsCollector
             heapUsedMetrics.record(
                     memoryUsage.getUsed(),
                     Tags.create().addTag(memTypeAttributeKey, entry.getKey()));
-        }
-
-        if (count == 12) {
-            count = 0;
-            for (Map.Entry<String, Supplier<MemoryUsage>> entry :
-                    HeapMetrics.getMemoryUsageSuppliers().entrySet()) {
-                MemoryUsage memoryUsage = entry.getValue().get();
-                metricsRegistry.createGauge(
-                        AllMetrics.HeapValue.Constants.MAX_VALUE,
-                        "Heap Max PA metrics",
-                        "",
-                        () -> (double) memoryUsage.getMax(),
-                        Tags.create().addTag(memTypeAttributeKey, entry.getKey()));
-            }
+            metricsRegistry.createGauge(
+                    AllMetrics.HeapValue.Constants.MAX_VALUE,
+                    "Heap Max PA metrics",
+                    "",
+                    () -> (double) memoryUsage.getMax(),
+                    Tags.create().addTag(memTypeAttributeKey, entry.getKey()));
         }
     }
 }

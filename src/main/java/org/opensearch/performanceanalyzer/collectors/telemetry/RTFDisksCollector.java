@@ -64,13 +64,13 @@ public class RTFDisksCollector extends PerformanceAnalyzerMetricsCollector {
 
     private void recordMetrics(DiskMetricsGenerator diskMetricsGenerator) {
         for (String disk : diskMetricsGenerator.getAllDisks()) {
-            Tags DiskNameTag = Tags.create().addTag("disk_name", disk);
+            Tags diskNameTag = Tags.create().addTag("disk_name", disk);
             double Disk_WaitTime = diskMetricsGenerator.getAwait(disk);
             double Disk_ServiceRate = diskMetricsGenerator.getServiceRate(disk);
             double Disk_Utilization = diskMetricsGenerator.getDiskUtilization(disk);
-            diskWaitTimeMetrics.record(Disk_WaitTime, DiskNameTag);
-            diskUtilizationMetrics.record(Disk_Utilization, DiskNameTag);
-            diskServiceRateMetrics.record(Disk_ServiceRate, DiskNameTag);
+            diskWaitTimeMetrics.record(Disk_WaitTime, diskNameTag);
+            diskUtilizationMetrics.record(Disk_Utilization, diskNameTag);
+            diskServiceRateMetrics.record(Disk_ServiceRate, diskNameTag);
         }
     }
 
