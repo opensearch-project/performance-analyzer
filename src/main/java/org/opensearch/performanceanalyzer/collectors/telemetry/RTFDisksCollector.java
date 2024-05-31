@@ -9,7 +9,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.opensearch.performanceanalyzer.OpenSearchResources;
 import org.opensearch.performanceanalyzer.commons.OSMetricsGeneratorFactory;
-import org.opensearch.performanceanalyzer.commons.collectors.DisksCollector;
 import org.opensearch.performanceanalyzer.commons.collectors.PerformanceAnalyzerMetricsCollector;
 import org.opensearch.performanceanalyzer.commons.metrics.AllMetrics;
 import org.opensearch.performanceanalyzer.commons.metrics.MetricsConfiguration;
@@ -32,7 +31,7 @@ public class RTFDisksCollector extends PerformanceAnalyzerMetricsCollector {
 
     public RTFDisksCollector() {
         super(
-                MetricsConfiguration.CONFIG_MAP.get(DisksCollector.class).samplingInterval,
+                MetricsConfiguration.CONFIG_MAP.get(RTFDisksCollector.class).samplingInterval,
                 "RTFDisksCollector",
                 StatMetrics.DISKS_COLLECTOR_EXECUTION_TIME,
                 StatExceptionCode.DISK_METRICS_COLLECTOR_ERROR);

@@ -19,7 +19,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.opensearch.common.util.concurrent.SizeBlockingQueue;
 import org.opensearch.performanceanalyzer.OpenSearchResources;
-import org.opensearch.performanceanalyzer.collectors.ThreadPoolMetricsCollector;
 import org.opensearch.performanceanalyzer.commons.collectors.PerformanceAnalyzerMetricsCollector;
 import org.opensearch.performanceanalyzer.commons.collectors.StatsCollector;
 import org.opensearch.performanceanalyzer.commons.metrics.AllMetrics;
@@ -34,7 +33,8 @@ public class RTFThreadPoolMetricsCollector extends PerformanceAnalyzerMetricsCol
 
     private static final Logger LOG = LogManager.getLogger(RTFThreadPoolMetricsCollector.class);
     public static final int SAMPLING_TIME_INTERVAL =
-            MetricsConfiguration.CONFIG_MAP.get(ThreadPoolMetricsCollector.class).samplingInterval;
+            MetricsConfiguration.CONFIG_MAP.get(RTFThreadPoolMetricsCollector.class)
+                    .samplingInterval;
     private final Map<String, ThreadPoolStatsRecord> statsRecordMap;
     private Histogram threadPoolQueueSizeMetrics;
     private Histogram threadPoolRejectedReqsMetrics;

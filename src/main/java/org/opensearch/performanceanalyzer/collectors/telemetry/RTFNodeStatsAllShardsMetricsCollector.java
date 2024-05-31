@@ -22,7 +22,6 @@ import org.opensearch.core.index.shard.ShardId;
 import org.opensearch.index.shard.IndexShard;
 import org.opensearch.indices.IndicesService;
 import org.opensearch.performanceanalyzer.OpenSearchResources;
-import org.opensearch.performanceanalyzer.collectors.NodeStatsAllShardsMetricsCollector;
 import org.opensearch.performanceanalyzer.collectors.ValueCalculator;
 import org.opensearch.performanceanalyzer.commons.collectors.MetricStatus;
 import org.opensearch.performanceanalyzer.commons.collectors.PerformanceAnalyzerMetricsCollector;
@@ -35,7 +34,7 @@ import org.opensearch.telemetry.metrics.tags.Tags;
 
 public class RTFNodeStatsAllShardsMetricsCollector extends PerformanceAnalyzerMetricsCollector {
     public static final int SAMPLING_TIME_INTERVAL =
-            MetricsConfiguration.CONFIG_MAP.get(NodeStatsAllShardsMetricsCollector.class)
+            MetricsConfiguration.CONFIG_MAP.get(RTFNodeStatsAllShardsMetricsCollector.class)
                     .samplingInterval;
     private static final Logger LOG =
             LogManager.getLogger(RTFNodeStatsAllShardsMetricsCollector.class);

@@ -11,7 +11,6 @@ import java.util.function.Supplier;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.opensearch.performanceanalyzer.OpenSearchResources;
-import org.opensearch.performanceanalyzer.commons.collectors.HeapMetricsCollector;
 import org.opensearch.performanceanalyzer.commons.collectors.PerformanceAnalyzerMetricsCollector;
 import org.opensearch.performanceanalyzer.commons.jvm.GCMetrics;
 import org.opensearch.performanceanalyzer.commons.jvm.HeapMetrics;
@@ -26,7 +25,7 @@ import org.opensearch.telemetry.metrics.tags.Tags;
 public class RTFHeapMetricsCollector extends PerformanceAnalyzerMetricsCollector {
     private static final Logger LOG = LogManager.getLogger(RTFHeapMetricsCollector.class);
     public static final int SAMPLING_TIME_INTERVAL =
-            MetricsConfiguration.CONFIG_MAP.get(HeapMetricsCollector.class).samplingInterval;
+            MetricsConfiguration.CONFIG_MAP.get(RTFHeapMetricsCollector.class).samplingInterval;
     private Histogram gcCollectionEventMetrics;
     private Histogram gcCollectionTimeMetrics;
     private Histogram heapUsedMetrics;
