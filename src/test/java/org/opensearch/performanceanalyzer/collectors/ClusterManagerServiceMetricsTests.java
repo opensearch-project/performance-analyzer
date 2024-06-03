@@ -6,6 +6,9 @@
 package org.opensearch.performanceanalyzer.collectors;
 
 import static org.junit.Assert.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 
@@ -14,13 +17,16 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.opensearch.cluster.service.ClusterService;
 import org.opensearch.performanceanalyzer.OpenSearchResources;
 import org.opensearch.performanceanalyzer.commons.config.PluginSettings;
+import org.opensearch.performanceanalyzer.commons.config.overrides.ConfigOverridesWrapper;
 import org.opensearch.performanceanalyzer.commons.event_process.Event;
 import org.opensearch.performanceanalyzer.commons.metrics.AllMetrics.ClusterManagerPendingValue;
 import org.opensearch.performanceanalyzer.commons.metrics.MetricsConfiguration;
 import org.opensearch.performanceanalyzer.commons.metrics.PerformanceAnalyzerMetrics;
+import org.opensearch.performanceanalyzer.config.PerformanceAnalyzerController;
 import org.opensearch.performanceanalyzer.util.TestUtil;
 import org.opensearch.test.ClusterServiceUtils;
 import org.opensearch.threadpool.TestThreadPool;
@@ -43,7 +49,13 @@ public class ClusterManagerServiceMetricsTests {
 
         MetricsConfiguration.CONFIG_MAP.put(
                 ClusterManagerServiceMetrics.class, MetricsConfiguration.cdefault);
-        clusterManagerServiceMetrics = new ClusterManagerServiceMetrics();
+        PerformanceAnalyzerController mockController = mock(PerformanceAnalyzerController.class);
+        ConfigOverridesWrapper mockWrapper = mock(ConfigOverridesWrapper.class);
+        Mockito.when(mockController.isCollectorDisabled(any(), anyString())).thenReturn(false);
+        Mockito.when(mockController.rcaCollectorsEnabled()).thenReturn(true);
+        Mockito.when(mockController.telemetryCollectorsEnabled()).thenReturn(true);
+        clusterManagerServiceMetrics =
+                new ClusterManagerServiceMetrics(mockController, mockWrapper);
 
         // clean metricQueue before running every test
         TestUtil.readEvents();

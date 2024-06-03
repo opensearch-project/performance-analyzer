@@ -31,7 +31,7 @@ import org.opensearch.test.ClusterServiceUtils;
 import org.opensearch.threadpool.TestThreadPool;
 import org.opensearch.threadpool.ThreadPool;
 
-public class ClusterManagerServiceEventMetricsTests {
+public class ClusterManagerServiceEventMetricsTests extends CollectorTestBase {
     private long startTimeInMills = 1153721339;
     private ClusterManagerServiceEventMetrics clusterManagerServiceEventMetrics;
     private ThreadPool threadPool;
@@ -52,7 +52,9 @@ public class ClusterManagerServiceEventMetricsTests {
 
         MetricsConfiguration.CONFIG_MAP.put(
                 ClusterManagerServiceEventMetrics.class, MetricsConfiguration.cdefault);
-        clusterManagerServiceEventMetrics = new ClusterManagerServiceEventMetrics();
+
+        clusterManagerServiceEventMetrics =
+                new ClusterManagerServiceEventMetrics(mockController, mockWrapper);
 
         // clean metricQueue before running every test
         TestUtil.readEvents();

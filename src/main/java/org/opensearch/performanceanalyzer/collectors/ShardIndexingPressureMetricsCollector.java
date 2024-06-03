@@ -62,11 +62,11 @@ public class ShardIndexingPressureMetricsCollector extends PerformanceAnalyzerMe
     private static final Integer MAX_HOT_STORE_LIMIT = 50;
 
     private final ConfigOverridesWrapper configOverridesWrapper;
-    private final PerformanceAnalyzerController controller;
+    private final PerformanceAnalyzerController performanceAnalyzerController;
     private StringBuilder value;
 
     public ShardIndexingPressureMetricsCollector(
-            PerformanceAnalyzerController controller,
+            PerformanceAnalyzerController performanceAnalyzerController,
             ConfigOverridesWrapper configOverridesWrapper) {
         super(
                 SAMPLING_TIME_INTERVAL,
@@ -75,13 +75,20 @@ public class ShardIndexingPressureMetricsCollector extends PerformanceAnalyzerMe
                 SHARD_INDEXING_PRESSURE_COLLECTOR_ERROR);
         value = new StringBuilder();
         this.configOverridesWrapper = configOverridesWrapper;
-        this.controller = controller;
+        this.performanceAnalyzerController = performanceAnalyzerController;
     }
 
     @Override
     @SuppressWarnings("unchecked")
     public void collectMetrics(long startTime) {
-        if (controller.isCollectorDisabled(configOverridesWrapper, getCollectorName())) {
+        if (!performanceAnalyzerController.rcaCollectorsEnabled()) {
+            LOG.info("All RCA collectors are disabled. Skipping collection.");
+            return;
+        }
+
+        if (performanceAnalyzerController.isCollectorDisabled(
+                configOverridesWrapper, getCollectorName())) {
+            LOG.info(getCollectorName() + " is disabled. Skipping collection.");
             return;
         }
 

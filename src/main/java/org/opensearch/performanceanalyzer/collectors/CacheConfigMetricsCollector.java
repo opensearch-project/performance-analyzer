@@ -17,16 +17,20 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
 import org.apache.commons.lang3.reflect.FieldUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.opensearch.common.cache.Cache;
 import org.opensearch.indices.IndicesService;
 import org.opensearch.performanceanalyzer.OpenSearchResources;
 import org.opensearch.performanceanalyzer.commons.collectors.MetricStatus;
 import org.opensearch.performanceanalyzer.commons.collectors.PerformanceAnalyzerMetricsCollector;
+import org.opensearch.performanceanalyzer.commons.config.overrides.ConfigOverridesWrapper;
 import org.opensearch.performanceanalyzer.commons.metrics.AllMetrics.CacheConfigDimension;
 import org.opensearch.performanceanalyzer.commons.metrics.AllMetrics.CacheConfigValue;
 import org.opensearch.performanceanalyzer.commons.metrics.MetricsConfiguration;
 import org.opensearch.performanceanalyzer.commons.metrics.MetricsProcessor;
 import org.opensearch.performanceanalyzer.commons.metrics.PerformanceAnalyzerMetrics;
+import org.opensearch.performanceanalyzer.config.PerformanceAnalyzerController;
 
 /*
  * Unlike Cache Hit, Miss, Eviction Count and Size, which is tracked on a per shard basis,
@@ -41,22 +45,40 @@ import org.opensearch.performanceanalyzer.commons.metrics.PerformanceAnalyzerMet
  */
 public class CacheConfigMetricsCollector extends PerformanceAnalyzerMetricsCollector
         implements MetricsProcessor {
+    private static final Logger LOG = LogManager.getLogger(CacheConfigMetricsCollector.class);
+
     public static final int SAMPLING_TIME_INTERVAL =
             MetricsConfiguration.CONFIG_MAP.get(CacheConfigMetricsCollector.class).samplingInterval;
     private static final int KEYS_PATH_LENGTH = 0;
     private StringBuilder value;
+    private PerformanceAnalyzerController performanceAnalyzerController;
+    private ConfigOverridesWrapper configOverridesWrapper;
 
-    public CacheConfigMetricsCollector() {
+    public CacheConfigMetricsCollector(
+            PerformanceAnalyzerController performanceAnalyzerController,
+            ConfigOverridesWrapper configOverridesWrapper) {
         super(
                 SAMPLING_TIME_INTERVAL,
                 "CacheConfigMetrics",
                 CACHE_CONFIG_METRICS_COLLECTOR_EXECUTION_TIME,
                 CACHE_CONFIG_METRICS_COLLECTOR_ERROR);
         value = new StringBuilder();
+        this.performanceAnalyzerController = performanceAnalyzerController;
+        this.configOverridesWrapper = configOverridesWrapper;
     }
 
     @Override
     public void collectMetrics(long startTime) {
+        if (!performanceAnalyzerController.rcaCollectorsEnabled()) {
+            LOG.info("All RCA collectors are disabled. Skipping collection.");
+            return;
+        }
+
+        if (performanceAnalyzerController.isCollectorDisabled(
+                configOverridesWrapper, getCollectorName())) {
+            LOG.info(getCollectorName() + " is disabled. Skipping collection.");
+            return;
+        }
         IndicesService indicesService = OpenSearchResources.INSTANCE.getIndicesService();
         if (indicesService == null) {
             return;
@@ -104,10 +126,14 @@ public class CacheConfigMetricsCollector extends PerformanceAnalyzerMetricsColle
                                                         indicesService,
                                                         "indicesRequestCache",
                                                         true);
+                                        Object openSearchOnHeapCache =
+                                                FieldUtils.readField(reqCache, "cache", true);
                                         Cache requestCache =
                                                 (Cache)
                                                         FieldUtils.readField(
-                                                                reqCache, "cache", true);
+                                                                openSearchOnHeapCache,
+                                                                "cache",
+                                                                true);
                                         Long requestCacheMaxSize =
                                                 (Long)
                                                         FieldUtils.readField(

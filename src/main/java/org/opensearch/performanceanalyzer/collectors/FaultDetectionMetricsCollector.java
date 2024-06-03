@@ -38,7 +38,7 @@ public class FaultDetectionMetricsCollector extends PerformanceAnalyzerMetricsCo
             "org.opensearch.performanceanalyzer.handler.ClusterFaultDetectionStatsHandler";
     private static final String FAULT_DETECTION_HANDLER_METRIC_QUEUE = "metricQueue";
     private final ConfigOverridesWrapper configOverridesWrapper;
-    private final PerformanceAnalyzerController controller;
+    private final PerformanceAnalyzerController performanceAnalyzerController;
     private StringBuilder value;
     private static final ObjectMapper mapper = new ObjectMapper();
 
@@ -52,13 +52,20 @@ public class FaultDetectionMetricsCollector extends PerformanceAnalyzerMetricsCo
                 FAULT_DETECTION_COLLECTOR_ERROR);
         value = new StringBuilder();
         this.configOverridesWrapper = configOverridesWrapper;
-        this.controller = controller;
+        this.performanceAnalyzerController = controller;
     }
 
     @Override
     @SuppressWarnings("unchecked")
     public void collectMetrics(long startTime) {
-        if (!controller.isCollectorEnabled(configOverridesWrapper, getCollectorName())) {
+        if (!performanceAnalyzerController.rcaCollectorsEnabled()) {
+            LOG.info("All RCA collectors are disabled. Skipping collection.");
+            return;
+        }
+
+        if (performanceAnalyzerController.isCollectorDisabled(
+                configOverridesWrapper, getCollectorName())) {
+            LOG.info(getCollectorName() + " is disabled. Skipping collection.");
             return;
         }
 

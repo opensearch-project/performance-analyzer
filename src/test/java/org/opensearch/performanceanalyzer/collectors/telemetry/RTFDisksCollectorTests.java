@@ -7,18 +7,18 @@ package org.opensearch.performanceanalyzer.collectors.telemetry;
 
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
-import static org.mockito.MockitoAnnotations.initMocks;
 
 import java.io.IOException;
 import org.junit.Before;
 import org.junit.Test;
 import org.opensearch.performanceanalyzer.OpenSearchResources;
+import org.opensearch.performanceanalyzer.collectors.CollectorTestBase;
 import org.opensearch.performanceanalyzer.commons.metrics.AllMetrics;
 import org.opensearch.performanceanalyzer.commons.metrics.MetricsConfiguration;
 import org.opensearch.telemetry.metrics.Histogram;
 import org.opensearch.telemetry.metrics.MetricsRegistry;
 
-public class RTFDisksCollectorTests {
+public class RTFDisksCollectorTests extends CollectorTestBase {
     private RTFDisksCollector rtfDisksCollector;
     private static MetricsRegistry metricsRegistry;
     private static Histogram diskWaitTimeHistogram;
@@ -29,10 +29,7 @@ public class RTFDisksCollectorTests {
 
     @Before
     public void init() {
-        initMocks(this);
-        System.setProperty("performanceanalyzer.metrics.log.enabled", "False");
         MetricsConfiguration.CONFIG_MAP.put(RTFDisksCollector.class, MetricsConfiguration.cdefault);
-
         metricsRegistry = mock(MetricsRegistry.class);
         diskWaitTimeHistogram = mock(Histogram.class);
         diskServiceRateHistogram = mock(Histogram.class);
@@ -52,7 +49,7 @@ public class RTFDisksCollectorTests {
                             return diskUtilizationHistogram;
                         });
 
-        rtfDisksCollector = new RTFDisksCollector();
+        rtfDisksCollector = new RTFDisksCollector(mockController, mockWrapper);
     }
 
     @Test

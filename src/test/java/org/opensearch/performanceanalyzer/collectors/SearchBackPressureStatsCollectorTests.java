@@ -157,10 +157,10 @@ public class SearchBackPressureStatsCollectorTests {
                 .getSearchBackPressureStats();
 
         Mockito.when(
-                        controller.isCollectorEnabled(
+                        controller.isCollectorDisabled(
                                 configOverrides,
                                 SearchBackPressureStatsCollector.class.getSimpleName()))
-                .thenReturn(true);
+                .thenReturn(false);
 
         spyCollector.collectMetrics(startTimeInMills);
         List<Event> metrics = new ArrayList<>();

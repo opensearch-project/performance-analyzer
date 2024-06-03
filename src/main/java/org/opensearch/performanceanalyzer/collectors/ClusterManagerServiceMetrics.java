@@ -18,11 +18,13 @@ import org.opensearch.cluster.service.PendingClusterTask;
 import org.opensearch.performanceanalyzer.OpenSearchResources;
 import org.opensearch.performanceanalyzer.commons.collectors.MetricStatus;
 import org.opensearch.performanceanalyzer.commons.collectors.PerformanceAnalyzerMetricsCollector;
+import org.opensearch.performanceanalyzer.commons.config.overrides.ConfigOverridesWrapper;
 import org.opensearch.performanceanalyzer.commons.metrics.AllMetrics.ClusterManagerPendingTaskDimension;
 import org.opensearch.performanceanalyzer.commons.metrics.AllMetrics.ClusterManagerPendingValue;
 import org.opensearch.performanceanalyzer.commons.metrics.MetricsConfiguration;
 import org.opensearch.performanceanalyzer.commons.metrics.MetricsProcessor;
 import org.opensearch.performanceanalyzer.commons.metrics.PerformanceAnalyzerMetrics;
+import org.opensearch.performanceanalyzer.config.PerformanceAnalyzerController;
 
 @SuppressWarnings("unchecked")
 public class ClusterManagerServiceMetrics extends PerformanceAnalyzerMetricsCollector
@@ -33,14 +35,20 @@ public class ClusterManagerServiceMetrics extends PerformanceAnalyzerMetricsColl
     private static final Logger LOG = LogManager.getLogger(ClusterManagerServiceMetrics.class);
     private static final int KEYS_PATH_LENGTH = 2;
     private StringBuilder value;
+    private PerformanceAnalyzerController performanceAnalyzerController;
+    private ConfigOverridesWrapper configOverridesWrapper;
 
-    public ClusterManagerServiceMetrics() {
+    public ClusterManagerServiceMetrics(
+            PerformanceAnalyzerController performanceAnalyzerController,
+            ConfigOverridesWrapper configOverridesWrapper) {
         super(
                 SAMPLING_TIME_INTERVAL,
                 "ClusterManagerServiceMetrics",
                 CLUSTER_MANAGER_SERVICE_METRICS_COLLECTOR_EXECUTION_TIME,
                 CLUSTER_MANAGER_SERVICE_METRICS_COLLECTOR_ERROR);
         value = new StringBuilder();
+        this.performanceAnalyzerController = performanceAnalyzerController;
+        this.configOverridesWrapper = configOverridesWrapper;
     }
 
     @Override
@@ -57,6 +65,17 @@ public class ClusterManagerServiceMetrics extends PerformanceAnalyzerMetricsColl
 
     @Override
     public void collectMetrics(long startTime) {
+        if (!performanceAnalyzerController.rcaCollectorsEnabled()) {
+            LOG.info("All RCA collectors are disabled. Skipping collection.");
+            return;
+        }
+
+        if (performanceAnalyzerController.isCollectorDisabled(
+                configOverridesWrapper, getCollectorName())) {
+            LOG.info(getCollectorName() + " is disabled. Skipping collection.");
+            return;
+        }
+
         if (Objects.isNull(OpenSearchResources.INSTANCE.getClusterService())
                 || Objects.isNull(
                         OpenSearchResources.INSTANCE

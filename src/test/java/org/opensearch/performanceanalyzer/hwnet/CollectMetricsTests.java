@@ -48,6 +48,7 @@ import org.opensearch.performanceanalyzer.commons.metrics.MetricsProcessor;
 import org.opensearch.performanceanalyzer.commons.metrics.PerformanceAnalyzerMetrics;
 import org.opensearch.performanceanalyzer.commons.os.OSGlobals;
 import org.opensearch.performanceanalyzer.commons.util.JsonConverter;
+import org.opensearch.performanceanalyzer.config.PerformanceAnalyzerController;
 import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PowerMockIgnore;
 import org.powermock.core.classloader.annotations.PrepareForTest;
@@ -74,6 +75,9 @@ public class CollectMetricsTests extends AbstractTests {
     @Mock ClusterService clusterService;
 
     @Mock ClusterState clusterState;
+
+    @Mock PerformanceAnalyzerController mockController;
+    @Mock ConfigOverridesWrapper mockConfigOverrides;
 
     private long parseLong(Object obj) {
         return Long.parseLong(obj.toString());
@@ -148,7 +152,8 @@ public class CollectMetricsTests extends AbstractTests {
 
         long timeBeforeCollectorWriting = System.currentTimeMillis();
 
-        CircuitBreakerCollector collector = new CircuitBreakerCollector();
+        CircuitBreakerCollector collector =
+                new CircuitBreakerCollector(mockController, mockConfigOverrides);
         CircuitBreakerCollector spyCollector = Mockito.spy(collector);
         String metricFilePath =
                 rootLocation + File.separator + PerformanceAnalyzerMetrics.sCircuitBreakerPath;

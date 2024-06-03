@@ -26,6 +26,7 @@ import org.opensearch.indices.NodeIndicesStats;
 import org.opensearch.performanceanalyzer.OpenSearchResources;
 import org.opensearch.performanceanalyzer.commons.collectors.MetricStatus;
 import org.opensearch.performanceanalyzer.commons.collectors.PerformanceAnalyzerMetricsCollector;
+import org.opensearch.performanceanalyzer.commons.config.overrides.ConfigOverridesWrapper;
 import org.opensearch.performanceanalyzer.commons.metrics.AllMetrics.ShardStatsValue;
 import org.opensearch.performanceanalyzer.commons.metrics.MetricsConfiguration;
 import org.opensearch.performanceanalyzer.commons.metrics.MetricsProcessor;
@@ -59,9 +60,12 @@ public class NodeStatsAllShardsMetricsCollector extends PerformanceAnalyzerMetri
     private HashMap<ShardId, IndexShard> currentShards;
     private HashMap<ShardId, ShardStats> currentPerShardStats;
     private HashMap<ShardId, ShardStats> prevPerShardStats;
-    private final PerformanceAnalyzerController controller;
+    private PerformanceAnalyzerController performanceAnalyzerController;
+    private ConfigOverridesWrapper configOverridesWrapper;
 
-    public NodeStatsAllShardsMetricsCollector(final PerformanceAnalyzerController controller) {
+    public NodeStatsAllShardsMetricsCollector(
+            PerformanceAnalyzerController performanceAnalyzerController,
+            ConfigOverridesWrapper configOverridesWrapper) {
         super(
                 SAMPLING_TIME_INTERVAL,
                 "NodeStatsMetrics",
@@ -70,7 +74,8 @@ public class NodeStatsAllShardsMetricsCollector extends PerformanceAnalyzerMetri
         currentShards = new HashMap<>();
         prevPerShardStats = new HashMap<>();
         currentPerShardStats = new HashMap<>();
-        this.controller = controller;
+        this.performanceAnalyzerController = performanceAnalyzerController;
+        this.configOverridesWrapper = configOverridesWrapper;
     }
 
     private void populateCurrentShards() {
@@ -146,6 +151,17 @@ public class NodeStatsAllShardsMetricsCollector extends PerformanceAnalyzerMetri
 
     @Override
     public void collectMetrics(long startTime) {
+        if (!performanceAnalyzerController.rcaCollectorsEnabled()) {
+            LOG.info("All RCA collectors are disabled. Skipping collection.");
+            return;
+        }
+
+        if (performanceAnalyzerController.isCollectorDisabled(
+                configOverridesWrapper, getCollectorName())) {
+            LOG.info(getCollectorName() + " is disabled. Skipping collection.");
+            return;
+        }
+
         IndicesService indicesService = OpenSearchResources.INSTANCE.getIndicesService();
 
         if (indicesService == null) {
