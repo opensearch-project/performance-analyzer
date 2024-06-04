@@ -18,7 +18,6 @@ import org.opensearch.cluster.service.PendingClusterTask;
 import org.opensearch.performanceanalyzer.OpenSearchResources;
 import org.opensearch.performanceanalyzer.commons.collectors.MetricStatus;
 import org.opensearch.performanceanalyzer.commons.collectors.PerformanceAnalyzerMetricsCollector;
-import org.opensearch.performanceanalyzer.commons.collectors.RcaCollector;
 import org.opensearch.performanceanalyzer.commons.metrics.AllMetrics.ClusterManagerPendingTaskDimension;
 import org.opensearch.performanceanalyzer.commons.metrics.AllMetrics.ClusterManagerPendingValue;
 import org.opensearch.performanceanalyzer.commons.metrics.MetricsConfiguration;
@@ -27,7 +26,7 @@ import org.opensearch.performanceanalyzer.commons.metrics.PerformanceAnalyzerMet
 
 @SuppressWarnings("unchecked")
 public class ClusterManagerServiceMetrics extends PerformanceAnalyzerMetricsCollector
-        implements MetricsProcessor, RcaCollector {
+        implements MetricsProcessor {
     public static final int SAMPLING_TIME_INTERVAL =
             MetricsConfiguration.CONFIG_MAP.get(ClusterManagerServiceMetrics.class)
                     .samplingInterval;

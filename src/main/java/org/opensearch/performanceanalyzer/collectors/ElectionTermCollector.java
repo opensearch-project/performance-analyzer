@@ -15,7 +15,6 @@ import org.apache.logging.log4j.Logger;
 import org.opensearch.performanceanalyzer.OpenSearchResources;
 import org.opensearch.performanceanalyzer.commons.collectors.MetricStatus;
 import org.opensearch.performanceanalyzer.commons.collectors.PerformanceAnalyzerMetricsCollector;
-import org.opensearch.performanceanalyzer.commons.collectors.RcaCollector;
 import org.opensearch.performanceanalyzer.commons.config.overrides.ConfigOverridesWrapper;
 import org.opensearch.performanceanalyzer.commons.metrics.AllMetrics;
 import org.opensearch.performanceanalyzer.commons.metrics.MetricsConfiguration;
@@ -27,7 +26,7 @@ import org.opensearch.performanceanalyzer.config.PerformanceAnalyzerController;
  * This class starts publishing election term metric. These metric is emitted from cluster state.
  */
 public class ElectionTermCollector extends PerformanceAnalyzerMetricsCollector
-        implements MetricsProcessor, RcaCollector {
+        implements MetricsProcessor {
     public static final int SAMPLING_TIME_INTERVAL =
             MetricsConfiguration.CONFIG_MAP.get(ElectionTermCollector.class).samplingInterval;
     private static final Logger LOG = LogManager.getLogger(ElectionTermCollector.class);

@@ -23,7 +23,6 @@ import org.opensearch.cluster.service.ClusterService;
 import org.opensearch.performanceanalyzer.OpenSearchResources;
 import org.opensearch.performanceanalyzer.commons.collectors.MetricStatus;
 import org.opensearch.performanceanalyzer.commons.collectors.PerformanceAnalyzerMetricsCollector;
-import org.opensearch.performanceanalyzer.commons.collectors.RcaCollector;
 import org.opensearch.performanceanalyzer.commons.collectors.StatsCollector;
 import org.opensearch.performanceanalyzer.commons.config.overrides.ConfigOverridesWrapper;
 import org.opensearch.performanceanalyzer.commons.metrics.AllMetrics;
@@ -35,7 +34,7 @@ import org.opensearch.performanceanalyzer.commons.metrics.PerformanceAnalyzerMet
 import org.opensearch.performanceanalyzer.config.PerformanceAnalyzerController;
 
 public class ShardIndexingPressureMetricsCollector extends PerformanceAnalyzerMetricsCollector
-        implements MetricsProcessor, RcaCollector {
+        implements MetricsProcessor {
     public static final int SAMPLING_TIME_INTERVAL =
             MetricsConfiguration.CONFIG_MAP.get(ShardIndexingPressureMetricsCollector.class)
                     .samplingInterval;

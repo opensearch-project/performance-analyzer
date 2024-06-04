@@ -15,7 +15,6 @@ import org.opensearch.core.indices.breaker.CircuitBreakerStats;
 import org.opensearch.performanceanalyzer.OpenSearchResources;
 import org.opensearch.performanceanalyzer.commons.collectors.MetricStatus;
 import org.opensearch.performanceanalyzer.commons.collectors.PerformanceAnalyzerMetricsCollector;
-import org.opensearch.performanceanalyzer.commons.collectors.RcaCollector;
 import org.opensearch.performanceanalyzer.commons.metrics.AllMetrics.CircuitBreakerDimension;
 import org.opensearch.performanceanalyzer.commons.metrics.AllMetrics.CircuitBreakerValue;
 import org.opensearch.performanceanalyzer.commons.metrics.MetricsConfiguration;
@@ -23,7 +22,7 @@ import org.opensearch.performanceanalyzer.commons.metrics.MetricsProcessor;
 import org.opensearch.performanceanalyzer.commons.metrics.PerformanceAnalyzerMetrics;
 
 public class CircuitBreakerCollector extends PerformanceAnalyzerMetricsCollector
-        implements MetricsProcessor, RcaCollector {
+        implements MetricsProcessor {
     public static final int SAMPLING_TIME_INTERVAL =
             MetricsConfiguration.CONFIG_MAP.get(CircuitBreakerCollector.class).samplingInterval;
 

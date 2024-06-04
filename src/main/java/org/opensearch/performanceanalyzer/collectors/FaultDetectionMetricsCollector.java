@@ -19,7 +19,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jooq.tools.StringUtils;
 import org.opensearch.performanceanalyzer.commons.collectors.PerformanceAnalyzerMetricsCollector;
-import org.opensearch.performanceanalyzer.commons.collectors.RcaCollector;
 import org.opensearch.performanceanalyzer.commons.collectors.StatsCollector;
 import org.opensearch.performanceanalyzer.commons.config.overrides.ConfigOverridesWrapper;
 import org.opensearch.performanceanalyzer.commons.metrics.AllMetrics;
@@ -29,7 +28,7 @@ import org.opensearch.performanceanalyzer.commons.metrics.PerformanceAnalyzerMet
 import org.opensearch.performanceanalyzer.config.PerformanceAnalyzerController;
 
 public class FaultDetectionMetricsCollector extends PerformanceAnalyzerMetricsCollector
-        implements MetricsProcessor, RcaCollector {
+        implements MetricsProcessor {
     public static final int SAMPLING_TIME_INTERVAL =
             MetricsConfiguration.CONFIG_MAP.get(FaultDetectionMetricsCollector.class)
                     .samplingInterval;

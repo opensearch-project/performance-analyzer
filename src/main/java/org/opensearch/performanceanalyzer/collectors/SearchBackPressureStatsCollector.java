@@ -27,7 +27,6 @@ import org.opensearch.node.Node;
 import org.opensearch.node.NodeService;
 import org.opensearch.performanceanalyzer.commons.collectors.MetricStatus;
 import org.opensearch.performanceanalyzer.commons.collectors.PerformanceAnalyzerMetricsCollector;
-import org.opensearch.performanceanalyzer.commons.collectors.RcaCollector;
 import org.opensearch.performanceanalyzer.commons.config.overrides.ConfigOverridesWrapper;
 import org.opensearch.performanceanalyzer.commons.metrics.AllMetrics.SearchBackPressureStatsValue;
 import org.opensearch.performanceanalyzer.commons.metrics.MetricsConfiguration;
@@ -37,7 +36,7 @@ import org.opensearch.performanceanalyzer.config.PerformanceAnalyzerController;
 import org.opensearch.search.backpressure.SearchBackpressureService;
 
 public class SearchBackPressureStatsCollector extends PerformanceAnalyzerMetricsCollector
-        implements MetricsProcessor, RcaCollector {
+        implements MetricsProcessor {
     // SAMPLING TIME INTERVAL to collect search back pressure stats
     public static final int SAMPLING_TIME_INTERVAL =
             MetricsConfiguration.CONFIG_MAP.get(SearchBackPressureStatsCollector.class)

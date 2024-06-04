@@ -22,7 +22,6 @@ import org.opensearch.common.util.concurrent.SizeBlockingQueue;
 import org.opensearch.performanceanalyzer.OpenSearchResources;
 import org.opensearch.performanceanalyzer.commons.collectors.MetricStatus;
 import org.opensearch.performanceanalyzer.commons.collectors.PerformanceAnalyzerMetricsCollector;
-import org.opensearch.performanceanalyzer.commons.collectors.RcaCollector;
 import org.opensearch.performanceanalyzer.commons.collectors.StatsCollector;
 import org.opensearch.performanceanalyzer.commons.metrics.AllMetrics.ThreadPoolDimension;
 import org.opensearch.performanceanalyzer.commons.metrics.AllMetrics.ThreadPoolValue;
@@ -33,7 +32,7 @@ import org.opensearch.threadpool.ThreadPool;
 import org.opensearch.threadpool.ThreadPoolStats.Stats;
 
 public class ThreadPoolMetricsCollector extends PerformanceAnalyzerMetricsCollector
-        implements MetricsProcessor, RcaCollector {
+        implements MetricsProcessor {
     private static final Logger LOG = LogManager.getLogger(ThreadPoolMetricsCollector.class);
     public static final int SAMPLING_TIME_INTERVAL =
             MetricsConfiguration.CONFIG_MAP.get(ThreadPoolMetricsCollector.class).samplingInterval;
