@@ -30,12 +30,6 @@ public class PerformanceAnalyzerCollectorsSettingHandler
                 PerformanceAnalyzerClusterSettings.PA_COLLECTORS_SETTING, value);
     }
 
-    /**
-     * Handler that gets called when there is a new value for the setting that this listener is
-     * listening to.
-     *
-     * @param newSettingValue The value of the new setting.
-     */
     @Override
     public void onSettingUpdate(final Integer newSettingValue) {
         if (newSettingValue != null) {
