@@ -25,14 +25,18 @@ import org.opensearch.performanceanalyzer.OpenSearchResources;
 import org.opensearch.performanceanalyzer.collectors.ValueCalculator;
 import org.opensearch.performanceanalyzer.commons.collectors.MetricStatus;
 import org.opensearch.performanceanalyzer.commons.collectors.PerformanceAnalyzerMetricsCollector;
+import org.opensearch.performanceanalyzer.commons.collectors.TelemetryCollector;
+import org.opensearch.performanceanalyzer.commons.config.overrides.ConfigOverridesWrapper;
 import org.opensearch.performanceanalyzer.commons.metrics.AllMetrics;
 import org.opensearch.performanceanalyzer.commons.metrics.MetricsConfiguration;
+import org.opensearch.performanceanalyzer.config.PerformanceAnalyzerController;
 import org.opensearch.performanceanalyzer.util.Utils;
 import org.opensearch.telemetry.metrics.Counter;
 import org.opensearch.telemetry.metrics.MetricsRegistry;
 import org.opensearch.telemetry.metrics.tags.Tags;
 
-public class RTFNodeStatsAllShardsMetricsCollector extends PerformanceAnalyzerMetricsCollector {
+public class RTFNodeStatsAllShardsMetricsCollector extends PerformanceAnalyzerMetricsCollector
+        implements TelemetryCollector {
     public static final int SAMPLING_TIME_INTERVAL =
             MetricsConfiguration.CONFIG_MAP.get(RTFNodeStatsAllShardsMetricsCollector.class)
                     .samplingInterval;
@@ -52,8 +56,12 @@ public class RTFNodeStatsAllShardsMetricsCollector extends PerformanceAnalyzerMe
     private Counter cacheRequestEvictionMetrics;
     private Counter cacheRequestSizeMetrics;
     private boolean metricsInitialised;
+    private PerformanceAnalyzerController performanceAnalyzerController;
+    private ConfigOverridesWrapper configOverridesWrapper;
 
-    public RTFNodeStatsAllShardsMetricsCollector() {
+    public RTFNodeStatsAllShardsMetricsCollector(
+            PerformanceAnalyzerController performanceAnalyzerController,
+            ConfigOverridesWrapper configOverridesWrapper) {
         super(
                 SAMPLING_TIME_INTERVAL,
                 "RTFNodeStatsMetricsCollector",
@@ -63,6 +71,8 @@ public class RTFNodeStatsAllShardsMetricsCollector extends PerformanceAnalyzerMe
         prevPerShardStats = new HashMap<>();
         currentPerShardStats = new HashMap<>();
         this.metricsInitialised = false;
+        this.performanceAnalyzerController = performanceAnalyzerController;
+        this.configOverridesWrapper = configOverridesWrapper;
     }
 
     private void populateCurrentShards() {
@@ -105,6 +115,11 @@ public class RTFNodeStatsAllShardsMetricsCollector extends PerformanceAnalyzerMe
 
     @Override
     public void collectMetrics(long startTime) {
+        if (performanceAnalyzerController.isCollectorDisabled(
+                configOverridesWrapper, getCollectorName())) {
+            LOG.info("RTFDisksCollector is disabled. Skipping collection.");
+            return;
+        }
         IndicesService indicesService = OpenSearchResources.INSTANCE.getIndicesService();
         if (indicesService == null) {
             return;

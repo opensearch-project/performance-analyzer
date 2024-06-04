@@ -23,6 +23,7 @@ import org.opensearch.cluster.routing.ShardRoutingState;
 import org.opensearch.performanceanalyzer.OpenSearchResources;
 import org.opensearch.performanceanalyzer.commons.collectors.MetricStatus;
 import org.opensearch.performanceanalyzer.commons.collectors.PerformanceAnalyzerMetricsCollector;
+import org.opensearch.performanceanalyzer.commons.collectors.RcaCollector;
 import org.opensearch.performanceanalyzer.commons.config.overrides.ConfigOverridesWrapper;
 import org.opensearch.performanceanalyzer.commons.metrics.AllMetrics;
 import org.opensearch.performanceanalyzer.commons.metrics.MetricsConfiguration;
@@ -31,7 +32,7 @@ import org.opensearch.performanceanalyzer.commons.metrics.PerformanceAnalyzerMet
 import org.opensearch.performanceanalyzer.config.PerformanceAnalyzerController;
 
 public class ShardStateCollector extends PerformanceAnalyzerMetricsCollector
-        implements MetricsProcessor {
+        implements MetricsProcessor, RcaCollector {
     public static final int SAMPLING_TIME_INTERVAL =
             MetricsConfiguration.CONFIG_MAP.get(ShardStateCollector.class).samplingInterval;
     private static final Logger LOG = LogManager.getLogger(ShardStateCollector.class);

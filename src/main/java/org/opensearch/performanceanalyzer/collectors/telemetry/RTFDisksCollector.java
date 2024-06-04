@@ -10,17 +10,21 @@ import org.apache.logging.log4j.Logger;
 import org.opensearch.performanceanalyzer.OpenSearchResources;
 import org.opensearch.performanceanalyzer.commons.OSMetricsGeneratorFactory;
 import org.opensearch.performanceanalyzer.commons.collectors.PerformanceAnalyzerMetricsCollector;
+import org.opensearch.performanceanalyzer.commons.collectors.TelemetryCollector;
+import org.opensearch.performanceanalyzer.commons.config.overrides.ConfigOverridesWrapper;
 import org.opensearch.performanceanalyzer.commons.metrics.AllMetrics;
 import org.opensearch.performanceanalyzer.commons.metrics.MetricsConfiguration;
 import org.opensearch.performanceanalyzer.commons.metrics_generator.DiskMetricsGenerator;
 import org.opensearch.performanceanalyzer.commons.metrics_generator.OSMetricsGenerator;
 import org.opensearch.performanceanalyzer.commons.stats.metrics.StatExceptionCode;
 import org.opensearch.performanceanalyzer.commons.stats.metrics.StatMetrics;
+import org.opensearch.performanceanalyzer.config.PerformanceAnalyzerController;
 import org.opensearch.telemetry.metrics.Histogram;
 import org.opensearch.telemetry.metrics.MetricsRegistry;
 import org.opensearch.telemetry.metrics.tags.Tags;
 
-public class RTFDisksCollector extends PerformanceAnalyzerMetricsCollector {
+public class RTFDisksCollector extends PerformanceAnalyzerMetricsCollector
+        implements TelemetryCollector {
 
     private Histogram diskWaitTimeMetrics;
     private Histogram diskServiceRateMetrics;
@@ -28,18 +32,30 @@ public class RTFDisksCollector extends PerformanceAnalyzerMetricsCollector {
     private MetricsRegistry metricsRegistry;
     private boolean metricsInitialised;
     private static final Logger LOG = LogManager.getLogger(RTFDisksCollector.class);
+    private PerformanceAnalyzerController performanceAnalyzerController;
+    private ConfigOverridesWrapper configOverridesWrapper;
 
-    public RTFDisksCollector() {
+    public RTFDisksCollector(
+            PerformanceAnalyzerController performanceAnalyzerController,
+            ConfigOverridesWrapper configOverridesWrapper) {
         super(
                 MetricsConfiguration.CONFIG_MAP.get(RTFDisksCollector.class).samplingInterval,
                 "RTFDisksCollector",
                 StatMetrics.DISKS_COLLECTOR_EXECUTION_TIME,
                 StatExceptionCode.DISK_METRICS_COLLECTOR_ERROR);
         this.metricsInitialised = false;
+        this.performanceAnalyzerController = performanceAnalyzerController;
+        this.configOverridesWrapper = configOverridesWrapper;
     }
 
     @Override
     public void collectMetrics(long startTime) {
+        if (performanceAnalyzerController.isCollectorDisabled(
+                configOverridesWrapper, getCollectorName())) {
+            LOG.info("RTFDisksCollector is disabled. Skipping collection.");
+            return;
+        }
+
         OSMetricsGenerator generator = OSMetricsGeneratorFactory.getInstance();
         if (generator == null) {
             LOG.error("could not get the instance of OSMetricsGeneratorFactory class");
@@ -61,7 +77,7 @@ public class RTFDisksCollector extends PerformanceAnalyzerMetricsCollector {
         recordMetrics(diskMetricsGenerator);
     }
 
-    private void recordMetrics(DiskMetricsGenerator diskMetricsGenerator) {
+    public void recordMetrics(DiskMetricsGenerator diskMetricsGenerator) {
         for (String disk : diskMetricsGenerator.getAllDisks()) {
             Tags diskNameTag = Tags.create().addTag("disk_name", disk);
             double Disk_WaitTime = diskMetricsGenerator.getAwait(disk);

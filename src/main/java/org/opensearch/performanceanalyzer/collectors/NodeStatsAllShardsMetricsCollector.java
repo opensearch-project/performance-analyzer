@@ -26,6 +26,7 @@ import org.opensearch.indices.NodeIndicesStats;
 import org.opensearch.performanceanalyzer.OpenSearchResources;
 import org.opensearch.performanceanalyzer.commons.collectors.MetricStatus;
 import org.opensearch.performanceanalyzer.commons.collectors.PerformanceAnalyzerMetricsCollector;
+import org.opensearch.performanceanalyzer.commons.collectors.RcaCollector;
 import org.opensearch.performanceanalyzer.commons.metrics.AllMetrics.ShardStatsValue;
 import org.opensearch.performanceanalyzer.commons.metrics.MetricsConfiguration;
 import org.opensearch.performanceanalyzer.commons.metrics.MetricsProcessor;
@@ -49,7 +50,7 @@ import org.opensearch.performanceanalyzer.util.Utils;
  */
 @SuppressWarnings("unchecked")
 public class NodeStatsAllShardsMetricsCollector extends PerformanceAnalyzerMetricsCollector
-        implements MetricsProcessor {
+        implements MetricsProcessor, RcaCollector {
     public static final int SAMPLING_TIME_INTERVAL =
             MetricsConfiguration.CONFIG_MAP.get(NodeStatsAllShardsMetricsCollector.class)
                     .samplingInterval;

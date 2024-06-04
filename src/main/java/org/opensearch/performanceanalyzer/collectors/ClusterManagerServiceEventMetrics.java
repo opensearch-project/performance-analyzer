@@ -22,6 +22,7 @@ import org.opensearch.cluster.service.SourcePrioritizedRunnable;
 import org.opensearch.common.util.concurrent.PrioritizedOpenSearchThreadPoolExecutor;
 import org.opensearch.performanceanalyzer.OpenSearchResources;
 import org.opensearch.performanceanalyzer.commons.collectors.PerformanceAnalyzerMetricsCollector;
+import org.opensearch.performanceanalyzer.commons.collectors.RcaCollector;
 import org.opensearch.performanceanalyzer.commons.collectors.StatsCollector;
 import org.opensearch.performanceanalyzer.commons.metrics.*;
 import org.opensearch.performanceanalyzer.commons.metrics.AllMetrics.ClusterManagerMetricDimensions;
@@ -30,7 +31,7 @@ import org.opensearch.performanceanalyzer.commons.util.ThreadIDUtil;
 
 @SuppressWarnings("unchecked")
 public class ClusterManagerServiceEventMetrics extends PerformanceAnalyzerMetricsCollector
-        implements MetricsProcessor {
+        implements MetricsProcessor, RcaCollector {
     public static final int SAMPLING_TIME_INTERVAL =
             MetricsConfiguration.CONFIG_MAP.get(ClusterManagerServiceEventMetrics.class)
                     .samplingInterval;

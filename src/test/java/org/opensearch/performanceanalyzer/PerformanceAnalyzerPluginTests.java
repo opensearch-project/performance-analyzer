@@ -192,9 +192,10 @@ public class PerformanceAnalyzerPluginTests extends OpenSearchTestCase {
     @Test
     public void testGetSettings() {
         List<Setting<?>> list = plugin.getSettings();
-        assertEquals(3, list.size());
+        assertEquals(4, list.size());
         assertEquals(PerformanceAnalyzerClusterSettings.COMPOSITE_PA_SETTING, list.get(0));
         assertEquals(PerformanceAnalyzerClusterSettings.PA_NODE_STATS_SETTING, list.get(1));
         assertEquals(PerformanceAnalyzerClusterSettings.CONFIG_OVERRIDES_SETTING, list.get(2));
+        assertEquals(PerformanceAnalyzerClusterSettings.PA_COLLECTORS_SETTING, list.get(3));
     }
 }

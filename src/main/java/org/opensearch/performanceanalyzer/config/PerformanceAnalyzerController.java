@@ -35,6 +35,7 @@ public class PerformanceAnalyzerController {
             "thread_contention_monitoring_enabled.conf";
     private static final Logger LOG = LogManager.getLogger(PerformanceAnalyzerController.class);
     public static final int DEFAULT_NUM_OF_SHARDS_PER_COLLECTION = 0;
+    public static final int DEFAULT_COLLECTORS_SETTING_VALUE = 0;
 
     private boolean paEnabled;
     private boolean rcaEnabled;
@@ -42,6 +43,7 @@ public class PerformanceAnalyzerController {
     private boolean batchMetricsEnabled;
     private boolean threadContentionMonitoringEnabled;
     private volatile int shardsPerCollection;
+    private volatile int collectorsSettingValue;
     private static final boolean paEnabledDefaultValue = false;
     private static final boolean rcaEnabledDefaultValue = true;
     private static final boolean loggingEnabledDefaultValue = false;
@@ -58,6 +60,7 @@ public class PerformanceAnalyzerController {
         initBatchMetricsStateFromConf();
         initThreadContentionMonitoringStateFromConf();
         shardsPerCollection = DEFAULT_NUM_OF_SHARDS_PER_COLLECTION;
+        collectorsSettingValue = DEFAULT_COLLECTORS_SETTING_VALUE;
     }
 
     /**
@@ -113,6 +116,13 @@ public class PerformanceAnalyzerController {
      */
     public void updateNodeStatsShardsPerCollection(int value) {
         shardsPerCollection = value;
+    }
+
+    public void updateCollectorsSetting(int value) {
+        collectorsSettingValue = value;
+        if (scheduledMetricCollectorsExecutor != null) {
+            scheduledMetricCollectorsExecutor.setCollectorsSetting(collectorsSettingValue);
+        }
     }
 
     /**

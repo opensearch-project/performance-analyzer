@@ -78,6 +78,7 @@ import org.opensearch.performanceanalyzer.config.setting.PerformanceAnalyzerClus
 import org.opensearch.performanceanalyzer.config.setting.handler.ConfigOverridesClusterSettingHandler;
 import org.opensearch.performanceanalyzer.config.setting.handler.NodeStatsSettingHandler;
 import org.opensearch.performanceanalyzer.config.setting.handler.PerformanceAnalyzerClusterSettingHandler;
+import org.opensearch.performanceanalyzer.config.setting.handler.PerformanceAnalyzerCollectorsSettingHandler;
 import org.opensearch.performanceanalyzer.http_action.config.PerformanceAnalyzerClusterConfigAction;
 import org.opensearch.performanceanalyzer.http_action.config.PerformanceAnalyzerConfigAction;
 import org.opensearch.performanceanalyzer.http_action.config.PerformanceAnalyzerOverridesClusterConfigAction;
@@ -114,6 +115,8 @@ public final class PerformanceAnalyzerPlugin extends Plugin
     private static SecurityManager sm = null;
     private final PerformanceAnalyzerClusterSettingHandler perfAnalyzerClusterSettingHandler;
     private final NodeStatsSettingHandler nodeStatsSettingHandler;
+    private final PerformanceAnalyzerCollectorsSettingHandler
+            performanceAnalyzerCollectorsSettingHandler;
     private final ConfigOverridesClusterSettingHandler configOverridesClusterSettingHandler;
     private final ConfigOverridesWrapper configOverridesWrapper;
     private final PerformanceAnalyzerController performanceAnalyzerController;
@@ -172,7 +175,8 @@ public final class PerformanceAnalyzerPlugin extends Plugin
                 new ClusterSettingsManager(
                         Arrays.asList(
                                 PerformanceAnalyzerClusterSettings.COMPOSITE_PA_SETTING,
-                                PerformanceAnalyzerClusterSettings.PA_NODE_STATS_SETTING),
+                                PerformanceAnalyzerClusterSettings.PA_NODE_STATS_SETTING,
+                                PerformanceAnalyzerClusterSettings.PA_COLLECTORS_SETTING),
                         Collections.singletonList(
                                 PerformanceAnalyzerClusterSettings.CONFIG_OVERRIDES_SETTING));
         configOverridesClusterSettingHandler =
@@ -195,17 +199,15 @@ public final class PerformanceAnalyzerPlugin extends Plugin
         clusterSettingsManager.addSubscriberForIntSetting(
                 PerformanceAnalyzerClusterSettings.PA_NODE_STATS_SETTING, nodeStatsSettingHandler);
 
-        // Adding RTF Collectors if flag is enabled in performance-analyzer.properties
-        if (PluginSettings.instance().isTelemetryCollectorsEnabled()) {
-            LOG.info("Scheduling Telemetry Collectors");
-            scheduleTelemetryCollectors();
-        }
+        performanceAnalyzerCollectorsSettingHandler =
+                new PerformanceAnalyzerCollectorsSettingHandler(
+                        performanceAnalyzerController, clusterSettingsManager);
+        clusterSettingsManager.addSubscriberForIntSetting(
+                PerformanceAnalyzerClusterSettings.PA_COLLECTORS_SETTING,
+                performanceAnalyzerCollectorsSettingHandler);
 
-        // Adding RCA Collectors if flag is enabled in performance-analyzer.properties
-        if (PluginSettings.instance().isRcaCollectorsEnabled()) {
-            LOG.info("Scheduling RCA Collectors");
-            scheduleRcaCollectors();
-        }
+        scheduleTelemetryCollectors();
+        scheduleRcaCollectors();
 
         scheduledMetricCollectorsExecutor.start();
 
@@ -221,13 +223,16 @@ public final class PerformanceAnalyzerPlugin extends Plugin
     }
 
     private void scheduleTelemetryCollectors() {
-        scheduledMetricCollectorsExecutor.addScheduledMetricCollector(new RTFDisksCollector());
         scheduledMetricCollectorsExecutor.addScheduledMetricCollector(
-                new RTFHeapMetricsCollector());
+                new RTFDisksCollector(performanceAnalyzerController, configOverridesWrapper));
         scheduledMetricCollectorsExecutor.addScheduledMetricCollector(
-                new RTFThreadPoolMetricsCollector());
+                new RTFHeapMetricsCollector(performanceAnalyzerController, configOverridesWrapper));
         scheduledMetricCollectorsExecutor.addScheduledMetricCollector(
-                new RTFNodeStatsAllShardsMetricsCollector());
+                new RTFThreadPoolMetricsCollector(
+                        performanceAnalyzerController, configOverridesWrapper));
+        scheduledMetricCollectorsExecutor.addScheduledMetricCollector(
+                new RTFNodeStatsAllShardsMetricsCollector(
+                        performanceAnalyzerController, configOverridesWrapper));
     }
 
     private void scheduleRcaCollectors() {
@@ -348,7 +353,8 @@ public final class PerformanceAnalyzerPlugin extends Plugin
                         settings,
                         restController,
                         perfAnalyzerClusterSettingHandler,
-                        nodeStatsSettingHandler);
+                        nodeStatsSettingHandler,
+                        performanceAnalyzerCollectorsSettingHandler);
         PerformanceAnalyzerOverridesClusterConfigAction paOverridesConfigClusterAction =
                 new PerformanceAnalyzerOverridesClusterConfigAction(
                         settings,
@@ -410,6 +416,7 @@ public final class PerformanceAnalyzerPlugin extends Plugin
         return Arrays.asList(
                 PerformanceAnalyzerClusterSettings.COMPOSITE_PA_SETTING,
                 PerformanceAnalyzerClusterSettings.PA_NODE_STATS_SETTING,
-                PerformanceAnalyzerClusterSettings.CONFIG_OVERRIDES_SETTING);
+                PerformanceAnalyzerClusterSettings.CONFIG_OVERRIDES_SETTING,
+                PerformanceAnalyzerClusterSettings.PA_COLLECTORS_SETTING);
     }
 }

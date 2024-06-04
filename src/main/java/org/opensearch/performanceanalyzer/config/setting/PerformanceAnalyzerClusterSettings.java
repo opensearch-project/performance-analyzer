@@ -39,6 +39,13 @@ public final class PerformanceAnalyzerClusterSettings {
                     Setting.Property.NodeScope,
                     Setting.Property.Dynamic);
 
+    public static final Setting<Integer> PA_COLLECTORS_SETTING =
+            Setting.intSetting(
+                    "cluster.metadata.perf_analyzer.collectors.enabled",
+                    0,
+                    Setting.Property.NodeScope,
+                    Setting.Property.Dynamic);
+
     /**
      * Cluster setting controlling the config overrides to be applied on performance analyzer
      * components.

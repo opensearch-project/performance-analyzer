@@ -16,6 +16,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.opensearch.performanceanalyzer.commons.collectors.MetricStatus;
 import org.opensearch.performanceanalyzer.commons.collectors.PerformanceAnalyzerMetricsCollector;
+import org.opensearch.performanceanalyzer.commons.collectors.RcaCollector;
 import org.opensearch.performanceanalyzer.commons.collectors.StatsCollector;
 import org.opensearch.performanceanalyzer.commons.metrics.AllMetrics;
 import org.opensearch.performanceanalyzer.commons.metrics.MetricsConfiguration;
@@ -26,7 +27,7 @@ import org.opensearch.performanceanalyzer.commons.stats.metrics.StatMetrics;
 
 /** AdmissionControlMetricsCollector collects `UsedQuota`, `TotalQuota`, RejectionCount */
 public class AdmissionControlMetricsCollector extends PerformanceAnalyzerMetricsCollector
-        implements MetricsProcessor {
+        implements MetricsProcessor, RcaCollector {
 
     private static final Logger LOG = LogManager.getLogger(AdmissionControlMetricsCollector.class);
     private static final int sTimeInterval = MetricsConfiguration.SAMPLING_INTERVAL;

@@ -19,6 +19,7 @@ import org.opensearch.cluster.node.DiscoveryNodes;
 import org.opensearch.performanceanalyzer.OpenSearchResources;
 import org.opensearch.performanceanalyzer.commons.collectors.MetricStatus;
 import org.opensearch.performanceanalyzer.commons.collectors.PerformanceAnalyzerMetricsCollector;
+import org.opensearch.performanceanalyzer.commons.collectors.RcaCollector;
 import org.opensearch.performanceanalyzer.commons.collectors.StatsCollector;
 import org.opensearch.performanceanalyzer.commons.config.overrides.ConfigOverridesHelper;
 import org.opensearch.performanceanalyzer.commons.config.overrides.ConfigOverridesWrapper;
@@ -29,7 +30,7 @@ import org.opensearch.performanceanalyzer.commons.metrics.MetricsProcessor;
 import org.opensearch.performanceanalyzer.commons.metrics.PerformanceAnalyzerMetrics;
 
 public class NodeDetailsCollector extends PerformanceAnalyzerMetricsCollector
-        implements MetricsProcessor {
+        implements MetricsProcessor, RcaCollector {
     public static final int SAMPLING_TIME_INTERVAL =
             MetricsConfiguration.CONFIG_MAP.get(NodeDetailsCollector.class).samplingInterval;
     private static final Logger LOG = LogManager.getLogger(NodeDetailsCollector.class);

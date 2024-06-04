@@ -22,6 +22,7 @@ import org.opensearch.indices.IndicesService;
 import org.opensearch.performanceanalyzer.OpenSearchResources;
 import org.opensearch.performanceanalyzer.commons.collectors.MetricStatus;
 import org.opensearch.performanceanalyzer.commons.collectors.PerformanceAnalyzerMetricsCollector;
+import org.opensearch.performanceanalyzer.commons.collectors.RcaCollector;
 import org.opensearch.performanceanalyzer.commons.metrics.AllMetrics.CacheConfigDimension;
 import org.opensearch.performanceanalyzer.commons.metrics.AllMetrics.CacheConfigValue;
 import org.opensearch.performanceanalyzer.commons.metrics.MetricsConfiguration;
@@ -40,7 +41,7 @@ import org.opensearch.performanceanalyzer.commons.metrics.PerformanceAnalyzerMet
  *
  */
 public class CacheConfigMetricsCollector extends PerformanceAnalyzerMetricsCollector
-        implements MetricsProcessor {
+        implements MetricsProcessor, RcaCollector {
     public static final int SAMPLING_TIME_INTERVAL =
             MetricsConfiguration.CONFIG_MAP.get(CacheConfigMetricsCollector.class).samplingInterval;
     private static final int KEYS_PATH_LENGTH = 0;
