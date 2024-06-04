@@ -5,10 +5,6 @@
 
 package org.opensearch.performanceanalyzer.collectors;
 
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.mock;
-
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.module.paranamer.ParanamerModule;
 import java.io.IOException;
@@ -17,15 +13,12 @@ import java.util.List;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.Mockito;
 import org.opensearch.indices.IndicesService;
 import org.opensearch.performanceanalyzer.OpenSearchResources;
 import org.opensearch.performanceanalyzer.commons.config.PluginSettings;
-import org.opensearch.performanceanalyzer.commons.config.overrides.ConfigOverridesWrapper;
 import org.opensearch.performanceanalyzer.commons.event_process.Event;
 import org.opensearch.performanceanalyzer.commons.metrics.MetricsConfiguration;
 import org.opensearch.performanceanalyzer.commons.metrics.PerformanceAnalyzerMetrics;
-import org.opensearch.performanceanalyzer.config.PerformanceAnalyzerController;
 import org.opensearch.performanceanalyzer.util.TestUtil;
 import org.opensearch.test.OpenSearchSingleNodeTestCase;
 
@@ -39,18 +32,9 @@ public class NodeStatsAllShardsMetricsCollectorTests extends OpenSearchSingleNod
         IndicesService indicesService = getInstanceFromNode(IndicesService.class);
         OpenSearchResources.INSTANCE.setIndicesService(indicesService);
 
-        PerformanceAnalyzerController mockController = mock(PerformanceAnalyzerController.class);
-        ConfigOverridesWrapper mockWrapper = mock(ConfigOverridesWrapper.class);
-        mockController = mock(PerformanceAnalyzerController.class);
-        mockWrapper = mock(ConfigOverridesWrapper.class);
-        Mockito.when(mockController.isCollectorDisabled(any(), anyString())).thenReturn(false);
-        Mockito.when(mockController.rcaCollectorsEnabled()).thenReturn(true);
-        Mockito.when(mockController.telemetryCollectorsEnabled()).thenReturn(true);
-
         MetricsConfiguration.CONFIG_MAP.put(
                 NodeStatsAllShardsMetricsCollector.class, MetricsConfiguration.cdefault);
-        nodeStatsAllShardsMetricsCollector =
-                new NodeStatsAllShardsMetricsCollector(mockController, mockWrapper);
+        nodeStatsAllShardsMetricsCollector = new NodeStatsAllShardsMetricsCollector(null);
 
         // clean metricQueue before running every test
         TestUtil.readEvents();

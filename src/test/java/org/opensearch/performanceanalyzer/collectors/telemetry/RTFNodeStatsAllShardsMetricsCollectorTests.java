@@ -10,18 +10,16 @@ import static org.mockito.ArgumentMatchers.anyDouble;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 import static org.mockito.Mockito.atLeastOnce;
+import static org.mockito.MockitoAnnotations.initMocks;
 
 import java.io.IOException;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.Mockito;
 import org.opensearch.indices.IndicesService;
 import org.opensearch.performanceanalyzer.OpenSearchResources;
-import org.opensearch.performanceanalyzer.commons.config.overrides.ConfigOverridesWrapper;
 import org.opensearch.performanceanalyzer.commons.metrics.AllMetrics;
 import org.opensearch.performanceanalyzer.commons.metrics.MetricsConfiguration;
-import org.opensearch.performanceanalyzer.config.PerformanceAnalyzerController;
 import org.opensearch.telemetry.metrics.Counter;
 import org.opensearch.telemetry.metrics.MetricsRegistry;
 import org.opensearch.test.OpenSearchSingleNodeTestCase;
@@ -44,6 +42,8 @@ public class RTFNodeStatsAllShardsMetricsCollectorTests extends OpenSearchSingle
 
     @Before
     public void init() {
+        initMocks(this);
+        System.setProperty("performanceanalyzer.metrics.log.enabled", "False");
         MetricsConfiguration.CONFIG_MAP.put(
                 RTFNodeStatsAllShardsMetricsCollector.class, MetricsConfiguration.cdefault);
 
@@ -102,14 +102,7 @@ public class RTFNodeStatsAllShardsMetricsCollectorTests extends OpenSearchSingle
                             return cacheQueryMissCounter;
                         });
 
-        ConfigOverridesWrapper mockWrapper = mock(ConfigOverridesWrapper.class);
-        PerformanceAnalyzerController mockController = mock(PerformanceAnalyzerController.class);
-        Mockito.when(mockController.isCollectorDisabled(any(), anyString())).thenReturn(false);
-        Mockito.when(mockController.rcaCollectorsEnabled()).thenReturn(true);
-        Mockito.when(mockController.telemetryCollectorsEnabled()).thenReturn(true);
-
-        rtfNodeStatsAllShardsMetricsCollector =
-                spy(new RTFNodeStatsAllShardsMetricsCollector(mockController, mockWrapper));
+        rtfNodeStatsAllShardsMetricsCollector = spy(new RTFNodeStatsAllShardsMetricsCollector());
     }
 
     @After

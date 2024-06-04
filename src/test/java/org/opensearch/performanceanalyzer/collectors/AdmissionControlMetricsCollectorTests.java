@@ -31,7 +31,7 @@ public class AdmissionControlMetricsCollectorTests extends CustomMetricsLocation
         MetricsConfiguration.CONFIG_MAP.put(
                 AdmissionControlMetricsCollector.class, MetricsConfiguration.cdefault);
         AdmissionControlMetricsCollector admissionControlMetricsCollector =
-                new AdmissionControlMetricsCollector(mockController, mockWrapper);
+                new AdmissionControlMetricsCollector();
 
         long startTimeInMills = System.currentTimeMillis();
         admissionControlMetricsCollector.saveMetricValues("testMetric", startTimeInMills);

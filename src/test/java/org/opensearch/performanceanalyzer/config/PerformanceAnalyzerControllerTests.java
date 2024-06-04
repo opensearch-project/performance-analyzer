@@ -24,10 +24,6 @@ import org.opensearch.performanceanalyzer.commons.config.overrides.ConfigOverrid
 
 public class PerformanceAnalyzerControllerTests {
     private static final int NUM_OF_SHARDS_PER_COLLECTION = 1;
-
-    private static final int RCA_COLLECTOR_SETTING_VALUE = 1;
-    private static final int TELEMETRY_COLLECTOR_SETTING_VALUE = 2;
-    private static final int TELEMETRY_RCA_COLLECTOR_SETTING_VALUE = 3;
     private Settings settings;
     private PerformanceAnalyzerController controller;
 
@@ -48,29 +44,6 @@ public class PerformanceAnalyzerControllerTests {
 
         controller.updateNodeStatsShardsPerCollection(NUM_OF_SHARDS_PER_COLLECTION);
         assertEquals(NUM_OF_SHARDS_PER_COLLECTION, controller.getNodeStatsShardsPerCollection());
-    }
-
-    @Test
-    public void testRcaCollectorsEnabled() {
-        Assert.assertFalse(controller.rcaCollectorsEnabled());
-        controller.updateCollectorsSetting(RCA_COLLECTOR_SETTING_VALUE);
-        assertTrue(controller.rcaCollectorsEnabled());
-    }
-
-    @Test
-    public void testTelemetryCollectorsEnabled() {
-        Assert.assertFalse(controller.telemetryCollectorsEnabled());
-        controller.updateCollectorsSetting(TELEMETRY_COLLECTOR_SETTING_VALUE);
-        assertTrue(controller.telemetryCollectorsEnabled());
-    }
-
-    @Test
-    public void testBothTelemetryAndRcaCollectorsEnabled() {
-        Assert.assertFalse(controller.telemetryCollectorsEnabled());
-        Assert.assertFalse(controller.rcaCollectorsEnabled());
-        controller.updateCollectorsSetting(TELEMETRY_RCA_COLLECTOR_SETTING_VALUE);
-        assertTrue(controller.telemetryCollectorsEnabled());
-        assertTrue(controller.rcaCollectorsEnabled());
     }
 
     @Test

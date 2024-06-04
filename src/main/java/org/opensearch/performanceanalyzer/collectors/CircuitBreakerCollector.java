@@ -15,13 +15,11 @@ import org.opensearch.core.indices.breaker.CircuitBreakerStats;
 import org.opensearch.performanceanalyzer.OpenSearchResources;
 import org.opensearch.performanceanalyzer.commons.collectors.MetricStatus;
 import org.opensearch.performanceanalyzer.commons.collectors.PerformanceAnalyzerMetricsCollector;
-import org.opensearch.performanceanalyzer.commons.config.overrides.ConfigOverridesWrapper;
 import org.opensearch.performanceanalyzer.commons.metrics.AllMetrics.CircuitBreakerDimension;
 import org.opensearch.performanceanalyzer.commons.metrics.AllMetrics.CircuitBreakerValue;
 import org.opensearch.performanceanalyzer.commons.metrics.MetricsConfiguration;
 import org.opensearch.performanceanalyzer.commons.metrics.MetricsProcessor;
 import org.opensearch.performanceanalyzer.commons.metrics.PerformanceAnalyzerMetrics;
-import org.opensearch.performanceanalyzer.config.PerformanceAnalyzerController;
 
 public class CircuitBreakerCollector extends PerformanceAnalyzerMetricsCollector
         implements MetricsProcessor {
@@ -31,35 +29,18 @@ public class CircuitBreakerCollector extends PerformanceAnalyzerMetricsCollector
     private static final Logger LOG = LogManager.getLogger(CircuitBreakerCollector.class);
     private static final int KEYS_PATH_LENGTH = 0;
     private StringBuilder value;
-    private PerformanceAnalyzerController performanceAnalyzerController;
-    private ConfigOverridesWrapper configOverridesWrapper;
 
-    public CircuitBreakerCollector(
-            PerformanceAnalyzerController performanceAnalyzerController,
-            ConfigOverridesWrapper configOverridesWrapper) {
+    public CircuitBreakerCollector() {
         super(
                 SAMPLING_TIME_INTERVAL,
                 "CircuitBreaker",
                 CIRCUIT_BREAKER_COLLECTOR_EXECUTION_TIME,
                 CIRCUIT_BREAKER_COLLECTOR_ERROR);
         value = new StringBuilder();
-        this.performanceAnalyzerController = performanceAnalyzerController;
-        this.configOverridesWrapper = configOverridesWrapper;
     }
 
     @Override
     public void collectMetrics(long startTime) {
-        if (!performanceAnalyzerController.rcaCollectorsEnabled()) {
-            LOG.info("All RCA collectors are disabled. Skipping collection.");
-            return;
-        }
-
-        if (performanceAnalyzerController.isCollectorDisabled(
-                configOverridesWrapper, getCollectorName())) {
-            LOG.info(getCollectorName() + " is disabled. Skipping collection.");
-            return;
-        }
-
         if (OpenSearchResources.INSTANCE.getCircuitBreakerService() == null) {
             return;
         }

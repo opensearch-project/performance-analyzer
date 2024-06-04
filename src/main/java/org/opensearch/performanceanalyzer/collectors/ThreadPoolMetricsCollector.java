@@ -23,13 +23,11 @@ import org.opensearch.performanceanalyzer.OpenSearchResources;
 import org.opensearch.performanceanalyzer.commons.collectors.MetricStatus;
 import org.opensearch.performanceanalyzer.commons.collectors.PerformanceAnalyzerMetricsCollector;
 import org.opensearch.performanceanalyzer.commons.collectors.StatsCollector;
-import org.opensearch.performanceanalyzer.commons.config.overrides.ConfigOverridesWrapper;
 import org.opensearch.performanceanalyzer.commons.metrics.AllMetrics.ThreadPoolDimension;
 import org.opensearch.performanceanalyzer.commons.metrics.AllMetrics.ThreadPoolValue;
 import org.opensearch.performanceanalyzer.commons.metrics.MetricsConfiguration;
 import org.opensearch.performanceanalyzer.commons.metrics.MetricsProcessor;
 import org.opensearch.performanceanalyzer.commons.metrics.PerformanceAnalyzerMetrics;
-import org.opensearch.performanceanalyzer.config.PerformanceAnalyzerController;
 import org.opensearch.threadpool.ThreadPool;
 import org.opensearch.threadpool.ThreadPoolStats.Stats;
 
@@ -41,12 +39,8 @@ public class ThreadPoolMetricsCollector extends PerformanceAnalyzerMetricsCollec
     private static final int KEYS_PATH_LENGTH = 0;
     private StringBuilder value;
     private final Map<String, ThreadPoolStatsRecord> statsRecordMap;
-    private PerformanceAnalyzerController performanceAnalyzerController;
-    private ConfigOverridesWrapper configOverridesWrapper;
 
-    public ThreadPoolMetricsCollector(
-            PerformanceAnalyzerController performanceAnalyzerController,
-            ConfigOverridesWrapper configOverridesWrapper) {
+    public ThreadPoolMetricsCollector() {
         super(
                 SAMPLING_TIME_INTERVAL,
                 "ThreadPoolMetrics",
@@ -54,22 +48,10 @@ public class ThreadPoolMetricsCollector extends PerformanceAnalyzerMetricsCollec
                 THREADPOOL_METRICS_COLLECTOR_ERROR);
         value = new StringBuilder();
         statsRecordMap = new HashMap<>();
-        this.performanceAnalyzerController = performanceAnalyzerController;
-        this.configOverridesWrapper = configOverridesWrapper;
     }
 
     @Override
     public void collectMetrics(long startTime) {
-        if (!performanceAnalyzerController.rcaCollectorsEnabled()) {
-            LOG.info("All RCA collectors are disabled. Skipping collection.");
-            return;
-        }
-
-        if (performanceAnalyzerController.isCollectorDisabled(
-                configOverridesWrapper, getCollectorName())) {
-            LOG.info(getCollectorName() + " is disabled. Skipping collection.");
-            return;
-        }
         if (OpenSearchResources.INSTANCE.getThreadPool() == null) {
             return;
         }

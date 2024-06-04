@@ -8,6 +8,7 @@ package org.opensearch.performanceanalyzer.collectors.telemetry;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 import static org.mockito.Mockito.atLeastOnce;
+import static org.mockito.MockitoAnnotations.initMocks;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -16,7 +17,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.opensearch.performanceanalyzer.OpenSearchResources;
-import org.opensearch.performanceanalyzer.collectors.CollectorTestBase;
 import org.opensearch.performanceanalyzer.commons.metrics.AllMetrics;
 import org.opensearch.performanceanalyzer.commons.metrics.MetricsConfiguration;
 import org.opensearch.telemetry.metrics.Histogram;
@@ -24,7 +24,7 @@ import org.opensearch.telemetry.metrics.MetricsRegistry;
 import org.opensearch.threadpool.ThreadPool;
 import org.opensearch.threadpool.ThreadPoolStats;
 
-public class RTFThreadPoolMetricsCollectorTests extends CollectorTestBase {
+public class RTFThreadPoolMetricsCollectorTests {
     private RTFThreadPoolMetricsCollector rtfThreadPoolMetricsCollector;
     private static MetricsRegistry metricsRegistry;
     private static Histogram threadPoolQueueSizeHistogram;
@@ -36,6 +36,8 @@ public class RTFThreadPoolMetricsCollectorTests extends CollectorTestBase {
 
     @Before
     public void init() {
+        initMocks(this);
+        System.setProperty("performanceanalyzer.metrics.log.enabled", "False");
         MetricsConfiguration.CONFIG_MAP.put(
                 RTFThreadPoolMetricsCollector.class, MetricsConfiguration.cdefault);
         metricsRegistry = mock(MetricsRegistry.class);
@@ -67,8 +69,8 @@ public class RTFThreadPoolMetricsCollectorTests extends CollectorTestBase {
                             }
                             return threadPoolTotalThreadsHistogram;
                         });
-        rtfThreadPoolMetricsCollector =
-                new RTFThreadPoolMetricsCollector(mockController, mockWrapper);
+
+        rtfThreadPoolMetricsCollector = new RTFThreadPoolMetricsCollector();
     }
 
     @Test

@@ -23,12 +23,10 @@ import org.opensearch.common.util.concurrent.PrioritizedOpenSearchThreadPoolExec
 import org.opensearch.performanceanalyzer.OpenSearchResources;
 import org.opensearch.performanceanalyzer.commons.collectors.PerformanceAnalyzerMetricsCollector;
 import org.opensearch.performanceanalyzer.commons.collectors.StatsCollector;
-import org.opensearch.performanceanalyzer.commons.config.overrides.ConfigOverridesWrapper;
 import org.opensearch.performanceanalyzer.commons.metrics.*;
 import org.opensearch.performanceanalyzer.commons.metrics.AllMetrics.ClusterManagerMetricDimensions;
 import org.opensearch.performanceanalyzer.commons.metrics.AllMetrics.ClusterManagerMetricValues;
 import org.opensearch.performanceanalyzer.commons.util.ThreadIDUtil;
-import org.opensearch.performanceanalyzer.config.PerformanceAnalyzerController;
 
 @SuppressWarnings("unchecked")
 public class ClusterManagerServiceEventMetrics extends PerformanceAnalyzerMetricsCollector
@@ -45,14 +43,10 @@ public class ClusterManagerServiceEventMetrics extends PerformanceAnalyzerMetric
     private HashSet<Object> clusterManagerServiceWorkers;
     private long currentThreadId;
     private Object currentWorker;
-    private PerformanceAnalyzerController performanceAnalyzerController;
-    private ConfigOverridesWrapper configOverridesWrapper;
 
     @VisibleForTesting long lastTaskInsertionOrder;
 
-    public ClusterManagerServiceEventMetrics(
-            PerformanceAnalyzerController performanceAnalyzerController,
-            ConfigOverridesWrapper configOverridesWrapper) {
+    public ClusterManagerServiceEventMetrics() {
         super(
                 SAMPLING_TIME_INTERVAL,
                 "ClusterManagerServiceEventMetrics",
@@ -65,8 +59,6 @@ public class ClusterManagerServiceEventMetrics extends PerformanceAnalyzerMetric
         currentThreadId = -1;
         lastTaskInsertionOrder = -1;
         value = new StringBuilder();
-        this.performanceAnalyzerController = performanceAnalyzerController;
-        this.configOverridesWrapper = configOverridesWrapper;
     }
 
     @Override
@@ -87,17 +79,6 @@ public class ClusterManagerServiceEventMetrics extends PerformanceAnalyzerMetric
 
     @Override
     public void collectMetrics(long startTime) {
-        if (!performanceAnalyzerController.rcaCollectorsEnabled()) {
-            LOG.info("All RCA collectors are disabled. Skipping collection.");
-            return;
-        }
-
-        if (performanceAnalyzerController.isCollectorDisabled(
-                configOverridesWrapper, getCollectorName())) {
-            LOG.info(getCollectorName() + " is disabled. Skipping collection.");
-            return;
-        }
-
         try {
             if (Objects.isNull(OpenSearchResources.INSTANCE.getClusterService())
                     || Objects.isNull(

@@ -17,14 +17,12 @@ import org.apache.logging.log4j.Logger;
 import org.opensearch.performanceanalyzer.commons.collectors.MetricStatus;
 import org.opensearch.performanceanalyzer.commons.collectors.PerformanceAnalyzerMetricsCollector;
 import org.opensearch.performanceanalyzer.commons.collectors.StatsCollector;
-import org.opensearch.performanceanalyzer.commons.config.overrides.ConfigOverridesWrapper;
 import org.opensearch.performanceanalyzer.commons.metrics.AllMetrics;
 import org.opensearch.performanceanalyzer.commons.metrics.MetricsConfiguration;
 import org.opensearch.performanceanalyzer.commons.metrics.MetricsProcessor;
 import org.opensearch.performanceanalyzer.commons.metrics.PerformanceAnalyzerMetrics;
 import org.opensearch.performanceanalyzer.commons.stats.ServiceMetrics;
 import org.opensearch.performanceanalyzer.commons.stats.metrics.StatMetrics;
-import org.opensearch.performanceanalyzer.config.PerformanceAnalyzerController;
 
 /** AdmissionControlMetricsCollector collects `UsedQuota`, `TotalQuota`, RejectionCount */
 public class AdmissionControlMetricsCollector extends PerformanceAnalyzerMetricsCollector
@@ -50,12 +48,8 @@ public class AdmissionControlMetricsCollector extends PerformanceAnalyzerMetrics
     private Class admissionControllerClass;
     private Class jettyAdmissionControllerServiceClass;
     private final boolean admissionControllerAvailable;
-    private PerformanceAnalyzerController performanceAnalyzerController;
-    private ConfigOverridesWrapper configOverridesWrapper;
 
-    public AdmissionControlMetricsCollector(
-            PerformanceAnalyzerController performanceAnalyzerController,
-            ConfigOverridesWrapper configOverridesWrapper) {
+    public AdmissionControlMetricsCollector() {
         super(
                 sTimeInterval,
                 "AdmissionControlMetricsCollector",
@@ -63,24 +57,11 @@ public class AdmissionControlMetricsCollector extends PerformanceAnalyzerMetrics
                 ADMISSION_CONTROL_COLLECTOR_ERROR);
         this.value = new StringBuilder();
         this.admissionControllerAvailable = canLoadAdmissionControllerClasses();
-        this.performanceAnalyzerController = performanceAnalyzerController;
-        this.configOverridesWrapper = configOverridesWrapper;
     }
 
     @Override
     @SuppressWarnings("unchecked")
     public void collectMetrics(long startTime) {
-        if (!performanceAnalyzerController.rcaCollectorsEnabled()) {
-            LOG.info("All RCA collectors are disabled. Skipping collection.");
-            return;
-        }
-
-        if (performanceAnalyzerController.isCollectorDisabled(
-                configOverridesWrapper, getCollectorName())) {
-            LOG.info(getCollectorName() + " is disabled. Skipping collection.");
-            return;
-        }
-
         if (!this.admissionControllerAvailable) {
             LOG.debug("AdmissionControl is not available for this domain");
             ServiceMetrics.COMMONS_STAT_METRICS_AGGREGATOR.updateStat(

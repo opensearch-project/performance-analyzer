@@ -10,18 +10,18 @@ import static org.mockito.ArgumentMatchers.anyDouble;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 import static org.mockito.Mockito.atLeastOnce;
+import static org.mockito.MockitoAnnotations.initMocks;
 
 import java.io.IOException;
 import org.junit.Before;
 import org.junit.Test;
 import org.opensearch.performanceanalyzer.OpenSearchResources;
-import org.opensearch.performanceanalyzer.collectors.CollectorTestBase;
 import org.opensearch.performanceanalyzer.commons.metrics.AllMetrics;
 import org.opensearch.performanceanalyzer.commons.metrics.MetricsConfiguration;
 import org.opensearch.telemetry.metrics.Histogram;
 import org.opensearch.telemetry.metrics.MetricsRegistry;
 
-public class RTFHeapMetricsCollectorTests extends CollectorTestBase {
+public class RTFHeapMetricsCollectorTests {
     private RTFHeapMetricsCollector rtfHeapMetricsCollector;
 
     private static MetricsRegistry metricsRegistry;
@@ -31,6 +31,8 @@ public class RTFHeapMetricsCollectorTests extends CollectorTestBase {
 
     @Before
     public void init() {
+        initMocks(this);
+        System.setProperty("performanceanalyzer.metrics.log.enabled", "False");
         MetricsConfiguration.CONFIG_MAP.put(
                 RTFHeapMetricsCollector.class, MetricsConfiguration.cdefault);
 
@@ -53,7 +55,7 @@ public class RTFHeapMetricsCollectorTests extends CollectorTestBase {
                             }
                             return heapUsedHistogram;
                         });
-        rtfHeapMetricsCollector = new RTFHeapMetricsCollector(mockController, mockWrapper);
+        rtfHeapMetricsCollector = new RTFHeapMetricsCollector();
     }
 
     @Test

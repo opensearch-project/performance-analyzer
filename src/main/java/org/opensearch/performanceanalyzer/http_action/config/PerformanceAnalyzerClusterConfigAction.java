@@ -22,7 +22,6 @@ import org.opensearch.core.xcontent.XContentBuilder;
 import org.opensearch.performanceanalyzer.commons.config.PluginSettings;
 import org.opensearch.performanceanalyzer.config.setting.handler.NodeStatsSettingHandler;
 import org.opensearch.performanceanalyzer.config.setting.handler.PerformanceAnalyzerClusterSettingHandler;
-import org.opensearch.performanceanalyzer.config.setting.handler.PerformanceAnalyzerCollectorsSettingHandler;
 import org.opensearch.rest.BaseRestHandler;
 import org.opensearch.rest.BytesRestResponse;
 import org.opensearch.rest.RestController;
@@ -41,8 +40,6 @@ public class PerformanceAnalyzerClusterConfigAction extends BaseRestHandler {
             "batchMetricsRetentionPeriodMinutes";
     public static final String ENABLED = "enabled";
     public static final String SHARDS_PER_COLLECTION = "shardsPerCollection";
-
-    public static final String COLLECTORS_SETTING = "collectorsSetting";
 
     public static final String PA_CLUSTER_CONFIG_PATH = RestConfig.PA_BASE_URI + "/cluster/config";
     public static final String RCA_CLUSTER_CONFIG_PATH =
@@ -118,20 +115,14 @@ public class PerformanceAnalyzerClusterConfigAction extends BaseRestHandler {
 
     private final PerformanceAnalyzerClusterSettingHandler clusterSettingHandler;
     private final NodeStatsSettingHandler nodeStatsSettingHandler;
-    private final PerformanceAnalyzerCollectorsSettingHandler
-            performanceAnalyzerCollectorsSettingHandler;
 
     public PerformanceAnalyzerClusterConfigAction(
             final Settings settings,
             final RestController restController,
             final PerformanceAnalyzerClusterSettingHandler clusterSettingHandler,
-            final NodeStatsSettingHandler nodeStatsSettingHandler,
-            final PerformanceAnalyzerCollectorsSettingHandler
-                    performanceAnalyzerCollectorsSettingHandler) {
+            final NodeStatsSettingHandler nodeStatsSettingHandler) {
         this.clusterSettingHandler = clusterSettingHandler;
         this.nodeStatsSettingHandler = nodeStatsSettingHandler;
-        this.performanceAnalyzerCollectorsSettingHandler =
-                performanceAnalyzerCollectorsSettingHandler;
     }
 
     /**
@@ -204,14 +195,6 @@ public class PerformanceAnalyzerClusterConfigAction extends BaseRestHandler {
                             (Integer) shardPerCollectionValue);
                 }
             }
-
-            if (map.containsKey(COLLECTORS_SETTING)) {
-                Object collectorsSettingValue = map.get(COLLECTORS_SETTING);
-                if (collectorsSettingValue instanceof Integer) {
-                    performanceAnalyzerCollectorsSettingHandler.updateCollectorsSetting(
-                            (Integer) collectorsSettingValue);
-                }
-            }
         }
 
         return channel -> {
@@ -224,9 +207,6 @@ public class PerformanceAnalyzerClusterConfigAction extends BaseRestHandler {
                                 ? clusterSettingHandler.getCurrentClusterSettingValueVerbose()
                                 : clusterSettingHandler.getCurrentClusterSettingValue());
                 builder.field(SHARDS_PER_COLLECTION, nodeStatsSettingHandler.getNodeStatsSetting());
-                builder.field(
-                        COLLECTORS_SETTING,
-                        performanceAnalyzerCollectorsSettingHandler.getCollectorsEnabledSetting());
                 builder.field(
                         BATCH_METRICS_RETENTION_PERIOD_MINUTES,
                         PluginSettings.instance().getBatchMetricsRetentionPeriodMinutes());

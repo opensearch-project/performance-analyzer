@@ -25,10 +25,8 @@ import org.opensearch.performanceanalyzer.OpenSearchResources;
 import org.opensearch.performanceanalyzer.collectors.ValueCalculator;
 import org.opensearch.performanceanalyzer.commons.collectors.MetricStatus;
 import org.opensearch.performanceanalyzer.commons.collectors.PerformanceAnalyzerMetricsCollector;
-import org.opensearch.performanceanalyzer.commons.config.overrides.ConfigOverridesWrapper;
 import org.opensearch.performanceanalyzer.commons.metrics.AllMetrics;
 import org.opensearch.performanceanalyzer.commons.metrics.MetricsConfiguration;
-import org.opensearch.performanceanalyzer.config.PerformanceAnalyzerController;
 import org.opensearch.performanceanalyzer.util.Utils;
 import org.opensearch.telemetry.metrics.Counter;
 import org.opensearch.telemetry.metrics.MetricsRegistry;
@@ -54,12 +52,8 @@ public class RTFNodeStatsAllShardsMetricsCollector extends PerformanceAnalyzerMe
     private Counter cacheRequestEvictionMetrics;
     private Counter cacheRequestSizeMetrics;
     private boolean metricsInitialised;
-    private PerformanceAnalyzerController performanceAnalyzerController;
-    private ConfigOverridesWrapper configOverridesWrapper;
 
-    public RTFNodeStatsAllShardsMetricsCollector(
-            PerformanceAnalyzerController performanceAnalyzerController,
-            ConfigOverridesWrapper configOverridesWrapper) {
+    public RTFNodeStatsAllShardsMetricsCollector() {
         super(
                 SAMPLING_TIME_INTERVAL,
                 "RTFNodeStatsMetricsCollector",
@@ -69,22 +63,9 @@ public class RTFNodeStatsAllShardsMetricsCollector extends PerformanceAnalyzerMe
         prevPerShardStats = new HashMap<>();
         currentPerShardStats = new HashMap<>();
         this.metricsInitialised = false;
-        this.performanceAnalyzerController = performanceAnalyzerController;
-        this.configOverridesWrapper = configOverridesWrapper;
     }
 
     private void populateCurrentShards() {
-        if (!performanceAnalyzerController.telemetryCollectorsEnabled()) {
-            LOG.info("All Telemetry collectors are disabled. Skipping collection.");
-            return;
-        }
-
-        if (performanceAnalyzerController.isCollectorDisabled(
-                configOverridesWrapper, getCollectorName())) {
-            LOG.info(getCollectorName() + " is disabled. Skipping collection.");
-            return;
-        }
-
         if (!currentShards.isEmpty()) {
             prevPerShardStats.putAll(currentPerShardStats);
             currentPerShardStats.clear();

@@ -39,7 +39,7 @@ public class ThreadPoolMetricsCollectorTests extends CustomMetricsLocationTestBa
         System.setProperty("performanceanalyzer.metrics.log.enabled", "False");
         MetricsConfiguration.CONFIG_MAP.put(
                 ThreadPoolMetricsCollector.class, MetricsConfiguration.cdefault);
-        threadPoolMetricsCollector = new ThreadPoolMetricsCollector(mockController, mockWrapper);
+        threadPoolMetricsCollector = new ThreadPoolMetricsCollector();
 
         // clean metricQueue before running every test
         TestUtil.readEvents();

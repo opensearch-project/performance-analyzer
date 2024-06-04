@@ -32,11 +32,11 @@ public class ElectionTermCollector extends PerformanceAnalyzerMetricsCollector
     private static final Logger LOG = LogManager.getLogger(ElectionTermCollector.class);
     private static final int KEYS_PATH_LENGTH = 0;
     private final ConfigOverridesWrapper configOverridesWrapper;
-    private final PerformanceAnalyzerController performanceAnalyzerController;
+    private final PerformanceAnalyzerController controller;
     private StringBuilder value;
 
     public ElectionTermCollector(
-            PerformanceAnalyzerController performanceAnalyzerController,
+            PerformanceAnalyzerController controller,
             ConfigOverridesWrapper configOverridesWrapper) {
         super(
                 SAMPLING_TIME_INTERVAL,
@@ -44,7 +44,7 @@ public class ElectionTermCollector extends PerformanceAnalyzerMetricsCollector
                 ELECTION_TERM_COLLECTOR_EXECUTION_TIME,
                 ELECTION_TERM_COLLECTOR_ERROR);
         value = new StringBuilder();
-        this.performanceAnalyzerController = performanceAnalyzerController;
+        this.controller = controller;
         this.configOverridesWrapper = configOverridesWrapper;
     }
 
@@ -61,14 +61,7 @@ public class ElectionTermCollector extends PerformanceAnalyzerMetricsCollector
 
     @Override
     public void collectMetrics(long startTime) {
-        if (!performanceAnalyzerController.rcaCollectorsEnabled()) {
-            LOG.info("All RCA collectors are disabled. Skipping collection.");
-            return;
-        }
-
-        if (performanceAnalyzerController.isCollectorDisabled(
-                configOverridesWrapper, getCollectorName())) {
-            LOG.info(getCollectorName() + " is disabled. Skipping collection.");
+        if (!controller.isCollectorEnabled(configOverridesWrapper, getCollectorName())) {
             return;
         }
         if (Objects.isNull(OpenSearchResources.INSTANCE.getClusterService())

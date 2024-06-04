@@ -32,13 +32,15 @@ import org.opensearch.cluster.service.ClusterService;
 import org.opensearch.common.settings.Settings;
 import org.opensearch.performanceanalyzer.OpenSearchResources;
 import org.opensearch.performanceanalyzer.commons.config.PluginSettings;
+import org.opensearch.performanceanalyzer.commons.config.overrides.ConfigOverridesWrapper;
 import org.opensearch.performanceanalyzer.commons.event_process.Event;
 import org.opensearch.performanceanalyzer.commons.metrics.MetricsConfiguration;
 import org.opensearch.performanceanalyzer.commons.metrics.PerformanceAnalyzerMetrics;
+import org.opensearch.performanceanalyzer.config.PerformanceAnalyzerController;
 import org.opensearch.performanceanalyzer.util.TestUtil;
 
 @RunWith(RandomizedRunner.class)
-public class ShardStateCollectorTests extends CollectorTestBase {
+public class ShardStateCollectorTests {
     private static final String TEST_INDEX = "test";
     private static final int NUMBER_OF_PRIMARY_SHARDS = 1;
     private static final int NUMBER_OF_REPLICAS = 1;
@@ -46,6 +48,8 @@ public class ShardStateCollectorTests extends CollectorTestBase {
     private long startTimeInMills = 1153721339;
     private ShardStateCollector shardStateCollector;
     private ClusterService clusterService;
+    private PerformanceAnalyzerController controller;
+    private ConfigOverridesWrapper configOverrides;
 
     @Before
     public void init() {
@@ -54,7 +58,9 @@ public class ShardStateCollectorTests extends CollectorTestBase {
         System.setProperty("performanceanalyzer.metrics.log.enabled", "False");
         MetricsConfiguration.CONFIG_MAP.put(
                 ShardStateCollector.class, MetricsConfiguration.cdefault);
-        shardStateCollector = new ShardStateCollector(mockController, mockWrapper);
+        controller = Mockito.mock(PerformanceAnalyzerController.class);
+        configOverrides = Mockito.mock(ConfigOverridesWrapper.class);
+        shardStateCollector = new ShardStateCollector(controller, configOverrides);
 
         // clean metricQueue before running every test
         TestUtil.readEvents();
@@ -81,6 +87,9 @@ public class ShardStateCollectorTests extends CollectorTestBase {
     @Ignore
     @Test
     public void testCollectMetrics() throws IOException {
+
+        Mockito.when(controller.isCollectorEnabled(configOverrides, "ShardsStateCollector"))
+                .thenReturn(true);
         Mockito.when(clusterService.state()).thenReturn(generateClusterState());
         shardStateCollector.collectMetrics(startTimeInMills);
         List<ShardStateCollector.ShardStateMetrics> metrics = readMetrics();

@@ -21,10 +21,8 @@ import org.opensearch.common.util.concurrent.SizeBlockingQueue;
 import org.opensearch.performanceanalyzer.OpenSearchResources;
 import org.opensearch.performanceanalyzer.commons.collectors.PerformanceAnalyzerMetricsCollector;
 import org.opensearch.performanceanalyzer.commons.collectors.StatsCollector;
-import org.opensearch.performanceanalyzer.commons.config.overrides.ConfigOverridesWrapper;
 import org.opensearch.performanceanalyzer.commons.metrics.AllMetrics;
 import org.opensearch.performanceanalyzer.commons.metrics.MetricsConfiguration;
-import org.opensearch.performanceanalyzer.config.PerformanceAnalyzerController;
 import org.opensearch.telemetry.metrics.Histogram;
 import org.opensearch.telemetry.metrics.MetricsRegistry;
 import org.opensearch.telemetry.metrics.tags.Tags;
@@ -49,12 +47,8 @@ public class RTFThreadPoolMetricsCollector extends PerformanceAnalyzerMetricsCol
     private Histogram ThreadPoolQueueCapacityMetrics;
     private MetricsRegistry metricsRegistry;
     private boolean metricsInitialised;
-    private PerformanceAnalyzerController performanceAnalyzerController;
-    private ConfigOverridesWrapper configOverridesWrapper;
 
-    public RTFThreadPoolMetricsCollector(
-            PerformanceAnalyzerController performanceAnalyzerController,
-            ConfigOverridesWrapper configOverridesWrapper) {
+    public RTFThreadPoolMetricsCollector() {
         super(
                 SAMPLING_TIME_INTERVAL,
                 "RTFThreadPoolMetricsCollector",
@@ -62,23 +56,10 @@ public class RTFThreadPoolMetricsCollector extends PerformanceAnalyzerMetricsCol
                 THREADPOOL_METRICS_COLLECTOR_ERROR);
         statsRecordMap = new HashMap<>();
         this.metricsInitialised = false;
-        this.performanceAnalyzerController = performanceAnalyzerController;
-        this.configOverridesWrapper = configOverridesWrapper;
     }
 
     @Override
     public void collectMetrics(long startTime) {
-        if (!performanceAnalyzerController.telemetryCollectorsEnabled()) {
-            LOG.info("All Telemetry collectors are disabled. Skipping collection.");
-            return;
-        }
-
-        if (performanceAnalyzerController.isCollectorDisabled(
-                configOverridesWrapper, getCollectorName())) {
-            LOG.info(getCollectorName() + " is disabled. Skipping collection.");
-            return;
-        }
-
         if (OpenSearchResources.INSTANCE.getThreadPool() == null) {
             return;
         }

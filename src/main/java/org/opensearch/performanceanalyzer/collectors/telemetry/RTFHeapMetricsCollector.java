@@ -12,14 +12,12 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.opensearch.performanceanalyzer.OpenSearchResources;
 import org.opensearch.performanceanalyzer.commons.collectors.PerformanceAnalyzerMetricsCollector;
-import org.opensearch.performanceanalyzer.commons.config.overrides.ConfigOverridesWrapper;
 import org.opensearch.performanceanalyzer.commons.jvm.GCMetrics;
 import org.opensearch.performanceanalyzer.commons.jvm.HeapMetrics;
 import org.opensearch.performanceanalyzer.commons.metrics.AllMetrics;
 import org.opensearch.performanceanalyzer.commons.metrics.MetricsConfiguration;
 import org.opensearch.performanceanalyzer.commons.stats.metrics.StatExceptionCode;
 import org.opensearch.performanceanalyzer.commons.stats.metrics.StatMetrics;
-import org.opensearch.performanceanalyzer.config.PerformanceAnalyzerController;
 import org.opensearch.telemetry.metrics.Histogram;
 import org.opensearch.telemetry.metrics.MetricsRegistry;
 import org.opensearch.telemetry.metrics.tags.Tags;
@@ -34,35 +32,18 @@ public class RTFHeapMetricsCollector extends PerformanceAnalyzerMetricsCollector
     private MetricsRegistry metricsRegistry;
     private final String memTypeAttributeKey = "mem_type";
     private boolean metricsInitialised;
-    private PerformanceAnalyzerController performanceAnalyzerController;
-    private ConfigOverridesWrapper configOverridesWrapper;
 
-    public RTFHeapMetricsCollector(
-            PerformanceAnalyzerController performanceAnalyzerController,
-            ConfigOverridesWrapper configOverridesWrapper) {
+    public RTFHeapMetricsCollector() {
         super(
                 SAMPLING_TIME_INTERVAL,
                 "RTFHeapMetricsCollector",
                 StatMetrics.HEAP_METRICS_COLLECTOR_EXECUTION_TIME,
                 StatExceptionCode.HEAP_METRICS_COLLECTOR_ERROR);
         this.metricsInitialised = false;
-        this.performanceAnalyzerController = performanceAnalyzerController;
-        this.configOverridesWrapper = configOverridesWrapper;
     }
 
     @Override
     public void collectMetrics(long startTime) {
-        if (!performanceAnalyzerController.telemetryCollectorsEnabled()) {
-            LOG.info("All Telemetry collectors are disabled. Skipping collection.");
-            return;
-        }
-
-        if (performanceAnalyzerController.isCollectorDisabled(
-                configOverridesWrapper, getCollectorName())) {
-            LOG.info(getCollectorName() + " is disabled. Skipping collection.");
-            return;
-        }
-
         metricsRegistry = OpenSearchResources.INSTANCE.getMetricsRegistry();
         if (metricsRegistry == null) {
             LOG.error("could not get the instance of MetricsRegistry class");

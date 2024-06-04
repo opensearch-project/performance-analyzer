@@ -31,7 +31,7 @@ import org.opensearch.test.ClusterServiceUtils;
 import org.opensearch.threadpool.TestThreadPool;
 import org.opensearch.threadpool.ThreadPool;
 
-public class ElectionTermCollectorTests extends CollectorTestBase {
+public class ElectionTermCollectorTests {
     private ElectionTermCollector electionTermCollector;
     private long startTimeInMills = 1153721339;
     private ThreadPool threadPool;
@@ -83,9 +83,8 @@ public class ElectionTermCollectorTests extends CollectorTestBase {
 
     @Test
     public void testCollectMetrics() {
-        Mockito.when(controller.isCollectorDisabled(configOverrides, "ElectionTermCollector"))
-                .thenReturn(false);
-        Mockito.when(controller.rcaCollectorsEnabled()).thenReturn(true);
+        Mockito.when(controller.isCollectorEnabled(configOverrides, "ElectionTermCollector"))
+                .thenReturn(true);
         electionTermCollector.collectMetrics(startTimeInMills);
         String jsonStr = readMetricsInJsonString(1);
         String[] jsonStrArray = jsonStr.split(":", 2);
