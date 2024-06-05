@@ -98,7 +98,9 @@ public class RTFHeapMetricsCollector extends PerformanceAnalyzerMetricsCollector
     private void recordMetrics() {
         Tags totYoungGCTag =
                 Tags.create()
-                        .addTag(memTypeAttributeKey, RTFMetrics.GCType.TOT_YOUNG_GC.toString());
+                        .addTag(
+                                RTFMetrics.HeapDimension.MEM_TYPE.getName(),
+                                RTFMetrics.GCType.TOT_YOUNG_GC.toString());
 
         Tags totFullGCTag =
                 Tags.create().addTag(memTypeAttributeKey, RTFMetrics.GCType.TOT_FULL_GC.toString());

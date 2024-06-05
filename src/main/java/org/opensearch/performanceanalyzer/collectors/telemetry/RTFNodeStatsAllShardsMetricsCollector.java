@@ -247,7 +247,9 @@ public class RTFNodeStatsAllShardsMetricsCollector extends PerformanceAnalyzerMe
             String indexName,
             String shardId) {
         Tags nodeStatsMetricsTag =
-                Tags.create().addTag("index_name", indexName).addTag("shard_id", shardId);
+                Tags.create()
+                        .addTag(RTFMetrics.CommonDimension.INDEX_NAME.toString(), indexName)
+                        .addTag(RTFMetrics.CommonDimension.SHARD_ID.toString(), shardId);
 
         cacheQueryMissMetrics.add(metrics.getQueryCacheMissCount(), nodeStatsMetricsTag);
         cacheQuerySizeMetrics.add(metrics.getQueryCacheInBytes(), nodeStatsMetricsTag);
