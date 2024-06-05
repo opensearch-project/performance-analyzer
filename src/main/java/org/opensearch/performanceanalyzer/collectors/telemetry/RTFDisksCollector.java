@@ -12,8 +12,8 @@ import org.opensearch.performanceanalyzer.commons.OSMetricsGeneratorFactory;
 import org.opensearch.performanceanalyzer.commons.collectors.PerformanceAnalyzerMetricsCollector;
 import org.opensearch.performanceanalyzer.commons.collectors.TelemetryCollector;
 import org.opensearch.performanceanalyzer.commons.config.overrides.ConfigOverridesWrapper;
-import org.opensearch.performanceanalyzer.commons.metrics.AllMetrics;
 import org.opensearch.performanceanalyzer.commons.metrics.MetricsConfiguration;
+import org.opensearch.performanceanalyzer.commons.metrics.RTFMetrics;
 import org.opensearch.performanceanalyzer.commons.metrics_generator.DiskMetricsGenerator;
 import org.opensearch.performanceanalyzer.commons.metrics_generator.OSMetricsGenerator;
 import org.opensearch.performanceanalyzer.commons.stats.metrics.StatExceptionCode;
@@ -93,17 +93,19 @@ public class RTFDisksCollector extends PerformanceAnalyzerMetricsCollector
         if (metricsInitialised == false) {
             diskWaitTimeMetrics =
                     metricsRegistry.createHistogram(
-                            AllMetrics.DiskValue.Constants.WAIT_VALUE, "DiskWaitTimeMetrics", "ms");
+                            RTFMetrics.DiskValue.Constants.WAIT_VALUE,
+                            "DiskWaitTimeMetrics",
+                            RTFMetrics.MetricUnits.MILLISECOND.toString());
             diskServiceRateMetrics =
                     metricsRegistry.createHistogram(
-                            AllMetrics.DiskValue.Constants.SRATE_VALUE,
+                            RTFMetrics.DiskValue.Constants.SRATE_VALUE,
                             "DiskServiceRateMetrics",
-                            "MBps");
+                            RTFMetrics.MetricUnits.MEGABYTE_PER_SEC.toString());
             diskUtilizationMetrics =
                     metricsRegistry.createHistogram(
-                            AllMetrics.DiskValue.Constants.UTIL_VALUE,
+                            RTFMetrics.DiskValue.Constants.UTIL_VALUE,
                             "DiskUtilizationMetrics",
-                            "%");
+                            RTFMetrics.MetricUnits.PERCENT.toString());
             metricsInitialised = true;
         }
     }

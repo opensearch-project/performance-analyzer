@@ -27,8 +27,8 @@ import org.opensearch.performanceanalyzer.commons.collectors.MetricStatus;
 import org.opensearch.performanceanalyzer.commons.collectors.PerformanceAnalyzerMetricsCollector;
 import org.opensearch.performanceanalyzer.commons.collectors.TelemetryCollector;
 import org.opensearch.performanceanalyzer.commons.config.overrides.ConfigOverridesWrapper;
-import org.opensearch.performanceanalyzer.commons.metrics.AllMetrics;
 import org.opensearch.performanceanalyzer.commons.metrics.MetricsConfiguration;
+import org.opensearch.performanceanalyzer.commons.metrics.RTFMetrics;
 import org.opensearch.performanceanalyzer.config.PerformanceAnalyzerController;
 import org.opensearch.performanceanalyzer.util.Utils;
 import org.opensearch.telemetry.metrics.Counter;
@@ -86,7 +86,7 @@ public class RTFNodeStatsAllShardsMetricsCollector extends PerformanceAnalyzerMe
 
     private static final ImmutableMap<String, ValueCalculator> valueCalculators =
             ImmutableMap.of(
-                    AllMetrics.ShardStatsValue.INDEXING_THROTTLE_TIME.toString(),
+                    RTFMetrics.ShardStatsValue.INDEXING_THROTTLE_TIME.toString(),
                     (shardStats) ->
                             shardStats
                                     .getStats()
@@ -94,23 +94,23 @@ public class RTFNodeStatsAllShardsMetricsCollector extends PerformanceAnalyzerMe
                                     .getTotal()
                                     .getThrottleTime()
                                     .millis(),
-                    AllMetrics.ShardStatsValue.CACHE_QUERY_HIT.toString(),
+                    RTFMetrics.ShardStatsValue.CACHE_QUERY_HIT.toString(),
                     (shardStats) -> shardStats.getStats().getQueryCache().getHitCount(),
-                    AllMetrics.ShardStatsValue.CACHE_QUERY_MISS.toString(),
+                    RTFMetrics.ShardStatsValue.CACHE_QUERY_MISS.toString(),
                     (shardStats) -> shardStats.getStats().getQueryCache().getMissCount(),
-                    AllMetrics.ShardStatsValue.CACHE_QUERY_SIZE.toString(),
+                    RTFMetrics.ShardStatsValue.CACHE_QUERY_SIZE.toString(),
                     (shardStats) -> shardStats.getStats().getQueryCache().getMemorySizeInBytes(),
-                    AllMetrics.ShardStatsValue.CACHE_FIELDDATA_EVICTION.toString(),
+                    RTFMetrics.ShardStatsValue.CACHE_FIELDDATA_EVICTION.toString(),
                     (shardStats) -> shardStats.getStats().getFieldData().getEvictions(),
-                    AllMetrics.ShardStatsValue.CACHE_FIELDDATA_SIZE.toString(),
+                    RTFMetrics.ShardStatsValue.CACHE_FIELDDATA_SIZE.toString(),
                     (shardStats) -> shardStats.getStats().getFieldData().getMemorySizeInBytes(),
-                    AllMetrics.ShardStatsValue.CACHE_REQUEST_HIT.toString(),
+                    RTFMetrics.ShardStatsValue.CACHE_REQUEST_HIT.toString(),
                     (shardStats) -> shardStats.getStats().getRequestCache().getHitCount(),
-                    AllMetrics.ShardStatsValue.CACHE_REQUEST_MISS.toString(),
+                    RTFMetrics.ShardStatsValue.CACHE_REQUEST_MISS.toString(),
                     (shardStats) -> shardStats.getStats().getRequestCache().getMissCount(),
-                    AllMetrics.ShardStatsValue.CACHE_REQUEST_EVICTION.toString(),
+                    RTFMetrics.ShardStatsValue.CACHE_REQUEST_EVICTION.toString(),
                     (shardStats) -> shardStats.getStats().getRequestCache().getEvictions(),
-                    AllMetrics.ShardStatsValue.CACHE_REQUEST_SIZE.toString(),
+                    RTFMetrics.ShardStatsValue.CACHE_REQUEST_SIZE.toString(),
                     (shardStats) -> shardStats.getStats().getRequestCache().getMemorySizeInBytes());
 
     @Override
@@ -169,57 +169,57 @@ public class RTFNodeStatsAllShardsMetricsCollector extends PerformanceAnalyzerMe
         if (metricsInitialised == false) {
             cacheQueryHitMetrics =
                     metricsRegistry.createCounter(
-                            AllMetrics.ShardStatsValue.Constants.QUEY_CACHE_HIT_COUNT_VALUE,
+                            RTFMetrics.ShardStatsValue.Constants.QUEY_CACHE_HIT_COUNT_VALUE,
                             "CacheQueryHit Metrics",
-                            "count");
+                            RTFMetrics.MetricUnits.COUNT.toString());
 
             cacheQueryMissMetrics =
                     metricsRegistry.createCounter(
-                            AllMetrics.ShardStatsValue.Constants.QUERY_CACHE_MISS_COUNT_VALUE,
+                            RTFMetrics.ShardStatsValue.Constants.QUERY_CACHE_MISS_COUNT_VALUE,
                             "CacheQueryMiss Metrics",
-                            "count");
+                            RTFMetrics.MetricUnits.COUNT.toString());
 
             cacheQuerySizeMetrics =
                     metricsRegistry.createCounter(
-                            AllMetrics.ShardStatsValue.Constants.QUERY_CACHE_IN_BYTES_VALUE,
+                            RTFMetrics.ShardStatsValue.Constants.QUERY_CACHE_IN_BYTES_VALUE,
                             "CacheQuerySize Metrics",
-                            "bytes");
+                            RTFMetrics.MetricUnits.BYTE.toString());
 
             cacheFieldDataEvictionMetrics =
                     metricsRegistry.createCounter(
-                            AllMetrics.ShardStatsValue.Constants.FIELDDATA_EVICTION_VALUE,
+                            RTFMetrics.ShardStatsValue.Constants.FIELDDATA_EVICTION_VALUE,
                             "CacheFieldDataEviction Metrics",
-                            "count");
+                            RTFMetrics.MetricUnits.COUNT.toString());
 
             cacheFieldDataSizeMetrics =
                     metricsRegistry.createCounter(
-                            AllMetrics.ShardStatsValue.Constants.FIELD_DATA_IN_BYTES_VALUE,
+                            RTFMetrics.ShardStatsValue.Constants.FIELD_DATA_IN_BYTES_VALUE,
                             "CacheFieldDataSize Metrics",
-                            "bytes");
+                            RTFMetrics.MetricUnits.BYTE.toString());
 
             cacheRequestHitMetrics =
                     metricsRegistry.createCounter(
-                            AllMetrics.ShardStatsValue.Constants.REQUEST_CACHE_HIT_COUNT_VALUE,
+                            RTFMetrics.ShardStatsValue.Constants.REQUEST_CACHE_HIT_COUNT_VALUE,
                             "CacheRequestHit Metrics",
-                            "count");
+                            RTFMetrics.MetricUnits.COUNT.toString());
 
             cacheRequestMissMetrics =
                     metricsRegistry.createCounter(
-                            AllMetrics.ShardStatsValue.Constants.REQUEST_CACHE_MISS_COUNT_VALUE,
+                            RTFMetrics.ShardStatsValue.Constants.REQUEST_CACHE_MISS_COUNT_VALUE,
                             "CacheRequestMiss Metrics",
-                            "count");
+                            RTFMetrics.MetricUnits.COUNT.toString());
 
             cacheRequestEvictionMetrics =
                     metricsRegistry.createCounter(
-                            AllMetrics.ShardStatsValue.Constants.REQUEST_CACHE_EVICTION_VALUE,
+                            RTFMetrics.ShardStatsValue.Constants.REQUEST_CACHE_EVICTION_VALUE,
                             "CacheRequestEviction Metrics",
-                            "count");
+                            RTFMetrics.MetricUnits.COUNT.toString());
 
             cacheRequestSizeMetrics =
                     metricsRegistry.createCounter(
-                            AllMetrics.ShardStatsValue.Constants.REQUEST_CACHE_IN_BYTES_VALUE,
+                            RTFMetrics.ShardStatsValue.Constants.REQUEST_CACHE_IN_BYTES_VALUE,
                             "CacheRequestSize Metrics",
-                            "bytes");
+                            RTFMetrics.MetricUnits.BYTE.toString());
             metricsInitialised = true;
         }
     }
@@ -308,17 +308,17 @@ public class RTFNodeStatsAllShardsMetricsCollector extends PerformanceAnalyzerMe
             super();
             this.shardStats = shardStats;
 
-            this.queryCacheHitCount = calculate(AllMetrics.ShardStatsValue.CACHE_QUERY_HIT);
-            this.queryCacheMissCount = calculate(AllMetrics.ShardStatsValue.CACHE_QUERY_MISS);
-            this.queryCacheInBytes = calculate(AllMetrics.ShardStatsValue.CACHE_QUERY_SIZE);
+            this.queryCacheHitCount = calculate(RTFMetrics.ShardStatsValue.CACHE_QUERY_HIT);
+            this.queryCacheMissCount = calculate(RTFMetrics.ShardStatsValue.CACHE_QUERY_MISS);
+            this.queryCacheInBytes = calculate(RTFMetrics.ShardStatsValue.CACHE_QUERY_SIZE);
             this.fieldDataEvictions =
-                    calculate(AllMetrics.ShardStatsValue.CACHE_FIELDDATA_EVICTION);
-            this.fieldDataInBytes = calculate(AllMetrics.ShardStatsValue.CACHE_FIELDDATA_SIZE);
-            this.requestCacheHitCount = calculate(AllMetrics.ShardStatsValue.CACHE_REQUEST_HIT);
-            this.requestCacheMissCount = calculate(AllMetrics.ShardStatsValue.CACHE_REQUEST_MISS);
+                    calculate(RTFMetrics.ShardStatsValue.CACHE_FIELDDATA_EVICTION);
+            this.fieldDataInBytes = calculate(RTFMetrics.ShardStatsValue.CACHE_FIELDDATA_SIZE);
+            this.requestCacheHitCount = calculate(RTFMetrics.ShardStatsValue.CACHE_REQUEST_HIT);
+            this.requestCacheMissCount = calculate(RTFMetrics.ShardStatsValue.CACHE_REQUEST_MISS);
             this.requestCacheEvictions =
-                    calculate(AllMetrics.ShardStatsValue.CACHE_REQUEST_EVICTION);
-            this.requestCacheInBytes = calculate(AllMetrics.ShardStatsValue.CACHE_REQUEST_SIZE);
+                    calculate(RTFMetrics.ShardStatsValue.CACHE_REQUEST_EVICTION);
+            this.requestCacheInBytes = calculate(RTFMetrics.ShardStatsValue.CACHE_REQUEST_SIZE);
         }
 
         @SuppressWarnings("checkstyle:parameternumber")
@@ -346,7 +346,7 @@ public class RTFNodeStatsAllShardsMetricsCollector extends PerformanceAnalyzerMe
             this.requestCacheInBytes = requestCacheInBytes;
         }
 
-        private long calculate(AllMetrics.ShardStatsValue nodeMetric) {
+        private long calculate(RTFMetrics.ShardStatsValue nodeMetric) {
             return valueCalculators.get(nodeMetric.toString()).calculateValue(shardStats);
         }
 
@@ -355,47 +355,47 @@ public class RTFNodeStatsAllShardsMetricsCollector extends PerformanceAnalyzerMe
             return shardStats;
         }
 
-        @JsonProperty(AllMetrics.ShardStatsValue.Constants.QUEY_CACHE_HIT_COUNT_VALUE)
+        @JsonProperty(RTFMetrics.ShardStatsValue.Constants.QUEY_CACHE_HIT_COUNT_VALUE)
         public long getQueryCacheHitCount() {
             return queryCacheHitCount;
         }
 
-        @JsonProperty(AllMetrics.ShardStatsValue.Constants.QUERY_CACHE_MISS_COUNT_VALUE)
+        @JsonProperty(RTFMetrics.ShardStatsValue.Constants.QUERY_CACHE_MISS_COUNT_VALUE)
         public long getQueryCacheMissCount() {
             return queryCacheMissCount;
         }
 
-        @JsonProperty(AllMetrics.ShardStatsValue.Constants.QUERY_CACHE_IN_BYTES_VALUE)
+        @JsonProperty(RTFMetrics.ShardStatsValue.Constants.QUERY_CACHE_IN_BYTES_VALUE)
         public long getQueryCacheInBytes() {
             return queryCacheInBytes;
         }
 
-        @JsonProperty(AllMetrics.ShardStatsValue.Constants.FIELDDATA_EVICTION_VALUE)
+        @JsonProperty(RTFMetrics.ShardStatsValue.Constants.FIELDDATA_EVICTION_VALUE)
         public long getFieldDataEvictions() {
             return fieldDataEvictions;
         }
 
-        @JsonProperty(AllMetrics.ShardStatsValue.Constants.FIELD_DATA_IN_BYTES_VALUE)
+        @JsonProperty(RTFMetrics.ShardStatsValue.Constants.FIELD_DATA_IN_BYTES_VALUE)
         public long getFieldDataInBytes() {
             return fieldDataInBytes;
         }
 
-        @JsonProperty(AllMetrics.ShardStatsValue.Constants.REQUEST_CACHE_HIT_COUNT_VALUE)
+        @JsonProperty(RTFMetrics.ShardStatsValue.Constants.REQUEST_CACHE_HIT_COUNT_VALUE)
         public long getRequestCacheHitCount() {
             return requestCacheHitCount;
         }
 
-        @JsonProperty(AllMetrics.ShardStatsValue.Constants.REQUEST_CACHE_MISS_COUNT_VALUE)
+        @JsonProperty(RTFMetrics.ShardStatsValue.Constants.REQUEST_CACHE_MISS_COUNT_VALUE)
         public long getRequestCacheMissCount() {
             return requestCacheMissCount;
         }
 
-        @JsonProperty(AllMetrics.ShardStatsValue.Constants.REQUEST_CACHE_EVICTION_VALUE)
+        @JsonProperty(RTFMetrics.ShardStatsValue.Constants.REQUEST_CACHE_EVICTION_VALUE)
         public long getRequestCacheEvictions() {
             return requestCacheEvictions;
         }
 
-        @JsonProperty(AllMetrics.ShardStatsValue.Constants.REQUEST_CACHE_IN_BYTES_VALUE)
+        @JsonProperty(RTFMetrics.ShardStatsValue.Constants.REQUEST_CACHE_IN_BYTES_VALUE)
         public long getRequestCacheInBytes() {
             return requestCacheInBytes;
         }

@@ -16,8 +16,8 @@ import org.opensearch.performanceanalyzer.commons.collectors.TelemetryCollector;
 import org.opensearch.performanceanalyzer.commons.config.overrides.ConfigOverridesWrapper;
 import org.opensearch.performanceanalyzer.commons.jvm.GCMetrics;
 import org.opensearch.performanceanalyzer.commons.jvm.HeapMetrics;
-import org.opensearch.performanceanalyzer.commons.metrics.AllMetrics;
 import org.opensearch.performanceanalyzer.commons.metrics.MetricsConfiguration;
+import org.opensearch.performanceanalyzer.commons.metrics.RTFMetrics;
 import org.opensearch.performanceanalyzer.commons.stats.metrics.StatExceptionCode;
 import org.opensearch.performanceanalyzer.commons.stats.metrics.StatMetrics;
 import org.opensearch.performanceanalyzer.config.PerformanceAnalyzerController;
@@ -76,21 +76,21 @@ public class RTFHeapMetricsCollector extends PerformanceAnalyzerMetricsCollector
         if (metricsInitialised == false) {
             gcCollectionEventMetrics =
                     metricsRegistry.createHistogram(
-                            AllMetrics.HeapValue.Constants.COLLECTION_COUNT_VALUE,
+                            RTFMetrics.HeapValue.Constants.COLLECTION_COUNT_VALUE,
                             "GC Collection Event PA Metrics",
-                            "count");
+                            RTFMetrics.MetricUnits.COUNT.toString());
 
             gcCollectionTimeMetrics =
                     metricsRegistry.createHistogram(
-                            AllMetrics.HeapValue.Constants.COLLECTION_TIME_VALUE,
+                            RTFMetrics.HeapValue.Constants.COLLECTION_TIME_VALUE,
                             "GC Collection Time PA Metrics",
-                            "ms");
+                            RTFMetrics.MetricUnits.MILLISECOND.toString());
 
             heapUsedMetrics =
                     metricsRegistry.createHistogram(
-                            AllMetrics.HeapValue.Constants.USED_VALUE,
+                            RTFMetrics.HeapValue.Constants.USED_VALUE,
                             "GC Heap Used PA Metrics",
-                            "bytes");
+                            RTFMetrics.MetricUnits.BYTE.toString());
             metricsInitialised = true;
         }
     }
@@ -98,10 +98,10 @@ public class RTFHeapMetricsCollector extends PerformanceAnalyzerMetricsCollector
     private void recordMetrics() {
         Tags totYoungGCTag =
                 Tags.create()
-                        .addTag(memTypeAttributeKey, AllMetrics.GCType.TOT_YOUNG_GC.toString());
+                        .addTag(memTypeAttributeKey, RTFMetrics.GCType.TOT_YOUNG_GC.toString());
 
         Tags totFullGCTag =
-                Tags.create().addTag(memTypeAttributeKey, AllMetrics.GCType.TOT_FULL_GC.toString());
+                Tags.create().addTag(memTypeAttributeKey, RTFMetrics.GCType.TOT_FULL_GC.toString());
 
         gcCollectionEventMetrics.record(GCMetrics.getTotYoungGCCollectionCount(), totYoungGCTag);
 
@@ -118,7 +118,7 @@ public class RTFHeapMetricsCollector extends PerformanceAnalyzerMetricsCollector
                     memoryUsage.getUsed(),
                     Tags.create().addTag(memTypeAttributeKey, entry.getKey()));
             metricsRegistry.createGauge(
-                    AllMetrics.HeapValue.Constants.MAX_VALUE,
+                    RTFMetrics.HeapValue.Constants.MAX_VALUE,
                     "Heap Max PA metrics",
                     "",
                     () -> (double) memoryUsage.getMax(),

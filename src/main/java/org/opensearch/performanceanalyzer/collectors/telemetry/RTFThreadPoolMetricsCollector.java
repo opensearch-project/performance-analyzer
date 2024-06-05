@@ -23,8 +23,8 @@ import org.opensearch.performanceanalyzer.commons.collectors.PerformanceAnalyzer
 import org.opensearch.performanceanalyzer.commons.collectors.StatsCollector;
 import org.opensearch.performanceanalyzer.commons.collectors.TelemetryCollector;
 import org.opensearch.performanceanalyzer.commons.config.overrides.ConfigOverridesWrapper;
-import org.opensearch.performanceanalyzer.commons.metrics.AllMetrics;
 import org.opensearch.performanceanalyzer.commons.metrics.MetricsConfiguration;
+import org.opensearch.performanceanalyzer.commons.metrics.RTFMetrics;
 import org.opensearch.performanceanalyzer.config.PerformanceAnalyzerController;
 import org.opensearch.telemetry.metrics.Histogram;
 import org.opensearch.telemetry.metrics.MetricsRegistry;
@@ -172,33 +172,33 @@ public class RTFThreadPoolMetricsCollector extends PerformanceAnalyzerMetricsCol
         if (metricsInitialised == false) {
             threadPoolQueueSizeMetrics =
                     metricsRegistry.createHistogram(
-                            AllMetrics.ThreadPoolValue.Constants.QUEUE_SIZE_VALUE,
+                            RTFMetrics.ThreadPoolValue.Constants.QUEUE_SIZE_VALUE,
                             "ThreadPool Queue Size Metrics",
-                            "count");
+                            RTFMetrics.MetricUnits.COUNT.toString());
 
             threadPoolRejectedReqsMetrics =
                     metricsRegistry.createHistogram(
-                            AllMetrics.ThreadPoolValue.Constants.REJECTED_VALUE,
+                            RTFMetrics.ThreadPoolValue.Constants.REJECTED_VALUE,
                             "ThreadPool Rejected Reqs Metrics",
-                            "count");
+                            RTFMetrics.MetricUnits.COUNT.toString());
 
             threadPoolTotalThreadsMetrics =
                     metricsRegistry.createHistogram(
-                            AllMetrics.ThreadPoolValue.Constants.THREADS_COUNT_VALUE,
+                            RTFMetrics.ThreadPoolValue.Constants.THREADS_COUNT_VALUE,
                             "ThreadPool Total Threads Metrics",
-                            "count");
+                            RTFMetrics.MetricUnits.COUNT.toString());
 
             threadPoolActiveThreadsMetrics =
                     metricsRegistry.createHistogram(
-                            AllMetrics.ThreadPoolValue.Constants.THREADS_ACTIVE_VALUE,
+                            RTFMetrics.ThreadPoolValue.Constants.THREADS_ACTIVE_VALUE,
                             "ThreadPool Active Threads Metrics",
-                            "count");
+                            RTFMetrics.MetricUnits.COUNT.toString());
 
             ThreadPoolQueueCapacityMetrics =
                     metricsRegistry.createHistogram(
-                            AllMetrics.ThreadPoolValue.Constants.QUEUE_CAPACITY_VALUE,
+                            RTFMetrics.ThreadPoolValue.Constants.QUEUE_CAPACITY_VALUE,
                             "ThreadPool Queue Capacity Metrics",
-                            "count");
+                            RTFMetrics.MetricUnits.COUNT.toString());
             metricsInitialised = true;
         }
     }
