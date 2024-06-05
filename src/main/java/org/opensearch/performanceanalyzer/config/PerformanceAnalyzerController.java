@@ -118,6 +118,11 @@ public class PerformanceAnalyzerController {
         shardsPerCollection = value;
     }
 
+    /**
+     * Updates the collector mode setting
+     *
+     * @param value the desired collector mode value
+     */
     public void updateCollectorsSetting(int value) {
         collectorsSettingValue = value;
         if (scheduledMetricCollectorsExecutor != null) {

@@ -80,12 +80,12 @@ public class RTFDisksCollector extends PerformanceAnalyzerMetricsCollector
     public void recordMetrics(DiskMetricsGenerator diskMetricsGenerator) {
         for (String disk : diskMetricsGenerator.getAllDisks()) {
             Tags diskNameTag = Tags.create().addTag("disk_name", disk);
-            double Disk_WaitTime = diskMetricsGenerator.getAwait(disk);
-            double Disk_ServiceRate = diskMetricsGenerator.getServiceRate(disk);
-            double Disk_Utilization = diskMetricsGenerator.getDiskUtilization(disk);
-            diskWaitTimeMetrics.record(Disk_WaitTime, diskNameTag);
-            diskUtilizationMetrics.record(Disk_Utilization, diskNameTag);
-            diskServiceRateMetrics.record(Disk_ServiceRate, diskNameTag);
+            double diskWaitTime = diskMetricsGenerator.getAwait(disk);
+            double diskServiceRate = diskMetricsGenerator.getServiceRate(disk);
+            double diskUtilization = diskMetricsGenerator.getDiskUtilization(disk);
+            diskWaitTimeMetrics.record(diskWaitTime, diskNameTag);
+            diskUtilizationMetrics.record(diskUtilization, diskNameTag);
+            diskServiceRateMetrics.record(diskServiceRate, diskNameTag);
         }
     }
 
@@ -93,17 +93,17 @@ public class RTFDisksCollector extends PerformanceAnalyzerMetricsCollector
         if (metricsInitialised == false) {
             diskWaitTimeMetrics =
                     metricsRegistry.createHistogram(
-                            AllMetrics.DiskValue.Constants.WAIT_VALUE, "DiskWaitTimeMetrics", "");
+                            AllMetrics.DiskValue.Constants.WAIT_VALUE, "DiskWaitTimeMetrics", "ms");
             diskServiceRateMetrics =
                     metricsRegistry.createHistogram(
                             AllMetrics.DiskValue.Constants.SRATE_VALUE,
                             "DiskServiceRateMetrics",
-                            "");
+                            "MBps");
             diskUtilizationMetrics =
                     metricsRegistry.createHistogram(
                             AllMetrics.DiskValue.Constants.UTIL_VALUE,
                             "DiskUtilizationMetrics",
-                            "");
+                            "%");
             metricsInitialised = true;
         }
     }

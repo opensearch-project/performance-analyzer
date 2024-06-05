@@ -171,55 +171,55 @@ public class RTFNodeStatsAllShardsMetricsCollector extends PerformanceAnalyzerMe
                     metricsRegistry.createCounter(
                             AllMetrics.ShardStatsValue.Constants.QUEY_CACHE_HIT_COUNT_VALUE,
                             "CacheQueryHit Metrics",
-                            "");
+                            "count");
 
             cacheQueryMissMetrics =
                     metricsRegistry.createCounter(
                             AllMetrics.ShardStatsValue.Constants.QUERY_CACHE_MISS_COUNT_VALUE,
                             "CacheQueryMiss Metrics",
-                            "");
+                            "count");
 
             cacheQuerySizeMetrics =
                     metricsRegistry.createCounter(
                             AllMetrics.ShardStatsValue.Constants.QUERY_CACHE_IN_BYTES_VALUE,
                             "CacheQuerySize Metrics",
-                            "");
+                            "bytes");
 
             cacheFieldDataEvictionMetrics =
                     metricsRegistry.createCounter(
                             AllMetrics.ShardStatsValue.Constants.FIELDDATA_EVICTION_VALUE,
                             "CacheFieldDataEviction Metrics",
-                            "");
+                            "count");
 
             cacheFieldDataSizeMetrics =
                     metricsRegistry.createCounter(
                             AllMetrics.ShardStatsValue.Constants.FIELD_DATA_IN_BYTES_VALUE,
                             "CacheFieldDataSize Metrics",
-                            "");
+                            "bytes");
 
             cacheRequestHitMetrics =
                     metricsRegistry.createCounter(
                             AllMetrics.ShardStatsValue.Constants.REQUEST_CACHE_HIT_COUNT_VALUE,
                             "CacheRequestHit Metrics",
-                            "");
+                            "count");
 
             cacheRequestMissMetrics =
                     metricsRegistry.createCounter(
                             AllMetrics.ShardStatsValue.Constants.REQUEST_CACHE_MISS_COUNT_VALUE,
                             "CacheRequestMiss Metrics",
-                            "");
+                            "count");
 
             cacheRequestEvictionMetrics =
                     metricsRegistry.createCounter(
                             AllMetrics.ShardStatsValue.Constants.REQUEST_CACHE_EVICTION_VALUE,
                             "CacheRequestEviction Metrics",
-                            "");
+                            "count");
 
             cacheRequestSizeMetrics =
                     metricsRegistry.createCounter(
                             AllMetrics.ShardStatsValue.Constants.REQUEST_CACHE_IN_BYTES_VALUE,
                             "CacheRequestSize Metrics",
-                            "");
+                            "bytes");
             metricsInitialised = true;
         }
     }
@@ -244,10 +244,10 @@ public class RTFNodeStatsAllShardsMetricsCollector extends PerformanceAnalyzerMe
 
     private void recordMetrics(
             NodeStatsMetricsAllShardsPerCollectionStatus metrics,
-            String IndexName,
-            String ShardId) {
+            String indexName,
+            String shardId) {
         Tags nodeStatsMetricsTag =
-                Tags.create().addTag("index_name", IndexName).addTag("shard_id", ShardId);
+                Tags.create().addTag("index_name", indexName).addTag("shard_id", shardId);
 
         cacheQueryMissMetrics.add(metrics.getQueryCacheMissCount(), nodeStatsMetricsTag);
         cacheQuerySizeMetrics.add(metrics.getQueryCacheInBytes(), nodeStatsMetricsTag);
@@ -265,8 +265,8 @@ public class RTFNodeStatsAllShardsMetricsCollector extends PerformanceAnalyzerMe
     public void populateDiffMetricValue(
             NodeStatsMetricsAllShardsPerCollectionStatus prevValue,
             NodeStatsMetricsAllShardsPerCollectionStatus currValue,
-            String IndexName,
-            int ShardId) {
+            String indexName,
+            int shardId) {
 
         NodeStatsMetricsAllShardsPerCollectionStatus metrics =
                 new NodeStatsMetricsAllShardsPerCollectionStatus(
@@ -287,7 +287,7 @@ public class RTFNodeStatsAllShardsMetricsCollector extends PerformanceAnalyzerMe
                                 0),
                         currValue.requestCacheInBytes);
 
-        recordMetrics(metrics, IndexName, String.valueOf(ShardId));
+        recordMetrics(metrics, indexName, String.valueOf(shardId));
     }
 
     public static class NodeStatsMetricsAllShardsPerCollectionStatus extends MetricStatus {

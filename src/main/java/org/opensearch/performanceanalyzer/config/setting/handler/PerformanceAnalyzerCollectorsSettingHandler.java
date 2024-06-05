@@ -10,6 +10,10 @@ import org.opensearch.performanceanalyzer.config.setting.ClusterSettingListener;
 import org.opensearch.performanceanalyzer.config.setting.ClusterSettingsManager;
 import org.opensearch.performanceanalyzer.config.setting.PerformanceAnalyzerClusterSettings;
 
+/*
+ * This class is responsible for handling the collector setting value updates through API calls.
+ * This also acts as a listener to the collector mode setting update
+ */
 public class PerformanceAnalyzerCollectorsSettingHandler
         implements ClusterSettingListener<Integer> {
     private final PerformanceAnalyzerController controller;
@@ -25,11 +29,23 @@ public class PerformanceAnalyzerCollectorsSettingHandler
         this.clusterSettingsManager = clusterSettingsManager;
     }
 
+    /**
+     * Updates the Collectors mode setting across the cluster.
+     *
+     * @param value The desired collector mode amongst: * 0 -> only RCA Collectors enabled (Default)
+     *     * 1 -> only Telemetry Collectors enabled * 2 -> both RCA and Telemetry Collectors enabled
+     */
     public void updateCollectorsSetting(final int value) {
         clusterSettingsManager.updateSetting(
                 PerformanceAnalyzerClusterSettings.PA_COLLECTORS_SETTING, value);
     }
 
+    /**
+     * Handler that gets called when there is a new value for the setting that this listener is
+     * listening to.
+     *
+     * @param newSettingValue The value of the new setting.
+     */
     @Override
     public void onSettingUpdate(final Integer newSettingValue) {
         if (newSettingValue != null) {

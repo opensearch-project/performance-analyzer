@@ -174,31 +174,31 @@ public class RTFThreadPoolMetricsCollector extends PerformanceAnalyzerMetricsCol
                     metricsRegistry.createHistogram(
                             AllMetrics.ThreadPoolValue.Constants.QUEUE_SIZE_VALUE,
                             "ThreadPool Queue Size Metrics",
-                            "");
+                            "count");
 
             threadPoolRejectedReqsMetrics =
                     metricsRegistry.createHistogram(
                             AllMetrics.ThreadPoolValue.Constants.REJECTED_VALUE,
                             "ThreadPool Rejected Reqs Metrics",
-                            "");
+                            "count");
 
             threadPoolTotalThreadsMetrics =
                     metricsRegistry.createHistogram(
                             AllMetrics.ThreadPoolValue.Constants.THREADS_COUNT_VALUE,
                             "ThreadPool Total Threads Metrics",
-                            "");
+                            "count");
 
             threadPoolActiveThreadsMetrics =
                     metricsRegistry.createHistogram(
                             AllMetrics.ThreadPoolValue.Constants.THREADS_ACTIVE_VALUE,
                             "ThreadPool Active Threads Metrics",
-                            "");
+                            "count");
 
             ThreadPoolQueueCapacityMetrics =
                     metricsRegistry.createHistogram(
                             AllMetrics.ThreadPoolValue.Constants.QUEUE_CAPACITY_VALUE,
                             "ThreadPool Queue Capacity Metrics",
-                            "");
+                            "count");
             metricsInitialised = true;
         }
     }

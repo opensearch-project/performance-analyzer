@@ -78,19 +78,19 @@ public class RTFHeapMetricsCollector extends PerformanceAnalyzerMetricsCollector
                     metricsRegistry.createHistogram(
                             AllMetrics.HeapValue.Constants.COLLECTION_COUNT_VALUE,
                             "GC Collection Event PA Metrics",
-                            "");
+                            "count");
 
             gcCollectionTimeMetrics =
                     metricsRegistry.createHistogram(
                             AllMetrics.HeapValue.Constants.COLLECTION_TIME_VALUE,
                             "GC Collection Time PA Metrics",
-                            "");
+                            "ms");
 
             heapUsedMetrics =
                     metricsRegistry.createHistogram(
                             AllMetrics.HeapValue.Constants.USED_VALUE,
                             "GC Heap Used PA Metrics",
-                            "");
+                            "bytes");
             metricsInitialised = true;
         }
     }
