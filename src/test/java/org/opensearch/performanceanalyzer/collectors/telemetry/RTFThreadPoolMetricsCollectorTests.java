@@ -17,8 +17,8 @@ import org.junit.Test;
 import org.mockito.Mock;
 import org.opensearch.performanceanalyzer.OpenSearchResources;
 import org.opensearch.performanceanalyzer.collectors.CollectorTestBase;
-import org.opensearch.performanceanalyzer.commons.metrics.AllMetrics;
 import org.opensearch.performanceanalyzer.commons.metrics.MetricsConfiguration;
+import org.opensearch.performanceanalyzer.commons.metrics.RTFMetrics;
 import org.opensearch.telemetry.metrics.Histogram;
 import org.opensearch.telemetry.metrics.MetricsRegistry;
 import org.opensearch.threadpool.ThreadPool;
@@ -53,16 +53,16 @@ public class RTFThreadPoolMetricsCollectorTests extends CollectorTestBase {
                         invocationOnMock -> {
                             String histogramName = (String) invocationOnMock.getArguments()[0];
                             if (histogramName.contains(
-                                    AllMetrics.ThreadPoolValue.Constants.QUEUE_SIZE_VALUE)) {
+                                    RTFMetrics.ThreadPoolValue.Constants.QUEUE_SIZE_VALUE)) {
                                 return threadPoolQueueSizeHistogram;
                             } else if (histogramName.contains(
-                                    AllMetrics.ThreadPoolValue.Constants.REJECTED_VALUE)) {
+                                    RTFMetrics.ThreadPoolValue.Constants.REJECTED_VALUE)) {
                                 return threadPoolRejectedReqsHistogram;
                             } else if (histogramName.contains(
-                                    AllMetrics.ThreadPoolValue.Constants.THREADS_ACTIVE_VALUE)) {
+                                    RTFMetrics.ThreadPoolValue.Constants.THREADS_ACTIVE_VALUE)) {
                                 return threadPoolActiveThreadsHistogram;
                             } else if (histogramName.contains(
-                                    AllMetrics.ThreadPoolValue.Constants.QUEUE_CAPACITY_VALUE)) {
+                                    RTFMetrics.ThreadPoolValue.Constants.QUEUE_CAPACITY_VALUE)) {
                                 return threadPoolQueueCapacityHistogram;
                             }
                             return threadPoolTotalThreadsHistogram;

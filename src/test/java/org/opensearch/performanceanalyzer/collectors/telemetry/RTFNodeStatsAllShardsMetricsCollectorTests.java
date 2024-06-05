@@ -19,8 +19,8 @@ import org.mockito.Mockito;
 import org.opensearch.indices.IndicesService;
 import org.opensearch.performanceanalyzer.OpenSearchResources;
 import org.opensearch.performanceanalyzer.commons.config.overrides.ConfigOverridesWrapper;
-import org.opensearch.performanceanalyzer.commons.metrics.AllMetrics;
 import org.opensearch.performanceanalyzer.commons.metrics.MetricsConfiguration;
+import org.opensearch.performanceanalyzer.commons.metrics.RTFMetrics;
 import org.opensearch.performanceanalyzer.config.PerformanceAnalyzerController;
 import org.opensearch.telemetry.metrics.Counter;
 import org.opensearch.telemetry.metrics.MetricsRegistry;
@@ -67,35 +67,35 @@ public class RTFNodeStatsAllShardsMetricsCollectorTests extends OpenSearchSingle
                         invocationOnMock -> {
                             String counterName = (String) invocationOnMock.getArguments()[0];
                             if (counterName.contains(
-                                    AllMetrics.ShardStatsValue.Constants
+                                    RTFMetrics.ShardStatsValue.Constants
                                             .REQUEST_CACHE_IN_BYTES_VALUE)) {
                                 return cacheRequestSizeCounter;
                             } else if (counterName.contains(
-                                    AllMetrics.ShardStatsValue.Constants
+                                    RTFMetrics.ShardStatsValue.Constants
                                             .REQUEST_CACHE_HIT_COUNT_VALUE)) {
                                 return cacheRequestHitCounter;
                             } else if (counterName.contains(
-                                    AllMetrics.ShardStatsValue.Constants
+                                    RTFMetrics.ShardStatsValue.Constants
                                             .REQUEST_CACHE_MISS_COUNT_VALUE)) {
                                 return cacheRequestMissCounter;
                             } else if (counterName.contains(
-                                    AllMetrics.ShardStatsValue.Constants
+                                    RTFMetrics.ShardStatsValue.Constants
                                             .REQUEST_CACHE_EVICTION_VALUE)) {
                                 return cacheRequestEvictionCounter;
                             } else if (counterName.contains(
-                                    AllMetrics.ShardStatsValue.Constants
+                                    RTFMetrics.ShardStatsValue.Constants
                                             .FIELDDATA_EVICTION_VALUE)) {
                                 return cacheFieldDataEvictionCounter;
                             } else if (counterName.contains(
-                                    AllMetrics.ShardStatsValue.Constants
+                                    RTFMetrics.ShardStatsValue.Constants
                                             .FIELD_DATA_IN_BYTES_VALUE)) {
                                 return cacheFieldDataSizeCounter;
                             } else if (counterName.contains(
-                                    AllMetrics.ShardStatsValue.Constants
+                                    RTFMetrics.ShardStatsValue.Constants
                                             .QUERY_CACHE_IN_BYTES_VALUE)) {
                                 return cacheQuerySizeCounter;
                             } else if (counterName.contains(
-                                    AllMetrics.ShardStatsValue.Constants
+                                    RTFMetrics.ShardStatsValue.Constants
                                             .QUEY_CACHE_HIT_COUNT_VALUE)) {
                                 return cacheQueryHitCounter;
                             }

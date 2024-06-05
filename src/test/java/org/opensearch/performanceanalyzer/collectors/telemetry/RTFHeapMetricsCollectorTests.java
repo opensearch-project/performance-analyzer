@@ -16,8 +16,8 @@ import org.junit.Before;
 import org.junit.Test;
 import org.opensearch.performanceanalyzer.OpenSearchResources;
 import org.opensearch.performanceanalyzer.collectors.CollectorTestBase;
-import org.opensearch.performanceanalyzer.commons.metrics.AllMetrics;
 import org.opensearch.performanceanalyzer.commons.metrics.MetricsConfiguration;
+import org.opensearch.performanceanalyzer.commons.metrics.RTFMetrics;
 import org.opensearch.telemetry.metrics.Histogram;
 import org.opensearch.telemetry.metrics.MetricsRegistry;
 
@@ -45,10 +45,10 @@ public class RTFHeapMetricsCollectorTests extends CollectorTestBase {
                         invocationOnMock -> {
                             String histogramName = (String) invocationOnMock.getArguments()[0];
                             if (histogramName.contains(
-                                    AllMetrics.HeapValue.Constants.COLLECTION_COUNT_VALUE)) {
+                                    RTFMetrics.HeapValue.Constants.COLLECTION_COUNT_VALUE)) {
                                 return gcCollectionEventHistogram;
                             } else if (histogramName.contains(
-                                    AllMetrics.HeapValue.Constants.COLLECTION_TIME_VALUE)) {
+                                    RTFMetrics.HeapValue.Constants.COLLECTION_TIME_VALUE)) {
                                 return gcCollectionTimeHistogram;
                             }
                             return heapUsedHistogram;
