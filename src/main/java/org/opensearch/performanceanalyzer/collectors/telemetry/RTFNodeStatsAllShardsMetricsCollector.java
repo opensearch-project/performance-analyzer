@@ -5,8 +5,8 @@
 
 package org.opensearch.performanceanalyzer.collectors.telemetry;
 
-import static org.opensearch.performanceanalyzer.commons.stats.metrics.StatExceptionCode.NODESTATS_COLLECTION_ERROR;
-import static org.opensearch.performanceanalyzer.commons.stats.metrics.StatMetrics.NODE_STATS_ALL_SHARDS_METRICS_COLLECTOR_EXECUTION_TIME;
+import static org.opensearch.performanceanalyzer.commons.stats.metrics.StatExceptionCode.RTF_NODESTATS_COLLECTION_ERROR;
+import static org.opensearch.performanceanalyzer.commons.stats.metrics.StatMetrics.RTF_NODE_STATS_ALL_SHARDS_METRICS_COLLECTOR_EXECUTION_TIME;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -65,8 +65,8 @@ public class RTFNodeStatsAllShardsMetricsCollector extends PerformanceAnalyzerMe
         super(
                 SAMPLING_TIME_INTERVAL,
                 "RTFNodeStatsMetricsCollector",
-                NODE_STATS_ALL_SHARDS_METRICS_COLLECTOR_EXECUTION_TIME,
-                NODESTATS_COLLECTION_ERROR);
+                RTF_NODE_STATS_ALL_SHARDS_METRICS_COLLECTOR_EXECUTION_TIME,
+                RTF_NODESTATS_COLLECTION_ERROR);
         currentShards = new HashMap<>();
         prevPerShardStats = new HashMap<>();
         currentPerShardStats = new HashMap<>();

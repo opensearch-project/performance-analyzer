@@ -45,8 +45,8 @@ public class RTFHeapMetricsCollector extends PerformanceAnalyzerMetricsCollector
         super(
                 SAMPLING_TIME_INTERVAL,
                 "RTFHeapMetricsCollector",
-                StatMetrics.HEAP_METRICS_COLLECTOR_EXECUTION_TIME,
-                StatExceptionCode.HEAP_METRICS_COLLECTOR_ERROR);
+                StatMetrics.RTF_HEAP_METRICS_COLLECTOR_EXECUTION_TIME,
+                StatExceptionCode.RTF_HEAP_METRICS_COLLECTOR_ERROR);
         this.metricsInitialised = false;
         this.performanceAnalyzerController = performanceAnalyzerController;
         this.configOverridesWrapper = configOverridesWrapper;

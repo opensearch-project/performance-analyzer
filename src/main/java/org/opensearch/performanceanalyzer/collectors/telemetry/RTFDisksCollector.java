@@ -41,8 +41,8 @@ public class RTFDisksCollector extends PerformanceAnalyzerMetricsCollector
         super(
                 MetricsConfiguration.CONFIG_MAP.get(RTFDisksCollector.class).samplingInterval,
                 "RTFDisksCollector",
-                StatMetrics.DISKS_COLLECTOR_EXECUTION_TIME,
-                StatExceptionCode.DISK_METRICS_COLLECTOR_ERROR);
+                StatMetrics.RTF_DISKS_COLLECTOR_EXECUTION_TIME,
+                StatExceptionCode.RTF_DISK_METRICS_COLLECTOR_ERROR);
         this.metricsInitialised = false;
         this.performanceAnalyzerController = performanceAnalyzerController;
         this.configOverridesWrapper = configOverridesWrapper;

@@ -5,8 +5,9 @@
 
 package org.opensearch.performanceanalyzer.collectors.telemetry;
 
+import static org.opensearch.performanceanalyzer.commons.stats.metrics.StatExceptionCode.RTF_THREADPOOL_METRICS_COLLECTOR_ERROR;
 import static org.opensearch.performanceanalyzer.commons.stats.metrics.StatExceptionCode.THREADPOOL_METRICS_COLLECTOR_ERROR;
-import static org.opensearch.performanceanalyzer.commons.stats.metrics.StatMetrics.THREADPOOL_METRICS_COLLECTOR_EXECUTION_TIME;
+import static org.opensearch.performanceanalyzer.commons.stats.metrics.StatMetrics.RTF_THREADPOOL_METRICS_COLLECTOR_EXECUTION_TIME;
 
 import java.security.AccessController;
 import java.security.PrivilegedAction;
@@ -60,8 +61,8 @@ public class RTFThreadPoolMetricsCollector extends PerformanceAnalyzerMetricsCol
         super(
                 SAMPLING_TIME_INTERVAL,
                 "RTFThreadPoolMetricsCollector",
-                THREADPOOL_METRICS_COLLECTOR_EXECUTION_TIME,
-                THREADPOOL_METRICS_COLLECTOR_ERROR);
+                RTF_THREADPOOL_METRICS_COLLECTOR_EXECUTION_TIME,
+                RTF_THREADPOOL_METRICS_COLLECTOR_ERROR);
         statsRecordMap = new HashMap<>();
         this.metricsInitialised = false;
         this.performanceAnalyzerController = performanceAnalyzerController;
