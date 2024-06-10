@@ -17,6 +17,8 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
 import org.apache.commons.lang3.reflect.FieldUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.opensearch.common.cache.Cache;
 import org.opensearch.indices.IndicesService;
 import org.opensearch.performanceanalyzer.OpenSearchResources;
@@ -43,6 +45,7 @@ public class CacheConfigMetricsCollector extends PerformanceAnalyzerMetricsColle
         implements MetricsProcessor {
     public static final int SAMPLING_TIME_INTERVAL =
             MetricsConfiguration.CONFIG_MAP.get(CacheConfigMetricsCollector.class).samplingInterval;
+    private static final Logger LOG = LogManager.getLogger(CacheConfigMetricsCollector.class);
     private static final int KEYS_PATH_LENGTH = 0;
     private StringBuilder value;
 
@@ -122,7 +125,7 @@ public class CacheConfigMetricsCollector extends PerformanceAnalyzerMetricsColle
                                                 SHARD_REQUEST_CACHE.toString(),
                                                 requestCacheMaxSize);
                                     } catch (Exception e) {
-                                        e.printStackTrace();
+                                        LOG.error("Error while evaluating requestCacheMaxSize", e);
                                         return null;
                                     }
                                 });
