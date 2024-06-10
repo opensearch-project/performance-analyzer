@@ -32,8 +32,8 @@ public class PerformanceAnalyzerCollectorsSettingHandler
     /**
      * Updates the Collectors mode setting across the cluster.
      *
-     * @param value The desired collector mode amongst: * 0 -> only RCA Collectors enabled (Default)
-     *     * 1 -> only Telemetry Collectors enabled * 2 -> both RCA and Telemetry Collectors enabled
+     * @param value The desired collector mode amongst: 0 - only RCA Collectors enabled (Default) *
+     *     1 - only Telemetry Collectors enabled * 2 - both RCA and Telemetry Collectors enabled
      */
     public void updateCollectorsSetting(final int value) {
         clusterSettingsManager.updateSetting(

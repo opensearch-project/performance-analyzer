@@ -40,8 +40,8 @@ public final class PerformanceAnalyzerClusterSettings {
                     Setting.Property.Dynamic);
 
     /**
-     * Cluster setting controlling the collector mode : 0 -> only RCA Collectors enabled (Default) 1
-     * -> only Telemetry Collectors enabled 2 -> both RCA and Telemetry Collectors enabled
+     * Cluster setting controlling the collector mode : 0 - only RCA Collectors enabled (Default) 1
+     * - only Telemetry Collectors enabled 2 - both RCA and Telemetry Collectors enabled
      */
     public static final Setting<Integer> PA_COLLECTORS_SETTING =
             Setting.intSetting(
