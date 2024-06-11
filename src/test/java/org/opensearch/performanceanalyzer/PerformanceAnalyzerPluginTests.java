@@ -22,6 +22,7 @@ import org.junit.Test;
 import org.opensearch.action.ActionRequest;
 import org.opensearch.action.support.ActionFilter;
 import org.opensearch.client.node.NodeClient;
+import org.opensearch.cluster.ClusterManagerMetrics;
 import org.opensearch.cluster.service.ClusterService;
 import org.opensearch.common.settings.ClusterSettings;
 import org.opensearch.common.settings.Setting;
@@ -43,6 +44,8 @@ import org.opensearch.performanceanalyzer.transport.PerformanceAnalyzerTransport
 import org.opensearch.plugins.ActionPlugin.ActionHandler;
 import org.opensearch.rest.RestController;
 import org.opensearch.rest.RestHandler;
+import org.opensearch.telemetry.metrics.MetricsRegistry;
+import org.opensearch.telemetry.metrics.NoopMetricsRegistryFactory;
 import org.opensearch.telemetry.tracing.noop.NoopTracer;
 import org.opensearch.test.OpenSearchTestCase;
 import org.opensearch.threadpool.TestThreadPool;
@@ -64,6 +67,8 @@ public class PerformanceAnalyzerPluginTests extends OpenSearchTestCase {
     private ClusterSettings clusterSettings;
     private IdentityService identityService;
 
+    private MetricsRegistry metricsRegistry;
+
     @Before
     public void setup() {
         initMocks(this);
@@ -78,7 +83,19 @@ public class PerformanceAnalyzerPluginTests extends OpenSearchTestCase {
         threadPool = new TestThreadPool("test");
         nodeClient = new NodeClient(settings, threadPool);
         environment = TestEnvironment.newEnvironment(settings);
-        clusterService = new ClusterService(settings, clusterSettings, threadPool);
+        NoopMetricsRegistryFactory metricsRegistryFactory = new NoopMetricsRegistryFactory();
+        metricsRegistry = metricsRegistryFactory.getMetricsRegistry();
+        try {
+            metricsRegistryFactory.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        clusterService =
+                new ClusterService(
+                        settings,
+                        clusterSettings,
+                        threadPool,
+                        new ClusterManagerMetrics(metricsRegistry));
         identityService = new IdentityService(Settings.EMPTY, List.of());
         restController =
                 new RestController(
@@ -144,12 +161,15 @@ public class PerformanceAnalyzerPluginTests extends OpenSearchTestCase {
                         null,
                         null,
                         null,
-                        null);
+                        null,
+                        null,
+                        metricsRegistry);
         assertEquals(1, components.size());
         assertEquals(settings, OpenSearchResources.INSTANCE.getSettings());
         assertEquals(threadPool, OpenSearchResources.INSTANCE.getThreadPool());
         assertEquals(environment, OpenSearchResources.INSTANCE.getEnvironment());
         assertEquals(nodeClient, OpenSearchResources.INSTANCE.getClient());
+        assertEquals(metricsRegistry, OpenSearchResources.INSTANCE.getMetricsRegistry());
     }
 
     @Test
@@ -172,9 +192,10 @@ public class PerformanceAnalyzerPluginTests extends OpenSearchTestCase {
     @Test
     public void testGetSettings() {
         List<Setting<?>> list = plugin.getSettings();
-        assertEquals(3, list.size());
+        assertEquals(4, list.size());
         assertEquals(PerformanceAnalyzerClusterSettings.COMPOSITE_PA_SETTING, list.get(0));
         assertEquals(PerformanceAnalyzerClusterSettings.PA_NODE_STATS_SETTING, list.get(1));
         assertEquals(PerformanceAnalyzerClusterSettings.CONFIG_OVERRIDES_SETTING, list.get(2));
+        assertEquals(PerformanceAnalyzerClusterSettings.PA_COLLECTORS_SETTING, list.get(3));
     }
 }
