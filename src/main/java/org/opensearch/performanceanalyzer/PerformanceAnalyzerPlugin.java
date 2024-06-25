@@ -55,6 +55,10 @@ import org.opensearch.performanceanalyzer.collectors.SearchBackPressureStatsColl
 import org.opensearch.performanceanalyzer.collectors.ShardIndexingPressureMetricsCollector;
 import org.opensearch.performanceanalyzer.collectors.ShardStateCollector;
 import org.opensearch.performanceanalyzer.collectors.ThreadPoolMetricsCollector;
+import org.opensearch.performanceanalyzer.collectors.telemetry.RTFDisksCollector;
+import org.opensearch.performanceanalyzer.collectors.telemetry.RTFHeapMetricsCollector;
+import org.opensearch.performanceanalyzer.collectors.telemetry.RTFNodeStatsAllShardsMetricsCollector;
+import org.opensearch.performanceanalyzer.collectors.telemetry.RTFThreadPoolMetricsCollector;
 import org.opensearch.performanceanalyzer.commons.OSMetricsGeneratorFactory;
 import org.opensearch.performanceanalyzer.commons.collectors.DisksCollector;
 import org.opensearch.performanceanalyzer.commons.collectors.GCInfoCollector;
@@ -74,6 +78,7 @@ import org.opensearch.performanceanalyzer.config.setting.PerformanceAnalyzerClus
 import org.opensearch.performanceanalyzer.config.setting.handler.ConfigOverridesClusterSettingHandler;
 import org.opensearch.performanceanalyzer.config.setting.handler.NodeStatsSettingHandler;
 import org.opensearch.performanceanalyzer.config.setting.handler.PerformanceAnalyzerClusterSettingHandler;
+import org.opensearch.performanceanalyzer.config.setting.handler.PerformanceAnalyzerCollectorsSettingHandler;
 import org.opensearch.performanceanalyzer.http_action.config.PerformanceAnalyzerClusterConfigAction;
 import org.opensearch.performanceanalyzer.http_action.config.PerformanceAnalyzerConfigAction;
 import org.opensearch.performanceanalyzer.http_action.config.PerformanceAnalyzerOverridesClusterConfigAction;
@@ -88,9 +93,11 @@ import org.opensearch.plugins.ActionPlugin;
 import org.opensearch.plugins.NetworkPlugin;
 import org.opensearch.plugins.Plugin;
 import org.opensearch.plugins.SearchPlugin;
+import org.opensearch.plugins.TelemetryAwarePlugin;
 import org.opensearch.repositories.RepositoriesService;
 import org.opensearch.rest.RestController;
 import org.opensearch.script.ScriptService;
+import org.opensearch.telemetry.metrics.MetricsRegistry;
 import org.opensearch.telemetry.tracing.Tracer;
 import org.opensearch.threadpool.ThreadPool;
 import org.opensearch.transport.Transport;
@@ -98,7 +105,7 @@ import org.opensearch.transport.TransportInterceptor;
 import org.opensearch.watcher.ResourceWatcherService;
 
 public final class PerformanceAnalyzerPlugin extends Plugin
-        implements ActionPlugin, NetworkPlugin, SearchPlugin {
+        implements ActionPlugin, NetworkPlugin, SearchPlugin, TelemetryAwarePlugin {
     private static final Logger LOG = LogManager.getLogger(PerformanceAnalyzerPlugin.class);
     public static final String PLUGIN_NAME = "opensearch-performance-analyzer";
     private static final String ADD_FAULT_DETECTION_METHOD = "addFaultDetectionListener";
@@ -108,6 +115,8 @@ public final class PerformanceAnalyzerPlugin extends Plugin
     private static SecurityManager sm = null;
     private final PerformanceAnalyzerClusterSettingHandler perfAnalyzerClusterSettingHandler;
     private final NodeStatsSettingHandler nodeStatsSettingHandler;
+    private final PerformanceAnalyzerCollectorsSettingHandler
+            performanceAnalyzerCollectorsSettingHandler;
     private final ConfigOverridesClusterSettingHandler configOverridesClusterSettingHandler;
     private final ConfigOverridesWrapper configOverridesWrapper;
     private final PerformanceAnalyzerController performanceAnalyzerController;
@@ -166,7 +175,8 @@ public final class PerformanceAnalyzerPlugin extends Plugin
                 new ClusterSettingsManager(
                         Arrays.asList(
                                 PerformanceAnalyzerClusterSettings.COMPOSITE_PA_SETTING,
-                                PerformanceAnalyzerClusterSettings.PA_NODE_STATS_SETTING),
+                                PerformanceAnalyzerClusterSettings.PA_NODE_STATS_SETTING,
+                                PerformanceAnalyzerClusterSettings.PA_COLLECTORS_SETTING),
                         Collections.singletonList(
                                 PerformanceAnalyzerClusterSettings.CONFIG_OVERRIDES_SETTING));
         configOverridesClusterSettingHandler =
@@ -189,27 +199,62 @@ public final class PerformanceAnalyzerPlugin extends Plugin
         clusterSettingsManager.addSubscriberForIntSetting(
                 PerformanceAnalyzerClusterSettings.PA_NODE_STATS_SETTING, nodeStatsSettingHandler);
 
+        performanceAnalyzerCollectorsSettingHandler =
+                new PerformanceAnalyzerCollectorsSettingHandler(
+                        performanceAnalyzerController, clusterSettingsManager);
+        clusterSettingsManager.addSubscriberForIntSetting(
+                PerformanceAnalyzerClusterSettings.PA_COLLECTORS_SETTING,
+                performanceAnalyzerCollectorsSettingHandler);
+
+        scheduleTelemetryCollectors();
+        scheduleRcaCollectors();
+
+        scheduledMetricCollectorsExecutor.start();
+
+        EventLog eventLog = new EventLog();
+        EventLogFileHandler eventLogFileHandler =
+                new EventLogFileHandler(eventLog, PluginSettings.instance().getMetricsLocation());
+        new EventLogQueueProcessor(
+                        eventLogFileHandler,
+                        MetricsConfiguration.SAMPLING_INTERVAL,
+                        QUEUE_PURGE_INTERVAL_MS,
+                        performanceAnalyzerController)
+                .scheduleExecutor();
+    }
+
+    private void scheduleTelemetryCollectors() {
+        scheduledMetricCollectorsExecutor.addScheduledMetricCollector(
+                new RTFDisksCollector(performanceAnalyzerController, configOverridesWrapper));
+        scheduledMetricCollectorsExecutor.addScheduledMetricCollector(
+                new RTFHeapMetricsCollector(performanceAnalyzerController, configOverridesWrapper));
+        scheduledMetricCollectorsExecutor.addScheduledMetricCollector(
+                new RTFThreadPoolMetricsCollector(
+                        performanceAnalyzerController, configOverridesWrapper));
+        scheduledMetricCollectorsExecutor.addScheduledMetricCollector(
+                new RTFNodeStatsAllShardsMetricsCollector(
+                        performanceAnalyzerController, configOverridesWrapper));
+    }
+
+    private void scheduleRcaCollectors() {
         scheduledMetricCollectorsExecutor.addScheduledMetricCollector(
                 new ThreadPoolMetricsCollector());
+        scheduledMetricCollectorsExecutor.addScheduledMetricCollector(new HeapMetricsCollector());
+        scheduledMetricCollectorsExecutor.addScheduledMetricCollector(
+                new NodeStatsAllShardsMetricsCollector(performanceAnalyzerController));
+        scheduledMetricCollectorsExecutor.addScheduledMetricCollector(new DisksCollector());
         scheduledMetricCollectorsExecutor.addScheduledMetricCollector(
                 new CacheConfigMetricsCollector());
         scheduledMetricCollectorsExecutor.addScheduledMetricCollector(
                 new CircuitBreakerCollector());
         scheduledMetricCollectorsExecutor.addScheduledMetricCollector(new OSMetricsCollector());
-        scheduledMetricCollectorsExecutor.addScheduledMetricCollector(new HeapMetricsCollector());
-
         scheduledMetricCollectorsExecutor.addScheduledMetricCollector(
                 new NodeDetailsCollector(configOverridesWrapper));
-        scheduledMetricCollectorsExecutor.addScheduledMetricCollector(
-                new NodeStatsAllShardsMetricsCollector(performanceAnalyzerController));
         scheduledMetricCollectorsExecutor.addScheduledMetricCollector(
                 new ClusterManagerServiceMetrics());
         scheduledMetricCollectorsExecutor.addScheduledMetricCollector(
                 new ClusterManagerServiceEventMetrics());
-        scheduledMetricCollectorsExecutor.addScheduledMetricCollector(new DisksCollector());
         scheduledMetricCollectorsExecutor.addScheduledMetricCollector(
                 new NetworkInterfaceCollector());
-        scheduledMetricCollectorsExecutor.addScheduledMetricCollector(new GCInfoCollector());
         scheduledMetricCollectorsExecutor.addScheduledMetricCollector(StatsCollector.instance());
         scheduledMetricCollectorsExecutor.addScheduledMetricCollector(
                 new FaultDetectionMetricsCollector(
@@ -222,11 +267,11 @@ public final class PerformanceAnalyzerPlugin extends Plugin
         scheduledMetricCollectorsExecutor.addScheduledMetricCollector(
                 new SearchBackPressureStatsCollector(
                         performanceAnalyzerController, configOverridesWrapper));
-
         scheduledMetricCollectorsExecutor.addScheduledMetricCollector(
                 new AdmissionControlMetricsCollector());
         scheduledMetricCollectorsExecutor.addScheduledMetricCollector(
                 new ElectionTermCollector(performanceAnalyzerController, configOverridesWrapper));
+        scheduledMetricCollectorsExecutor.addScheduledMetricCollector(new GCInfoCollector());
         try {
             Class.forName(ShardIndexingPressureMetricsCollector.SHARD_INDEXING_PRESSURE_CLASS_NAME);
             scheduledMetricCollectorsExecutor.addScheduledMetricCollector(
@@ -236,17 +281,6 @@ public final class PerformanceAnalyzerPlugin extends Plugin
             LOG.info(
                     "Shard IndexingPressure not present in this OpenSearch version. Skipping ShardIndexingPressureMetricsCollector");
         }
-        scheduledMetricCollectorsExecutor.start();
-
-        EventLog eventLog = new EventLog();
-        EventLogFileHandler eventLogFileHandler =
-                new EventLogFileHandler(eventLog, PluginSettings.instance().getMetricsLocation());
-        new EventLogQueueProcessor(
-                        eventLogFileHandler,
-                        MetricsConfiguration.SAMPLING_INTERVAL,
-                        QUEUE_PURGE_INTERVAL_MS,
-                        performanceAnalyzerController)
-                .scheduleExecutor();
     }
 
     // - http level: bulk, search
@@ -319,7 +353,8 @@ public final class PerformanceAnalyzerPlugin extends Plugin
                         settings,
                         restController,
                         perfAnalyzerClusterSettingHandler,
-                        nodeStatsSettingHandler);
+                        nodeStatsSettingHandler,
+                        performanceAnalyzerCollectorsSettingHandler);
         PerformanceAnalyzerOverridesClusterConfigAction paOverridesConfigClusterAction =
                 new PerformanceAnalyzerOverridesClusterConfigAction(
                         settings,
@@ -346,12 +381,14 @@ public final class PerformanceAnalyzerPlugin extends Plugin
             NodeEnvironment nodeEnvironment,
             NamedWriteableRegistry namedWriteableRegistry,
             IndexNameExpressionResolver indexNameExpressionResolver,
-            Supplier<RepositoriesService> repositoriesServiceSupplier) {
+            Supplier<RepositoriesService> repositoriesServiceSupplier,
+            Tracer tracer,
+            MetricsRegistry metricsRegistry) {
         OpenSearchResources.INSTANCE.setClusterService(clusterService);
         OpenSearchResources.INSTANCE.setThreadPool(threadPool);
         OpenSearchResources.INSTANCE.setEnvironment(environment);
         OpenSearchResources.INSTANCE.setClient(client);
-
+        OpenSearchResources.INSTANCE.setMetricsRegistry(metricsRegistry);
         // ClusterSettingsManager needs ClusterService to have been created before we can
         // initialize it. This is the earliest point at which we know ClusterService is created.
         // So, call the initialize method here.
@@ -379,6 +416,7 @@ public final class PerformanceAnalyzerPlugin extends Plugin
         return Arrays.asList(
                 PerformanceAnalyzerClusterSettings.COMPOSITE_PA_SETTING,
                 PerformanceAnalyzerClusterSettings.PA_NODE_STATS_SETTING,
-                PerformanceAnalyzerClusterSettings.CONFIG_OVERRIDES_SETTING);
+                PerformanceAnalyzerClusterSettings.CONFIG_OVERRIDES_SETTING,
+                PerformanceAnalyzerClusterSettings.PA_COLLECTORS_SETTING);
     }
 }

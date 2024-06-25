@@ -5,10 +5,9 @@
 
 package org.opensearch.performanceanalyzer.collectors;
 
-
 import org.opensearch.action.admin.indices.stats.ShardStats;
 
 @FunctionalInterface
-interface ValueCalculator {
+public interface ValueCalculator {
     long calculateValue(ShardStats shardStats);
 }

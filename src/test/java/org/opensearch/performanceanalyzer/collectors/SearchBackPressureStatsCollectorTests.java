@@ -37,28 +37,28 @@ public class SearchBackPressureStatsCollectorTests {
     // Required fields needed for search back pressure stats
     private List<String> required_fields_for_searchBackPressureStats =
             Arrays.asList(
-                    "searchbp_shard_stats_cancellationCount",
-                    "searchbp_shard_stats_limitReachedCount",
-                    "searchbp_shard_stats_resource_heap_usage_cancellationCount",
-                    "searchbp_shard_stats_resource_heap_usage_currentMax",
-                    "searchbp_shard_stats_resource_heap_usage_rollingAvg",
-                    "searchbp_shard_stats_resource_cpu_usage_cancellationCount",
-                    "searchbp_shard_stats_resource_cpu_usage_currentMax",
-                    "searchbp_shard_stats_resource_cpu_usage_currentAvg",
-                    "searchbp_shard_stats_resource_elaspedtime_usage_cancellationCount",
-                    "searchbp_shard_stats_resource_elaspedtime_usage_currentMax",
-                    "searchbp_shard_stats_resource_elaspedtime_usage_currentAvg",
-                    "searchbp_task_stats_cancellationCount",
-                    "searchbp_task_stats_limitReachedCount",
-                    "searchbp_task_stats_resource_heap_usage_cancellationCount",
-                    "searchbp_task_stats_resource_heap_usage_currentMax",
-                    "searchbp_task_stats_resource_heap_usage_rollingAvg",
-                    "searchbp_task_stats_resource_cpu_usage_cancellationCount",
-                    "searchbp_task_stats_resource_cpu_usage_currentMax",
-                    "searchbp_task_stats_resource_cpu_usage_currentAvg",
-                    "searchbp_task_stats_resource_elaspedtime_usage_cancellationCount",
-                    "searchbp_task_stats_resource_elaspedtime_usage_currentMax",
-                    "searchbp_task_stats_resource_elaspedtime_usage_currentAvg",
+                    "searchbp_shard_task_stats_cancellationCount",
+                    "searchbp_shard_task_stats_limitReachedCount",
+                    "searchbp_shard_task_stats_resource_heap_usage_cancellationCount",
+                    "searchbp_shard_task_stats_resource_heap_usage_currentMax",
+                    "searchbp_shard_task_stats_resource_heap_usage_rollingAvg",
+                    "searchbp_shard_task_stats_resource_cpu_usage_cancellationCount",
+                    "searchbp_shard_task_stats_resource_cpu_usage_currentMax",
+                    "searchbp_shard_task_stats_resource_cpu_usage_currentAvg",
+                    "searchbp_shard_task_stats_resource_elaspedtime_usage_cancellationCount",
+                    "searchbp_shard_task_stats_resource_elaspedtime_usage_currentMax",
+                    "searchbp_shard_task_stats_resource_elaspedtime_usage_currentAvg",
+                    "searchbp_search_task_stats_cancellationCount",
+                    "searchbp_search_task_stats_limitReachedCount",
+                    "searchbp_search_task_stats_resource_heap_usage_cancellationCount",
+                    "searchbp_search_task_stats_resource_heap_usage_currentMax",
+                    "searchbp_search_task_stats_resource_heap_usage_rollingAvg",
+                    "searchbp_search_task_stats_resource_cpu_usage_cancellationCount",
+                    "searchbp_search_task_stats_resource_cpu_usage_currentMax",
+                    "searchbp_search_task_stats_resource_cpu_usage_currentAvg",
+                    "searchbp_search_task_stats_resource_elaspedtime_usage_cancellationCount",
+                    "searchbp_search_task_stats_resource_elaspedtime_usage_currentMax",
+                    "searchbp_search_task_stats_resource_elaspedtime_usage_currentAvg",
                     "searchbp_mode",
                     "searchbp_nodeid");
 
@@ -129,8 +129,12 @@ public class SearchBackPressureStatsCollectorTests {
      */
     @Test
     public void testSearchBackPressureStats_collectMetrics()
-            throws NoSuchMethodException, IllegalAccessException, InvocationTargetException,
-                    JsonProcessingException, NoSuchFieldException, ClassNotFoundException {
+            throws NoSuchMethodException,
+                    IllegalAccessException,
+                    InvocationTargetException,
+                    JsonProcessingException,
+                    NoSuchFieldException,
+                    ClassNotFoundException {
         String SEARCH_BACK_PRESSURE_MODE_FIELD_NAME = "searchbp_mode";
         SearchBackPressureStatsCollector spyCollector =
                 Mockito.spy(searchBackPressureStatsCollector);
@@ -145,10 +149,10 @@ public class SearchBackPressureStatsCollectorTests {
         Mockito.doReturn(
                         new SearchBackPressureStatsCollector.SearchBackPressureStats(
                                 new SearchBackPressureStatsCollector.SearchShardTaskStats(
-                                        0, 0, resource_usage_mock_stats),
+                                        0, 0, 0, resource_usage_mock_stats),
                                 "MONITOR_ONLY",
                                 new SearchBackPressureStatsCollector.SearchTaskStats(
-                                        0, 0, resource_usage_mock_stats)))
+                                        0, 0, 0, resource_usage_mock_stats)))
                 .when(spyCollector)
                 .getSearchBackPressureStats();
 

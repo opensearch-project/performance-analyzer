@@ -10,13 +10,13 @@ buildscript {
         isSnapshot = "true" == System.getProperty("build.snapshot", "true")
         buildVersionQualifier = System.getProperty("build.version_qualifier", "")
 
-        default_bwc_version = System.getProperty("bwc.version", "2.10.0.0")
+        default_bwc_version = System.getProperty("bwc.version", "2.12.0.0")
         pa_bwc_version = System.getProperty("tests.bwc.version", default_bwc_version)
         baseName = "paBwcCluster"
 
         // The PA Commons (https://github.com/opensearch-project/performance-analyzer-commons)
         // is a library dependency with hardcoded versioning in PA and RCA repos.
-        paCommonsVersion = "1.3.0"
+        paCommonsVersion = "1.4.0"
 
         // 3.0.0-SNAPSHOT -> 3.0.0.0-SNAPSHOT
         version_tokens = opensearch_version.tokenize('-')
@@ -47,10 +47,10 @@ buildscript {
 
 plugins {
     id 'java'
-    id 'nebula.ospackage' version "8.3.0"
-    id 'com.github.spotbugs' version '5.0.13'
+    id 'com.netflix.nebula.ospackage' version "11.6.0"
+    id 'com.github.spotbugs' version '6.0.7'
     id 'jacoco'
-    id 'com.diffplug.spotless' version '5.11.0'
+    id 'com.diffplug.spotless' version '6.25.0'
     id 'checkstyle'
     id 'org.ajoberstar.grgit' version '5.0.0'
     id 'org.gradle.test-retry' version '1.5.2'
@@ -64,7 +64,7 @@ checkstyle {
 
 spotbugsMain {
     excludeFilter = file("checkstyle/findbugs-exclude.xml")
-    effort = 'max'
+    effort = com.github.spotbugs.snom.Effort.MAX
     ignoreFailures = true
 
     reports {
@@ -104,7 +104,7 @@ noticeFile = rootProject.file('NOTICE.txt')
 spotless {
     java {
         licenseHeaderFile(file('license-header'))
-        googleJavaFormat('1.12.0').aosp()
+        googleJavaFormat('1.17.0').aosp()
         importOrder()
         removeUnusedImports()
         trimTrailingWhitespace()
@@ -212,14 +212,14 @@ tasks.withType(JavaCompile) {
 }
 
 jacoco {
-    toolVersion = "0.8.7"
+    toolVersion = "0.8.11"
 }
 
 jacocoTestReport {
     reports {
-        xml.enabled true
-        html.enabled true
-        csv.enabled false
+        xml.required = true
+        html.required = true
+        csv.required = false
     }
     afterEvaluate {
         classDirectories.from = files(classDirectories.files.collect {
@@ -295,13 +295,14 @@ dependencies {
             force "org.apache.commons:commons-lang3:${versions.commonslang}"
             force "org.slf4j:slf4j-api:2.0.0"
             force "org.apache.bcel:bcel:6.6.0" // This line should be removed once Spotbugs is upgraded to 4.7.4
+            force "com.google.guava:guava:${guavaVersion}"
         }
     }
 
     implementation 'org.jooq:jooq:3.10.8'
     implementation 'org.apache.commons:commons-lang3:3.9'
     implementation 'org.bouncycastle:bcprov-jdk15to18:1.74'
-    implementation 'org.bouncycastle:bcpkix-jdk15on:1.70'
+    implementation 'org.bouncycastle:bcpkix-jdk18on:1.74'
     implementation "org.opensearch:performance-analyzer-commons:${paCommonsVersion}"
     implementation "com.fasterxml.jackson.core:jackson-annotations:${jacksonVersion}"
     implementation "com.fasterxml.jackson.core:jackson-databind:${jacksonDataBindVersion}"
@@ -668,7 +669,7 @@ task integTestRemote(type: RestIntegTestTask) {
     testClusters {
         "${baseName}$i" {
             testDistribution = "ARCHIVE"
-            versions = ["2.10.0-SNAPSHOT", opensearch_version]
+            versions = ["2.12.0-SNAPSHOT", opensearch_version]
             numberOfNodes = 3
             plugin(provider(new Callable<RegularFile>() {
                 @Override
@@ -872,10 +873,9 @@ afterEvaluate {
         task renameRpm(type: Copy) {
             from("$buildDir/distributions")
             into("$buildDir/distributions")
-            include archiveName
-            rename archiveName, "${packageName}-${version}.rpm"
+            rename "$archiveFileName", "${packageName}-${version}.rpm"
             doLast {
-                delete file("$buildDir/distributions/$archiveName")
+                delete file("$buildDir/distributions/$archiveFileName")
             }
         }
     }
@@ -889,10 +889,9 @@ afterEvaluate {
         task renameDeb(type: Copy) {
             from("$buildDir/distributions")
             into("$buildDir/distributions")
-            include archiveName
-            rename archiveName, "${packageName}-${version}.deb"
+            rename "$archiveFileName", "${packageName}-${version}.deb"
             doLast {
-                delete file("$buildDir/distributions/$archiveName")
+                delete file("$buildDir/distributions/$archiveFileName")
             }
         }
     }

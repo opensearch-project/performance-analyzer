@@ -5,7 +5,6 @@
 
 package org.opensearch.performanceanalyzer.listener;
 
-
 import org.opensearch.search.internal.SearchContext;
 
 interface SearchListener {

@@ -5,7 +5,6 @@
 
 package org.opensearch.performanceanalyzer.config.setting.handler;
 
-
 import com.google.common.collect.ImmutableList;
 import java.io.IOException;
 import java.util.ArrayList;
