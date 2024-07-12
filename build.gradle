@@ -235,8 +235,8 @@ dependencies {
     }
     compile 'org.jooq:jooq:3.10.8'
     compile 'org.apache.commons:commons-lang3:3.9'
-    compile 'org.bouncycastle:bcprov-jdk15to18:1.74'
-    compile 'org.bouncycastle:bcpkix-jdk15to18:1.74'
+    compile 'org.bouncycastle:bcprov-jdk15to18:1.78.1'
+    compile 'org.bouncycastle:bcpkix-jdk15to18:1.78.1'
     compile "org.opensearch:performanceanalyzer-rca:${version}"
     compile "com.fasterxml.jackson.core:jackson-annotations:${jacksonVersion}"
     compile "com.fasterxml.jackson.core:jackson-databind:${jacksonDataBindVersion}"
