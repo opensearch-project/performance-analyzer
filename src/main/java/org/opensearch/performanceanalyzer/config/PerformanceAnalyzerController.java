@@ -383,4 +383,13 @@ public class PerformanceAnalyzerController {
 
         return disabledCollectorsList.contains(collectorName);
     }
+
+    /**
+     * Collectors Setting value.
+     *
+     * @return collectorsSettingValue
+     */
+    public int getCollectorsSettingValue() {
+        return collectorsSettingValue;
+    }
 }

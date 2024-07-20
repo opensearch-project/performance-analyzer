@@ -19,17 +19,19 @@ import org.opensearch.action.bulk.BulkItemRequest;
 import org.opensearch.action.bulk.BulkShardRequest;
 import org.opensearch.action.support.replication.TransportReplicationAction.ConcreteShardRequest;
 import org.opensearch.core.index.shard.ShardId;
+import org.opensearch.performanceanalyzer.OpenSearchResources;
 import org.opensearch.performanceanalyzer.commons.util.Util;
 import org.opensearch.performanceanalyzer.config.PerformanceAnalyzerController;
 import org.opensearch.performanceanalyzer.util.Utils;
 import org.opensearch.tasks.Task;
+import org.opensearch.telemetry.metrics.MetricsRegistry;
 import org.opensearch.transport.TransportChannel;
 import org.opensearch.transport.TransportRequest;
 import org.opensearch.transport.TransportRequestHandler;
 
 @SuppressWarnings("unchecked")
-public class PerformanceAnalyzerTransportRequestHandlerTests {
-    private PerformanceAnalyzerTransportRequestHandler handler;
+public class RTFPerformanceAnalyzerTransportRequestHandlerTests {
+    private RTFPerformanceAnalyzerTransportRequestHandler handler;
     private ConcreteShardRequest concreteShardRequest;
 
     @Mock private TransportRequestHandler transportRequestHandler;
@@ -39,6 +41,7 @@ public class PerformanceAnalyzerTransportRequestHandlerTests {
     @Mock private BulkShardRequest bulkShardRequest;
     @Mock private Task task;
     @Mock private ShardId shardId;
+    @Mock private MetricsRegistry metricsRegistry;
 
     @Before
     public void init() {
@@ -48,8 +51,8 @@ public class PerformanceAnalyzerTransportRequestHandlerTests {
         Utils.configureMetrics();
         initMocks(this);
         handler =
-                new PerformanceAnalyzerTransportRequestHandler(transportRequestHandler, controller);
-        handler.set(transportRequestHandler);
+                new RTFPerformanceAnalyzerTransportRequestHandler(
+                        transportRequestHandler, controller);
         Mockito.when(controller.isPerformanceAnalyzerEnabled()).thenReturn(true);
     }
 
@@ -61,19 +64,23 @@ public class PerformanceAnalyzerTransportRequestHandlerTests {
 
     @Test
     public void testGetChannel() {
+        OpenSearchResources.INSTANCE.setMetricsRegistry(metricsRegistry);
+        Mockito.when(controller.getCollectorsSettingValue())
+                .thenReturn(Util.CollectorMode.TELEMETRY.getValue());
         concreteShardRequest = new ConcreteShardRequest(bulkShardRequest, "id", 1);
         handler.getChannel(concreteShardRequest, channel, task);
 
         Mockito.when(bulkShardRequest.shardId()).thenReturn(shardId);
         Mockito.when(bulkShardRequest.items()).thenReturn(new BulkItemRequest[1]);
         TransportChannel actualChannel = handler.getChannel(concreteShardRequest, channel, task);
-        assertTrue(actualChannel instanceof PerformanceAnalyzerTransportChannel);
+        assertTrue(actualChannel instanceof RTFPerformanceAnalyzerTransportChannel);
     }
 
     @Test
-    public void testGetChannelIfRCAModeIsDisabled() {
+    public void testGetChannelTelemetryIsDisabled() {
+        OpenSearchResources.INSTANCE.setMetricsRegistry(metricsRegistry);
         Mockito.when(controller.getCollectorsSettingValue())
-                .thenReturn(Util.CollectorMode.TELEMETRY.getValue());
+                .thenReturn(Util.CollectorMode.RCA.getValue());
         concreteShardRequest = new ConcreteShardRequest(bulkShardRequest, "id", 1);
         handler.getChannel(concreteShardRequest, channel, task);
 
@@ -84,7 +91,8 @@ public class PerformanceAnalyzerTransportRequestHandlerTests {
     }
 
     @Test
-    public void testGetChannelIfDualModeIsEnabled() {
+    public void testGetChannelDualMode() {
+        OpenSearchResources.INSTANCE.setMetricsRegistry(metricsRegistry);
         Mockito.when(controller.getCollectorsSettingValue())
                 .thenReturn(Util.CollectorMode.DUAL.getValue());
         concreteShardRequest = new ConcreteShardRequest(bulkShardRequest, "id", 1);
@@ -93,6 +101,20 @@ public class PerformanceAnalyzerTransportRequestHandlerTests {
         Mockito.when(bulkShardRequest.shardId()).thenReturn(shardId);
         Mockito.when(bulkShardRequest.items()).thenReturn(new BulkItemRequest[1]);
         TransportChannel actualChannel = handler.getChannel(concreteShardRequest, channel, task);
-        assertTrue(actualChannel instanceof PerformanceAnalyzerTransportChannel);
+        assertTrue(actualChannel instanceof RTFPerformanceAnalyzerTransportChannel);
+    }
+
+    @Test
+    public void testGetChannelMetricRegistryIsNull() {
+        OpenSearchResources.INSTANCE.setMetricsRegistry(null);
+        Mockito.when(controller.getCollectorsSettingValue())
+                .thenReturn(Util.CollectorMode.RCA.getValue());
+        concreteShardRequest = new ConcreteShardRequest(bulkShardRequest, "id", 1);
+        handler.getChannel(concreteShardRequest, channel, task);
+
+        Mockito.when(bulkShardRequest.shardId()).thenReturn(shardId);
+        Mockito.when(bulkShardRequest.items()).thenReturn(new BulkItemRequest[1]);
+        TransportChannel actualChannel = handler.getChannel(concreteShardRequest, channel, task);
+        assertEquals(channel, actualChannel);
     }
 }

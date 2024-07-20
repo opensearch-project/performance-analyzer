@@ -86,7 +86,9 @@ import org.opensearch.performanceanalyzer.http_action.config.PerformanceAnalyzer
 import org.opensearch.performanceanalyzer.http_action.whoami.TransportWhoAmIAction;
 import org.opensearch.performanceanalyzer.http_action.whoami.WhoAmIAction;
 import org.opensearch.performanceanalyzer.listener.PerformanceAnalyzerSearchListener;
+import org.opensearch.performanceanalyzer.listener.RTFPerformanceAnalyzerSearchListener;
 import org.opensearch.performanceanalyzer.transport.PerformanceAnalyzerTransportInterceptor;
+import org.opensearch.performanceanalyzer.transport.RTFPerformanceAnalyzerTransportInterceptor;
 import org.opensearch.performanceanalyzer.util.Utils;
 import org.opensearch.performanceanalyzer.writer.EventLogQueueProcessor;
 import org.opensearch.plugins.ActionPlugin;
@@ -302,7 +304,10 @@ public final class PerformanceAnalyzerPlugin extends Plugin
     public void onIndexModule(IndexModule indexModule) {
         PerformanceAnalyzerSearchListener performanceanalyzerSearchListener =
                 new PerformanceAnalyzerSearchListener(performanceAnalyzerController);
+        RTFPerformanceAnalyzerSearchListener rtfPerformanceAnalyzerSearchListener =
+                new RTFPerformanceAnalyzerSearchListener(performanceAnalyzerController);
         indexModule.addSearchOperationListener(performanceanalyzerSearchListener);
+        indexModule.addSearchOperationListener(rtfPerformanceAnalyzerSearchListener);
     }
 
     // follower check, leader check
@@ -330,8 +335,9 @@ public final class PerformanceAnalyzerPlugin extends Plugin
     @Override
     public List<TransportInterceptor> getTransportInterceptors(
             NamedWriteableRegistry namedWriteableRegistry, ThreadContext threadContext) {
-        return singletonList(
-                new PerformanceAnalyzerTransportInterceptor(performanceAnalyzerController));
+        return Arrays.asList(
+                new PerformanceAnalyzerTransportInterceptor(performanceAnalyzerController),
+                new RTFPerformanceAnalyzerTransportInterceptor(performanceAnalyzerController));
     }
 
     @Override

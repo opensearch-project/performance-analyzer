@@ -22,7 +22,6 @@ import org.junit.Test;
 import org.opensearch.action.ActionRequest;
 import org.opensearch.action.support.ActionFilter;
 import org.opensearch.client.node.NodeClient;
-import org.opensearch.cluster.ClusterManagerMetrics;
 import org.opensearch.cluster.service.ClusterService;
 import org.opensearch.common.settings.ClusterSettings;
 import org.opensearch.common.settings.Setting;
@@ -90,12 +89,7 @@ public class PerformanceAnalyzerPluginTests extends OpenSearchTestCase {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        clusterService =
-                new ClusterService(
-                        settings,
-                        clusterSettings,
-                        threadPool,
-                        new ClusterManagerMetrics(metricsRegistry));
+        clusterService = new ClusterService(settings, clusterSettings, threadPool);
         identityService = new IdentityService(Settings.EMPTY, List.of());
         restController =
                 new RestController(
@@ -131,7 +125,7 @@ public class PerformanceAnalyzerPluginTests extends OpenSearchTestCase {
     @Test
     public void testGetTransportInterceptors() {
         List<TransportInterceptor> list = plugin.getTransportInterceptors(null, null);
-        assertEquals(1, list.size());
+        assertEquals(2, list.size());
         assertEquals(PerformanceAnalyzerTransportInterceptor.class, list.get(0).getClass());
     }
 
