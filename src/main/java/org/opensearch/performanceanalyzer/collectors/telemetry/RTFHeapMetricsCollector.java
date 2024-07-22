@@ -23,6 +23,7 @@ import org.opensearch.performanceanalyzer.commons.stats.metrics.StatMetrics;
 import org.opensearch.performanceanalyzer.config.PerformanceAnalyzerController;
 import org.opensearch.telemetry.metrics.Histogram;
 import org.opensearch.telemetry.metrics.MetricsRegistry;
+import org.opensearch.telemetry.metrics.TaggedMeasurement;
 import org.opensearch.telemetry.metrics.tags.Tags;
 
 public class RTFHeapMetricsCollector extends PerformanceAnalyzerMetricsCollector
@@ -36,6 +37,8 @@ public class RTFHeapMetricsCollector extends PerformanceAnalyzerMetricsCollector
     private MetricsRegistry metricsRegistry;
     private final String memTypeAttributeKey = "mem_type";
     private boolean metricsInitialised;
+    private static volatile Tags heapMaxTag = Tags.EMPTY;
+    private static volatile Long heapMaxValue = 0L;
     private PerformanceAnalyzerController performanceAnalyzerController;
     private ConfigOverridesWrapper configOverridesWrapper;
 
@@ -91,6 +94,13 @@ public class RTFHeapMetricsCollector extends PerformanceAnalyzerMetricsCollector
                             RTFMetrics.HeapValue.Constants.USED_VALUE,
                             "GC Heap Used PA Metrics",
                             RTFMetrics.MetricUnits.BYTE.toString());
+
+            metricsRegistry.createGauge(
+                    RTFMetrics.HeapValue.Constants.MAX_VALUE,
+                    "Heap Max PA metrics",
+                    RTFMetrics.MetricUnits.BYTE.toString(),
+                    () -> TaggedMeasurement.create(heapMaxValue, heapMaxTag));
+
             metricsInitialised = true;
         }
     }
@@ -119,12 +129,8 @@ public class RTFHeapMetricsCollector extends PerformanceAnalyzerMetricsCollector
             heapUsedMetrics.record(
                     memoryUsage.getUsed(),
                     Tags.create().addTag(memTypeAttributeKey, entry.getKey()));
-            metricsRegistry.createGauge(
-                    RTFMetrics.HeapValue.Constants.MAX_VALUE,
-                    "Heap Max PA metrics",
-                    "",
-                    () -> (double) memoryUsage.getMax(),
-                    Tags.create().addTag(memTypeAttributeKey, entry.getKey()));
+            heapMaxTag = Tags.create().addTag(memTypeAttributeKey, entry.getKey());
+            heapMaxValue = memoryUsage.getUsed();
         }
     }
 }

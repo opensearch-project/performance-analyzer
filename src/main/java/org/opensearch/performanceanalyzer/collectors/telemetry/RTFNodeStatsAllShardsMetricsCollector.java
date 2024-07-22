@@ -139,18 +139,11 @@ public class RTFNodeStatsAllShardsMetricsCollector extends PerformanceAnalyzerMe
         for (Map.Entry currentShard : currentPerShardStats.entrySet()) {
             ShardId shardId = (ShardId) currentShard.getKey();
             ShardStats currentShardStats = (ShardStats) currentShard.getValue();
-            String indexUuid = null;
-            if (shardId.getIndex() != null) {
-                indexUuid = shardId.getIndex().getUUID();
-            }
-
             if (prevPerShardStats.size() == 0) {
                 // Populating value for the first run.
                 recordMetrics(
                         new NodeStatsMetricsAllShardsPerCollectionStatus(currentShardStats),
-                        shardId.getIndexName(),
-                        indexUuid,
-                        String.valueOf(shardId.id()));
+                        shardId);
                 continue;
             }
             ShardStats prevShardStats = prevPerShardStats.get(shardId);
@@ -159,17 +152,14 @@ public class RTFNodeStatsAllShardsMetricsCollector extends PerformanceAnalyzerMe
                 // run.
                 recordMetrics(
                         new NodeStatsMetricsAllShardsPerCollectionStatus(currentShardStats),
-                        shardId.getIndexName(),
-                        indexUuid,
-                        String.valueOf(shardId.id()));
+                        shardId);
                 continue;
             }
             NodeStatsMetricsAllShardsPerCollectionStatus prevValue =
                     new NodeStatsMetricsAllShardsPerCollectionStatus(prevShardStats);
             NodeStatsMetricsAllShardsPerCollectionStatus currValue =
                     new NodeStatsMetricsAllShardsPerCollectionStatus(currentShardStats);
-            populateDiffMetricValue(
-                    prevValue, currValue, shardId.getIndexName(), indexUuid, shardId.id());
+            populateDiffMetricValue(prevValue, currValue, shardId);
         }
     }
 
@@ -251,17 +241,19 @@ public class RTFNodeStatsAllShardsMetricsCollector extends PerformanceAnalyzerMe
     }
 
     private void recordMetrics(
-            NodeStatsMetricsAllShardsPerCollectionStatus metrics,
-            String indexName,
-            String indexUuid,
-            String shardId) {
+            NodeStatsMetricsAllShardsPerCollectionStatus metrics, ShardId shardId) {
         Tags nodeStatsMetricsTag =
                 Tags.create()
-                        .addTag(RTFMetrics.CommonDimension.INDEX_NAME.toString(), indexName)
-                        .addTag(RTFMetrics.CommonDimension.SHARD_ID.toString(), shardId);
+                        .addTag(
+                                RTFMetrics.CommonDimension.INDEX_NAME.toString(),
+                                shardId.getIndexName())
+                        .addTag(
+                                RTFMetrics.CommonDimension.SHARD_ID.toString(),
+                                String.valueOf(shardId.getId()));
 
-        if (indexUuid != null) {
-            nodeStatsMetricsTag.addTag(RTFMetrics.CommonDimension.INDEX_UUID.toString(), indexUuid);
+        if (shardId.getIndex() != null) {
+            nodeStatsMetricsTag.addTag(
+                    RTFMetrics.CommonDimension.INDEX_UUID.toString(), shardId.getIndex().getUUID());
         }
 
         cacheQueryMissMetrics.add(metrics.getQueryCacheMissCount(), nodeStatsMetricsTag);
@@ -280,9 +272,7 @@ public class RTFNodeStatsAllShardsMetricsCollector extends PerformanceAnalyzerMe
     public void populateDiffMetricValue(
             NodeStatsMetricsAllShardsPerCollectionStatus prevValue,
             NodeStatsMetricsAllShardsPerCollectionStatus currValue,
-            String indexName,
-            String indexUuid,
-            int shardId) {
+            ShardId shardId) {
 
         NodeStatsMetricsAllShardsPerCollectionStatus metrics =
                 new NodeStatsMetricsAllShardsPerCollectionStatus(
@@ -303,7 +293,7 @@ public class RTFNodeStatsAllShardsMetricsCollector extends PerformanceAnalyzerMe
                                 0),
                         currValue.requestCacheInBytes);
 
-        recordMetrics(metrics, indexName, indexUuid, String.valueOf(shardId));
+        recordMetrics(metrics, shardId);
     }
 
     public static class NodeStatsMetricsAllShardsPerCollectionStatus extends MetricStatus {

@@ -120,11 +120,11 @@ public class RTFNodeStatsAllShardsMetricsCollectorTests extends OpenSearchSingle
         createIndex(TEST_INDEX);
         rtfNodeStatsAllShardsMetricsCollector.collectMetrics(startTimeInMills);
         verify(rtfNodeStatsAllShardsMetricsCollector, never())
-                .populateDiffMetricValue(any(), any(), anyString(), anyString(), anyInt());
+                .populateDiffMetricValue(any(), any(), any());
         startTimeInMills += 500;
         rtfNodeStatsAllShardsMetricsCollector.collectMetrics(startTimeInMills);
         verify(rtfNodeStatsAllShardsMetricsCollector, times(1))
-                .populateDiffMetricValue(any(), any(), anyString(), anyString(), anyInt());
+                .populateDiffMetricValue(any(), any(), any());
         verify(cacheFieldDataEvictionCounter, atLeastOnce()).add(anyDouble(), any());
         verify(cacheFieldDataSizeCounter, atLeastOnce()).add(anyDouble(), any());
         verify(cacheQueryMissCounter, atLeastOnce()).add(anyDouble(), any());
