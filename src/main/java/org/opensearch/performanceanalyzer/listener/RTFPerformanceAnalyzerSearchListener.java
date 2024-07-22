@@ -40,6 +40,8 @@ public class RTFPerformanceAnalyzerSearchListener
     private static final String OPERATION_SHARD_QUERY = "shard_query";
     public static final String QUERY_START_TIME = "query_start_time";
     public static final String FETCH_START_TIME = "fetch_start_time";
+    public static final String QUERY_TIME = "query_time";
+    public static final String QUERY_TASK_ID = "query_task_id";
     private final ThreadLocal<Map<String, Long>> threadLocal;
     private static final SearchListener NO_OP_SEARCH_LISTENER = new NoOpSearchListener();
 
@@ -73,7 +75,7 @@ public class RTFPerformanceAnalyzerSearchListener
         MetricsRegistry metricsRegistry = OpenSearchResources.INSTANCE.getMetricsRegistry();
         if (metricsRegistry != null) {
             return metricsRegistry.createHistogram(
-                    RTFMetrics.HeapValue.HEAP_USED.toString(),
+                    RTFMetrics.OSMetrics.HEAP_ALLOCATED.toString(),
                     "Heap used per shard for an operation",
                     RTFMetrics.MetricUnits.BYTE.toString());
         } else {
@@ -167,20 +169,24 @@ public class RTFPerformanceAnalyzerSearchListener
     @Override
     public void preQueryPhase(SearchContext searchContext) {
         threadLocal.get().put(QUERY_START_TIME, System.nanoTime());
+        threadLocal.get().put(QUERY_TASK_ID, searchContext.getTask().getId());
     }
 
     @Override
     public void queryPhase(SearchContext searchContext, long tookInNanos) {
         long queryStartTime = threadLocal.get().getOrDefault(QUERY_START_TIME, 0l);
+        long queryTime = (System.nanoTime() - queryStartTime);
+        threadLocal.get().put(QUERY_TIME, queryTime);
         addResourceTrackingCompletionListener(
-                searchContext, queryStartTime, OPERATION_SHARD_QUERY, false);
+                searchContext, queryStartTime, queryTime, OPERATION_SHARD_QUERY, false);
     }
 
     @Override
     public void failedQueryPhase(SearchContext searchContext) {
         long queryStartTime = threadLocal.get().getOrDefault(QUERY_START_TIME, 0l);
+        long queryTime = (System.nanoTime() - queryStartTime);
         addResourceTrackingCompletionListener(
-                searchContext, queryStartTime, OPERATION_SHARD_QUERY, true);
+                searchContext, queryStartTime, queryTime, OPERATION_SHARD_QUERY, true);
     }
 
     @Override
@@ -191,44 +197,92 @@ public class RTFPerformanceAnalyzerSearchListener
     @Override
     public void fetchPhase(SearchContext searchContext, long tookInNanos) {
         long fetchStartTime = threadLocal.get().getOrDefault(FETCH_START_TIME, 0l);
-        addResourceTrackingCompletionListener(
+        addResourceTrackingCompletionListenerForFetchPhase(
                 searchContext, fetchStartTime, OPERATION_SHARD_FETCH, false);
     }
 
     @Override
     public void failedFetchPhase(SearchContext searchContext) {
         long fetchStartTime = threadLocal.get().getOrDefault(FETCH_START_TIME, 0l);
-        addResourceTrackingCompletionListener(
+        addResourceTrackingCompletionListenerForFetchPhase(
                 searchContext, fetchStartTime, OPERATION_SHARD_FETCH, true);
     }
 
     private void addResourceTrackingCompletionListener(
-            SearchContext searchContext, long startTime, String operation, boolean isFailed) {
+            SearchContext searchContext,
+            long startTime,
+            long queryTime,
+            String operation,
+            boolean isFailed) {
+        addCompletionListener(searchContext, startTime, queryTime, operation, isFailed);
+    }
+
+    private void addResourceTrackingCompletionListenerForFetchPhase(
+            SearchContext searchContext, long fetchStartTime, String operation, boolean isFailed) {
+        long startTime = fetchStartTime;
+        long queryTaskId = threadLocal.get().getOrDefault(QUERY_TASK_ID, 0l);
+        /**
+         * There are scenarios where both query and fetch pahses run in the same task for an
+         * optimization. Adding a special handling for that case to divide the CPU usage between
+         * these 2 operations by their runTime.
+         */
+        if (queryTaskId == searchContext.getTask().getId()) {
+            startTime = threadLocal.get().getOrDefault(QUERY_TIME, 0l);
+        }
+        long fetchTime = System.nanoTime() - fetchStartTime;
+        addCompletionListener(searchContext, startTime, fetchTime, operation, isFailed);
+    }
+
+    private void addCompletionListener(
+            SearchContext searchContext,
+            long overallStartTime,
+            long operationTime,
+            String operation,
+            boolean isFailed) {
         searchContext
                 .getTask()
                 .addResourceTrackingCompletionListener(
                         createListener(
                                 searchContext,
-                                (System.nanoTime() - startTime),
+                                overallStartTime,
+                                operationTime,
                                 operation,
                                 isFailed));
     }
 
     @VisibleForTesting
     NotifyOnceListener<Task> createListener(
-            SearchContext searchContext, long totalTime, String operation, boolean isFailed) {
+            SearchContext searchContext,
+            long overallStartTime,
+            long totalOperationTime,
+            String operation,
+            boolean isFailed) {
         return new NotifyOnceListener<Task>() {
             @Override
             protected void innerOnResponse(Task task) {
                 LOG.debug("Updating the counter for task {}", task.getId());
+                /**
+                 * There are scenarios where cpuUsageTime consists of the total of CPU of multiple
+                 * operations. In that case we are computing the cpuShareFactor by dividing the
+                 * particular operationTime and the total time till this calculation happen from the
+                 * overall start time.
+                 */
+                double operationShareFactor =
+                        computeShareFactor(
+                                totalOperationTime, System.nanoTime() - overallStartTime);
                 cpuUtilizationHistogram.record(
                         Utils.calculateCPUUtilization(
                                 numProcessors,
-                                totalTime,
-                                task.getTotalResourceStats().getCpuTimeInNanos()),
+                                totalOperationTime,
+                                task.getTotalResourceStats().getCpuTimeInNanos(),
+                                operationShareFactor),
                         createTags());
                 heapUsedHistogram.record(
-                        Math.max(0, task.getTotalResourceStats().getMemoryInBytes()), createTags());
+                        Math.max(
+                                0,
+                                task.getTotalResourceStats().getMemoryInBytes()
+                                        * operationShareFactor),
+                        createTags());
             }
 
             private Tags createTags() {
@@ -251,5 +305,10 @@ public class RTFPerformanceAnalyzerSearchListener
                 LOG.error("Error is executing the the listener", e);
             }
         };
+    }
+
+    @VisibleForTesting
+    static double computeShareFactor(long totalOperationTime, long totalTime) {
+        return Math.min(1, ((double) totalOperationTime) / Math.max(1.0, totalTime));
     }
 }

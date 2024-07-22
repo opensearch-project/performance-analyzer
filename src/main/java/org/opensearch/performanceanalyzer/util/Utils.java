@@ -113,14 +113,15 @@ public class Utils {
                     IndexShardState.STARTED);
 
     public static double calculateCPUUtilization(
-            int numProcessors, long totalOperationTime, long cpuUsageTime) {
+            int numProcessors, long totalOperationTime, long cpuUsageTime, double cpuShareFactor) {
+        LOG.debug("numProcessors {}", numProcessors);
+        LOG.debug("cpuShareFactor {}", cpuShareFactor);
         LOG.debug("totalCpuTime {}", cpuUsageTime);
         LOG.debug("totalOperationTime {}", totalOperationTime);
-        LOG.debug("numProcessors {}", numProcessors);
         if (totalOperationTime == 0l || cpuUsageTime == 0l || numProcessors == 0) {
             return 0.0d;
         }
         double totalAvailableCPUTime = Double.valueOf(totalOperationTime * numProcessors);
-        return cpuUsageTime / totalAvailableCPUTime;
+        return cpuShareFactor * (cpuUsageTime / totalAvailableCPUTime);
     }
 }

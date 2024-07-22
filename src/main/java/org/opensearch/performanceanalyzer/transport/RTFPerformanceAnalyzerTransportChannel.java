@@ -98,7 +98,7 @@ public final class RTFPerformanceAnalyzerTransportChannel implements TransportCh
         long totalCpuTime =
                 Math.max(0, (threadMXBean.getThreadCpuTime(threadID) - phaseCPUStartTime));
         return Utils.calculateCPUUtilization(
-                numProcessors, (System.nanoTime() - phaseStartTime), totalCpuTime);
+                numProcessors, (System.nanoTime() - phaseStartTime), totalCpuTime, 1.0);
     }
 
     @VisibleForTesting

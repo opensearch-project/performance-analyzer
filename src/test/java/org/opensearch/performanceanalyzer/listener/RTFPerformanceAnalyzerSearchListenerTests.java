@@ -132,6 +132,18 @@ public class RTFPerformanceAnalyzerSearchListenerTests {
     }
 
     @Test
+    public void testOperationShareFactor() {
+        assertEquals(
+                Double.valueOf(10.0 / 15),
+                RTFPerformanceAnalyzerSearchListener.computeShareFactor(10, 15),
+                0);
+        assertEquals(
+                Double.valueOf(1),
+                RTFPerformanceAnalyzerSearchListener.computeShareFactor(15, 10),
+                0);
+    }
+
+    @Test
     public void testTaskCompletionListener() {
         initializeValidSearchContext(true);
         RTFPerformanceAnalyzerSearchListener rtfSearchListener =
@@ -144,7 +156,7 @@ public class RTFPerformanceAnalyzerSearchListenerTests {
         Mockito.when(taskResourceUsage.getCpuTimeInNanos()).thenReturn(10l);
 
         NotifyOnceListener<Task> taskCompletionListener =
-                rtfSearchListener.createListener(searchContext, 0l, "test", false);
+                rtfSearchListener.createListener(searchContext, 0l, 0l, "test", false);
         taskCompletionListener.onResponse(task);
         Mockito.verify(cpuUtilizationHistogram)
                 .record(Mockito.anyDouble(), Mockito.any(Tags.class));
