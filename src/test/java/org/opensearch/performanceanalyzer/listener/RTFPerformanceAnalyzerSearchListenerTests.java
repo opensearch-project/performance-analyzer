@@ -60,13 +60,13 @@ public class RTFPerformanceAnalyzerSearchListenerTests {
         Mockito.when(controller.isPerformanceAnalyzerEnabled()).thenReturn(true);
         Mockito.when(
                         metricsRegistry.createHistogram(
-                                Mockito.eq("CPU_Utilization"),
+                                Mockito.eq("cpu_utilization"),
                                 Mockito.anyString(),
                                 Mockito.eq("rate")))
                 .thenReturn(cpuUtilizationHistogram);
         Mockito.when(
                         metricsRegistry.createHistogram(
-                                Mockito.eq("heap_used"), Mockito.anyString(), Mockito.eq("B")))
+                                Mockito.eq("heap_allocated"), Mockito.anyString(), Mockito.eq("B")))
                 .thenReturn(heapUsedHistogram);
         searchListener = new RTFPerformanceAnalyzerSearchListener(controller);
         assertEquals(
