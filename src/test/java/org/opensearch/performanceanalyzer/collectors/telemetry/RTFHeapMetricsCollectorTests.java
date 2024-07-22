@@ -63,6 +63,6 @@ public class RTFHeapMetricsCollectorTests extends CollectorTestBase {
         verify(gcCollectionTimeHistogram, atLeastOnce()).record(anyDouble(), any());
         verify(gcCollectionEventHistogram, atLeastOnce()).record(anyDouble(), any());
         verify(metricsRegistry, atLeastOnce())
-                .createGauge(anyString(), anyString(), anyString(), any(), any());
+                .createGauge(anyString(), anyString(), anyString(), any());
     }
 }
