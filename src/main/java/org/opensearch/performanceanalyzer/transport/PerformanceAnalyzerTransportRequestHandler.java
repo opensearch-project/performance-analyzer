@@ -59,8 +59,8 @@ public class PerformanceAnalyzerTransportRequestHandler<T extends TransportReque
 
     private boolean isCollectorEnabled() {
         return controller.isPerformanceAnalyzerEnabled()
-                && (controller.getCollectorsSettingValue() == Util.CollectorMode.DUAL.getValue()
-                        || controller.getCollectorsSettingValue()
+                && (controller.getCollectorsRunModeValue() == Util.CollectorMode.DUAL.getValue()
+                        || controller.getCollectorsRunModeValue()
                                 == Util.CollectorMode.RCA.getValue());
     }
 

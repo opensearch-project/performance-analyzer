@@ -65,7 +65,7 @@ public class RTFPerformanceAnalyzerTransportRequestHandlerTests {
     @Test
     public void testGetChannel() {
         OpenSearchResources.INSTANCE.setMetricsRegistry(metricsRegistry);
-        Mockito.when(controller.getCollectorsSettingValue())
+        Mockito.when(controller.getCollectorsRunModeValue())
                 .thenReturn(Util.CollectorMode.TELEMETRY.getValue());
         concreteShardRequest = new ConcreteShardRequest(bulkShardRequest, "id", 1);
         handler.getChannel(concreteShardRequest, channel, task);
@@ -79,7 +79,7 @@ public class RTFPerformanceAnalyzerTransportRequestHandlerTests {
     @Test
     public void testGetChannelTelemetryIsDisabled() {
         OpenSearchResources.INSTANCE.setMetricsRegistry(metricsRegistry);
-        Mockito.when(controller.getCollectorsSettingValue())
+        Mockito.when(controller.getCollectorsRunModeValue())
                 .thenReturn(Util.CollectorMode.RCA.getValue());
         concreteShardRequest = new ConcreteShardRequest(bulkShardRequest, "id", 1);
         handler.getChannel(concreteShardRequest, channel, task);
@@ -93,7 +93,7 @@ public class RTFPerformanceAnalyzerTransportRequestHandlerTests {
     @Test
     public void testGetChannelDualMode() {
         OpenSearchResources.INSTANCE.setMetricsRegistry(metricsRegistry);
-        Mockito.when(controller.getCollectorsSettingValue())
+        Mockito.when(controller.getCollectorsRunModeValue())
                 .thenReturn(Util.CollectorMode.DUAL.getValue());
         concreteShardRequest = new ConcreteShardRequest(bulkShardRequest, "id", 1);
         handler.getChannel(concreteShardRequest, channel, task);
@@ -107,7 +107,7 @@ public class RTFPerformanceAnalyzerTransportRequestHandlerTests {
     @Test
     public void testGetChannelMetricRegistryIsNull() {
         OpenSearchResources.INSTANCE.setMetricsRegistry(null);
-        Mockito.when(controller.getCollectorsSettingValue())
+        Mockito.when(controller.getCollectorsRunModeValue())
                 .thenReturn(Util.CollectorMode.RCA.getValue());
         concreteShardRequest = new ConcreteShardRequest(bulkShardRequest, "id", 1);
         handler.getChannel(concreteShardRequest, channel, task);

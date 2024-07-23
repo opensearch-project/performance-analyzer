@@ -72,15 +72,15 @@ public class PerformanceAnalyzerSearchListenerTests {
 
     @Test
     public void tesSearchListener() {
-        Mockito.when(controller.getCollectorsSettingValue())
+        Mockito.when(controller.getCollectorsRunModeValue())
                 .thenReturn(Util.CollectorMode.TELEMETRY.getValue());
         assertTrue(searchListener.getSearchListener() instanceof NoOpSearchListener);
 
-        Mockito.when(controller.getCollectorsSettingValue())
+        Mockito.when(controller.getCollectorsRunModeValue())
                 .thenReturn(Util.CollectorMode.RCA.getValue());
         assertTrue(searchListener.getSearchListener() instanceof PerformanceAnalyzerSearchListener);
 
-        Mockito.when(controller.getCollectorsSettingValue())
+        Mockito.when(controller.getCollectorsRunModeValue())
                 .thenReturn(Util.CollectorMode.DUAL.getValue());
         assertTrue(searchListener.getSearchListener() instanceof PerformanceAnalyzerSearchListener);
     }

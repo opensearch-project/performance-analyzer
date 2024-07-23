@@ -36,7 +36,7 @@ public final class RTFPerformanceAnalyzerTransportRequestHandler<T extends Trans
             LogManager.getLogger(RTFPerformanceAnalyzerTransportRequestHandler.class);
     private final PerformanceAnalyzerController controller;
     private TransportRequestHandler<T> actualHandler;
-    boolean logOnce = false;
+    private boolean logOnce = false;
     private final Histogram cpuUtilizationHistogram;
 
     RTFPerformanceAnalyzerTransportRequestHandler(
@@ -52,7 +52,7 @@ public final class RTFPerformanceAnalyzerTransportRequestHandler<T extends Trans
             return metricsRegistry.createHistogram(
                     RTFMetrics.OSMetrics.CPU_UTILIZATION.toString(),
                     "CPU Utilization per shard for an operation",
-                    "rate");
+                    RTFMetrics.MetricUnits.RATE.toString());
         } else {
             return null;
         }
@@ -79,8 +79,8 @@ public final class RTFPerformanceAnalyzerTransportRequestHandler<T extends Trans
     private boolean isCollectorEnabled() {
         return OpenSearchResources.INSTANCE.getMetricsRegistry() != null
                 && controller.isPerformanceAnalyzerEnabled()
-                && (controller.getCollectorsSettingValue() == Util.CollectorMode.DUAL.getValue()
-                        || controller.getCollectorsSettingValue()
+                && (controller.getCollectorsRunModeValue() == Util.CollectorMode.DUAL.getValue()
+                        || controller.getCollectorsRunModeValue()
                                 == Util.CollectorMode.TELEMETRY.getValue());
     }
 

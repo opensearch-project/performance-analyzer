@@ -51,14 +51,15 @@ public class RTFPerformanceAnalyzerSearchListener
 
     public RTFPerformanceAnalyzerSearchListener(final PerformanceAnalyzerController controller) {
         this.controller = controller;
-        this.cpuUtilizationHistogram = createCPUUtilizationHistogram();
-        heapUsedHistogram = createHeapUsedHistogram();
+        this.cpuUtilizationHistogram =
+                createCPUUtilizationHistogram(OpenSearchResources.INSTANCE.getMetricsRegistry());
+        this.heapUsedHistogram =
+                createHeapUsedHistogram(OpenSearchResources.INSTANCE.getMetricsRegistry());
         this.threadLocal = ThreadLocal.withInitial(() -> new HashMap<String, Long>());
         this.numProcessors = Runtime.getRuntime().availableProcessors();
     }
 
-    private Histogram createCPUUtilizationHistogram() {
-        MetricsRegistry metricsRegistry = OpenSearchResources.INSTANCE.getMetricsRegistry();
+    private Histogram createCPUUtilizationHistogram(MetricsRegistry metricsRegistry) {
         if (metricsRegistry != null) {
             return metricsRegistry.createHistogram(
                     RTFMetrics.OSMetrics.CPU_UTILIZATION.toString(),
@@ -70,8 +71,7 @@ public class RTFPerformanceAnalyzerSearchListener
         }
     }
 
-    private Histogram createHeapUsedHistogram() {
-        MetricsRegistry metricsRegistry = OpenSearchResources.INSTANCE.getMetricsRegistry();
+    private Histogram createHeapUsedHistogram(MetricsRegistry metricsRegistry) {
         if (metricsRegistry != null) {
             return metricsRegistry.createHistogram(
                     RTFMetrics.OSMetrics.HEAP_ALLOCATED.toString(),
@@ -94,14 +94,10 @@ public class RTFPerformanceAnalyzerSearchListener
     }
 
     private boolean isSearchListenerEnabled() {
-        LOG.debug(
-                "Controller enable status {}, CollectorMode value {}",
-                controller.isPerformanceAnalyzerEnabled(),
-                controller.getCollectorsSettingValue());
         return OpenSearchResources.INSTANCE.getMetricsRegistry() != null
                 && controller.isPerformanceAnalyzerEnabled()
-                && (controller.getCollectorsSettingValue() == Util.CollectorMode.DUAL.getValue()
-                        || controller.getCollectorsSettingValue()
+                && (controller.getCollectorsRunModeValue() == Util.CollectorMode.DUAL.getValue()
+                        || controller.getCollectorsRunModeValue()
                                 == Util.CollectorMode.TELEMETRY.getValue());
     }
 
@@ -173,7 +169,7 @@ public class RTFPerformanceAnalyzerSearchListener
 
     @Override
     public void queryPhase(SearchContext searchContext, long tookInNanos) {
-        long queryStartTime = threadLocal.get().getOrDefault(QUERY_START_TIME, 0l);
+        long queryStartTime = threadLocal.get().getOrDefault(QUERY_START_TIME, System.nanoTime());
         long queryTime = (System.nanoTime() - queryStartTime);
         addResourceTrackingCompletionListener(
                 searchContext, queryStartTime, queryTime, OPERATION_SHARD_QUERY, false);
@@ -181,7 +177,7 @@ public class RTFPerformanceAnalyzerSearchListener
 
     @Override
     public void failedQueryPhase(SearchContext searchContext) {
-        long queryStartTime = threadLocal.get().getOrDefault(QUERY_START_TIME, 0l);
+        long queryStartTime = threadLocal.get().getOrDefault(QUERY_START_TIME, System.nanoTime());
         long queryTime = (System.nanoTime() - queryStartTime);
         addResourceTrackingCompletionListener(
                 searchContext, queryStartTime, queryTime, OPERATION_SHARD_QUERY, true);
@@ -194,7 +190,7 @@ public class RTFPerformanceAnalyzerSearchListener
 
     @Override
     public void fetchPhase(SearchContext searchContext, long tookInNanos) {
-        long fetchStartTime = threadLocal.get().getOrDefault(FETCH_START_TIME, 0l);
+        long fetchStartTime = threadLocal.get().getOrDefault(FETCH_START_TIME, System.nanoTime());
         long fetchTime = (System.nanoTime() - fetchStartTime);
         addResourceTrackingCompletionListenerForFetchPhase(
                 searchContext, fetchStartTime, fetchTime, OPERATION_SHARD_FETCH, false);
@@ -202,7 +198,7 @@ public class RTFPerformanceAnalyzerSearchListener
 
     @Override
     public void failedFetchPhase(SearchContext searchContext) {
-        long fetchStartTime = threadLocal.get().getOrDefault(FETCH_START_TIME, 0l);
+        long fetchStartTime = threadLocal.get().getOrDefault(FETCH_START_TIME, System.nanoTime());
         long fetchTime = (System.nanoTime() - fetchStartTime);
         addResourceTrackingCompletionListenerForFetchPhase(
                 searchContext, fetchStartTime, fetchTime, OPERATION_SHARD_FETCH, true);
@@ -226,12 +222,12 @@ public class RTFPerformanceAnalyzerSearchListener
         long overallStartTime = fetchStartTime;
         long queryTaskId = threadLocal.get().getOrDefault(QUERY_TASK_ID, 0l);
         /**
-         * There are scenarios where both query and fetch pahses run in the same task for an
+         * There are scenarios where both query and fetch phases run in the same task for an
          * optimization. Adding a special handling for that case to divide the CPU usage between
          * these 2 operations by their runTime.
          */
         if (queryTaskId == searchContext.getTask().getId()) {
-            overallStartTime = threadLocal.get().getOrDefault(QUERY_START_TIME, 0l);
+            overallStartTime = threadLocal.get().getOrDefault(QUERY_START_TIME, System.nanoTime());
         }
         addCompletionListener(searchContext, overallStartTime, fetchTime, operation, isFailed);
     }

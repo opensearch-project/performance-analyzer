@@ -72,7 +72,7 @@ public class PerformanceAnalyzerTransportRequestHandlerTests {
 
     @Test
     public void testGetChannelIfRCAModeIsDisabled() {
-        Mockito.when(controller.getCollectorsSettingValue())
+        Mockito.when(controller.getCollectorsRunModeValue())
                 .thenReturn(Util.CollectorMode.TELEMETRY.getValue());
         concreteShardRequest = new ConcreteShardRequest(bulkShardRequest, "id", 1);
         handler.getChannel(concreteShardRequest, channel, task);
@@ -85,7 +85,7 @@ public class PerformanceAnalyzerTransportRequestHandlerTests {
 
     @Test
     public void testGetChannelIfDualModeIsEnabled() {
-        Mockito.when(controller.getCollectorsSettingValue())
+        Mockito.when(controller.getCollectorsRunModeValue())
                 .thenReturn(Util.CollectorMode.DUAL.getValue());
         concreteShardRequest = new ConcreteShardRequest(bulkShardRequest, "id", 1);
         handler.getChannel(concreteShardRequest, channel, task);

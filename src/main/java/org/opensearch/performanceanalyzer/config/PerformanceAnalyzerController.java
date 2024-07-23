@@ -389,7 +389,7 @@ public class PerformanceAnalyzerController {
      *
      * @return collectorsSettingValue
      */
-    public int getCollectorsSettingValue() {
+    public int getCollectorsRunModeValue() {
         return collectorsSettingValue;
     }
 }

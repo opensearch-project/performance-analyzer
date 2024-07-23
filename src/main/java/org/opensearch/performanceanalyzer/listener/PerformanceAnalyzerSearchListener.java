@@ -45,8 +45,8 @@ public class PerformanceAnalyzerSearchListener
 
     private boolean isSearchListenerEnabled() {
         return controller.isPerformanceAnalyzerEnabled()
-                && (controller.getCollectorsSettingValue() == Util.CollectorMode.DUAL.getValue()
-                        || controller.getCollectorsSettingValue()
+                && (controller.getCollectorsRunModeValue() == Util.CollectorMode.DUAL.getValue()
+                        || controller.getCollectorsRunModeValue()
                                 == Util.CollectorMode.RCA.getValue());
     }
 

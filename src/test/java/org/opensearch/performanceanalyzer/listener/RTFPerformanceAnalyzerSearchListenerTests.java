@@ -76,16 +76,16 @@ public class RTFPerformanceAnalyzerSearchListenerTests {
 
     @Test
     public void tesSearchListener() {
-        Mockito.when(controller.getCollectorsSettingValue())
+        Mockito.when(controller.getCollectorsRunModeValue())
                 .thenReturn(Util.CollectorMode.RCA.getValue());
         assertTrue(searchListener.getSearchListener() instanceof NoOpSearchListener);
 
-        Mockito.when(controller.getCollectorsSettingValue())
+        Mockito.when(controller.getCollectorsRunModeValue())
                 .thenReturn(Util.CollectorMode.TELEMETRY.getValue());
         assertTrue(
                 searchListener.getSearchListener() instanceof RTFPerformanceAnalyzerSearchListener);
 
-        Mockito.when(controller.getCollectorsSettingValue())
+        Mockito.when(controller.getCollectorsRunModeValue())
                 .thenReturn(Util.CollectorMode.DUAL.getValue());
         assertTrue(
                 searchListener.getSearchListener() instanceof RTFPerformanceAnalyzerSearchListener);
@@ -94,7 +94,7 @@ public class RTFPerformanceAnalyzerSearchListenerTests {
     @Test
     public void testQueryPhase() {
         initializeValidSearchContext(true);
-        Mockito.when(controller.getCollectorsSettingValue())
+        Mockito.when(controller.getCollectorsRunModeValue())
                 .thenReturn(Util.CollectorMode.TELEMETRY.getValue());
         searchListener.preQueryPhase(searchContext);
         searchListener.queryPhase(searchContext, 0l);
@@ -104,7 +104,7 @@ public class RTFPerformanceAnalyzerSearchListenerTests {
     @Test
     public void testQueryPhaseFailed() {
         initializeValidSearchContext(true);
-        Mockito.when(controller.getCollectorsSettingValue())
+        Mockito.when(controller.getCollectorsRunModeValue())
                 .thenReturn(Util.CollectorMode.TELEMETRY.getValue());
         searchListener.preQueryPhase(searchContext);
         searchListener.failedQueryPhase(searchContext);
@@ -114,7 +114,7 @@ public class RTFPerformanceAnalyzerSearchListenerTests {
     @Test
     public void testFetchPhase() {
         initializeValidSearchContext(true);
-        Mockito.when(controller.getCollectorsSettingValue())
+        Mockito.when(controller.getCollectorsRunModeValue())
                 .thenReturn(Util.CollectorMode.TELEMETRY.getValue());
         searchListener.preFetchPhase(searchContext);
         searchListener.fetchPhase(searchContext, 0l);
@@ -124,7 +124,7 @@ public class RTFPerformanceAnalyzerSearchListenerTests {
     @Test
     public void testFetchPhaseFailed() {
         initializeValidSearchContext(true);
-        Mockito.when(controller.getCollectorsSettingValue())
+        Mockito.when(controller.getCollectorsRunModeValue())
                 .thenReturn(Util.CollectorMode.TELEMETRY.getValue());
         searchListener.preFetchPhase(searchContext);
         searchListener.failedFetchPhase(searchContext);
