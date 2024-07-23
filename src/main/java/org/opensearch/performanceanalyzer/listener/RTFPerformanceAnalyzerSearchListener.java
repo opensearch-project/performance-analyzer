@@ -218,7 +218,11 @@ public class RTFPerformanceAnalyzerSearchListener
     }
 
     private void addResourceTrackingCompletionListenerForFetchPhase(
-            SearchContext searchContext, long fetchStartTime, long fetchTime, String operation, boolean isFailed) {
+            SearchContext searchContext,
+            long fetchStartTime,
+            long fetchTime,
+            String operation,
+            boolean isFailed) {
         long overallStartTime = fetchStartTime;
         long queryTaskId = threadLocal.get().getOrDefault(QUERY_TASK_ID, 0l);
         /**
@@ -267,13 +271,11 @@ public class RTFPerformanceAnalyzerSearchListener
                  * overall start time.
                  */
                 long totalTime = System.nanoTime() - overallStartTime;
-                double operationShareFactor =
-                        computeShareFactor(
-                                totalOperationTime, totalTime);
+                double operationShareFactor = computeShareFactor(totalOperationTime, totalTime);
                 cpuUtilizationHistogram.record(
                         Utils.calculateCPUUtilization(
                                 numProcessors,
-                                totalOperationTime,
+                                totalTime,
                                 task.getTotalResourceStats().getCpuTimeInNanos(),
                                 operationShareFactor),
                         createTags());
