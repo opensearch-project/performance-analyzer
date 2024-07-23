@@ -130,7 +130,7 @@ public class RTFHeapMetricsCollector extends PerformanceAnalyzerMetricsCollector
                     memoryUsage.getUsed(),
                     Tags.create().addTag(memTypeAttributeKey, entry.getKey()));
             heapMaxTag = Tags.create().addTag(memTypeAttributeKey, entry.getKey());
-            heapMaxValue = memoryUsage.getUsed();
+            heapMaxValue = memoryUsage.getMax();
         }
     }
 }
