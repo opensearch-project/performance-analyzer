@@ -40,7 +40,6 @@ public class RTFPerformanceAnalyzerSearchListener
     private static final String OPERATION_SHARD_QUERY = "shard_query";
     public static final String QUERY_START_TIME = "query_start_time";
     public static final String FETCH_START_TIME = "fetch_start_time";
-    public static final String QUERY_TIME = "query_time";
     public static final String QUERY_TASK_ID = "query_task_id";
     private final ThreadLocal<Map<String, Long>> threadLocal;
     private static final SearchListener NO_OP_SEARCH_LISTENER = new NoOpSearchListener();
@@ -176,7 +175,6 @@ public class RTFPerformanceAnalyzerSearchListener
     public void queryPhase(SearchContext searchContext, long tookInNanos) {
         long queryStartTime = threadLocal.get().getOrDefault(QUERY_START_TIME, 0l);
         long queryTime = (System.nanoTime() - queryStartTime);
-        threadLocal.get().put(QUERY_TIME, queryTime);
         addResourceTrackingCompletionListener(
                 searchContext, queryStartTime, queryTime, OPERATION_SHARD_QUERY, false);
     }
@@ -197,15 +195,17 @@ public class RTFPerformanceAnalyzerSearchListener
     @Override
     public void fetchPhase(SearchContext searchContext, long tookInNanos) {
         long fetchStartTime = threadLocal.get().getOrDefault(FETCH_START_TIME, 0l);
+        long fetchTime = (System.nanoTime() - fetchStartTime);
         addResourceTrackingCompletionListenerForFetchPhase(
-                searchContext, fetchStartTime, OPERATION_SHARD_FETCH, false);
+                searchContext, fetchStartTime, fetchTime, OPERATION_SHARD_FETCH, false);
     }
 
     @Override
     public void failedFetchPhase(SearchContext searchContext) {
         long fetchStartTime = threadLocal.get().getOrDefault(FETCH_START_TIME, 0l);
+        long fetchTime = (System.nanoTime() - fetchStartTime);
         addResourceTrackingCompletionListenerForFetchPhase(
-                searchContext, fetchStartTime, OPERATION_SHARD_FETCH, true);
+                searchContext, fetchStartTime, fetchTime, OPERATION_SHARD_FETCH, true);
     }
 
     private void addResourceTrackingCompletionListener(
@@ -218,8 +218,8 @@ public class RTFPerformanceAnalyzerSearchListener
     }
 
     private void addResourceTrackingCompletionListenerForFetchPhase(
-            SearchContext searchContext, long fetchStartTime, String operation, boolean isFailed) {
-        long startTime = fetchStartTime;
+            SearchContext searchContext, long fetchStartTime, long fetchTime, String operation, boolean isFailed) {
+        long overallStartTime = fetchStartTime;
         long queryTaskId = threadLocal.get().getOrDefault(QUERY_TASK_ID, 0l);
         /**
          * There are scenarios where both query and fetch pahses run in the same task for an
@@ -227,10 +227,9 @@ public class RTFPerformanceAnalyzerSearchListener
          * these 2 operations by their runTime.
          */
         if (queryTaskId == searchContext.getTask().getId()) {
-            startTime = threadLocal.get().getOrDefault(QUERY_TIME, 0l);
+            overallStartTime = threadLocal.get().getOrDefault(QUERY_START_TIME, 0l);
         }
-        long fetchTime = System.nanoTime() - fetchStartTime;
-        addCompletionListener(searchContext, startTime, fetchTime, operation, isFailed);
+        addCompletionListener(searchContext, overallStartTime, fetchTime, operation, isFailed);
     }
 
     private void addCompletionListener(
@@ -267,9 +266,10 @@ public class RTFPerformanceAnalyzerSearchListener
                  * particular operationTime and the total time till this calculation happen from the
                  * overall start time.
                  */
+                long totalTime = System.nanoTime() - overallStartTime;
                 double operationShareFactor =
                         computeShareFactor(
-                                totalOperationTime, System.nanoTime() - overallStartTime);
+                                totalOperationTime, totalTime);
                 cpuUtilizationHistogram.record(
                         Utils.calculateCPUUtilization(
                                 numProcessors,
