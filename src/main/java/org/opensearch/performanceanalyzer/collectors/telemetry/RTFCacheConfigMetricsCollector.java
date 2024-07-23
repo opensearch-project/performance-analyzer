@@ -1,15 +1,18 @@
 /*
+ * Copyright OpenSearch Contributors
  * SPDX-License-Identifier: Apache-2.0
- *
- * The OpenSearch Contributors require contributions made to
- * this file be licensed under the Apache-2.0 license or a
- * compatible open source license.
  */
 
 package org.opensearch.performanceanalyzer.collectors.telemetry;
 
+import static org.opensearch.performanceanalyzer.commons.metrics.AllMetrics.CacheType.FIELD_DATA_CACHE;
+import static org.opensearch.performanceanalyzer.commons.metrics.AllMetrics.CacheType.SHARD_REQUEST_CACHE;
+import static org.opensearch.performanceanalyzer.commons.stats.decisionmaker.DecisionMakerConsts.CACHE_MAX_WEIGHT;
+
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import java.security.AccessController;
+import java.security.PrivilegedAction;
 import org.apache.commons.lang3.reflect.FieldUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -18,6 +21,7 @@ import org.opensearch.indices.IndicesService;
 import org.opensearch.performanceanalyzer.OpenSearchResources;
 import org.opensearch.performanceanalyzer.commons.collectors.MetricStatus;
 import org.opensearch.performanceanalyzer.commons.collectors.PerformanceAnalyzerMetricsCollector;
+import org.opensearch.performanceanalyzer.commons.collectors.TelemetryCollector;
 import org.opensearch.performanceanalyzer.commons.config.overrides.ConfigOverridesWrapper;
 import org.opensearch.performanceanalyzer.commons.metrics.AllMetrics;
 import org.opensearch.performanceanalyzer.commons.metrics.MetricsConfiguration;
@@ -29,14 +33,8 @@ import org.opensearch.telemetry.metrics.Histogram;
 import org.opensearch.telemetry.metrics.MetricsRegistry;
 import org.opensearch.telemetry.metrics.tags.Tags;
 
-import java.security.AccessController;
-import java.security.PrivilegedAction;
-
-import static org.opensearch.performanceanalyzer.commons.metrics.AllMetrics.CacheType.FIELD_DATA_CACHE;
-import static org.opensearch.performanceanalyzer.commons.metrics.AllMetrics.CacheType.SHARD_REQUEST_CACHE;
-import static org.opensearch.performanceanalyzer.commons.stats.decisionmaker.DecisionMakerConsts.CACHE_MAX_WEIGHT;
-
-public class RTFCacheConfigMetricsCollector extends PerformanceAnalyzerMetricsCollector {
+public class RTFCacheConfigMetricsCollector extends PerformanceAnalyzerMetricsCollector
+        implements TelemetryCollector {
     private MetricsRegistry metricsRegistry;
     private boolean metricsInitialised;
     private Histogram cacheMaxSizeMetrics;
@@ -48,9 +46,10 @@ public class RTFCacheConfigMetricsCollector extends PerformanceAnalyzerMetricsCo
             PerformanceAnalyzerController performanceAnalyzerController,
             ConfigOverridesWrapper configOverridesWrapper) {
         super(
-                MetricsConfiguration.CONFIG_MAP.get(RTFCacheConfigMetricsCollector.class).samplingInterval,
+                MetricsConfiguration.CONFIG_MAP.get(RTFCacheConfigMetricsCollector.class)
+                        .samplingInterval,
                 "RTFCacheConfigMetricsCollector",
-                StatMetrics.RTF_CACHE_CONFIG_COLLECTOR_EXECUTION_TIME,
+                StatMetrics.RTF_CACHE_CONFIG_METRICS_COLLECTOR_EXECUTION_TIME,
                 StatExceptionCode.RTF_CACHE_CONFIG_METRICS_COLLECTOR_ERROR);
         this.metricsInitialised = false;
         this.performanceAnalyzerController = performanceAnalyzerController;
@@ -97,8 +96,11 @@ public class RTFCacheConfigMetricsCollector extends PerformanceAnalyzerMetricsCo
                                         return new CacheMaxSizeStatus(
                                                 FIELD_DATA_CACHE.toString(), fieldDataMaxSize);
                                     } catch (Exception e) {
+                                        LOG.debug(
+                                                "Error occurred while fetching fieldDataCacheMaxSizeStatus: "
+                                                        + e.getMessage());
                                         return new CacheMaxSizeStatus(
-                                                FIELD_DATA_CACHE.toString(), null);
+                                                FIELD_DATA_CACHE.toString(), -1L);
                                     }
                                 });
 
@@ -130,24 +132,35 @@ public class RTFCacheConfigMetricsCollector extends PerformanceAnalyzerMetricsCo
                                                 SHARD_REQUEST_CACHE.toString(),
                                                 requestCacheMaxSize);
                                     } catch (Exception e) {
-                                        LOG.error("Error while evaluating requestCacheMaxSize", e);
-                                        return null;
+                                        LOG.debug(
+                                                "Error occurred while fetching shardRequestCacheMaxSizeStatus: "
+                                                        + e.getMessage());
+                                        return new CacheMaxSizeStatus(
+                                                SHARD_REQUEST_CACHE.toString(), -1L);
                                     }
                                 });
 
-        if (fieldDataCacheMaxSizeStatus != null) {
+        if (fieldDataCacheMaxSizeStatus != null
+                && fieldDataCacheMaxSizeStatus.getCacheMaxSize() > 0) {
+            LOG.info(
+                    "fieldDataCacheMaxSizeStatus.getCacheMaxSize() value : "
+                            + fieldDataCacheMaxSizeStatus.getCacheMaxSize());
             recordMetrics(fieldDataCacheMaxSizeStatus);
         }
 
-        if (shardRequestCacheMaxSizeStatus != null) {
+        if (shardRequestCacheMaxSizeStatus != null
+                && shardRequestCacheMaxSizeStatus.getCacheMaxSize() > 0) {
             recordMetrics(shardRequestCacheMaxSizeStatus);
         }
     }
 
     private void recordMetrics(CacheMaxSizeStatus cacheMaxSizeStatus) {
-        Tags cacheTypeTag =
-                Tags.create().addTag(RTFMetrics.CacheConfigDimension.Constants.TYPE_VALUE.toString(), cacheMaxSizeStatus.getCacheType());
-        cacheMaxSizeMetrics.record(cacheMaxSizeStatus.getCacheMaxSize(), cacheTypeTag);
+        cacheMaxSizeMetrics.record(
+                cacheMaxSizeStatus.getCacheMaxSize(),
+                Tags.create()
+                        .addTag(
+                                RTFMetrics.CacheConfigDimension.Constants.TYPE_VALUE,
+                                cacheMaxSizeStatus.getCacheType()));
     }
 
     private void initialiseMetricsIfNeeded() {

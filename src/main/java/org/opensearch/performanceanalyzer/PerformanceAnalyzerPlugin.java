@@ -55,10 +55,7 @@ import org.opensearch.performanceanalyzer.collectors.SearchBackPressureStatsColl
 import org.opensearch.performanceanalyzer.collectors.ShardIndexingPressureMetricsCollector;
 import org.opensearch.performanceanalyzer.collectors.ShardStateCollector;
 import org.opensearch.performanceanalyzer.collectors.ThreadPoolMetricsCollector;
-import org.opensearch.performanceanalyzer.collectors.telemetry.RTFDisksCollector;
-import org.opensearch.performanceanalyzer.collectors.telemetry.RTFHeapMetricsCollector;
-import org.opensearch.performanceanalyzer.collectors.telemetry.RTFNodeStatsAllShardsMetricsCollector;
-import org.opensearch.performanceanalyzer.collectors.telemetry.RTFThreadPoolMetricsCollector;
+import org.opensearch.performanceanalyzer.collectors.telemetry.*;
 import org.opensearch.performanceanalyzer.commons.OSMetricsGeneratorFactory;
 import org.opensearch.performanceanalyzer.commons.collectors.DisksCollector;
 import org.opensearch.performanceanalyzer.commons.collectors.GCInfoCollector;
@@ -233,6 +230,11 @@ public final class PerformanceAnalyzerPlugin extends Plugin
         scheduledMetricCollectorsExecutor.addScheduledMetricCollector(
                 new RTFNodeStatsAllShardsMetricsCollector(
                         performanceAnalyzerController, configOverridesWrapper));
+        scheduledMetricCollectorsExecutor.addScheduledMetricCollector(
+                new RTFCacheConfigMetricsCollector(
+                        performanceAnalyzerController, configOverridesWrapper));
+        scheduledMetricCollectorsExecutor.addScheduledMetricCollector(
+                new RTFOSMetricsCollector(performanceAnalyzerController, configOverridesWrapper));
     }
 
     private void scheduleRcaCollectors() {
