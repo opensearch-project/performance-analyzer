@@ -114,14 +114,16 @@ public class Utils {
 
     public static double calculateCPUUtilization(
             int numProcessors, long totalOperationTime, long cpuUsageTime, double cpuShareFactor) {
-        LOG.debug("numProcessors {}", numProcessors);
-        LOG.debug("cpuShareFactor {}", cpuShareFactor);
-        LOG.debug("totalCpuTime {}", cpuUsageTime);
-        LOG.debug("totalOperationTime {}", totalOperationTime);
+        LOG.debug("CPUUtilization calculation - numProcessors {}", numProcessors);
+        LOG.debug("CPUUtilization calculation - cpuShareFactor {}", cpuShareFactor);
+        LOG.debug("CPUUtilization calculation - totalCpuTime {}", cpuUsageTime);
+        LOG.debug("CPUUtilization calculation - totalOperationTime {}", totalOperationTime);
         if (totalOperationTime == 0l || cpuUsageTime == 0l || numProcessors == 0) {
             return 0.0d;
         }
         double totalAvailableCPUTime = Double.valueOf(totalOperationTime * numProcessors);
-        return cpuShareFactor * (cpuUsageTime / totalAvailableCPUTime);
+        double cpuUtil = cpuShareFactor * (cpuUsageTime / totalAvailableCPUTime);
+        LOG.debug("CPUUtilization calculation - cpuUtil {}", cpuUtil);
+        return cpuUtil;
     }
 }
