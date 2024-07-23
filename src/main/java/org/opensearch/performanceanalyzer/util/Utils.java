@@ -8,6 +8,8 @@ package org.opensearch.performanceanalyzer.util;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Iterator;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.opensearch.action.admin.indices.stats.CommonStats;
 import org.opensearch.action.admin.indices.stats.CommonStatsFlags;
 import org.opensearch.action.admin.indices.stats.IndexShardStats;
@@ -27,6 +29,7 @@ import org.opensearch.performanceanalyzer.commons.metrics.MetricsConfiguration;
 import org.opensearch.performanceanalyzer.commons.stats.ServiceMetrics;
 
 public class Utils {
+    private static final Logger LOG = LogManager.getLogger(Utils.class);
 
     public static void configureMetrics() {
         ServiceMetrics.initStatsReporter();
@@ -108,4 +111,38 @@ public class Utils {
                     IndexShardState.RECOVERING,
                     IndexShardState.POST_RECOVERY,
                     IndexShardState.STARTED);
+
+    /**
+     * CPU Utilization is the time spend in CPU cycles divide by the total time cpu available time.
+     * Total cpu available time would be the multiplication of num of processors and the process
+     * time. It also takes into account the cpuShareFactor in case some adjustments are needed.
+     *
+     * @param numProcessors
+     * @param totalOperationTime
+     * @param cpuUsageTime
+     * @param cpuShareFactor
+     * @return
+     */
+    public static double calculateCPUUtilization(
+            int numProcessors, long totalOperationTime, long cpuUsageTime, double cpuShareFactor) {
+        LOG.debug(
+                "Performance Analyzer CPUUtilization calculation with numProcessors: {}",
+                numProcessors);
+        LOG.debug(
+                "Performance Analyzer CPUUtilization calculation with cpuShareFactor {}",
+                cpuShareFactor);
+        LOG.debug(
+                "Performance Analyzer CPUUtilization calculation with totalCpuTime {}",
+                cpuUsageTime);
+        LOG.debug(
+                "Performance Analyzer CPUUtilization calculation with totalOperationTime {}",
+                totalOperationTime);
+        if (totalOperationTime == 0l || cpuUsageTime == 0l || numProcessors == 0) {
+            return 0.0d;
+        }
+        double totalAvailableCPUTime = Double.valueOf(totalOperationTime * numProcessors);
+        double cpuUtil = cpuShareFactor * (cpuUsageTime / totalAvailableCPUTime);
+        LOG.debug("Performance Analyzer CPUUtilization calculation with cpuUtil {}", cpuUtil);
+        return cpuUtil;
+    }
 }
