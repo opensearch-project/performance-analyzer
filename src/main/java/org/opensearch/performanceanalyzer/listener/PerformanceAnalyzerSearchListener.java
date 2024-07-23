@@ -7,6 +7,7 @@ package org.opensearch.performanceanalyzer.listener;
 
 import static org.opensearch.performanceanalyzer.commons.stats.metrics.StatExceptionCode.OPENSEARCH_REQUEST_INTERCEPTOR_ERROR;
 
+import com.google.common.annotations.VisibleForTesting;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.opensearch.index.shard.SearchOperationListener;
@@ -16,6 +17,7 @@ import org.opensearch.performanceanalyzer.commons.metrics.AllMetrics.CommonMetri
 import org.opensearch.performanceanalyzer.commons.metrics.MetricsProcessor;
 import org.opensearch.performanceanalyzer.commons.metrics.PerformanceAnalyzerMetrics;
 import org.opensearch.performanceanalyzer.commons.util.ThreadIDUtil;
+import org.opensearch.performanceanalyzer.commons.util.Util;
 import org.opensearch.performanceanalyzer.config.PerformanceAnalyzerController;
 import org.opensearch.search.internal.SearchContext;
 
@@ -36,8 +38,16 @@ public class PerformanceAnalyzerSearchListener
         return PerformanceAnalyzerSearchListener.class.getSimpleName();
     }
 
-    private SearchListener getSearchListener() {
-        return controller.isPerformanceAnalyzerEnabled() ? this : NO_OP_SEARCH_LISTENER;
+    @VisibleForTesting
+    SearchListener getSearchListener() {
+        return isSearchListenerEnabled() ? this : NO_OP_SEARCH_LISTENER;
+    }
+
+    private boolean isSearchListenerEnabled() {
+        return controller.isPerformanceAnalyzerEnabled()
+                && (controller.getCollectorsRunModeValue() == Util.CollectorMode.DUAL.getValue()
+                        || controller.getCollectorsRunModeValue()
+                                == Util.CollectorMode.RCA.getValue());
     }
 
     @Override

@@ -25,6 +25,7 @@ import org.opensearch.performanceanalyzer.commons.metrics.AllMetrics;
 import org.opensearch.performanceanalyzer.commons.metrics.MetricsConfiguration;
 import org.opensearch.performanceanalyzer.commons.metrics.PerformanceAnalyzerMetrics;
 import org.opensearch.performanceanalyzer.commons.stats.metrics.StatExceptionCode;
+import org.opensearch.performanceanalyzer.commons.util.Util;
 import org.opensearch.performanceanalyzer.config.PerformanceAnalyzerController;
 import org.opensearch.performanceanalyzer.util.TestUtil;
 import org.opensearch.performanceanalyzer.util.Utils;
@@ -67,6 +68,21 @@ public class PerformanceAnalyzerSearchListenerTests {
 
         // clean metricQueue before running every test
         TestUtil.readEvents();
+    }
+
+    @Test
+    public void tesSearchListener() {
+        Mockito.when(controller.getCollectorsRunModeValue())
+                .thenReturn(Util.CollectorMode.TELEMETRY.getValue());
+        assertTrue(searchListener.getSearchListener() instanceof NoOpSearchListener);
+
+        Mockito.when(controller.getCollectorsRunModeValue())
+                .thenReturn(Util.CollectorMode.RCA.getValue());
+        assertTrue(searchListener.getSearchListener() instanceof PerformanceAnalyzerSearchListener);
+
+        Mockito.when(controller.getCollectorsRunModeValue())
+                .thenReturn(Util.CollectorMode.DUAL.getValue());
+        assertTrue(searchListener.getSearchListener() instanceof PerformanceAnalyzerSearchListener);
     }
 
     @Test
