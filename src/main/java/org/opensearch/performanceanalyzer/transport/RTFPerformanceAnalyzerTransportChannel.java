@@ -77,20 +77,19 @@ public final class RTFPerformanceAnalyzerTransportChannel implements TransportCh
 
     @Override
     public void sendResponse(TransportResponse response) throws IOException {
-        emitMetrics(null);
+        emitMetrics(false);
         original.sendResponse(response);
     }
 
     @Override
     public void sendResponse(Exception exception) throws IOException {
-        emitMetrics(exception);
+        emitMetrics(true);
         original.sendResponse(exception);
     }
 
-    private void emitMetrics(Exception exception) {
+    private void emitMetrics(boolean isFailed) {
         double cpuUtilization = calculateCPUUtilization(operationStartTime, cpuStartTime);
-        recordCPUUtilizationMetric(
-                shardId, cpuUtilization, OPERATION_SHARD_BULK, exception != null);
+        recordCPUUtilizationMetric(shardId, cpuUtilization, OPERATION_SHARD_BULK, isFailed);
     }
 
     private double calculateCPUUtilization(long phaseStartTime, long phaseCPUStartTime) {
