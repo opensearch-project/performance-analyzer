@@ -142,9 +142,6 @@ public class RTFCacheConfigMetricsCollector extends PerformanceAnalyzerMetricsCo
 
         if (fieldDataCacheMaxSizeStatus != null
                 && fieldDataCacheMaxSizeStatus.getCacheMaxSize() > 0) {
-            LOG.info(
-                    "fieldDataCacheMaxSizeStatus.getCacheMaxSize() value : "
-                            + fieldDataCacheMaxSizeStatus.getCacheMaxSize());
             recordMetrics(fieldDataCacheMaxSizeStatus);
         }
 
