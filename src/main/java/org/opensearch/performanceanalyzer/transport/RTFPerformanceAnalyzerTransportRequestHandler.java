@@ -12,31 +12,50 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.opensearch.action.bulk.BulkShardRequest;
 import org.opensearch.action.support.replication.TransportReplicationAction.ConcreteShardRequest;
+import org.opensearch.performanceanalyzer.OpenSearchResources;
 import org.opensearch.performanceanalyzer.commons.collectors.StatsCollector;
+import org.opensearch.performanceanalyzer.commons.metrics.RTFMetrics;
 import org.opensearch.performanceanalyzer.commons.util.Util;
 import org.opensearch.performanceanalyzer.config.PerformanceAnalyzerController;
 import org.opensearch.tasks.Task;
+import org.opensearch.telemetry.metrics.Histogram;
+import org.opensearch.telemetry.metrics.MetricsRegistry;
 import org.opensearch.transport.TransportChannel;
 import org.opensearch.transport.TransportRequest;
 import org.opensearch.transport.TransportRequestHandler;
 
-public class PerformanceAnalyzerTransportRequestHandler<T extends TransportRequest>
+/**
+ * {@link TransportRequestHandler} implementation to intercept only the {@link BulkShardRequest} and
+ * skip other transport calls.
+ *
+ * @param <T> {@link TransportRequest}
+ */
+public final class RTFPerformanceAnalyzerTransportRequestHandler<T extends TransportRequest>
         implements TransportRequestHandler<T> {
     private static final Logger LOG =
-            LogManager.getLogger(PerformanceAnalyzerTransportRequestHandler.class);
+            LogManager.getLogger(RTFPerformanceAnalyzerTransportRequestHandler.class);
     private final PerformanceAnalyzerController controller;
     private TransportRequestHandler<T> actualHandler;
-    boolean logOnce = false;
+    private boolean logOnce = false;
+    private final Histogram cpuUtilizationHistogram;
 
-    PerformanceAnalyzerTransportRequestHandler(
+    RTFPerformanceAnalyzerTransportRequestHandler(
             TransportRequestHandler<T> actualHandler, PerformanceAnalyzerController controller) {
         this.actualHandler = actualHandler;
         this.controller = controller;
+        this.cpuUtilizationHistogram = createCPUUtilizationHistogram();
     }
 
-    PerformanceAnalyzerTransportRequestHandler<T> set(TransportRequestHandler<T> actualHandler) {
-        this.actualHandler = actualHandler;
-        return this;
+    private Histogram createCPUUtilizationHistogram() {
+        MetricsRegistry metricsRegistry = OpenSearchResources.INSTANCE.getMetricsRegistry();
+        if (metricsRegistry != null) {
+            return metricsRegistry.createHistogram(
+                    RTFMetrics.OSMetrics.CPU_UTILIZATION.toString(),
+                    "CPU Utilization per shard for an operation",
+                    RTFMetrics.MetricUnits.RATE.toString());
+        } else {
+            return null;
+        }
     }
 
     @Override
@@ -58,10 +77,11 @@ public class PerformanceAnalyzerTransportRequestHandler<T extends TransportReque
     }
 
     private boolean isCollectorEnabled() {
-        return controller.isPerformanceAnalyzerEnabled()
+        return OpenSearchResources.INSTANCE.getMetricsRegistry() != null
+                && controller.isPerformanceAnalyzerEnabled()
                 && (controller.getCollectorsRunModeValue() == Util.CollectorMode.DUAL.getValue()
                         || controller.getCollectorsRunModeValue()
-                                == Util.CollectorMode.RCA.getValue());
+                                == Util.CollectorMode.TELEMETRY.getValue());
     }
 
     private TransportChannel getShardBulkChannel(T request, TransportChannel channel, Task task) {
@@ -85,17 +105,12 @@ public class PerformanceAnalyzerTransportRequestHandler<T extends TransportReque
         }
 
         BulkShardRequest bsr = (BulkShardRequest) transportRequest;
-        PerformanceAnalyzerTransportChannel performanceanalyzerChannel =
-                new PerformanceAnalyzerTransportChannel();
+        RTFPerformanceAnalyzerTransportChannel rtfPerformanceAnalyzerTransportChannel =
+                new RTFPerformanceAnalyzerTransportChannel();
 
         try {
-            performanceanalyzerChannel.set(
-                    channel,
-                    System.currentTimeMillis(),
-                    bsr.index(),
-                    bsr.shardId().id(),
-                    bsr.items().length,
-                    bPrimary);
+            rtfPerformanceAnalyzerTransportChannel.set(
+                    channel, cpuUtilizationHistogram, bsr.index(), bsr.shardId(), bPrimary);
         } catch (Exception ex) {
             if (!logOnce) {
                 LOG.error(ex);
@@ -104,6 +119,6 @@ public class PerformanceAnalyzerTransportRequestHandler<T extends TransportReque
             StatsCollector.instance().logException(OPENSEARCH_REQUEST_INTERCEPTOR_ERROR);
         }
 
-        return performanceanalyzerChannel;
+        return rtfPerformanceAnalyzerTransportChannel;
     }
 }
