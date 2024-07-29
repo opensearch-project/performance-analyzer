@@ -9,5 +9,3 @@ Compatible with OpenSearch 2.16.0
 ### Feature 
 * Adds index_uuid as a tag in node stats all shard metrics [#680](https://github.com/opensearch-project/performance-analyzer/pull/680)
 * Adds the listener for resource utilization metrics [#687](https://github.com/opensearch-project/performance-analyzer/pull/687)
-
-### Bug Fix
