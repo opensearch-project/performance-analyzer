@@ -55,6 +55,7 @@ import org.opensearch.performanceanalyzer.collectors.SearchBackPressureStatsColl
 import org.opensearch.performanceanalyzer.collectors.ShardIndexingPressureMetricsCollector;
 import org.opensearch.performanceanalyzer.collectors.ShardStateCollector;
 import org.opensearch.performanceanalyzer.collectors.ThreadPoolMetricsCollector;
+import org.opensearch.performanceanalyzer.collectors.telemetry.RTFCacheConfigMetricsCollector;
 import org.opensearch.performanceanalyzer.collectors.telemetry.RTFDisksCollector;
 import org.opensearch.performanceanalyzer.collectors.telemetry.RTFHeapMetricsCollector;
 import org.opensearch.performanceanalyzer.collectors.telemetry.RTFNodeStatsAllShardsMetricsCollector;
@@ -234,6 +235,9 @@ public final class PerformanceAnalyzerPlugin extends Plugin
                         performanceAnalyzerController, configOverridesWrapper));
         scheduledMetricCollectorsExecutor.addScheduledMetricCollector(
                 new RTFNodeStatsAllShardsMetricsCollector(
+                        performanceAnalyzerController, configOverridesWrapper));
+        scheduledMetricCollectorsExecutor.addScheduledMetricCollector(
+                new RTFCacheConfigMetricsCollector(
                         performanceAnalyzerController, configOverridesWrapper));
     }
 
