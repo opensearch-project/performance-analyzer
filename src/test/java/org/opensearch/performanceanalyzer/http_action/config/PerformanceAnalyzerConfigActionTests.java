@@ -64,7 +64,7 @@ public class PerformanceAnalyzerConfigActionTests {
         UsageService usageService = new UsageService();
         threadPool = new TestThreadPool("test");
         nodeClient = new NodeClient(Settings.EMPTY, threadPool);
-        identityService = new IdentityService(Settings.EMPTY, List.of());
+        identityService = new IdentityService(Settings.EMPTY, threadPool, List.of());
         restController =
                 new RestController(
                         Collections.emptySet(),
