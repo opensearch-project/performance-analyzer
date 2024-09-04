@@ -21,10 +21,7 @@ import org.opensearch.index.shard.IndexShardState;
 import org.opensearch.indices.IndicesService;
 import org.opensearch.performanceanalyzer.OpenSearchResources;
 import org.opensearch.performanceanalyzer.collectors.*;
-import org.opensearch.performanceanalyzer.collectors.telemetry.RTFDisksCollector;
-import org.opensearch.performanceanalyzer.collectors.telemetry.RTFHeapMetricsCollector;
-import org.opensearch.performanceanalyzer.collectors.telemetry.RTFNodeStatsAllShardsMetricsCollector;
-import org.opensearch.performanceanalyzer.collectors.telemetry.RTFThreadPoolMetricsCollector;
+import org.opensearch.performanceanalyzer.collectors.telemetry.*;
 import org.opensearch.performanceanalyzer.commons.metrics.MetricsConfiguration;
 import org.opensearch.performanceanalyzer.commons.stats.ServiceMetrics;
 
@@ -53,6 +50,9 @@ public class Utils {
         MetricsConfiguration.CONFIG_MAP.put(RTFHeapMetricsCollector.class, cdefault);
         MetricsConfiguration.CONFIG_MAP.put(RTFNodeStatsAllShardsMetricsCollector.class, cdefault);
         MetricsConfiguration.CONFIG_MAP.put(RTFThreadPoolMetricsCollector.class, cdefault);
+        MetricsConfiguration.CONFIG_MAP.put(
+                RTFCacheConfigMetricsCollector.class,
+                new MetricsConfiguration.MetricConfig(60000, 0));
     }
 
     // These methods are utility functions for the Node Stat Metrics Collectors. These methods are
