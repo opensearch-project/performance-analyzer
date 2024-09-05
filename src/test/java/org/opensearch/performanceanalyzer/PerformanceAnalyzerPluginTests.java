@@ -90,7 +90,7 @@ public class PerformanceAnalyzerPluginTests extends OpenSearchTestCase {
             e.printStackTrace();
         }
         clusterService = new ClusterService(settings, clusterSettings, threadPool);
-        identityService = new IdentityService(Settings.EMPTY, List.of());
+        identityService = new IdentityService(Settings.EMPTY, threadPool, List.of());
         restController =
                 new RestController(
                         Collections.emptySet(),
