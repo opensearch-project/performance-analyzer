@@ -13,7 +13,6 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.List;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -63,10 +62,6 @@ public class PerformanceAnalyzerOverridesClusterConfigActionTests {
         UsageService usageService = new UsageService();
         threadPool = new TestThreadPool("test");
         nodeClient = new NodeClient(Settings.EMPTY, threadPool);
-<<<<<<< HEAD
-=======
-        identityService = new IdentityService(Settings.EMPTY, threadPool, List.of());
->>>>>>> 2.x
         restController =
                 new RestController(
                         Collections.emptySet(),
