@@ -62,7 +62,7 @@ jobs:
       with:
         name: linux-JDK${{ matrix.java }}-reports
         path: |
-          ./build/reports/
+          ./tmp/performance-analyzer/build/reports/
     - name: Run Integration Tests
       working-directory: ./tmp/performance-analyzer
       run: ./gradlew integTest -Dtests.enableIT -Dtests.useDockerCluster
