@@ -30,7 +30,6 @@ import org.opensearch.core.action.ActionResponse;
 import org.opensearch.core.indices.breaker.CircuitBreakerService;
 import org.opensearch.env.Environment;
 import org.opensearch.env.TestEnvironment;
-import org.opensearch.identity.IdentityService;
 import org.opensearch.indices.breaker.BreakerSettings;
 import org.opensearch.indices.breaker.HierarchyCircuitBreakerService;
 import org.opensearch.performanceanalyzer.action.PerformanceAnalyzerActionFilter;
@@ -62,7 +61,6 @@ public class PerformanceAnalyzerPluginTests extends OpenSearchTestCase {
     private CircuitBreakerService circuitBreakerService;
     private ClusterService clusterService;
     private ClusterSettings clusterSettings;
-    private IdentityService identityService;
 
     @Before
     public void setup() {
@@ -79,15 +77,13 @@ public class PerformanceAnalyzerPluginTests extends OpenSearchTestCase {
         nodeClient = new NodeClient(settings, threadPool);
         environment = TestEnvironment.newEnvironment(settings);
         clusterService = new ClusterService(settings, clusterSettings, threadPool);
-        identityService = new IdentityService(Settings.EMPTY, List.of());
         restController =
                 new RestController(
                         Collections.emptySet(),
                         null,
                         nodeClient,
                         circuitBreakerService,
-                        usageService,
-                        identityService);
+                        usageService);
     }
 
     @After

@@ -28,7 +28,6 @@ import org.opensearch.core.indices.breaker.CircuitBreakerService;
 import org.opensearch.core.rest.RestStatus;
 import org.opensearch.core.xcontent.NamedXContentRegistry;
 import org.opensearch.core.xcontent.XContentBuilder;
-import org.opensearch.identity.IdentityService;
 import org.opensearch.indices.breaker.BreakerSettings;
 import org.opensearch.indices.breaker.HierarchyCircuitBreakerService;
 import org.opensearch.performanceanalyzer.config.PerformanceAnalyzerController;
@@ -52,7 +51,6 @@ public class PerformanceAnalyzerClusterConfigActionTests {
     private ClusterSettings clusterSettings;
     private PerformanceAnalyzerClusterSettingHandler clusterSettingHandler;
     private NodeStatsSettingHandler nodeStatsSettingHandler;
-    private IdentityService identityService;
 
     @Mock private PerformanceAnalyzerController controller;
     @Mock private ClusterSettingsManager clusterSettingsManager;
@@ -69,15 +67,13 @@ public class PerformanceAnalyzerClusterConfigActionTests {
         UsageService usageService = new UsageService();
         threadPool = new TestThreadPool("test");
         nodeClient = new NodeClient(Settings.EMPTY, threadPool);
-        identityService = new IdentityService(Settings.EMPTY, List.of());
         restController =
                 new RestController(
                         Collections.emptySet(),
                         null,
                         nodeClient,
                         circuitBreakerService,
-                        usageService,
-                        identityService);
+                        usageService);
         clusterSettingHandler =
                 new PerformanceAnalyzerClusterSettingHandler(controller, clusterSettingsManager);
         nodeStatsSettingHandler = new NodeStatsSettingHandler(controller, clusterSettingsManager);

@@ -27,7 +27,6 @@ import org.opensearch.core.common.bytes.BytesReference;
 import org.opensearch.core.indices.breaker.CircuitBreakerService;
 import org.opensearch.core.rest.RestStatus;
 import org.opensearch.core.xcontent.NamedXContentRegistry;
-import org.opensearch.identity.IdentityService;
 import org.opensearch.indices.breaker.BreakerSettings;
 import org.opensearch.indices.breaker.HierarchyCircuitBreakerService;
 import org.opensearch.performanceanalyzer.commons.config.overrides.ConfigOverridesWrapper;
@@ -48,7 +47,6 @@ public class PerformanceAnalyzerOverridesClusterConfigActionTests {
     private NodeClient nodeClient;
     private CircuitBreakerService circuitBreakerService;
     private ClusterSettings clusterSettings;
-    private IdentityService identityService;
 
     @Mock private ConfigOverridesClusterSettingHandler configOverridesClusterSettingHandler;
     @Mock private ConfigOverridesWrapper overridesWrapper;
@@ -65,15 +63,13 @@ public class PerformanceAnalyzerOverridesClusterConfigActionTests {
         UsageService usageService = new UsageService();
         threadPool = new TestThreadPool("test");
         nodeClient = new NodeClient(Settings.EMPTY, threadPool);
-        identityService = new IdentityService(Settings.EMPTY, List.of());
         restController =
                 new RestController(
                         Collections.emptySet(),
                         null,
                         nodeClient,
                         circuitBreakerService,
-                        usageService,
-                        identityService);
+                        usageService);
         configAction =
                 new PerformanceAnalyzerOverridesClusterConfigAction(
                         Settings.EMPTY,
