@@ -34,6 +34,7 @@ import org.opensearch.performanceanalyzer.config.PerformanceAnalyzerController;
 import org.opensearch.performanceanalyzer.config.setting.ClusterSettingsManager;
 import org.opensearch.performanceanalyzer.config.setting.handler.NodeStatsSettingHandler;
 import org.opensearch.performanceanalyzer.config.setting.handler.PerformanceAnalyzerClusterSettingHandler;
+import org.opensearch.performanceanalyzer.config.setting.handler.PerformanceAnalyzerCollectorsSettingHandler;
 import org.opensearch.rest.RestController;
 import org.opensearch.rest.RestRequest;
 import org.opensearch.test.rest.FakeRestChannel;
@@ -51,6 +52,7 @@ public class PerformanceAnalyzerClusterConfigActionTests {
     private ClusterSettings clusterSettings;
     private PerformanceAnalyzerClusterSettingHandler clusterSettingHandler;
     private NodeStatsSettingHandler nodeStatsSettingHandler;
+    private PerformanceAnalyzerCollectorsSettingHandler performanceAnalyzerCollectorsSettingHandler;
 
     @Mock private PerformanceAnalyzerController controller;
     @Mock private ClusterSettingsManager clusterSettingsManager;
@@ -77,12 +79,16 @@ public class PerformanceAnalyzerClusterConfigActionTests {
         clusterSettingHandler =
                 new PerformanceAnalyzerClusterSettingHandler(controller, clusterSettingsManager);
         nodeStatsSettingHandler = new NodeStatsSettingHandler(controller, clusterSettingsManager);
+        performanceAnalyzerCollectorsSettingHandler =
+                new PerformanceAnalyzerCollectorsSettingHandler(controller, clusterSettingsManager);
+
         configAction =
                 new PerformanceAnalyzerClusterConfigAction(
                         Settings.EMPTY,
                         restController,
                         clusterSettingHandler,
-                        nodeStatsSettingHandler);
+                        nodeStatsSettingHandler,
+                        performanceAnalyzerCollectorsSettingHandler);
         restController.registerHandler(configAction);
     }
 
@@ -163,6 +169,7 @@ public class PerformanceAnalyzerClusterConfigActionTests {
         assertTrue(responseStr.contains(PerformanceAnalyzerClusterConfigAction.CURRENT));
         assertTrue(
                 responseStr.contains(PerformanceAnalyzerClusterConfigAction.SHARDS_PER_COLLECTION));
+        assertTrue(responseStr.contains(PerformanceAnalyzerClusterConfigAction.COLLECTORS_SETTING));
         assertTrue(
                 responseStr.contains(
                         PerformanceAnalyzerClusterConfigAction
@@ -175,6 +182,7 @@ public class PerformanceAnalyzerClusterConfigActionTests {
                         .startObject()
                         .field(PerformanceAnalyzerClusterConfigAction.ENABLED, true)
                         .field(PerformanceAnalyzerClusterConfigAction.SHARDS_PER_COLLECTION, 1)
+                        .field(PerformanceAnalyzerClusterConfigAction.COLLECTORS_SETTING, 2)
                         .endObject();
 
         return new FakeRestRequest.Builder(NamedXContentRegistry.EMPTY)
