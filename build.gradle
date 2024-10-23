@@ -10,13 +10,13 @@ buildscript {
         isSnapshot = "true" == System.getProperty("build.snapshot", "true")
         buildVersionQualifier = System.getProperty("build.version_qualifier", "")
 
-        default_bwc_version = System.getProperty("bwc.version", "2.12.0.0")
+        default_bwc_version = System.getProperty("bwc.version", "2.18.0.0")
         pa_bwc_version = System.getProperty("tests.bwc.version", default_bwc_version)
         baseName = "paBwcCluster"
 
         // The PA Commons (https://github.com/opensearch-project/performance-analyzer-commons)
         // is a library dependency with hardcoded versioning in PA and RCA repos.
-        paCommonsVersion = "1.3.0"
+        paCommonsVersion = "1.6.0"
 
         // 3.0.0-SNAPSHOT -> 3.0.0.0-SNAPSHOT
         version_tokens = opensearch_version.tokenize('-')
@@ -301,8 +301,8 @@ dependencies {
 
     implementation 'org.jooq:jooq:3.10.8'
     implementation 'org.apache.commons:commons-lang3:3.9'
-    implementation 'org.bouncycastle:bcprov-jdk15to18:1.74'
-    implementation 'org.bouncycastle:bcpkix-jdk18on:1.74'
+    implementation 'org.bouncycastle:bcprov-jdk15to18:1.78.1'
+    implementation 'org.bouncycastle:bcpkix-jdk18on:1.78.1'
     implementation "org.opensearch:performance-analyzer-commons:${paCommonsVersion}"
     implementation "com.fasterxml.jackson.core:jackson-annotations:${jacksonVersion}"
     implementation "com.fasterxml.jackson.core:jackson-databind:${jacksonDataBindVersion}"
@@ -669,7 +669,7 @@ task integTestRemote(type: RestIntegTestTask) {
     testClusters {
         "${baseName}$i" {
             testDistribution = "ARCHIVE"
-            versions = ["2.12.0-SNAPSHOT", opensearch_version]
+            versions = ["2.18.0-SNAPSHOT", opensearch_version]
             numberOfNodes = 3
             plugin(provider(new Callable<RegularFile>() {
                 @Override

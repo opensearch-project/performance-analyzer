@@ -30,7 +30,6 @@ import org.opensearch.core.action.ActionResponse;
 import org.opensearch.core.indices.breaker.CircuitBreakerService;
 import org.opensearch.env.Environment;
 import org.opensearch.env.TestEnvironment;
-import org.opensearch.identity.IdentityService;
 import org.opensearch.indices.breaker.BreakerSettings;
 import org.opensearch.indices.breaker.HierarchyCircuitBreakerService;
 import org.opensearch.performanceanalyzer.action.PerformanceAnalyzerActionFilter;
@@ -43,6 +42,8 @@ import org.opensearch.performanceanalyzer.transport.PerformanceAnalyzerTransport
 import org.opensearch.plugins.ActionPlugin.ActionHandler;
 import org.opensearch.rest.RestController;
 import org.opensearch.rest.RestHandler;
+import org.opensearch.telemetry.metrics.MetricsRegistry;
+import org.opensearch.telemetry.metrics.NoopMetricsRegistryFactory;
 import org.opensearch.telemetry.tracing.noop.NoopTracer;
 import org.opensearch.test.OpenSearchTestCase;
 import org.opensearch.threadpool.TestThreadPool;
@@ -62,7 +63,8 @@ public class PerformanceAnalyzerPluginTests extends OpenSearchTestCase {
     private CircuitBreakerService circuitBreakerService;
     private ClusterService clusterService;
     private ClusterSettings clusterSettings;
-    private IdentityService identityService;
+
+    private MetricsRegistry metricsRegistry;
 
     @Before
     public void setup() {
@@ -78,16 +80,21 @@ public class PerformanceAnalyzerPluginTests extends OpenSearchTestCase {
         threadPool = new TestThreadPool("test");
         nodeClient = new NodeClient(settings, threadPool);
         environment = TestEnvironment.newEnvironment(settings);
+        NoopMetricsRegistryFactory metricsRegistryFactory = new NoopMetricsRegistryFactory();
+        metricsRegistry = metricsRegistryFactory.getMetricsRegistry();
+        try {
+            metricsRegistryFactory.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         clusterService = new ClusterService(settings, clusterSettings, threadPool);
-        identityService = new IdentityService(Settings.EMPTY, List.of());
         restController =
                 new RestController(
                         Collections.emptySet(),
                         null,
                         nodeClient,
                         circuitBreakerService,
-                        usageService,
-                        identityService);
+                        usageService);
     }
 
     @After
@@ -114,7 +121,7 @@ public class PerformanceAnalyzerPluginTests extends OpenSearchTestCase {
     @Test
     public void testGetTransportInterceptors() {
         List<TransportInterceptor> list = plugin.getTransportInterceptors(null, null);
-        assertEquals(1, list.size());
+        assertEquals(2, list.size());
         assertEquals(PerformanceAnalyzerTransportInterceptor.class, list.get(0).getClass());
     }
 
@@ -144,12 +151,15 @@ public class PerformanceAnalyzerPluginTests extends OpenSearchTestCase {
                         null,
                         null,
                         null,
-                        null);
+                        null,
+                        null,
+                        metricsRegistry);
         assertEquals(1, components.size());
         assertEquals(settings, OpenSearchResources.INSTANCE.getSettings());
         assertEquals(threadPool, OpenSearchResources.INSTANCE.getThreadPool());
         assertEquals(environment, OpenSearchResources.INSTANCE.getEnvironment());
         assertEquals(nodeClient, OpenSearchResources.INSTANCE.getClient());
+        assertEquals(metricsRegistry, OpenSearchResources.INSTANCE.getMetricsRegistry());
     }
 
     @Test
@@ -172,9 +182,10 @@ public class PerformanceAnalyzerPluginTests extends OpenSearchTestCase {
     @Test
     public void testGetSettings() {
         List<Setting<?>> list = plugin.getSettings();
-        assertEquals(3, list.size());
+        assertEquals(4, list.size());
         assertEquals(PerformanceAnalyzerClusterSettings.COMPOSITE_PA_SETTING, list.get(0));
         assertEquals(PerformanceAnalyzerClusterSettings.PA_NODE_STATS_SETTING, list.get(1));
         assertEquals(PerformanceAnalyzerClusterSettings.CONFIG_OVERRIDES_SETTING, list.get(2));
+        assertEquals(PerformanceAnalyzerClusterSettings.PA_COLLECTORS_SETTING, list.get(3));
     }
 }

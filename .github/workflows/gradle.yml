@@ -31,7 +31,7 @@ jobs:
       # Explicitly set the docker-compose program path so that our build scripts in RCA can run the program
       # This is necessary because of the Github Actions environment and the workingDir of the Gradle environment
     - name: Set docker-compose path
-      run: DOCKER_COMPOSE_LOCATION=$(which docker-compose)
+      run: echo "DOCKER_COMPOSE_LOCATION=$(which docker-compose)" >> $GITHUB_ENV
       # Set the vm.max_map_count system property to the minimum required to run OpenSearch
     - name: Set vm.max_map_count
       run: sudo sysctl -w vm.max_map_count=262144
@@ -55,10 +55,14 @@ jobs:
       working-directory: ./tmp/performance-analyzer
       run: ./gradlew jacocoTestReport
     - name: Upload coverage report
-      working-directory: ./tmp/performance-analyzer
-      env:
-        CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
-      run: bash <(curl -s https://codecov.io/bash) -f ./build/reports/jacoco/test/jacocoTestReport.xml
+      uses: codecov/codecov-action@v3
+      with:
+        token: ${{ secrets.CODECOV_TOKEN }}
+    - uses: actions/upload-artifact@v3
+      with:
+        name: linux-JDK${{ matrix.java }}-reports
+        path: |
+          ./tmp/performance-analyzer/build/reports/
     - name: Run Integration Tests
       working-directory: ./tmp/performance-analyzer
       run: ./gradlew integTest -Dtests.enableIT -Dtests.useDockerCluster
