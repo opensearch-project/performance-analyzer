@@ -10,7 +10,7 @@ buildscript {
         isSnapshot = "true" == System.getProperty("build.snapshot", "true")
         buildVersionQualifier = System.getProperty("build.version_qualifier", "")
 
-        default_bwc_version = System.getProperty("bwc.version", "2.12.0.0")
+        default_bwc_version = System.getProperty("bwc.version", "2.18.0.0")
         pa_bwc_version = System.getProperty("tests.bwc.version", default_bwc_version)
         baseName = "paBwcCluster"
 
@@ -669,7 +669,7 @@ task integTestRemote(type: RestIntegTestTask) {
     testClusters {
         "${baseName}$i" {
             testDistribution = "ARCHIVE"
-            versions = ["2.12.0-SNAPSHOT", opensearch_version]
+            versions = ["2.18.0-SNAPSHOT", opensearch_version]
             numberOfNodes = 3
             plugin(provider(new Callable<RegularFile>() {
                 @Override
