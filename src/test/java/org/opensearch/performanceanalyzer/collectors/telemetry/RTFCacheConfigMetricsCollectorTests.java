@@ -9,6 +9,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 
@@ -29,6 +30,7 @@ public class RTFCacheConfigMetricsCollectorTests extends OpenSearchSingleNodeTes
     private static final String TEST_INDEX = "test";
     private RTFCacheConfigMetricsCollector rtfCacheConfigMetricsCollector;
     private static MetricsRegistry metricsRegistry;
+    private static MetricsRegistry metricsRegistry1;
     private long startTimeInMills = 1153721339;
 
     @Before
@@ -36,6 +38,7 @@ public class RTFCacheConfigMetricsCollectorTests extends OpenSearchSingleNodeTes
         MetricsConfiguration.CONFIG_MAP.put(
                 RTFCacheConfigMetricsCollector.class, MetricsConfiguration.cdefault);
         metricsRegistry = mock(MetricsRegistry.class);
+        metricsRegistry1 = mock(MetricsRegistry.class);
         OpenSearchResources.INSTANCE.setMetricsRegistry(metricsRegistry);
         IndicesService indicesService = getInstanceFromNode(IndicesService.class);
         OpenSearchResources.INSTANCE.setIndicesService(indicesService);
@@ -56,6 +59,19 @@ public class RTFCacheConfigMetricsCollectorTests extends OpenSearchSingleNodeTes
         createIndex(TEST_INDEX);
         rtfCacheConfigMetricsCollector.collectMetrics(startTimeInMills);
         verify(metricsRegistry, atLeastOnce())
+                .createGauge(anyString(), anyString(), anyString(), any(), any());
+    }
+
+    @Test
+    public void testCollectMetricsRepeated() throws IOException {
+        createIndex(TEST_INDEX);
+        rtfCacheConfigMetricsCollector.collectMetrics(startTimeInMills);
+        verify(metricsRegistry, atLeastOnce())
+                .createGauge(anyString(), anyString(), anyString(), any(), any());
+
+        OpenSearchResources.INSTANCE.setMetricsRegistry(metricsRegistry1);
+        rtfCacheConfigMetricsCollector.collectMetrics(startTimeInMills);
+        verify(metricsRegistry1, never())
                 .createGauge(anyString(), anyString(), anyString(), any(), any());
     }
 }
