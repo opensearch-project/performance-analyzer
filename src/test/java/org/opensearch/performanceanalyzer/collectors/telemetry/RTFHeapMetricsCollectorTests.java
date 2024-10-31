@@ -25,6 +25,7 @@ public class RTFHeapMetricsCollectorTests extends CollectorTestBase {
     private RTFHeapMetricsCollector rtfHeapMetricsCollector;
 
     private static MetricsRegistry metricsRegistry;
+    private static MetricsRegistry metricsRegistry1;
     private static Histogram gcCollectionEventHistogram;
     private static Histogram gcCollectionTimeHistogram;
     private static Histogram heapUsedHistogram;
@@ -35,6 +36,7 @@ public class RTFHeapMetricsCollectorTests extends CollectorTestBase {
                 RTFHeapMetricsCollector.class, MetricsConfiguration.cdefault);
 
         metricsRegistry = mock(MetricsRegistry.class);
+        metricsRegistry1 = mock(MetricsRegistry.class);
         gcCollectionEventHistogram = mock(Histogram.class);
         gcCollectionTimeHistogram = mock(Histogram.class);
         heapUsedHistogram = mock(Histogram.class);
@@ -63,6 +65,22 @@ public class RTFHeapMetricsCollectorTests extends CollectorTestBase {
         verify(gcCollectionTimeHistogram, atLeastOnce()).record(anyDouble(), any());
         verify(gcCollectionEventHistogram, atLeastOnce()).record(anyDouble(), any());
         verify(metricsRegistry, atLeastOnce())
+                .createGauge(anyString(), anyString(), anyString(), any(), any());
+    }
+
+    @Test
+    public void testCollectMetricsRepeated() throws IOException {
+
+        rtfHeapMetricsCollector.collectMetrics(System.currentTimeMillis());
+        verify(heapUsedHistogram, atLeastOnce()).record(anyDouble(), any());
+        verify(gcCollectionTimeHistogram, atLeastOnce()).record(anyDouble(), any());
+        verify(gcCollectionEventHistogram, atLeastOnce()).record(anyDouble(), any());
+        verify(metricsRegistry, atLeastOnce())
+                .createGauge(anyString(), anyString(), anyString(), any(), any());
+
+        OpenSearchResources.INSTANCE.setMetricsRegistry(metricsRegistry1);
+        rtfHeapMetricsCollector.collectMetrics(System.currentTimeMillis());
+        verify(metricsRegistry1, never())
                 .createGauge(anyString(), anyString(), anyString(), any(), any());
     }
 }
