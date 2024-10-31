@@ -11,6 +11,7 @@ import static org.opensearch.performanceanalyzer.commons.stats.decisionmaker.Dec
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import java.io.Closeable;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
 import org.apache.commons.lang3.reflect.FieldUtils;
@@ -34,10 +35,12 @@ import org.opensearch.telemetry.metrics.tags.Tags;
 
 public class RTFCacheConfigMetricsCollector extends PerformanceAnalyzerMetricsCollector
         implements TelemetryCollector {
-    private MetricsRegistry metricsRegistry;
     private static final Logger LOG = LogManager.getLogger(RTFCacheConfigMetricsCollector.class);
     private PerformanceAnalyzerController performanceAnalyzerController;
     private ConfigOverridesWrapper configOverridesWrapper;
+    private Closeable fieldDataCacheGauge;
+    private Closeable requestCacheGauge;
+    private boolean metricsInitialised;
 
     public RTFCacheConfigMetricsCollector(
             PerformanceAnalyzerController performanceAnalyzerController,
@@ -56,11 +59,11 @@ public class RTFCacheConfigMetricsCollector extends PerformanceAnalyzerMetricsCo
     public void collectMetrics(long l) {
         if (performanceAnalyzerController.isCollectorDisabled(
                 configOverridesWrapper, getCollectorName())) {
+            closeOpenGaugeObservablesIfAny();
             LOG.info("RTFCacheConfigMetricsCollector is disabled. Skipping collection.");
             return;
         }
-
-        metricsRegistry = OpenSearchResources.INSTANCE.getMetricsRegistry();
+        MetricsRegistry metricsRegistry = OpenSearchResources.INSTANCE.getMetricsRegistry();
         if (metricsRegistry == null) {
             LOG.error("could not get the instance of MetricsRegistry class");
             return;
@@ -71,33 +74,59 @@ public class RTFCacheConfigMetricsCollector extends PerformanceAnalyzerMetricsCo
             LOG.error("could not get the instance of indicesService class");
             return;
         }
-
         LOG.debug("Executing collect metrics for RTFCacheConfigMetricsCollector");
-        CacheMaxSizeStatus fieldDataCacheMaxSizeStatus =
-                AccessController.doPrivileged(
-                        (PrivilegedAction<CacheMaxSizeStatus>)
-                                () -> {
-                                    try {
-                                        Cache fieldDataCache =
-                                                indicesService
-                                                        .getIndicesFieldDataCache()
-                                                        .getCache();
-                                        long fieldDataMaxSize =
-                                                (Long)
-                                                        FieldUtils.readField(
-                                                                fieldDataCache,
-                                                                CACHE_MAX_WEIGHT,
-                                                                true);
-                                        return new CacheMaxSizeStatus(
-                                                FIELD_DATA_CACHE.toString(), fieldDataMaxSize);
-                                    } catch (Exception e) {
-                                        LOG.debug(
-                                                "Error occurred while fetching fieldDataCacheMaxSizeStatus: "
-                                                        + e.getMessage());
-                                        return null;
-                                    }
-                                });
+        initialiseMetricsIfNeeded(metricsRegistry, indicesService);
+    }
 
+    private void initialiseMetricsIfNeeded(
+            MetricsRegistry metricsRegistry, IndicesService indicesService) {
+        if (!metricsInitialised) {
+            fieldDataCacheGauge =
+                    metricsRegistry.createGauge(
+                            RTFMetrics.CacheConfigValue.Constants.CACHE_MAX_SIZE_VALUE,
+                            "Cache Max Size metrics",
+                            RTFMetrics.MetricUnits.BYTE.toString(),
+                            () -> getFieldCacheMaxSizeStatus(indicesService),
+                            Tags.create()
+                                    .addTag(
+                                            RTFMetrics.CacheConfigDimension.Constants.TYPE_VALUE,
+                                            FIELD_DATA_CACHE.toString()));
+            requestCacheGauge =
+                    metricsRegistry.createGauge(
+                            RTFMetrics.CacheConfigValue.Constants.CACHE_MAX_SIZE_VALUE,
+                            "Cache Max Size metrics",
+                            RTFMetrics.MetricUnits.BYTE.toString(),
+                            () -> getRequestCacheMaxSizeStatus(indicesService),
+                            Tags.create()
+                                    .addTag(
+                                            RTFMetrics.CacheConfigDimension.Constants.TYPE_VALUE,
+                                            SHARD_REQUEST_CACHE.toString()));
+            metricsInitialised = true;
+        }
+    }
+
+    private void closeOpenGaugeObservablesIfAny() {
+        if (fieldDataCacheGauge != null) {
+            try {
+                fieldDataCacheGauge.close();
+            } catch (Exception e) {
+                LOG.error("Unable to close the fieldDataCacheGauge observable");
+            } finally {
+                fieldDataCacheGauge = null;
+            }
+        }
+        if (requestCacheGauge != null) {
+            try {
+                requestCacheGauge.close();
+            } catch (Exception e) {
+                LOG.error("Unable to close the fieldDataCacheGauge observable");
+            } finally {
+                requestCacheGauge = null;
+            }
+        }
+    }
+
+    private double getRequestCacheMaxSizeStatus(IndicesService indicesService) {
         CacheMaxSizeStatus shardRequestCacheMaxSizeStatus =
                 AccessController.doPrivileged(
                         (PrivilegedAction<CacheMaxSizeStatus>)
@@ -132,28 +161,45 @@ public class RTFCacheConfigMetricsCollector extends PerformanceAnalyzerMetricsCo
                                         return null;
                                     }
                                 });
-
-        if (fieldDataCacheMaxSizeStatus != null
-                && fieldDataCacheMaxSizeStatus.getCacheMaxSize() > 0) {
-            recordMetrics(fieldDataCacheMaxSizeStatus);
-        }
-
         if (shardRequestCacheMaxSizeStatus != null
                 && shardRequestCacheMaxSizeStatus.getCacheMaxSize() > 0) {
-            recordMetrics(shardRequestCacheMaxSizeStatus);
+            return shardRequestCacheMaxSizeStatus.getCacheMaxSize();
+        } else {
+            return 0.0;
         }
     }
 
-    private void recordMetrics(CacheMaxSizeStatus cacheMaxSizeStatus) {
-        metricsRegistry.createGauge(
-                RTFMetrics.CacheConfigValue.Constants.CACHE_MAX_SIZE_VALUE,
-                "Cache Max Size metrics",
-                RTFMetrics.MetricUnits.BYTE.toString(),
-                () -> (double) cacheMaxSizeStatus.getCacheMaxSize(),
-                Tags.create()
-                        .addTag(
-                                RTFMetrics.CacheConfigDimension.Constants.TYPE_VALUE,
-                                cacheMaxSizeStatus.getCacheType()));
+    private static double getFieldCacheMaxSizeStatus(IndicesService indicesService) {
+        CacheMaxSizeStatus fieldDataCacheMaxSizeStatus =
+                AccessController.doPrivileged(
+                        (PrivilegedAction<CacheMaxSizeStatus>)
+                                () -> {
+                                    try {
+                                        Cache fieldDataCache =
+                                                indicesService
+                                                        .getIndicesFieldDataCache()
+                                                        .getCache();
+                                        long fieldDataMaxSize =
+                                                (Long)
+                                                        FieldUtils.readField(
+                                                                fieldDataCache,
+                                                                CACHE_MAX_WEIGHT,
+                                                                true);
+                                        return new CacheMaxSizeStatus(
+                                                FIELD_DATA_CACHE.toString(), fieldDataMaxSize);
+                                    } catch (Exception e) {
+                                        LOG.debug(
+                                                "Error occurred while fetching fieldDataCacheMaxSizeStatus: "
+                                                        + e.getMessage());
+                                        return null;
+                                    }
+                                });
+        if (fieldDataCacheMaxSizeStatus != null
+                && fieldDataCacheMaxSizeStatus.getCacheMaxSize() > 0) {
+            return fieldDataCacheMaxSizeStatus.getCacheMaxSize();
+        } else {
+            return 0.0;
+        }
     }
 
     static class CacheMaxSizeStatus extends MetricStatus {

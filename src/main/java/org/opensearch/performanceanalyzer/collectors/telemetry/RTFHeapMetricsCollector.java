@@ -5,7 +5,9 @@
 
 package org.opensearch.performanceanalyzer.collectors.telemetry;
 
+import java.io.Closeable;
 import java.lang.management.MemoryUsage;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Supplier;
 import org.apache.logging.log4j.LogManager;
@@ -38,6 +40,7 @@ public class RTFHeapMetricsCollector extends PerformanceAnalyzerMetricsCollector
     private boolean metricsInitialised;
     private PerformanceAnalyzerController performanceAnalyzerController;
     private ConfigOverridesWrapper configOverridesWrapper;
+    private Map<String, Closeable> memTypeToGaugeObservableMap;
 
     public RTFHeapMetricsCollector(
             PerformanceAnalyzerController performanceAnalyzerController,
@@ -50,6 +53,7 @@ public class RTFHeapMetricsCollector extends PerformanceAnalyzerMetricsCollector
         this.metricsInitialised = false;
         this.performanceAnalyzerController = performanceAnalyzerController;
         this.configOverridesWrapper = configOverridesWrapper;
+        this.memTypeToGaugeObservableMap = new HashMap<>();
     }
 
     @Override
@@ -57,6 +61,7 @@ public class RTFHeapMetricsCollector extends PerformanceAnalyzerMetricsCollector
         if (performanceAnalyzerController.isCollectorDisabled(
                 configOverridesWrapper, getCollectorName())) {
             LOG.info("RTFDisksCollector is disabled. Skipping collection.");
+            closeOpenGaugeObservablesIfAny();
             return;
         }
 
@@ -70,6 +75,21 @@ public class RTFHeapMetricsCollector extends PerformanceAnalyzerMetricsCollector
         GCMetrics.runGCMetrics();
         LOG.debug("Executing collect metrics for RTFHeapMetricsCollector");
         recordMetrics();
+    }
+
+    private void closeOpenGaugeObservablesIfAny() {
+        for (String key : memTypeToGaugeObservableMap.keySet()) {
+            if (memTypeToGaugeObservableMap.containsKey(key)) {
+                try {
+                    Closeable observableGauge = memTypeToGaugeObservableMap.remove(key);
+                    if (observableGauge != null) {
+                        observableGauge.close();
+                    }
+                } catch (Exception e) {
+                    LOG.error("Unable to close the observable gauge for key {}", key);
+                }
+            }
+        }
     }
 
     private void initialiseMetricsIfNeeded() {
@@ -91,6 +111,7 @@ public class RTFHeapMetricsCollector extends PerformanceAnalyzerMetricsCollector
                             RTFMetrics.HeapValue.Constants.USED_VALUE,
                             "GC Heap Used PA Metrics",
                             RTFMetrics.MetricUnits.BYTE.toString());
+
             metricsInitialised = true;
         }
     }
@@ -119,12 +140,31 @@ public class RTFHeapMetricsCollector extends PerformanceAnalyzerMetricsCollector
             heapUsedMetrics.record(
                     memoryUsage.getUsed(),
                     Tags.create().addTag(memTypeAttributeKey, entry.getKey()));
-            metricsRegistry.createGauge(
-                    RTFMetrics.HeapValue.Constants.MAX_VALUE,
-                    "Heap Max PA metrics",
-                    "",
-                    () -> (double) memoryUsage.getMax(),
-                    Tags.create().addTag(memTypeAttributeKey, entry.getKey()));
+            createGaugeInstanceIfNotAvailable(entry.getKey());
         }
+    }
+
+    private void createGaugeInstanceIfNotAvailable(String key) {
+        if (!memTypeToGaugeObservableMap.containsKey(key)) {
+            LOG.info("Gauge doesn't exist for the mem type {}", key);
+            Closeable observableGauge =
+                    metricsRegistry.createGauge(
+                            RTFMetrics.HeapValue.Constants.MAX_VALUE,
+                            "Heap Max PA metrics",
+                            "",
+                            () -> getValue(key),
+                            Tags.create().addTag(memTypeAttributeKey, key));
+            memTypeToGaugeObservableMap.put(key, observableGauge);
+        }
+    }
+
+    private double getValue(String key) {
+        Map<String, Supplier<MemoryUsage>> memoryUsageSuppliers =
+                HeapMetrics.getMemoryUsageSuppliers();
+        MemoryUsage memoryUsage = null;
+        if (memoryUsageSuppliers.get(key) != null) {
+            memoryUsage = memoryUsageSuppliers.get(key).get();
+        }
+        return memoryUsage != null ? memoryUsage.getMax() : 0.0;
     }
 }
