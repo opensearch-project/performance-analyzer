@@ -124,6 +124,9 @@ public class RTFCacheConfigMetricsCollector extends PerformanceAnalyzerMetricsCo
                 requestCacheGauge = null;
             }
         }
+        if (metricsInitialised) {
+            metricsInitialised = false;
+        }
     }
 
     private double getRequestCacheMaxSizeStatus(IndicesService indicesService) {
