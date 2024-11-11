@@ -8,7 +8,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - name: Lychee Link Checker
-        uses: lycheeverse/lychee-action@v1.2.0
+        uses: lycheeverse/lychee-action@v2.1.0
         with:
           args: --accept=200,403,429 **/*.html **/*.md **/*.txt **/*.json
           fail: true
