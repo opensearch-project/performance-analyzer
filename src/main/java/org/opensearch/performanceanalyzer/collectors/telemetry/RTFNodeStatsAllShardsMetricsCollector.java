@@ -255,18 +255,34 @@ public class RTFNodeStatsAllShardsMetricsCollector extends PerformanceAnalyzerMe
             nodeStatsMetricsTag.addTag(
                     RTFMetrics.CommonDimension.INDEX_UUID.toString(), shardId.getIndex().getUUID());
         }
+        populateOnlyIfNonZero(
+                cacheQueryMissMetrics, metrics.getQueryCacheMissCount(), nodeStatsMetricsTag);
+        populateOnlyIfNonZero(
+                cacheQuerySizeMetrics, metrics.getQueryCacheInBytes(), nodeStatsMetricsTag);
+        populateOnlyIfNonZero(
+                cacheQueryHitMetrics, metrics.getQueryCacheHitCount(), nodeStatsMetricsTag);
+        populateOnlyIfNonZero(
+                cacheFieldDataEvictionMetrics,
+                metrics.getFieldDataEvictions(),
+                nodeStatsMetricsTag);
+        populateOnlyIfNonZero(
+                cacheFieldDataSizeMetrics, metrics.getFieldDataInBytes(), nodeStatsMetricsTag);
+        populateOnlyIfNonZero(
+                cacheRequestEvictionMetrics,
+                metrics.getRequestCacheEvictions(),
+                nodeStatsMetricsTag);
+        populateOnlyIfNonZero(
+                cacheRequestHitMetrics, metrics.getRequestCacheHitCount(), nodeStatsMetricsTag);
+        populateOnlyIfNonZero(
+                cacheRequestMissMetrics, metrics.getRequestCacheMissCount(), nodeStatsMetricsTag);
+        populateOnlyIfNonZero(
+                cacheRequestSizeMetrics, metrics.getRequestCacheInBytes(), nodeStatsMetricsTag);
+    }
 
-        cacheQueryMissMetrics.add(metrics.getQueryCacheMissCount(), nodeStatsMetricsTag);
-        cacheQuerySizeMetrics.add(metrics.getQueryCacheInBytes(), nodeStatsMetricsTag);
-        cacheQueryHitMetrics.add(metrics.getQueryCacheHitCount(), nodeStatsMetricsTag);
-
-        cacheFieldDataEvictionMetrics.add(metrics.getFieldDataEvictions(), nodeStatsMetricsTag);
-        cacheFieldDataSizeMetrics.add(metrics.getFieldDataInBytes(), nodeStatsMetricsTag);
-
-        cacheRequestEvictionMetrics.add(metrics.getRequestCacheEvictions(), nodeStatsMetricsTag);
-        cacheRequestHitMetrics.add(metrics.getRequestCacheHitCount(), nodeStatsMetricsTag);
-        cacheRequestMissMetrics.add(metrics.getRequestCacheMissCount(), nodeStatsMetricsTag);
-        cacheRequestSizeMetrics.add(metrics.getRequestCacheInBytes(), nodeStatsMetricsTag);
+    private void populateOnlyIfNonZero(Counter counter, double value, Tags tags) {
+        if (value > 0.0) {
+            counter.add(value, tags);
+        }
     }
 
     public void populateDiffMetricValue(
