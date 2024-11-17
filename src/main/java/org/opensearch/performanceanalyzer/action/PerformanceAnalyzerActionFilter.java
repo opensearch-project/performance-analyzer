@@ -17,6 +17,7 @@ import org.opensearch.common.inject.Inject;
 import org.opensearch.core.action.ActionListener;
 import org.opensearch.core.action.ActionResponse;
 import org.opensearch.performanceanalyzer.commons.metrics.PerformanceAnalyzerMetrics;
+import org.opensearch.performanceanalyzer.commons.util.Util;
 import org.opensearch.performanceanalyzer.config.PerformanceAnalyzerController;
 import org.opensearch.tasks.Task;
 
@@ -39,7 +40,10 @@ public class PerformanceAnalyzerActionFilter implements ActionFilter {
             ActionListener<Response> listener,
             ActionFilterChain<Request, Response> chain) {
 
-        if (controller.isPerformanceAnalyzerEnabled()) {
+        if (controller.isPerformanceAnalyzerEnabled()
+                && (controller.getCollectorsRunModeValue() == Util.CollectorMode.DUAL.getValue()
+                        || controller.getCollectorsRunModeValue()
+                                == Util.CollectorMode.RCA.getValue())) {
             if (request instanceof BulkRequest) {
                 PerformanceAnalyzerActionListener<Response> newListener =
                         new PerformanceAnalyzerActionListener<>();

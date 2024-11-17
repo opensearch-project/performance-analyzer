@@ -9,7 +9,6 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyDouble;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
-import static org.mockito.Mockito.atLeastOnce;
 
 import java.io.IOException;
 import org.junit.After;
@@ -125,14 +124,14 @@ public class RTFNodeStatsAllShardsMetricsCollectorTests extends OpenSearchSingle
         rtfNodeStatsAllShardsMetricsCollector.collectMetrics(startTimeInMills);
         verify(rtfNodeStatsAllShardsMetricsCollector, times(1))
                 .populateDiffMetricValue(any(), any(), any());
-        verify(cacheFieldDataEvictionCounter, atLeastOnce()).add(anyDouble(), any());
-        verify(cacheFieldDataSizeCounter, atLeastOnce()).add(anyDouble(), any());
-        verify(cacheQueryMissCounter, atLeastOnce()).add(anyDouble(), any());
-        verify(cacheQueryHitCounter, atLeastOnce()).add(anyDouble(), any());
-        verify(cacheQuerySizeCounter, atLeastOnce()).add(anyDouble(), any());
-        verify(cacheRequestEvictionCounter, atLeastOnce()).add(anyDouble(), any());
-        verify(cacheRequestHitCounter, atLeastOnce()).add(anyDouble(), any());
-        verify(cacheRequestMissCounter, atLeastOnce()).add(anyDouble(), any());
-        verify(cacheRequestSizeCounter, atLeastOnce()).add(anyDouble(), any());
+        verify(cacheFieldDataEvictionCounter, never()).add(anyDouble(), any());
+        verify(cacheFieldDataSizeCounter, never()).add(anyDouble(), any());
+        verify(cacheQueryMissCounter, never()).add(anyDouble(), any());
+        verify(cacheQueryHitCounter, never()).add(anyDouble(), any());
+        verify(cacheQuerySizeCounter, never()).add(anyDouble(), any());
+        verify(cacheRequestEvictionCounter, never()).add(anyDouble(), any());
+        verify(cacheRequestHitCounter, never()).add(anyDouble(), any());
+        verify(cacheRequestMissCounter, never()).add(anyDouble(), any());
+        verify(cacheRequestSizeCounter, never()).add(anyDouble(), any());
     }
 }
