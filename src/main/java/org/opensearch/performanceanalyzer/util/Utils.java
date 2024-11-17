@@ -48,7 +48,9 @@ public class Utils {
         MetricsConfiguration.CONFIG_MAP.put(ShardIndexingPressureMetricsCollector.class, cdefault);
         MetricsConfiguration.CONFIG_MAP.put(RTFDisksCollector.class, cdefault);
         MetricsConfiguration.CONFIG_MAP.put(RTFHeapMetricsCollector.class, cdefault);
-        MetricsConfiguration.CONFIG_MAP.put(RTFNodeStatsAllShardsMetricsCollector.class, cdefault);
+        MetricsConfiguration.CONFIG_MAP.put(
+                RTFNodeStatsAllShardsMetricsCollector.class,
+                new MetricsConfiguration.MetricConfig(60000, 0));
         MetricsConfiguration.CONFIG_MAP.put(RTFThreadPoolMetricsCollector.class, cdefault);
         MetricsConfiguration.CONFIG_MAP.put(
                 RTFCacheConfigMetricsCollector.class,
