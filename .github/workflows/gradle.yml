@@ -11,6 +11,7 @@ on:
 jobs:
   build_pa_pkg:
     strategy:
+      fail-fast: false
       matrix:
         java:
           - 8
