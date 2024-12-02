@@ -20,16 +20,20 @@ jobs:
     name: Building PA package
     steps:
     - name: Set up JDK
-      uses: actions/setup-java@v1
+      uses: actions/setup-java@v4
       with:
+        distribution: 'temurin'
         java-version: ${{matrix.java}}
     # Performance Analyzer in ./tmp/performance-analyzer
     - name: Checkout Performance Analyzer package
-      uses: actions/checkout@v2
+      uses: actions/checkout@v4
       with:
         path: ./tmp/performance-analyzer
       # Explicitly set the docker-compose program path so that our build scripts in RCA can run the program
       # This is necessary because of the Github Actions environment and the workingDir of the Gradle environment
+    - uses: KengoTODA/actions-setup-docker-compose@v1
+      with:
+        version: '1.29.2'
     - name: Set docker-compose path
       run: DOCKER_COMPOSE_LOCATION=$(which docker-compose)
       # Set the vm.max_map_count system property to the minimum required to run OpenSearch
