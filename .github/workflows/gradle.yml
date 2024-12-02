@@ -11,6 +11,7 @@ on:
 jobs:
   build_pa_pkg:
     strategy:
+      fail-fast: false
       matrix:
         java:
           - 8
@@ -25,9 +26,12 @@ jobs:
         java-version: ${{matrix.java}}
     # Performance Analyzer in ./tmp/performance-analyzer
     - name: Checkout Performance Analyzer package
-      uses: actions/checkout@v2
+      uses: actions/checkout@v4
       with:
         path: ./tmp/performance-analyzer
+    - uses: KengoTODA/actions-setup-docker-compose@v1
+      with:
+        version: '1.29.2'
       # Explicitly set the docker-compose program path so that our build scripts in RCA can run the program
       # This is necessary because of the Github Actions environment and the workingDir of the Gradle environment
     - name: Set docker-compose path
