@@ -249,7 +249,6 @@ public class NodeStatsAllShardsMetricsCollector extends PerformanceAnalyzerMetri
         saveMetricValues(value.toString(), startTime, IndexName, String.valueOf(ShardId));
     }
 
-    @JsonCreator
     public static class NodeStatsMetricsAllShardsPerCollectionStatus extends MetricStatus {
 
         @JsonIgnore private ShardStats shardStats;
@@ -280,6 +279,7 @@ public class NodeStatsAllShardsMetricsCollector extends PerformanceAnalyzerMetri
         }
 
         @SuppressWarnings("checkstyle:parameternumber")
+        @JsonCreator
         public NodeStatsMetricsAllShardsPerCollectionStatus(
                 long queryCacheHitCount,
                 long queryCacheMissCount,
