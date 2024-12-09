@@ -27,6 +27,7 @@
 package org.opensearch.performanceanalyzer.collectors;
 
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.collect.ImmutableMap;
@@ -303,6 +304,7 @@ public class NodeStatsAllShardsMetricsCollector extends PerformanceAnalyzerMetri
         }
 
         @SuppressWarnings("checkstyle:parameternumber")
+        @JsonCreator
         public NodeStatsMetricsAllShardsPerCollectionStatus(
                 long queryCacheHitCount,
                 long queryCacheMissCount,
