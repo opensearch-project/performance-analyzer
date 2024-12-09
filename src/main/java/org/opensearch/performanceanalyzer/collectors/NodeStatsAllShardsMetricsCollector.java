@@ -8,6 +8,7 @@ package org.opensearch.performanceanalyzer.collectors;
 import static org.opensearch.performanceanalyzer.commons.stats.metrics.StatExceptionCode.NODESTATS_COLLECTION_ERROR;
 import static org.opensearch.performanceanalyzer.commons.stats.metrics.StatMetrics.NODE_STATS_ALL_SHARDS_METRICS_COLLECTOR_EXECUTION_TIME;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.collect.ImmutableMap;
@@ -248,6 +249,7 @@ public class NodeStatsAllShardsMetricsCollector extends PerformanceAnalyzerMetri
         saveMetricValues(value.toString(), startTime, IndexName, String.valueOf(ShardId));
     }
 
+    @JsonCreator
     public static class NodeStatsMetricsAllShardsPerCollectionStatus extends MetricStatus {
 
         @JsonIgnore private ShardStats shardStats;
