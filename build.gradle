@@ -26,7 +26,7 @@ buildscript {
         }
         if (isSnapshot) {
             opensearch_build += "-SNAPSHOT"
-            paCommonsVersion += "-SNAPSHOT"
+            #paCommonsVersion += "-SNAPSHOT"
 
         }
     }
