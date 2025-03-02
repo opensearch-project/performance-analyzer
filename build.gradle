@@ -6,7 +6,7 @@
 buildscript {
 
     ext {
-        opensearch_version = System.getProperty("opensearch.version", "3.0.0-SNAPSHOT")
+        opensearch_version = System.getProperty("opensearch.version", "3.0.0-alpha1-SNAPSHOT")
         isSnapshot = "true" == System.getProperty("build.snapshot", "true")
         buildVersionQualifier = System.getProperty("build.version_qualifier", "")
 
@@ -138,8 +138,8 @@ opensearchplugin {
     classname 'org.opensearch.performanceanalyzer.PerformanceAnalyzerPlugin'
 }
 
-sourceCompatibility = JavaVersion.VERSION_11
-targetCompatibility = JavaVersion.VERSION_11
+sourceCompatibility = JavaVersion.VERSION_23
+targetCompatibility = JavaVersion.VERSION_23
 
 compileJava {
     dependsOn spotlessApply
@@ -212,7 +212,7 @@ tasks.withType(JavaCompile) {
 }
 
 jacoco {
-    toolVersion = "0.8.11"
+    toolVersion = "0.8.12"
 }
 
 jacocoTestReport {
@@ -301,8 +301,8 @@ dependencies {
 
     implementation 'org.jooq:jooq:3.10.8'
     implementation 'org.apache.commons:commons-lang3:3.9'
-    implementation 'org.bouncycastle:bcprov-jdk15to18:1.78.1'
-    implementation 'org.bouncycastle:bcpkix-jdk18on:1.78.1'
+    implementation 'org.bouncycastle:bcprov-jdk18on:1.78'
+    implementation 'org.bouncycastle:bcpkix-jdk18on:1.78'
     implementation "org.opensearch:performance-analyzer-commons:${paCommonsVersion}"
     implementation "com.fasterxml.jackson.core:jackson-annotations:${jacksonVersion}"
     implementation "com.fasterxml.jackson.core:jackson-databind:${jacksonDataBindVersion}"
