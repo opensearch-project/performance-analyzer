@@ -6,8 +6,8 @@
 package org.opensearch.performanceanalyzer.http_action.whoami;
 
 import org.opensearch.action.ActionRequestBuilder;
-import org.opensearch.client.ClusterAdminClient;
-import org.opensearch.client.OpenSearchClient;
+import org.opensearch.transport.client.ClusterAdminClient;
+import org.opensearch.transport.client.OpenSearchClient;
 
 public class WhoAmIRequestBuilder extends ActionRequestBuilder<WhoAmIRequest, WhoAmIResponse> {
     public WhoAmIRequestBuilder(final ClusterAdminClient client) {

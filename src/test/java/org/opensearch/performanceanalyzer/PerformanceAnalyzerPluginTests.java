@@ -21,7 +21,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.opensearch.action.ActionRequest;
 import org.opensearch.action.support.ActionFilter;
-import org.opensearch.client.node.NodeClient;
 import org.opensearch.cluster.service.ClusterService;
 import org.opensearch.common.settings.ClusterSettings;
 import org.opensearch.common.settings.Setting;
@@ -50,6 +49,7 @@ import org.opensearch.threadpool.TestThreadPool;
 import org.opensearch.threadpool.ThreadPool;
 import org.opensearch.transport.Transport;
 import org.opensearch.transport.TransportInterceptor;
+import org.opensearch.transport.client.node.NodeClient;
 import org.opensearch.usage.UsageService;
 
 @ThreadLeakScope(Scope.NONE)

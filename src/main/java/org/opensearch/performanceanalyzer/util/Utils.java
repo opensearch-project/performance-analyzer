@@ -90,6 +90,7 @@ public class Utils {
                                     indicesService.getIndicesQueryCache(), indexShard, flags),
                             null,
                             null,
+                            null,
                             null)
                 });
     }
