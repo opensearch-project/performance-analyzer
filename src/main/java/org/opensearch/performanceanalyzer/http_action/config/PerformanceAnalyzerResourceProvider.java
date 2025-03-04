@@ -26,7 +26,6 @@ import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.opensearch.client.node.NodeClient;
 import org.opensearch.common.inject.Inject;
 import org.opensearch.common.settings.Settings;
 import org.opensearch.core.rest.RestStatus;
@@ -37,6 +36,7 @@ import org.opensearch.rest.RestController;
 import org.opensearch.rest.RestRequest;
 import org.opensearch.rest.RestRequest.Method;
 import org.opensearch.rest.RestResponse;
+import org.opensearch.transport.client.node.NodeClient;
 
 public class PerformanceAnalyzerResourceProvider extends BaseRestHandler {
     private static final Logger LOG =

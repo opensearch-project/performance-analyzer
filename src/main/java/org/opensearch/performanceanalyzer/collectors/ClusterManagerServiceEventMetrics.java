@@ -192,7 +192,7 @@ public class ClusterManagerServiceEventMetrics extends PerformanceAnalyzerMetric
         // Currently ClusterManagerService extends MasterService, remove getSuperClass(),
         // once MasterService contents are moved and class is removed.
         Field threadPoolExecutorField =
-                ClusterManagerService.class.getSuperclass().getDeclaredField("threadPoolExecutor");
+                ClusterManagerService.class.getDeclaredField("threadPoolExecutor");
         threadPoolExecutorField.setAccessible(true);
         return threadPoolExecutorField;
     }

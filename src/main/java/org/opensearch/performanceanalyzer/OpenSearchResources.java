@@ -5,7 +5,6 @@
 
 package org.opensearch.performanceanalyzer;
 
-import org.opensearch.client.Client;
 import org.opensearch.cluster.service.ClusterService;
 import org.opensearch.common.settings.Settings;
 import org.opensearch.core.indices.breaker.CircuitBreakerService;
@@ -13,6 +12,7 @@ import org.opensearch.env.Environment;
 import org.opensearch.indices.IndicesService;
 import org.opensearch.telemetry.metrics.MetricsRegistry;
 import org.opensearch.threadpool.ThreadPool;
+import org.opensearch.transport.client.Client;
 
 public final class OpenSearchResources {
     public static final OpenSearchResources INSTANCE = new OpenSearchResources();

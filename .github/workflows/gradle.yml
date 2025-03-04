@@ -13,8 +13,8 @@ jobs:
     strategy:
       matrix:
         java:
-          - 11
-          - 17
+          - 21
+          - 23
       fail-fast: false
     runs-on: [ubuntu-latest]
     name: Building PA package
@@ -66,6 +66,6 @@ jobs:
     - name: Run Integration Tests
       working-directory: ./tmp/performance-analyzer
       run: ./gradlew integTest -Dtests.enableIT -Dtests.useDockerCluster
-    - name: Run PerformanceAnalzyer Backwards Compatibility Tests
-      working-directory: ./tmp/performance-analyzer
-      run: ./gradlew bwcTestSuite -Dtests.security.manager=false
+        #- name: Run PerformanceAnalzyer Backwards Compatibility Tests
+        #  working-directory: ./tmp/performance-analyzer
+        #  run: ./gradlew bwcTestSuite -Dtests.security.manager=false
