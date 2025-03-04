@@ -458,85 +458,6 @@ static def propEnabled(property) {
     return System.getProperty(property) != null && System.getProperty(property).toLowerCase().equals("true")
 }
 
-// The following Gradle tasks are used to create a PA/RCA enabled OpenSearch cluster
-// Pass the -Dtests.enableIT property to Gradle to run ITs
-
-/**
- * cloneRcaGitRepo clones the performance-analyzer-rca repo if the -Dtests.enableIT=true flag is passed
- * to the Gradle JVM
- */
-task cloneRcaGitRepo() {
-    def destination = file(rcaProjectDir)
-    def uri = rcaProjectRepo
-    def fetch = rcaProjectFetch
-    def branch = rcaProjectBranch
-    if (!branch.startsWith(fetch)) { // to avoid checking out origin/origin/branch
-        branch = rcaProjectFetch + "/" + rcaProjectBranch
-    }
-    doFirst {
-        println "Cloning performance-analyzer-rca into ${rcaProjectDir} from ${rcaProjectRepo}#${rcaProjectBranch}"
-    }
-    doLast {
-        if (destination.exists() && destination.isDirectory()) { // If directory exists, use this instead.
-            def grgit = Grgit.open(dir: destination.toString())
-        } else { // Otherwise pull it from git.
-            def grgit = Grgit.clone(dir: destination.toString(), uri: uri)
-            grgit.fetch(remote: fetch)
-            grgit.checkout(branch: branch)
-        }
-    }
-}
-
-task buildRca() {
-    dependsOn(cloneRcaGitRepo)
-
-    doFirst {
-        logger.info("Building performance-analyzer-rca project in ${rcaProjectDir} with -Dopensearch.version=${opensearch_version}")
-    }
-
-    doLast {
-        exec {
-            workingDir("$rcaProjectDir")
-            if (buildVersionQualifier == null || buildVersionQualifier == '' || buildVersionQualifier == 'null') {
-                commandLine './gradlew', 'build', '-x', 'test', '-x', 'jacocoTestCoverageVerification', "-Dopensearch.version=${opensearch_version}", "-Dbuild.snapshot=${isSnapshot}"
-            }
-            else {
-                commandLine './gradlew', 'build', '-x', 'test', '-x', 'jacocoTestCoverageVerification', "-Dopensearch.version=${opensearch_version}", "-Dbuild.snapshot=${isSnapshot}", "-Dbuild.version_qualifier=${buildVersionQualifier}"
-            }
-        }
-        exec {
-            workingDir("$rcaProjectDir")
-            if (buildVersionQualifier == null || buildVersionQualifier == '' || buildVersionQualifier == 'null') {
-                commandLine './gradlew', 'publishToMavenLocal', "-Dopensearch.version=${opensearch_version}", "-Dbuild.snapshot=${isSnapshot}"
-            }
-            else {
-                commandLine './gradlew', 'publishToMavenLocal', "-Dopensearch.version=${opensearch_version}", "-Dbuild.snapshot=${isSnapshot}", "-Dbuild.version_qualifier=${buildVersionQualifier}"
-            }
-        }
-        exec {
-            def licenseDir = "$projectDir/licenses"
-            workingDir("$licenseDir")
-            commandLine 'rm', "-f", "performanceanalyzer-rca-${version}.jar.sha1"
-        }
-    }
-}
-
-buildRca.finalizedBy updateShas
-
-// This value is set by the unpackRca task
-def rcaArtifactsDir
-
-task unpackRca(type: Copy) {
-    dependsOn(buildRca)
-    from(zipTree("$rcaProjectDir/build/distributions/performance-analyzer-rca-${version}.zip")) {
-    }
-    into "$rcaProjectDir/build/distributions"
-    rcaArtifactsDir = "$rcaProjectDir/build/distributions/performance-analyzer-rca/"
-
-    doLast {
-        logger.info("Unpacked performance-analyzer-rca artifacts into ${rcaProjectDir}")
-    }
-}
 
 tasks.withType(Test) {
     jvmArgs('--add-opens=java.base/sun.security.jca=ALL-UNNAMED')
@@ -549,21 +470,10 @@ tasks.withType(Test) {
 
 
 bundlePlugin {
-    //dependsOn 'unpackRca'
-    //from("$rcaArtifactsDir/config") {
-    //    into "config"
-    //}
-    //from("$rcaArtifactsDir/bin") {
-     //   into "bin"
-     //   include "performance-analyzer-agent"
-    //}
-    //from("$rcaArtifactsDir") {
-    //    into "performance-analyzer-rca"
-    //}
-    //from("packaging") {
-     //   include "performance-analyzer-agent-cli"
-     //   into "bin"
-    //}
+    from("packaging") {
+        include "performance-analyzer-agent-cli"
+        into "bin"
+    }
     from('build/resources/main/') {
         include "plugin-security.policy"
     }
@@ -572,23 +482,6 @@ bundlePlugin {
     }
 }
 
-/**
- * setupOpenSearchCluster spins up a local 2 node OpenSearch cluster using the enableRca task in the performance-analyzer-rca
- * repo. The performance-analyzer-rca repo is cloned as part of the cloneRcaGitRepo task.
- */
-task setupOpenSearchCluster() {
-    dependsOn(cloneRcaGitRepo)
-    onlyIf = {
-        propEnabled("tests.enableIT")
-    }
-    doLast {
-        exec {
-            workingDir(rcaProjectDir)
-            commandLine './gradlew', 'enableRca'
-        }
-        sleep(30000)
-    }
-}
 
 /**
  * integTest is a task provided by the OpenSearch test framework, which allows us to spin up clients
@@ -817,7 +710,7 @@ run {
             cluster.waitForAllConditions()
         }
     }
-    useCluster testClusters.integTest
+    //useCluster testClusters.integTest
 }
 
 // This is afterEvaluate because the bundlePlugin ZIP task is updated afterEvaluate and changes the ZIP name to match the plugin name
@@ -901,7 +794,6 @@ afterEvaluate {
     }
 }
 
-bundlePlugin.mustRunAfter unpackRca
 
 // updateVersion: Task to auto increment to the next development iteration
 task updateVersion {
