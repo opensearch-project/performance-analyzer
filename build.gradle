@@ -138,8 +138,8 @@ opensearchplugin {
     classname 'org.opensearch.performanceanalyzer.PerformanceAnalyzerPlugin'
 }
 
-sourceCompatibility = JavaVersion.VERSION_23
-targetCompatibility = JavaVersion.VERSION_23
+sourceCompatibility = JavaVersion.VERSION_21
+targetCompatibility = JavaVersion.VERSION_21
 
 compileJava {
     dependsOn spotlessApply
