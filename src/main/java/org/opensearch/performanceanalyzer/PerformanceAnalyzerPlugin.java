@@ -58,6 +58,7 @@ import org.opensearch.performanceanalyzer.collectors.telemetry.RTFCacheConfigMet
 import org.opensearch.performanceanalyzer.collectors.telemetry.RTFDisksCollector;
 import org.opensearch.performanceanalyzer.collectors.telemetry.RTFHeapMetricsCollector;
 import org.opensearch.performanceanalyzer.collectors.telemetry.RTFNodeStatsAllShardsMetricsCollector;
+import org.opensearch.performanceanalyzer.collectors.telemetry.RTFShardOperationRateCollector;
 import org.opensearch.performanceanalyzer.collectors.telemetry.RTFThreadPoolMetricsCollector;
 import org.opensearch.performanceanalyzer.commons.OSMetricsGeneratorFactory;
 import org.opensearch.performanceanalyzer.commons.collectors.DisksCollector;
@@ -230,6 +231,9 @@ public final class PerformanceAnalyzerPlugin extends Plugin
                 new RTFDisksCollector(performanceAnalyzerController, configOverridesWrapper));
         scheduledMetricCollectorsExecutor.addScheduledMetricCollector(
                 new RTFHeapMetricsCollector(performanceAnalyzerController, configOverridesWrapper));
+        scheduledMetricCollectorsExecutor.addScheduledMetricCollector(
+                new RTFShardOperationRateCollector(
+                        performanceAnalyzerController, configOverridesWrapper));
         scheduledMetricCollectorsExecutor.addScheduledMetricCollector(
                 new RTFThreadPoolMetricsCollector(
                         performanceAnalyzerController, configOverridesWrapper));
