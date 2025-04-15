@@ -37,6 +37,7 @@ public final class RTFPerformanceAnalyzerTransportChannel implements TransportCh
     private long operationStartTime;
 
     private Histogram cpuUtilizationHistogram;
+    private Histogram indexingLatencyHistogram;
 
     private TransportChannel original;
     private String indexName;
@@ -49,11 +50,13 @@ public final class RTFPerformanceAnalyzerTransportChannel implements TransportCh
     void set(
             TransportChannel original,
             Histogram cpuUtilizationHistogram,
+            Histogram indexingLatencyHistogram,
             String indexName,
             ShardId shardId,
             boolean bPrimary) {
         this.original = original;
         this.cpuUtilizationHistogram = cpuUtilizationHistogram;
+        this.indexingLatencyHistogram = indexingLatencyHistogram;
         this.indexName = indexName;
         this.shardId = shardId;
         this.primary = bPrimary;
@@ -90,6 +93,10 @@ public final class RTFPerformanceAnalyzerTransportChannel implements TransportCh
     private void emitMetrics(boolean isFailed) {
         double cpuUtilization = calculateCPUUtilization(operationStartTime, cpuStartTime);
         recordCPUUtilizationMetric(shardId, cpuUtilization, OPERATION_SHARD_BULK, isFailed);
+
+        long latencyInNanos = System.nanoTime() - operationStartTime;
+        double latencyInMillis = latencyInNanos / 1_000_000.0;
+        recordIndexingLatencyMetric(latencyInMillis);
     }
 
     private double calculateCPUUtilization(long phaseStartTime, long phaseCPUStartTime) {
@@ -98,6 +105,17 @@ public final class RTFPerformanceAnalyzerTransportChannel implements TransportCh
                 Math.max(0, (threadMXBean.getThreadCpuTime(threadID) - phaseCPUStartTime));
         return Utils.calculateCPUUtilization(
                 numProcessors, (System.nanoTime() - phaseStartTime), totalCpuTime, 1.0);
+    }
+
+    @VisibleForTesting
+    void recordIndexingLatencyMetric(double indexingLatency) {
+        indexingLatencyHistogram.record(
+                indexingLatency,
+                Tags.create()
+                        .addTag(RTFMetrics.CommonDimension.INDEX_NAME.toString(), indexName)
+                        .addTag(
+                                RTFMetrics.CommonDimension.SHARD_ID.toString(),
+                                shardId.toString()));
     }
 
     @VisibleForTesting
