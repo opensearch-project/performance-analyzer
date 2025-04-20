@@ -107,7 +107,7 @@ public class RTFPerformanceAnalyzerTransportChannelTests {
         Mockito.when(mockedShardId.getIndex()).thenReturn(index);
         Mockito.when(index.getName()).thenReturn("myTestIndex");
         Mockito.when(index.getUUID()).thenReturn("abc-def");
-        channel.recordIndexingLatencyMetric(123.456);
+        channel.recordIndexingLatencyMetric(mockedShardId, 123.456, "bulkShard", false);
         Mockito.verify(indexingLatencyHistogram)
                 .record(Mockito.anyDouble(), Mockito.any(Tags.class));
     }

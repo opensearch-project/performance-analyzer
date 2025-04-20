@@ -26,7 +26,11 @@ import org.opensearch.telemetry.metrics.Counter;
 import org.opensearch.telemetry.metrics.MetricsRegistry;
 import org.opensearch.telemetry.metrics.tags.Tags;
 
-/** This collector measures indexing and search rate per shard per minute. */
+/**
+ * This collector measures indexing and search rate per shard. The metric measurement is difference
+ * between current and last window's operation. For example - if the last window had operation count
+ * as 10, and now it changed to 12, then collector will publish 2 ops/interval.
+ */
 public class RTFShardOperationRateCollector extends PerformanceAnalyzerMetricsCollector
         implements TelemetryCollector {
 
@@ -35,8 +39,8 @@ public class RTFShardOperationRateCollector extends PerformanceAnalyzerMetricsCo
             MetricsConfiguration.CONFIG_MAP.get(RTFShardOperationRateCollector.class)
                     .samplingInterval;
 
-    private Counter indexingRateHistogram;
-    private Counter searchRateHistogram;
+    private Counter indexingRateCounter;
+    private Counter searchRateCounter;
 
     private final Map<ShardId, Long> prevIndexingOps;
     private final Map<ShardId, Long> prevSearchOps;
@@ -81,10 +85,6 @@ public class RTFShardOperationRateCollector extends PerformanceAnalyzerMetricsCo
         initializeMetricsIfNeeded();
         LOG.debug("Executing collect metrics for RTFShardOperationRateCollector");
 
-        long currentTimeInMillis = System.currentTimeMillis();
-        float minutesSinceLastCollection =
-                (currentTimeInMillis - lastCollectionTimeInMillis) / (1000.0f * 60.0f);
-
         // Get all shards
         Map<ShardId, IndexShard> currentShards = Utils.getShards();
 
@@ -97,12 +97,11 @@ public class RTFShardOperationRateCollector extends PerformanceAnalyzerMetricsCo
                 long currentSearchOps = shard.searchStats().getTotal().getQueryCount();
 
                 if (prevIndexingOps.containsKey(shardId)) {
-                    processIndexingOperations(
-                            shardId, currentIndexingOps, minutesSinceLastCollection);
+                    processIndexingOperations(shardId, currentIndexingOps);
                 }
 
                 if (prevSearchOps.containsKey(shardId)) {
-                    processSearchOperations(shardId, currentSearchOps, minutesSinceLastCollection);
+                    processSearchOperations(shardId, currentSearchOps);
                 }
 
                 // Update previous values for next collection
@@ -115,34 +114,27 @@ public class RTFShardOperationRateCollector extends PerformanceAnalyzerMetricsCo
                         e.getMessage());
             }
         }
-
-        lastCollectionTimeInMillis = currentTimeInMillis;
     }
 
-    private void processIndexingOperations(
-            ShardId shardId, long currentIndexingOps, float minutesSinceLastCollection) {
+    private void processIndexingOperations(ShardId shardId, long currentIndexingOps) {
         long indexingOpsDiff = Math.max(0, currentIndexingOps - prevIndexingOps.get(shardId));
-        float indexingRatePerMinute = indexingOpsDiff / minutesSinceLastCollection;
 
-        // Round to 2 decimal places
-        indexingRatePerMinute = Math.round(indexingRatePerMinute * 100.0f) / 100.0f;
-
-        Tags tags = createTags(shardId);
-        indexingRateHistogram.add(indexingRatePerMinute, tags);
+        if (indexingOpsDiff > 0) {
+            Tags tags = createTags(shardId);
+            indexingRateCounter.add(indexingOpsDiff, tags);
+        }
     }
 
-    private void processSearchOperations(
-            ShardId shardId, long currentSearchOps, float minutesSinceLastCollection) {
+    private void processSearchOperations(ShardId shardId, long currentSearchOps) {
         long searchOpsDiff = Math.max(0, currentSearchOps - prevSearchOps.get(shardId));
-        float searchRatePerMinute = searchOpsDiff / minutesSinceLastCollection;
 
-        // Round to 2 decimal places
-        searchRatePerMinute = Math.round(searchRatePerMinute * 100.0f) / 100.0f;
-
-        Tags tags = createTags(shardId);
-        searchRateHistogram.add(searchRatePerMinute, tags);
+        if (searchOpsDiff > 0) {
+            Tags tags = createTags(shardId);
+            searchRateCounter.add(searchOpsDiff, tags);
+        }
     }
 
+    // attributes= {index_name="test", shard_id="0"}
     private Tags createTags(ShardId shardId) {
         return Tags.create()
                 .addTag(RTFMetrics.CommonDimension.INDEX_NAME.toString(), shardId.getIndexName())
@@ -153,16 +145,16 @@ public class RTFShardOperationRateCollector extends PerformanceAnalyzerMetricsCo
 
     private void initializeMetricsIfNeeded() {
         if (!metricsInitialized) {
-            indexingRateHistogram =
+            indexingRateCounter =
                     metricsRegistry.createCounter(
                             RTFMetrics.OperationsValue.Constants.INDEXING_RATE,
-                            "Indexing operations per minute per shard",
+                            "Indexing operations per shard",
                             MetricUnits.RATE.toString());
 
-            searchRateHistogram =
+            searchRateCounter =
                     metricsRegistry.createCounter(
                             RTFMetrics.OperationsValue.Constants.SEARCH_RATE,
-                            "Search operations per minute per shard",
+                            "Search operations per shard",
                             MetricUnits.RATE.toString());
 
             metricsInitialized = true;

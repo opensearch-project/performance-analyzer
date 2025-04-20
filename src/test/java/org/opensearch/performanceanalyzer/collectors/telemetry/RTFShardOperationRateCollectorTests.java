@@ -20,6 +20,8 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.opensearch.common.xcontent.XContentType;
+import org.opensearch.index.query.QueryBuilders;
 import org.opensearch.indices.IndicesService;
 import org.opensearch.performanceanalyzer.OpenSearchResources;
 import org.opensearch.performanceanalyzer.commons.config.overrides.ConfigOverridesWrapper;
@@ -81,10 +83,31 @@ public class RTFShardOperationRateCollectorTests extends OpenSearchSingleNodeTes
         createIndex(TEST_INDEX);
         rtfShardOperationRateCollector.collectMetrics(startTimeInMills);
 
+        // first time collection does not publish metrics
         verify(indexingRateCounter, never()).add(anyDouble(), any());
         verify(searchRateCounter, never()).add(anyDouble(), any());
 
-        startTimeInMills += 60000;
+        startTimeInMills += 5000;
+        rtfShardOperationRateCollector.collectMetrics(startTimeInMills);
+
+        // 0 operation count does not publish metrics
+        verify(indexingRateCounter, never()).add(anyDouble(), any());
+        verify(searchRateCounter, never()).add(anyDouble(), any());
+
+        // creating indexing and search operation
+        client().prepareIndex(TEST_INDEX)
+                .setId("1")
+                .setSource("{\"field\":\"value1\"}", XContentType.JSON)
+                .get();
+        client().prepareIndex(TEST_INDEX)
+                .setId("2")
+                .setSource("{\"field\":\"value2\"}", XContentType.JSON)
+                .get();
+
+        client().admin().indices().prepareRefresh(TEST_INDEX).get();
+        client().prepareSearch(TEST_INDEX).setQuery(QueryBuilders.matchAllQuery()).get();
+
+        startTimeInMills += 5000;
         rtfShardOperationRateCollector.collectMetrics(startTimeInMills);
 
         verify(indexingRateCounter, atLeastOnce()).add(anyDouble(), any());

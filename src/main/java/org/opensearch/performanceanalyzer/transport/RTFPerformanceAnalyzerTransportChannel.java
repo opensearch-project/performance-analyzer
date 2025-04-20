@@ -96,7 +96,7 @@ public final class RTFPerformanceAnalyzerTransportChannel implements TransportCh
 
         long latencyInNanos = System.nanoTime() - operationStartTime;
         double latencyInMillis = latencyInNanos / 1_000_000.0;
-        recordIndexingLatencyMetric(latencyInMillis);
+        recordIndexingLatencyMetric(shardId, latencyInMillis, OPERATION_SHARD_BULK, isFailed);
     }
 
     private double calculateCPUUtilization(long phaseStartTime, long phaseCPUStartTime) {
@@ -108,34 +108,31 @@ public final class RTFPerformanceAnalyzerTransportChannel implements TransportCh
     }
 
     @VisibleForTesting
-    void recordIndexingLatencyMetric(double indexingLatency) {
-        indexingLatencyHistogram.record(
-                indexingLatency,
-                Tags.create()
-                        .addTag(RTFMetrics.CommonDimension.INDEX_NAME.toString(), indexName)
-                        .addTag(
-                                RTFMetrics.CommonDimension.SHARD_ID.toString(),
-                                shardId.toString()));
+    void recordIndexingLatencyMetric(
+            ShardId shardId, double indexingLatency, String operation, boolean isFailed) {
+        indexingLatencyHistogram.record(indexingLatency, createTags(shardId, operation, isFailed));
     }
 
     @VisibleForTesting
     void recordCPUUtilizationMetric(
             ShardId shardId, double cpuUtilization, String operation, boolean isFailed) {
-        cpuUtilizationHistogram.record(
-                cpuUtilization,
-                Tags.create()
-                        .addTag(
-                                RTFMetrics.CommonDimension.INDEX_NAME.toString(),
-                                shardId.getIndex().getName())
-                        .addTag(
-                                RTFMetrics.CommonDimension.INDEX_UUID.toString(),
-                                shardId.getIndex().getUUID())
-                        .addTag(RTFMetrics.CommonDimension.SHARD_ID.toString(), shardId.getId())
-                        .addTag(RTFMetrics.CommonDimension.OPERATION.toString(), operation)
-                        .addTag(RTFMetrics.CommonDimension.FAILED.toString(), isFailed)
-                        .addTag(
-                                RTFMetrics.CommonDimension.SHARD_ROLE.toString(),
-                                primary ? SHARD_ROLE_PRIMARY : SHARD_ROLE_REPLICA));
+        cpuUtilizationHistogram.record(cpuUtilization, createTags(shardId, operation, isFailed));
+    }
+
+    private Tags createTags(ShardId shardId, String operation, boolean isFailed) {
+        return Tags.create()
+                .addTag(
+                        RTFMetrics.CommonDimension.INDEX_NAME.toString(),
+                        shardId.getIndex().getName())
+                .addTag(
+                        RTFMetrics.CommonDimension.INDEX_UUID.toString(),
+                        shardId.getIndex().getUUID())
+                .addTag(RTFMetrics.CommonDimension.SHARD_ID.toString(), shardId.getId())
+                .addTag(RTFMetrics.CommonDimension.OPERATION.toString(), operation)
+                .addTag(RTFMetrics.CommonDimension.FAILED.toString(), isFailed)
+                .addTag(
+                        RTFMetrics.CommonDimension.SHARD_ROLE.toString(),
+                        primary ? SHARD_ROLE_PRIMARY : SHARD_ROLE_REPLICA);
     }
 
     // This function is called from the security plugin using reflection. Do not
