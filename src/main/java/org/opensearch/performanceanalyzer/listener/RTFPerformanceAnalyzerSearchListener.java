@@ -39,6 +39,7 @@ public class RTFPerformanceAnalyzerSearchListener
             LogManager.getLogger(RTFPerformanceAnalyzerSearchListener.class);
     private static final String SHARD_FETCH_PHASE = "shard_fetch";
     private static final String SHARD_QUERY_PHASE = "shard_query";
+    private static final String SHARD_QUERY_PLUS_FETCH_PHASE = "shard_query_plus_fetch";
     public static final String QUERY_START_TIME = "query_start_time";
     public static final String FETCH_START_TIME = "fetch_start_time";
     public static final String QUERY_TASK_ID = "query_task_id";
@@ -242,7 +243,7 @@ public class RTFPerformanceAnalyzerSearchListener
         queryPhaseHistogram.record(
                 queryTimeInMills, createTags(searchContext, SHARD_QUERY_PHASE, false));
         queryPlusFetchPhaseHistogram.record(
-                queryTimeInMills, createTags(searchContext, SHARD_QUERY_PHASE, false));
+                queryTimeInMills, createTags(searchContext, SHARD_QUERY_PLUS_FETCH_PHASE, false));
 
         addResourceTrackingCompletionListener(
                 searchContext, queryStartTime, queryTime, SHARD_QUERY_PHASE, false);
@@ -270,7 +271,7 @@ public class RTFPerformanceAnalyzerSearchListener
         fetchPhaseHistogram.record(
                 fetchTimeInMills, createTags(searchContext, SHARD_FETCH_PHASE, false));
         queryPlusFetchPhaseHistogram.record(
-                fetchTimeInMills, createTags(searchContext, SHARD_FETCH_PHASE, false));
+                fetchTimeInMills, createTags(searchContext, SHARD_QUERY_PLUS_FETCH_PHASE, false));
 
         addResourceTrackingCompletionListenerForFetchPhase(
                 searchContext, fetchStartTime, fetchTime, SHARD_FETCH_PHASE, false);
@@ -344,7 +345,7 @@ public class RTFPerformanceAnalyzerSearchListener
                 long totalTime = System.nanoTime() - startTime;
                 double totalTimeInMills = totalTime / 1_000_000.0;
                 double shareFactor = computeShareFactor(phaseTookTime, totalTime);
-                
+
                 searchLatencyHistogram.record(
                         totalTimeInMills, createTags(searchContext, phase, isFailed));
                 cpuUtilizationHistogram.record(
