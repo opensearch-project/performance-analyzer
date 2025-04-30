@@ -1,6 +1,6 @@
-## Version 3.0.0.0-beta1 Release Notes
+## Version 3.0.0.0 Release Notes
 
-Compatible with OpenSearch 3.0.0-beta1
+Compatible with OpenSearch 3.0.0
 
 ### Maintenance
 
