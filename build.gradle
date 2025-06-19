@@ -90,6 +90,23 @@ ext {
     rcaProjectDir = System.getProperty("performance-analyzer-rca.path", "../performance-analyzer-rca")
 }
 
+// Fix for CVE-2025-27820
+configurations.all {
+    resolutionStrategy {
+        force("org.apache.httpcomponents.client5:httpclient5:5.4.4")
+        force("org.apache.httpcomponents:httpcore:5.3.4")
+        force("org.apache.httpcomponents.core5:httpcore5-h2:5.3.4")
+
+        // Alternatively, you can use this approach
+        eachDependency { DependencyResolveDetails details ->
+            if (details.requested.group == 'org.apache.httpcomponents.client5' &&
+                    details.requested.name == 'httpclient5') {
+                details.useVersion "${versions.httpclient5}"
+            }
+        }
+    }
+}
+
 allprojects {
     group = "org.opensearch"
     version = opensearch_build
