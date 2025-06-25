@@ -15,6 +15,7 @@ import org.opensearch.action.support.replication.TransportReplicationAction.Conc
 import org.opensearch.performanceanalyzer.OpenSearchResources;
 import org.opensearch.performanceanalyzer.commons.collectors.StatsCollector;
 import org.opensearch.performanceanalyzer.commons.metrics.RTFMetrics;
+import org.opensearch.performanceanalyzer.commons.metrics.RTFMetrics.MetricUnits;
 import org.opensearch.performanceanalyzer.commons.util.Util;
 import org.opensearch.performanceanalyzer.config.PerformanceAnalyzerController;
 import org.opensearch.tasks.Task;
@@ -38,12 +39,14 @@ public final class RTFPerformanceAnalyzerTransportRequestHandler<T extends Trans
     private TransportRequestHandler<T> actualHandler;
     private boolean logOnce = false;
     private final Histogram cpuUtilizationHistogram;
+    private final Histogram indexingLatencyHistogram;
 
     RTFPerformanceAnalyzerTransportRequestHandler(
             TransportRequestHandler<T> actualHandler, PerformanceAnalyzerController controller) {
         this.actualHandler = actualHandler;
         this.controller = controller;
         this.cpuUtilizationHistogram = createCPUUtilizationHistogram();
+        this.indexingLatencyHistogram = createIndexingLatencyHistogram();
     }
 
     private Histogram createCPUUtilizationHistogram() {
@@ -53,6 +56,18 @@ public final class RTFPerformanceAnalyzerTransportRequestHandler<T extends Trans
                     RTFMetrics.OSMetrics.CPU_UTILIZATION.toString(),
                     "CPU Utilization per shard for an operation",
                     RTFMetrics.MetricUnits.RATE.toString());
+        } else {
+            return null;
+        }
+    }
+
+    private Histogram createIndexingLatencyHistogram() {
+        MetricsRegistry metricsRegistry = OpenSearchResources.INSTANCE.getMetricsRegistry();
+        if (metricsRegistry != null) {
+            return metricsRegistry.createHistogram(
+                    RTFMetrics.OperationsValue.INDEXING_LATENCY.toString(),
+                    "Indexing Latency per shard for an operation",
+                    MetricUnits.MILLISECOND.toString());
         } else {
             return null;
         }
@@ -110,7 +125,12 @@ public final class RTFPerformanceAnalyzerTransportRequestHandler<T extends Trans
 
         try {
             rtfPerformanceAnalyzerTransportChannel.set(
-                    channel, cpuUtilizationHistogram, bsr.index(), bsr.shardId(), bPrimary);
+                    channel,
+                    cpuUtilizationHistogram,
+                    indexingLatencyHistogram,
+                    bsr.index(),
+                    bsr.shardId(),
+                    bPrimary);
         } catch (Exception ex) {
             if (!logOnce) {
                 LOG.error(ex);
