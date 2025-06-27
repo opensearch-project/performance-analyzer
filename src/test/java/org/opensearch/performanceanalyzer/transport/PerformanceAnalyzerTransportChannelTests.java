@@ -6,10 +6,21 @@
 package org.opensearch.performanceanalyzer.transport;
 
 import static org.junit.Assert.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.MockitoAnnotations.initMocks;
 
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 import org.apache.commons.lang3.SystemUtils;
 import org.junit.Before;
 import org.junit.Test;
@@ -46,5 +57,40 @@ public class PerformanceAnalyzerTransportChannelTests {
         Exception exception = new Exception("dummy exception");
         channel.sendResponse(exception);
         verify(originalChannel).sendResponse(exception);
+    }
+
+    @Test
+    public void testPAChannelDelegatesToOriginal()
+            throws IOException, InvocationTargetException, IllegalAccessException {
+        TransportChannel handlerSpy = spy(originalChannel);
+        PerformanceAnalyzerTransportChannel paChannel = new PerformanceAnalyzerTransportChannel();
+        paChannel.set(handlerSpy, 0, "testIndex", 1, 0, false);
+
+        List<Method> overridableMethods =
+                Arrays.stream(TransportChannel.class.getMethods())
+                        .filter(
+                                m ->
+                                        !(Modifier.isPrivate(m.getModifiers())
+                                                || Modifier.isStatic(m.getModifiers())
+                                                || Modifier.isFinal(m.getModifiers())))
+                        .collect(Collectors.toList());
+
+        for (Method method : overridableMethods) {
+            if (Set.of("getProfileName", "getChannelType").contains(method.getName())) {
+                continue;
+            }
+            int argCount = method.getParameterCount();
+            Object[] args = new Object[argCount];
+            for (int i = 0; i < argCount; i++) {
+                args[i] = any();
+            }
+            if (args.length > 0) {
+                method.invoke(paChannel, args);
+            } else {
+                method.invoke(paChannel);
+            }
+            method.invoke(verify(handlerSpy, times(1)), args);
+        }
+        verifyNoMoreInteractions(handlerSpy);
     }
 }
