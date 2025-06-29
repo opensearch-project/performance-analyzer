@@ -58,7 +58,7 @@ public class NodeStatsAllShardsMetricsCollector extends PerformanceAnalyzerMetri
     private static final int KEYS_PATH_LENGTH = 2;
     private static final Logger LOG =
             LogManager.getLogger(NodeStatsAllShardsMetricsCollector.class);
-    private HashMap<ShardId, ShardStats> prevPerShardStats;
+    private Map<ShardId, ShardStats> prevPerShardStats;
     private final PerformanceAnalyzerController controller;
 
     public NodeStatsAllShardsMetricsCollector(final PerformanceAnalyzerController controller) {
@@ -143,10 +143,10 @@ public class NodeStatsAllShardsMetricsCollector extends PerformanceAnalyzerMetri
 
         Map<ShardId, ShardStats> currentPerShardStats = populatePerShardStats(indicesService);
 
-        for (HashMap.Entry currentShard : currentPerShardStats.entrySet()) {
-            ShardId shardId = (ShardId) currentShard.getKey();
-            ShardStats currentShardStats = (ShardStats) currentShard.getValue();
-            if (prevPerShardStats.size() == 0) {
+        for (HashMap.Entry<ShardId, ShardStats> currentShard : currentPerShardStats.entrySet()) {
+            ShardId shardId = currentShard.getKey();
+            ShardStats currentShardStats = currentShard.getValue();
+            if (prevPerShardStats.isEmpty() || !prevPerShardStats.containsKey(shardId)) {
                 // Populating value for the first run.
                 populateMetricValue(
                         currentShardStats, startTime, shardId.getIndexName(), shardId.id());
@@ -167,6 +167,7 @@ public class NodeStatsAllShardsMetricsCollector extends PerformanceAnalyzerMetri
             populateDiffMetricValue(
                     prevValue, currValue, startTime, shardId.getIndexName(), shardId.id());
         }
+        prevPerShardStats = currentPerShardStats;
     }
 
     // - Separated to have a unit test; and catch any code changes around this field
@@ -180,8 +181,8 @@ public class NodeStatsAllShardsMetricsCollector extends PerformanceAnalyzerMetri
         // Populate the shard stats per shard.
         HashMap<ShardId, IndexShard> currentShards = Utils.getShards();
         Map<ShardId, ShardStats> currentPerShardStats = new HashMap<>(Collections.emptyMap());
-        for (HashMap.Entry currentShard : currentShards.entrySet()) {
-            IndexShard currentIndexShard = (IndexShard) currentShard.getValue();
+        for (HashMap.Entry<ShardId, IndexShard> currentShard : currentShards.entrySet()) {
+            IndexShard currentIndexShard = currentShard.getValue();
             IndexShardStats currentIndexShardStats =
                     Utils.indexShardStats(
                             indicesService,
@@ -190,8 +191,10 @@ public class NodeStatsAllShardsMetricsCollector extends PerformanceAnalyzerMetri
                                     CommonStatsFlags.Flag.QueryCache,
                                     CommonStatsFlags.Flag.FieldData,
                                     CommonStatsFlags.Flag.RequestCache));
-            for (ShardStats shardStats : currentIndexShardStats.getShards()) {
-                currentPerShardStats.put(currentIndexShardStats.getShardId(), shardStats);
+            if (currentIndexShardStats != null) {
+                for (ShardStats shardStats : currentIndexShardStats.getShards()) {
+                    currentPerShardStats.put(currentIndexShardStats.getShardId(), shardStats);
+                }
             }
         }
         return currentPerShardStats;
@@ -199,12 +202,13 @@ public class NodeStatsAllShardsMetricsCollector extends PerformanceAnalyzerMetri
 
     public void populateMetricValue(
             ShardStats shardStats, long startTime, String IndexName, int ShardId) {
-        StringBuilder value = new StringBuilder();
-        value.append(PerformanceAnalyzerMetrics.getJsonCurrentMilliSeconds());
-        // Populate the result with cache specific metrics only.
-        value.append(PerformanceAnalyzerMetrics.sMetricNewLineDelimitor)
-                .append(new NodeStatsMetricsAllShardsPerCollectionStatus(shardStats).serialize());
-        saveMetricValues(value.toString(), startTime, IndexName, String.valueOf(ShardId));
+        String value =
+                PerformanceAnalyzerMetrics.getJsonCurrentMilliSeconds()
+                        +
+                        // Populate the result with cache specific metrics only.
+                        PerformanceAnalyzerMetrics.sMetricNewLineDelimitor
+                        + new NodeStatsMetricsAllShardsPerCollectionStatus(shardStats).serialize();
+        saveMetricValues(value, startTime, IndexName, String.valueOf(ShardId));
     }
 
     public void populateDiffMetricValue(

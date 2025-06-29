@@ -105,7 +105,7 @@ public class RTFNodeStatsAllShardsMetricsCollector extends PerformanceAnalyzerMe
     public void collectMetrics(long startTime) {
         if (performanceAnalyzerController.isCollectorDisabled(
                 configOverridesWrapper, getCollectorName())) {
-            LOG.info("RTFDisksCollector is disabled. Skipping collection.");
+            LOG.info("RTFNodeStatsMetricsCollector is disabled. Skipping collection.");
             return;
         }
         IndicesService indicesService = OpenSearchResources.INSTANCE.getIndicesService();
@@ -126,29 +126,27 @@ public class RTFNodeStatsAllShardsMetricsCollector extends PerformanceAnalyzerMe
         for (Map.Entry<ShardId, ShardStats> currentShard : currentPerShardStats.entrySet()) {
             ShardId shardId = currentShard.getKey();
             ShardStats currentShardStats = currentShard.getValue();
-            if (prevPerShardStats.isEmpty()) {
-                // Populating value for the first run.
+            if (prevPerShardStats.isEmpty() || !prevPerShardStats.containsKey(shardId)) {
+                // Populating value for the first run of shard.
                 recordMetrics(
                         new NodeStatsMetricsAllShardsPerCollectionStatus(currentShardStats),
                         shardId);
                 continue;
             }
-            if (prevPerShardStats.containsKey(shardId)) {
-                ShardStats prevShardStats = prevPerShardStats.get(shardId);
-                if (prevShardStats == null) {
-                    // Populate value for shards which are new and were not present in the previous
-                    // run.
-                    recordMetrics(
-                            new NodeStatsMetricsAllShardsPerCollectionStatus(currentShardStats),
-                            shardId);
-                    continue;
-                }
-                NodeStatsMetricsAllShardsPerCollectionStatus prevValue =
-                        new NodeStatsMetricsAllShardsPerCollectionStatus(prevShardStats);
-                NodeStatsMetricsAllShardsPerCollectionStatus currValue =
-                        new NodeStatsMetricsAllShardsPerCollectionStatus(currentShardStats);
-                populateDiffMetricValue(prevValue, currValue, shardId);
+            ShardStats prevShardStats = prevPerShardStats.get(shardId);
+            if (prevShardStats == null) {
+                // Populate value for shards which are new and were not present in the previous
+                // run.
+                recordMetrics(
+                        new NodeStatsMetricsAllShardsPerCollectionStatus(currentShardStats),
+                        shardId);
+                continue;
             }
+            NodeStatsMetricsAllShardsPerCollectionStatus prevValue =
+                    new NodeStatsMetricsAllShardsPerCollectionStatus(prevShardStats);
+            NodeStatsMetricsAllShardsPerCollectionStatus currValue =
+                    new NodeStatsMetricsAllShardsPerCollectionStatus(currentShardStats);
+            populateDiffMetricValue(prevValue, currValue, shardId);
         }
         prevPerShardStats = currentPerShardStats;
     }
