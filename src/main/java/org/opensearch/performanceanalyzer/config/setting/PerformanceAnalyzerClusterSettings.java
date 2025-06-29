@@ -46,7 +46,7 @@ public final class PerformanceAnalyzerClusterSettings {
     public static final Setting<Integer> PA_COLLECTORS_SETTING =
             Setting.intSetting(
                     "cluster.metadata.perf_analyzer.collectors.mode",
-                    0,
+                    1,
                     Setting.Property.NodeScope,
                     Setting.Property.Dynamic);
 

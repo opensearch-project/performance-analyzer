@@ -13,6 +13,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.collect.ImmutableMap;
 import java.lang.reflect.Field;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import org.apache.logging.log4j.LogManager;
@@ -57,8 +58,6 @@ public class NodeStatsAllShardsMetricsCollector extends PerformanceAnalyzerMetri
     private static final int KEYS_PATH_LENGTH = 2;
     private static final Logger LOG =
             LogManager.getLogger(NodeStatsAllShardsMetricsCollector.class);
-    private HashMap<ShardId, IndexShard> currentShards;
-    private HashMap<ShardId, ShardStats> currentPerShardStats;
     private HashMap<ShardId, ShardStats> prevPerShardStats;
     private final PerformanceAnalyzerController controller;
 
@@ -68,19 +67,8 @@ public class NodeStatsAllShardsMetricsCollector extends PerformanceAnalyzerMetri
                 "NodeStatsMetrics",
                 NODE_STATS_ALL_SHARDS_METRICS_COLLECTOR_EXECUTION_TIME,
                 NODESTATS_COLLECTION_ERROR);
-        currentShards = new HashMap<>();
         prevPerShardStats = new HashMap<>();
-        currentPerShardStats = new HashMap<>();
         this.controller = controller;
-    }
-
-    private void populateCurrentShards() {
-        if (!currentShards.isEmpty()) {
-            prevPerShardStats.putAll(currentPerShardStats);
-            currentPerShardStats.clear();
-        }
-        currentShards.clear();
-        currentShards = Utils.getShards();
     }
 
     private static final Map<String, ValueCalculator> maps =
@@ -152,8 +140,8 @@ public class NodeStatsAllShardsMetricsCollector extends PerformanceAnalyzerMetri
         if (indicesService == null) {
             return;
         }
-        populateCurrentShards();
-        populatePerShardStats(indicesService);
+
+        Map<ShardId, ShardStats> currentPerShardStats = populatePerShardStats(indicesService);
 
         for (HashMap.Entry currentShard : currentPerShardStats.entrySet()) {
             ShardId shardId = (ShardId) currentShard.getKey();
@@ -188,8 +176,10 @@ public class NodeStatsAllShardsMetricsCollector extends PerformanceAnalyzerMetri
         return field;
     }
 
-    public void populatePerShardStats(IndicesService indicesService) {
+    public Map<ShardId, ShardStats> populatePerShardStats(IndicesService indicesService) {
         // Populate the shard stats per shard.
+        HashMap<ShardId, IndexShard> currentShards = Utils.getShards();
+        Map<ShardId, ShardStats> currentPerShardStats = new HashMap<>(Collections.emptyMap());
         for (HashMap.Entry currentShard : currentShards.entrySet()) {
             IndexShard currentIndexShard = (IndexShard) currentShard.getValue();
             IndexShardStats currentIndexShardStats =
@@ -204,6 +194,7 @@ public class NodeStatsAllShardsMetricsCollector extends PerformanceAnalyzerMetri
                 currentPerShardStats.put(currentIndexShardStats.getShardId(), shardStats);
             }
         }
+        return currentPerShardStats;
     }
 
     public void populateMetricValue(

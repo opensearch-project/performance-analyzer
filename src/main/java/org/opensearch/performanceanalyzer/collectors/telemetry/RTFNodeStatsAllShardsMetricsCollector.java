@@ -11,6 +11,7 @@ import static org.opensearch.performanceanalyzer.commons.stats.metrics.StatMetri
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.collect.ImmutableMap;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import org.apache.logging.log4j.LogManager;
@@ -42,8 +43,6 @@ public class RTFNodeStatsAllShardsMetricsCollector extends PerformanceAnalyzerMe
                     .samplingInterval;
     private static final Logger LOG =
             LogManager.getLogger(RTFNodeStatsAllShardsMetricsCollector.class);
-    private Map<ShardId, IndexShard> currentShards;
-    private Map<ShardId, ShardStats> currentPerShardStats;
     private Map<ShardId, ShardStats> prevPerShardStats;
     private MetricsRegistry metricsRegistry;
     private Counter cacheQueryHitMetrics;
@@ -67,21 +66,10 @@ public class RTFNodeStatsAllShardsMetricsCollector extends PerformanceAnalyzerMe
                 "RTFNodeStatsMetricsCollector",
                 RTF_NODE_STATS_ALL_SHARDS_METRICS_COLLECTOR_EXECUTION_TIME,
                 RTF_NODESTATS_COLLECTION_ERROR);
-        currentShards = new HashMap<>();
         prevPerShardStats = new HashMap<>();
-        currentPerShardStats = new HashMap<>();
         this.metricsInitialised = false;
         this.performanceAnalyzerController = performanceAnalyzerController;
         this.configOverridesWrapper = configOverridesWrapper;
-    }
-
-    private void populateCurrentShards() {
-        if (!currentShards.isEmpty()) {
-            prevPerShardStats.putAll(currentPerShardStats);
-            currentPerShardStats.clear();
-        }
-        currentShards.clear();
-        currentShards = Utils.getShards();
     }
 
     private static final ImmutableMap<String, ValueCalculator> valueCalculators =
@@ -133,38 +121,40 @@ public class RTFNodeStatsAllShardsMetricsCollector extends PerformanceAnalyzerMe
 
         LOG.debug("Executing collect metrics for RTFNodeStatsAllShardsMetricsCollector");
         initialiseMetricsIfNeeded();
-        populateCurrentShards();
-        populatePerShardStats(indicesService);
+        Map<ShardId, ShardStats> currentPerShardStats = populatePerShardStats(indicesService);
 
-        for (Map.Entry currentShard : currentPerShardStats.entrySet()) {
-            ShardId shardId = (ShardId) currentShard.getKey();
-            ShardStats currentShardStats = (ShardStats) currentShard.getValue();
-            if (prevPerShardStats.size() == 0) {
+        for (Map.Entry<ShardId, ShardStats> currentShard : currentPerShardStats.entrySet()) {
+            ShardId shardId = currentShard.getKey();
+            ShardStats currentShardStats = currentShard.getValue();
+            if (prevPerShardStats.isEmpty()) {
                 // Populating value for the first run.
                 recordMetrics(
                         new NodeStatsMetricsAllShardsPerCollectionStatus(currentShardStats),
                         shardId);
                 continue;
             }
-            ShardStats prevShardStats = prevPerShardStats.get(shardId);
-            if (prevShardStats == null) {
-                // Populate value for shards which are new and were not present in the previous
-                // run.
-                recordMetrics(
-                        new NodeStatsMetricsAllShardsPerCollectionStatus(currentShardStats),
-                        shardId);
-                continue;
+            if (prevPerShardStats.containsKey(shardId)) {
+                ShardStats prevShardStats = prevPerShardStats.get(shardId);
+                if (prevShardStats == null) {
+                    // Populate value for shards which are new and were not present in the previous
+                    // run.
+                    recordMetrics(
+                            new NodeStatsMetricsAllShardsPerCollectionStatus(currentShardStats),
+                            shardId);
+                    continue;
+                }
+                NodeStatsMetricsAllShardsPerCollectionStatus prevValue =
+                        new NodeStatsMetricsAllShardsPerCollectionStatus(prevShardStats);
+                NodeStatsMetricsAllShardsPerCollectionStatus currValue =
+                        new NodeStatsMetricsAllShardsPerCollectionStatus(currentShardStats);
+                populateDiffMetricValue(prevValue, currValue, shardId);
             }
-            NodeStatsMetricsAllShardsPerCollectionStatus prevValue =
-                    new NodeStatsMetricsAllShardsPerCollectionStatus(prevShardStats);
-            NodeStatsMetricsAllShardsPerCollectionStatus currValue =
-                    new NodeStatsMetricsAllShardsPerCollectionStatus(currentShardStats);
-            populateDiffMetricValue(prevValue, currValue, shardId);
         }
+        prevPerShardStats = currentPerShardStats;
     }
 
     private void initialiseMetricsIfNeeded() {
-        if (metricsInitialised == false) {
+        if (!metricsInitialised) {
             cacheQueryHitMetrics =
                     metricsRegistry.createCounter(
                             RTFMetrics.ShardStatsValue.Constants.QUEY_CACHE_HIT_COUNT_VALUE,
@@ -222,10 +212,12 @@ public class RTFNodeStatsAllShardsMetricsCollector extends PerformanceAnalyzerMe
         }
     }
 
-    public void populatePerShardStats(IndicesService indicesService) {
+    public Map<ShardId, ShardStats> populatePerShardStats(IndicesService indicesService) {
         // Populate the shard stats per shard.
-        for (Map.Entry currentShard : currentShards.entrySet()) {
-            IndexShard currentIndexShard = (IndexShard) currentShard.getValue();
+        Map<ShardId, IndexShard> currentShards = Utils.getShards();
+        Map<ShardId, ShardStats> currentPerShardStats = new HashMap<>(Collections.emptyMap());
+        for (Map.Entry<ShardId, IndexShard> currentShard : currentShards.entrySet()) {
+            IndexShard currentIndexShard = currentShard.getValue();
             IndexShardStats currentIndexShardStats =
                     Utils.indexShardStats(
                             indicesService,
@@ -234,10 +226,13 @@ public class RTFNodeStatsAllShardsMetricsCollector extends PerformanceAnalyzerMe
                                     CommonStatsFlags.Flag.QueryCache,
                                     CommonStatsFlags.Flag.FieldData,
                                     CommonStatsFlags.Flag.RequestCache));
-            for (ShardStats shardStats : currentIndexShardStats.getShards()) {
-                currentPerShardStats.put(currentIndexShardStats.getShardId(), shardStats);
+            if (currentIndexShardStats != null) {
+                for (ShardStats shardStats : currentIndexShardStats.getShards()) {
+                    currentPerShardStats.put(currentIndexShardStats.getShardId(), shardStats);
+                }
             }
         }
+        return currentPerShardStats;
     }
 
     private void recordMetrics(
