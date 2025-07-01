@@ -141,11 +141,20 @@ public class RTFShardOperationCollector extends PerformanceAnalyzerMetricsCollec
 
     // attributes= {index_name="test", shard_id="0"}
     private Tags createTags(ShardId shardId) {
-        return Tags.create()
-                .addTag(RTFMetrics.CommonDimension.INDEX_NAME.toString(), shardId.getIndexName())
-                .addTag(
-                        RTFMetrics.CommonDimension.SHARD_ID.toString(),
-                        String.valueOf(shardId.getId()));
+        Tags shardOperationsMetricsTag =
+                Tags.create()
+                        .addTag(
+                                RTFMetrics.CommonDimension.INDEX_NAME.toString(),
+                                shardId.getIndexName())
+                        .addTag(
+                                RTFMetrics.CommonDimension.SHARD_ID.toString(),
+                                String.valueOf(shardId.getId()));
+
+        if (shardId.getIndex() != null) {
+            shardOperationsMetricsTag.addTag(
+                    RTFMetrics.CommonDimension.INDEX_UUID.toString(), shardId.getIndex().getUUID());
+        }
+        return shardOperationsMetricsTag;
     }
 
     private void initializeMetricsIfNeeded() {
@@ -172,5 +181,5 @@ public class RTFShardOperationCollector extends PerformanceAnalyzerMetricsCollec
      * @param indexOps count of index operations.
      * @param searchOps count of search operations
      */
-    public record ShardOperation(long indexOps, long searchOps) {}
+    private record ShardOperation(long indexOps, long searchOps) {}
 }

@@ -126,7 +126,7 @@ public class RTFNodeStatsAllShardsMetricsCollector extends PerformanceAnalyzerMe
         for (Map.Entry<ShardId, ShardStats> currentShard : currentPerShardStats.entrySet()) {
             ShardId shardId = currentShard.getKey();
             ShardStats currentShardStats = currentShard.getValue();
-            if (prevPerShardStats.isEmpty() || !prevPerShardStats.containsKey(shardId)) {
+            if (prevPerShardStats.isEmpty() || prevPerShardStats.get(shardId) == null) {
                 // Populating value for the first run of shard.
                 recordMetrics(
                         new NodeStatsMetricsAllShardsPerCollectionStatus(currentShardStats),
@@ -134,14 +134,6 @@ public class RTFNodeStatsAllShardsMetricsCollector extends PerformanceAnalyzerMe
                 continue;
             }
             ShardStats prevShardStats = prevPerShardStats.get(shardId);
-            if (prevShardStats == null) {
-                // Populate value for shards which are new and were not present in the previous
-                // run.
-                recordMetrics(
-                        new NodeStatsMetricsAllShardsPerCollectionStatus(currentShardStats),
-                        shardId);
-                continue;
-            }
             NodeStatsMetricsAllShardsPerCollectionStatus prevValue =
                     new NodeStatsMetricsAllShardsPerCollectionStatus(prevShardStats);
             NodeStatsMetricsAllShardsPerCollectionStatus currValue =
