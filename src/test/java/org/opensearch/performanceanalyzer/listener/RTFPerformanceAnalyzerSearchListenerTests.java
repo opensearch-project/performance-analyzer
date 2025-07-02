@@ -72,7 +72,7 @@ public class RTFPerformanceAnalyzerSearchListenerTests {
                 .thenReturn(heapUsedHistogram);
         Mockito.when(
                         metricsRegistry.createHistogram(
-                                Mockito.eq("search_latency"),
+                                Mockito.eq("shard_search_latency"),
                                 Mockito.anyString(),
                                 Mockito.eq("ms")))
                 .thenReturn(searchLatencyHistogram);
@@ -104,6 +104,9 @@ public class RTFPerformanceAnalyzerSearchListenerTests {
         initializeValidSearchContext(true);
         Mockito.when(controller.getCollectorsRunModeValue())
                 .thenReturn(Util.CollectorMode.TELEMETRY.getValue());
+        Mockito.when(shardId.getIndex()).thenReturn(index);
+        Mockito.when(index.getName()).thenReturn("myTestIndex");
+        Mockito.when(index.getUUID()).thenReturn("abc-def");
         searchListener.preQueryPhase(searchContext);
         searchListener.queryPhase(searchContext, 0l);
         Mockito.verify(task).addResourceTrackingCompletionListener(Mockito.any());
@@ -115,6 +118,9 @@ public class RTFPerformanceAnalyzerSearchListenerTests {
         initializeValidSearchContext(true);
         Mockito.when(controller.getCollectorsRunModeValue())
                 .thenReturn(Util.CollectorMode.TELEMETRY.getValue());
+        Mockito.when(shardId.getIndex()).thenReturn(index);
+        Mockito.when(index.getName()).thenReturn("myTestIndex");
+        Mockito.when(index.getUUID()).thenReturn("abc-def");
         searchListener.preQueryPhase(searchContext);
         searchListener.failedQueryPhase(searchContext);
         Mockito.verify(task).addResourceTrackingCompletionListener(Mockito.any());
@@ -125,6 +131,9 @@ public class RTFPerformanceAnalyzerSearchListenerTests {
         initializeValidSearchContext(true);
         Mockito.when(controller.getCollectorsRunModeValue())
                 .thenReturn(Util.CollectorMode.TELEMETRY.getValue());
+        Mockito.when(shardId.getIndex()).thenReturn(index);
+        Mockito.when(index.getName()).thenReturn("myTestIndex");
+        Mockito.when(index.getUUID()).thenReturn("abc-def");
         searchListener.preFetchPhase(searchContext);
         searchListener.fetchPhase(searchContext, 0l);
         Mockito.verify(task).addResourceTrackingCompletionListener(Mockito.any());
@@ -136,6 +145,9 @@ public class RTFPerformanceAnalyzerSearchListenerTests {
         initializeValidSearchContext(true);
         Mockito.when(controller.getCollectorsRunModeValue())
                 .thenReturn(Util.CollectorMode.TELEMETRY.getValue());
+        Mockito.when(shardId.getIndex()).thenReturn(index);
+        Mockito.when(index.getName()).thenReturn("myTestIndex");
+        Mockito.when(index.getUUID()).thenReturn("abc-def");
         searchListener.preFetchPhase(searchContext);
         searchListener.failedFetchPhase(searchContext);
         Mockito.verify(task).addResourceTrackingCompletionListener(Mockito.any());
