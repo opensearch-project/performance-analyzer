@@ -189,14 +189,13 @@ public class RTFPerformanceAnalyzerSearchListener
     @Override
     public void queryPhase(SearchContext searchContext, long tookInNanos) {
         long queryStartTime = threadLocal.get().getOrDefault(QUERY_START_TIME, System.nanoTime());
-        long queryTime = (System.nanoTime() - queryStartTime);
-        double queryTimeInMills = queryTime / 1_000_000.0;
+        double queryTimeInMills = tookInNanos / 1_000_000.0;
 
         searchLatencyHistogram.record(
                 queryTimeInMills, createTags(searchContext, SHARD_QUERY_PHASE, false));
 
         addResourceTrackingCompletionListener(
-                searchContext, queryStartTime, queryTime, SHARD_QUERY_PHASE, false);
+                searchContext, queryStartTime, tookInNanos, SHARD_QUERY_PHASE, false);
     }
 
     @Override
@@ -215,14 +214,12 @@ public class RTFPerformanceAnalyzerSearchListener
     @Override
     public void fetchPhase(SearchContext searchContext, long tookInNanos) {
         long fetchStartTime = threadLocal.get().getOrDefault(FETCH_START_TIME, System.nanoTime());
-        long fetchTime = (System.nanoTime() - fetchStartTime);
-        double fetchTimeInMills = fetchTime / 1_000_000.0;
-
+        double fetchTimeInMills = tookInNanos / 1_000_000.0;
         searchLatencyHistogram.record(
                 fetchTimeInMills, createTags(searchContext, SHARD_FETCH_PHASE, false));
 
         addResourceTrackingCompletionListenerForFetchPhase(
-                searchContext, fetchStartTime, fetchTime, SHARD_FETCH_PHASE, false);
+                searchContext, fetchStartTime, tookInNanos, SHARD_FETCH_PHASE, false);
     }
 
     @Override
@@ -291,11 +288,7 @@ public class RTFPerformanceAnalyzerSearchListener
                  * overall start time.
                  */
                 long totalTime = System.nanoTime() - startTime;
-                double totalTimeInMills = totalTime / 1_000_000.0;
                 double shareFactor = computeShareFactor(phaseTookTime, totalTime);
-
-                searchLatencyHistogram.record(
-                        totalTimeInMills, createTags(searchContext, phase, isFailed));
                 cpuUtilizationHistogram.record(
                         Utils.calculateCPUUtilization(
                                 numProcessors,

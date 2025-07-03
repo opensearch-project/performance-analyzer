@@ -174,7 +174,7 @@ public class RTFPerformanceAnalyzerSearchListenerTests {
         NotifyOnceListener<Task> taskCompletionListener =
                 rtfSearchListener.createListener(searchContext, 0l, 0l, "test", false);
         taskCompletionListener.onResponse(task);
-        Mockito.verify(searchLatencyHistogram).record(Mockito.anyDouble(), Mockito.any(Tags.class));
+
         Mockito.verify(cpuUtilizationHistogram)
                 .record(Mockito.anyDouble(), Mockito.any(Tags.class));
         Mockito.verify(heapUsedHistogram).record(Mockito.anyDouble(), Mockito.any(Tags.class));
