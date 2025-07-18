@@ -48,7 +48,7 @@ buildscript {
 plugins {
     id 'java'
     id 'com.netflix.nebula.ospackage' version "11.6.0"
-    id 'com.github.spotbugs' version '6.0.7'
+    id 'com.github.spotbugs' version '6.2.2'
     id 'jacoco'
     id 'com.diffplug.spotless' version '6.25.0'
     id 'checkstyle'
@@ -58,7 +58,7 @@ plugins {
 }
 
 checkstyle {
-    toolVersion = '10.12.1'
+    toolVersion = '10.26.1'
     configFile file("checkstyle/checkstyle.xml")
 }
 
