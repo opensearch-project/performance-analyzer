@@ -32,6 +32,8 @@ public class RTFPerformanceAnalyzerTransportChannelTests {
     @Mock private TransportChannel originalChannel;
     @Mock private TransportResponse response;
     @Mock private Histogram cpuUtilizationHistogram;
+    @Mock private Histogram indexingLatencyHistogram;
+    @Mock private Histogram heapUsedHistogram;
     private ShardId shardId;
     @Mock private ShardId mockedShardId;
     @Mock private Index index;
@@ -46,7 +48,14 @@ public class RTFPerformanceAnalyzerTransportChannelTests {
         String indexName = "testIndex";
         shardId = new ShardId(new Index(indexName, "uuid"), 1);
         channel = new RTFPerformanceAnalyzerTransportChannel();
-        channel.set(originalChannel, cpuUtilizationHistogram, indexName, shardId, false);
+        channel.set(
+                originalChannel,
+                cpuUtilizationHistogram,
+                indexingLatencyHistogram,
+                heapUsedHistogram,
+                indexName,
+                shardId,
+                false);
         assertEquals("RTFPerformanceAnalyzerTransportChannelProfile", channel.getProfileName());
         assertEquals("RTFPerformanceAnalyzerTransportChannelType", channel.getChannelType());
         assertEquals(originalChannel, channel.getInnerChannel());
@@ -71,12 +80,58 @@ public class RTFPerformanceAnalyzerTransportChannelTests {
     public void testRecordCPUUtilizationMetric() {
         RTFPerformanceAnalyzerTransportChannel channel =
                 new RTFPerformanceAnalyzerTransportChannel();
-        channel.set(originalChannel, cpuUtilizationHistogram, "testIndex", mockedShardId, false);
+        channel.set(
+                originalChannel,
+                cpuUtilizationHistogram,
+                indexingLatencyHistogram,
+                heapUsedHistogram,
+                "testIndex",
+                mockedShardId,
+                false);
         Mockito.when(mockedShardId.getIndex()).thenReturn(index);
         Mockito.when(index.getName()).thenReturn("myTestIndex");
         Mockito.when(index.getUUID()).thenReturn("abc-def");
         channel.recordCPUUtilizationMetric(mockedShardId, 10l, "bulkShard", false);
         Mockito.verify(cpuUtilizationHistogram)
                 .record(Mockito.anyDouble(), Mockito.any(Tags.class));
+    }
+
+    @Test
+    public void testRecordIndexingLatencyMetric() {
+        RTFPerformanceAnalyzerTransportChannel channel =
+                new RTFPerformanceAnalyzerTransportChannel();
+        channel.set(
+                originalChannel,
+                cpuUtilizationHistogram,
+                indexingLatencyHistogram,
+                heapUsedHistogram,
+                "testIndex",
+                mockedShardId,
+                false);
+        Mockito.when(mockedShardId.getIndex()).thenReturn(index);
+        Mockito.when(index.getName()).thenReturn("myTestIndex");
+        Mockito.when(index.getUUID()).thenReturn("abc-def");
+        channel.recordIndexingLatencyMetric(mockedShardId, 123.456, "bulkShard", false);
+        Mockito.verify(indexingLatencyHistogram)
+                .record(Mockito.anyDouble(), Mockito.any(Tags.class));
+    }
+
+    @Test
+    public void testRecordHeapUsedMetric() {
+        RTFPerformanceAnalyzerTransportChannel channel =
+                new RTFPerformanceAnalyzerTransportChannel();
+        channel.set(
+                originalChannel,
+                cpuUtilizationHistogram,
+                indexingLatencyHistogram,
+                heapUsedHistogram,
+                "testIndex",
+                mockedShardId,
+                false);
+        Mockito.when(mockedShardId.getIndex()).thenReturn(index);
+        Mockito.when(index.getName()).thenReturn("myTestIndex");
+        Mockito.when(index.getUUID()).thenReturn("abc-def");
+        channel.recordHeapUsedMetric(mockedShardId, 10l, "bulkShard", false);
+        Mockito.verify(heapUsedHistogram).record(Mockito.anyDouble(), Mockito.any(Tags.class));
     }
 }
