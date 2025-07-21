@@ -13,8 +13,8 @@ jobs:
     strategy:
       matrix:
         java:
-          - 11
-          - 17
+          - 21
+          - 23
       fail-fast: false
     runs-on: [ubuntu-latest]
     name: Building PA package
