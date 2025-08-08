@@ -6,7 +6,7 @@
 buildscript {
 
     ext {
-        opensearch_version = System.getProperty("opensearch.version", "3.1.0-SNAPSHOT")
+        opensearch_version = System.getProperty("opensearch.version", "3.2.0-SNAPSHOT")
         isSnapshot = "true" == System.getProperty("build.snapshot", "true")
         buildVersionQualifier = System.getProperty("build.version_qualifier", "")
 
@@ -48,8 +48,8 @@ buildscript {
 
 plugins {
     id 'java'
-    id 'com.netflix.nebula.ospackage' version "11.6.0"
-    id 'com.github.spotbugs' version '6.0.7'
+    id 'com.netflix.nebula.ospackage' version "12.0.0"
+    id 'com.github.spotbugs' version '6.2.2'
     id 'jacoco'
     id 'com.diffplug.spotless' version '6.25.0'
     id 'checkstyle'
@@ -59,7 +59,7 @@ plugins {
 }
 
 checkstyle {
-    toolVersion = '10.12.1'
+    toolVersion = '10.26.1'
     configFile file("checkstyle/checkstyle.xml")
 }
 
@@ -91,24 +91,6 @@ ext {
     rcaProjectDir = System.getProperty("performance-analyzer-rca.path", "../performance-analyzer-rca")
 }
 
-// Fix for CVE-2025-27820
-configurations.all {
-    resolutionStrategy {
-        force("org.apache.httpcomponents.client5:httpclient5:5.4.4")
-        force("org.apache.httpcomponents:httpcore:5.3.4")
-        force("org.apache.httpcomponents.core5:httpcore5-h2:5.3.4")
-        force("org.apache.httpcomponents.core5:httpcore5:5.3.4")
-        
-
-        // Alternatively, you can use this approach
-        eachDependency { DependencyResolveDetails details ->
-            if (details.requested.group == 'org.apache.httpcomponents.client5' &&
-                    details.requested.name == 'httpclient5') {
-                details.useVersion "${versions.httpclient5}"
-            }
-        }
-    }
-}
 
 allprojects {
     group = "org.opensearch"
