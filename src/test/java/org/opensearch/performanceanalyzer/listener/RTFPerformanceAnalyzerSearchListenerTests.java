@@ -42,6 +42,10 @@ public class RTFPerformanceAnalyzerSearchListenerTests {
     @Mock private MetricsRegistry metricsRegistry;
     @Mock private Histogram cpuUtilizationHistogram;
     @Mock private Histogram heapUsedHistogram;
+    @Mock private Histogram queryPhaseHistogram;
+    @Mock private Histogram fetchPhaseHistogram;
+    @Mock private Histogram queryPlusFetchPhaseHistogram;
+    @Mock private Histogram searchLatencyHistogram;
     @Mock private Index index;
 
     @Mock private TaskResourceUsage taskResourceUsage;
@@ -68,6 +72,30 @@ public class RTFPerformanceAnalyzerSearchListenerTests {
                         metricsRegistry.createHistogram(
                                 Mockito.eq("heap_allocated"), Mockito.anyString(), Mockito.eq("B")))
                 .thenReturn(heapUsedHistogram);
+        Mockito.when(
+                        metricsRegistry.createHistogram(
+                                Mockito.eq("query_phase_latency"),
+                                Mockito.anyString(),
+                                Mockito.eq("ms")))
+                .thenReturn(queryPhaseHistogram);
+        Mockito.when(
+                        metricsRegistry.createHistogram(
+                                Mockito.eq("fetch_phase_latency"),
+                                Mockito.anyString(),
+                                Mockito.eq("ms")))
+                .thenReturn(fetchPhaseHistogram);
+        Mockito.when(
+                        metricsRegistry.createHistogram(
+                                Mockito.eq("query_plus_fetch_phase_histogram"),
+                                Mockito.anyString(),
+                                Mockito.eq("ms")))
+                .thenReturn(queryPlusFetchPhaseHistogram);
+        Mockito.when(
+                        metricsRegistry.createHistogram(
+                                Mockito.eq("search_latency"),
+                                Mockito.anyString(),
+                                Mockito.eq("ms")))
+                .thenReturn(searchLatencyHistogram);
         searchListener = new RTFPerformanceAnalyzerSearchListener(controller);
         assertEquals(
                 RTFPerformanceAnalyzerSearchListener.class.getSimpleName(),
@@ -99,6 +127,9 @@ public class RTFPerformanceAnalyzerSearchListenerTests {
         searchListener.preQueryPhase(searchContext);
         searchListener.queryPhase(searchContext, 0l);
         Mockito.verify(task).addResourceTrackingCompletionListener(Mockito.any());
+        Mockito.verify(queryPhaseHistogram).record(Mockito.anyDouble(), Mockito.any(Tags.class));
+        Mockito.verify(queryPlusFetchPhaseHistogram)
+                .record(Mockito.anyDouble(), Mockito.any(Tags.class));
     }
 
     @Test
@@ -119,6 +150,9 @@ public class RTFPerformanceAnalyzerSearchListenerTests {
         searchListener.preFetchPhase(searchContext);
         searchListener.fetchPhase(searchContext, 0l);
         Mockito.verify(task).addResourceTrackingCompletionListener(Mockito.any());
+        Mockito.verify(fetchPhaseHistogram).record(Mockito.anyDouble(), Mockito.any(Tags.class));
+        Mockito.verify(queryPlusFetchPhaseHistogram)
+                .record(Mockito.anyDouble(), Mockito.any(Tags.class));
     }
 
     @Test
@@ -158,6 +192,7 @@ public class RTFPerformanceAnalyzerSearchListenerTests {
         NotifyOnceListener<Task> taskCompletionListener =
                 rtfSearchListener.createListener(searchContext, 0l, 0l, "test", false);
         taskCompletionListener.onResponse(task);
+        Mockito.verify(searchLatencyHistogram).record(Mockito.anyDouble(), Mockito.any(Tags.class));
         Mockito.verify(cpuUtilizationHistogram)
                 .record(Mockito.anyDouble(), Mockito.any(Tags.class));
         Mockito.verify(heapUsedHistogram).record(Mockito.anyDouble(), Mockito.any(Tags.class));

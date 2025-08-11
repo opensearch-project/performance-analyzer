@@ -37,6 +37,7 @@ public final class RTFPerformanceAnalyzerTransportChannel implements TransportCh
     private long operationStartTime;
 
     private Histogram cpuUtilizationHistogram;
+    private Histogram indexingLatencyHistogram;
 
     private TransportChannel original;
     private String indexName;
@@ -49,11 +50,13 @@ public final class RTFPerformanceAnalyzerTransportChannel implements TransportCh
     void set(
             TransportChannel original,
             Histogram cpuUtilizationHistogram,
+            Histogram indexingLatencyHistogram,
             String indexName,
             ShardId shardId,
             boolean bPrimary) {
         this.original = original;
         this.cpuUtilizationHistogram = cpuUtilizationHistogram;
+        this.indexingLatencyHistogram = indexingLatencyHistogram;
         this.indexName = indexName;
         this.shardId = shardId;
         this.primary = bPrimary;
@@ -90,6 +93,10 @@ public final class RTFPerformanceAnalyzerTransportChannel implements TransportCh
     private void emitMetrics(boolean isFailed) {
         double cpuUtilization = calculateCPUUtilization(operationStartTime, cpuStartTime);
         recordCPUUtilizationMetric(shardId, cpuUtilization, OPERATION_SHARD_BULK, isFailed);
+
+        long latencyInNanos = System.nanoTime() - operationStartTime;
+        double latencyInMillis = latencyInNanos / 1_000_000.0;
+        recordIndexingLatencyMetric(shardId, latencyInMillis, OPERATION_SHARD_BULK, isFailed);
     }
 
     private double calculateCPUUtilization(long phaseStartTime, long phaseCPUStartTime) {
@@ -101,23 +108,31 @@ public final class RTFPerformanceAnalyzerTransportChannel implements TransportCh
     }
 
     @VisibleForTesting
+    void recordIndexingLatencyMetric(
+            ShardId shardId, double indexingLatency, String operation, boolean isFailed) {
+        indexingLatencyHistogram.record(indexingLatency, createTags(shardId, operation, isFailed));
+    }
+
+    @VisibleForTesting
     void recordCPUUtilizationMetric(
             ShardId shardId, double cpuUtilization, String operation, boolean isFailed) {
-        cpuUtilizationHistogram.record(
-                cpuUtilization,
-                Tags.create()
-                        .addTag(
-                                RTFMetrics.CommonDimension.INDEX_NAME.toString(),
-                                shardId.getIndex().getName())
-                        .addTag(
-                                RTFMetrics.CommonDimension.INDEX_UUID.toString(),
-                                shardId.getIndex().getUUID())
-                        .addTag(RTFMetrics.CommonDimension.SHARD_ID.toString(), shardId.getId())
-                        .addTag(RTFMetrics.CommonDimension.OPERATION.toString(), operation)
-                        .addTag(RTFMetrics.CommonDimension.FAILED.toString(), isFailed)
-                        .addTag(
-                                RTFMetrics.CommonDimension.SHARD_ROLE.toString(),
-                                primary ? SHARD_ROLE_PRIMARY : SHARD_ROLE_REPLICA));
+        cpuUtilizationHistogram.record(cpuUtilization, createTags(shardId, operation, isFailed));
+    }
+
+    private Tags createTags(ShardId shardId, String operation, boolean isFailed) {
+        return Tags.create()
+                .addTag(
+                        RTFMetrics.CommonDimension.INDEX_NAME.toString(),
+                        shardId.getIndex().getName())
+                .addTag(
+                        RTFMetrics.CommonDimension.INDEX_UUID.toString(),
+                        shardId.getIndex().getUUID())
+                .addTag(RTFMetrics.CommonDimension.SHARD_ID.toString(), shardId.getId())
+                .addTag(RTFMetrics.CommonDimension.OPERATION.toString(), operation)
+                .addTag(RTFMetrics.CommonDimension.FAILED.toString(), isFailed)
+                .addTag(
+                        RTFMetrics.CommonDimension.SHARD_ROLE.toString(),
+                        primary ? SHARD_ROLE_PRIMARY : SHARD_ROLE_REPLICA);
     }
 
     // This function is called from the security plugin using reflection. Do not
