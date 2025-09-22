@@ -6,9 +6,11 @@
 package org.opensearch.performanceanalyzer.transport;
 
 import java.io.IOException;
+import java.util.Optional;
 import java.util.concurrent.atomic.AtomicLong;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.opensearch.Version;
 import org.opensearch.core.transport.TransportResponse;
 import org.opensearch.performanceanalyzer.commons.metrics.AllMetrics.ShardBulkDimension;
 import org.opensearch.performanceanalyzer.commons.metrics.AllMetrics.ShardBulkMetric;
@@ -78,12 +80,22 @@ public class PerformanceAnalyzerTransportChannel implements TransportChannel, Me
 
     @Override
     public String getProfileName() {
-        return "PerformanceAnalyzerTransportChannelProfile";
+        return this.original.getProfileName();
     }
 
     @Override
     public String getChannelType() {
-        return "PerformanceAnalyzerTransportChannelType";
+        return this.original.getChannelType();
+    }
+
+    @Override
+    public <T> Optional<T> get(String name, Class<T> clazz) {
+        return this.original.get(name, clazz);
+    }
+
+    @Override
+    public Version getVersion() {
+        return this.original.getVersion();
     }
 
     @Override

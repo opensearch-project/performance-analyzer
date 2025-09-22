@@ -8,11 +8,20 @@ package org.opensearch.performanceanalyzer.transport;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyDouble;
+import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.MockitoAnnotations.initMocks;
+import static org.opensearch.performanceanalyzer.transport.TestUtils.createDummyValue;
 
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
 import org.apache.commons.lang3.SystemUtils;
 import org.junit.Before;
 import org.junit.Test;
@@ -47,9 +56,6 @@ public class RTFPerformanceAnalyzerTransportChannelTests {
         shardId = new ShardId(new Index(indexName, "uuid"), 1);
         channel = new RTFPerformanceAnalyzerTransportChannel();
         channel.set(originalChannel, cpuUtilizationHistogram, indexName, shardId, false);
-        assertEquals("RTFPerformanceAnalyzerTransportChannelProfile", channel.getProfileName());
-        assertEquals("RTFPerformanceAnalyzerTransportChannelType", channel.getChannelType());
-        assertEquals(originalChannel, channel.getInnerChannel());
     }
 
     @Test
@@ -57,6 +63,26 @@ public class RTFPerformanceAnalyzerTransportChannelTests {
         channel.sendResponse(response);
         verify(originalChannel).sendResponse(response);
         verify(cpuUtilizationHistogram, times(1)).record(anyDouble(), any(Tags.class));
+    }
+
+    @Test
+    public void testGetProfileName() {
+        assertEquals(originalChannel.getProfileName(), channel.getProfileName());
+    }
+
+    @Test
+    public void testGetChannelType() {
+        assertEquals(originalChannel.getChannelType(), channel.getChannelType());
+    }
+
+    @Test
+    public void testGetVersion() {
+        assertEquals(originalChannel.getVersion(), channel.getVersion());
+    }
+
+    @Test
+    public void testGet() throws IOException {
+        assertEquals(originalChannel.get("test", Object.class), channel.get("test", Object.class));
     }
 
     @Test
@@ -78,5 +104,40 @@ public class RTFPerformanceAnalyzerTransportChannelTests {
         channel.recordCPUUtilizationMetric(mockedShardId, 10l, "bulkShard", false);
         Mockito.verify(cpuUtilizationHistogram)
                 .record(Mockito.anyDouble(), Mockito.any(Tags.class));
+    }
+
+    @Test
+    public void testRTFPAChannelDelegatesToOriginal()
+            throws InvocationTargetException, IllegalAccessException {
+        TransportChannel handlerSpy = spy(originalChannel);
+        RTFPerformanceAnalyzerTransportChannel rtfChannel =
+                new RTFPerformanceAnalyzerTransportChannel();
+        rtfChannel.set(handlerSpy, cpuUtilizationHistogram, index.getName(), shardId, false);
+
+        List<Method> overridableMethods =
+                Arrays.stream(TransportChannel.class.getMethods())
+                        .filter(
+                                m ->
+                                        !(Modifier.isPrivate(m.getModifiers())
+                                                || Modifier.isStatic(m.getModifiers())
+                                                || Modifier.isFinal(m.getModifiers())))
+                        .collect(Collectors.toList());
+
+        for (Method method : overridableMethods) {
+            int argCount = method.getParameterCount();
+            Object[] args = new Object[argCount];
+            Class<?>[] parameterTypes = method.getParameterTypes();
+            for (int i = 0; i < argCount; i++) {
+                args[i] = createDummyValue(parameterTypes[i]);
+                ;
+            }
+            if (args.length > 0) {
+                method.invoke(rtfChannel, args);
+            } else {
+                method.invoke(rtfChannel);
+            }
+            method.invoke(verify(handlerSpy, times(1)), args);
+        }
+        verifyNoMoreInteractions(handlerSpy);
     }
 }
