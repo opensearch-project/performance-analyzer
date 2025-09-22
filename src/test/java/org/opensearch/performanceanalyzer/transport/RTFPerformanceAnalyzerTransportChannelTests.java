@@ -21,6 +21,7 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.SystemUtils;
 import org.junit.Before;
@@ -124,6 +125,12 @@ public class RTFPerformanceAnalyzerTransportChannelTests {
                         .collect(Collectors.toList());
 
         for (Method method : overridableMethods) {
+//            completeStream Method is experimental and not implemented in PAChannel
+            if (Set.of("sendresponsebatch", "completestream")
+                    .contains(method.getName().toLowerCase())) {
+                continue;
+            }
+
             int argCount = method.getParameterCount();
             Object[] args = new Object[argCount];
             Class<?>[] parameterTypes = method.getParameterTypes();
