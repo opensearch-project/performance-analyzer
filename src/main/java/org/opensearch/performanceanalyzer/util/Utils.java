@@ -5,6 +5,7 @@
 
 package org.opensearch.performanceanalyzer.util;
 
+import com.google.common.annotations.VisibleForTesting;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -56,6 +57,8 @@ public class Utils {
         MetricsConfiguration.CONFIG_MAP.put(
                 RTFCacheConfigMetricsCollector.class,
                 new MetricsConfiguration.MetricConfig(60000, 0));
+        MetricsConfiguration.CONFIG_MAP.put(
+                RTFShardOperationCollector.class, new MetricsConfiguration.MetricConfig(5000, 0));
     }
 
     // These methods are utility functions for the Node Stat Metrics Collectors. These methods are
@@ -147,5 +150,10 @@ public class Utils {
         double cpuUtil = cpuShareFactor * (cpuUsageTime / totalAvailableCPUTime);
         LOG.debug("Performance Analyzer CPUUtilization calculation with cpuUtil {}", cpuUtil);
         return cpuUtil;
+    }
+
+    @VisibleForTesting
+    public static double computeShareFactor(long phaseTookTime, long totalTime) {
+        return Math.min(1, ((double) phaseTookTime) / Math.max(1.0, totalTime));
     }
 }
