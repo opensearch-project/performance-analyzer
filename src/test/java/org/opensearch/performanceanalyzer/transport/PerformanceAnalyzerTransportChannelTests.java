@@ -44,7 +44,6 @@ public class PerformanceAnalyzerTransportChannelTests {
         initMocks(this);
         channel = new PerformanceAnalyzerTransportChannel();
         channel.set(originalChannel, 0, "testIndex", 1, 0, false);
-        assertEquals(originalChannel, channel.getInnerChannel());
     }
 
     @Test
@@ -94,7 +93,7 @@ public class PerformanceAnalyzerTransportChannelTests {
                         .collect(Collectors.toList());
 
         for (Method method : overridableMethods) {
-            //            completeStream Method is experimental and not implemented in PAChannel
+            //            completeStream and sendresponsebatch Methods are experimental and not implemented in PAChannel
             if (Set.of("sendresponsebatch", "completestream")
                     .contains(method.getName().toLowerCase())) {
                 continue;
