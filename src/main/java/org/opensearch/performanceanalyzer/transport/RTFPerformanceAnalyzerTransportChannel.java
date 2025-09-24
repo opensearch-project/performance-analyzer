@@ -69,22 +69,22 @@ public final class RTFPerformanceAnalyzerTransportChannel implements TransportCh
 
     @Override
     public String getProfileName() {
-        return this.original.getProfileName();
+        return this.original == null ? null : this.original.getProfileName();
     }
 
     @Override
     public String getChannelType() {
-        return this.original.getChannelType();
+        return this.original == null ? null : this.original.getChannelType();
     }
 
     @Override
     public <T> Optional<T> get(String name, Class<T> clazz) {
-        return this.original.get(name, clazz);
+        return this.original == null ? Optional.empty() : this.original.get(name, clazz);
     }
 
     @Override
     public Version getVersion() {
-        return this.original.getVersion();
+        return this.original == null ? null : this.original.getVersion();
     }
 
     @Override
