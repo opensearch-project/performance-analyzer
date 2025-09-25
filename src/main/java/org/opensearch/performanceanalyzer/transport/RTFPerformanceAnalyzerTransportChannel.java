@@ -9,8 +9,10 @@ import com.google.common.annotations.VisibleForTesting;
 import com.sun.management.ThreadMXBean;
 import java.io.IOException;
 import java.lang.management.ManagementFactory;
+import java.util.Optional;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.opensearch.Version;
 import org.opensearch.core.index.shard.ShardId;
 import org.opensearch.core.transport.TransportResponse;
 import org.opensearch.performanceanalyzer.commons.metrics.RTFMetrics;
@@ -67,12 +69,22 @@ public final class RTFPerformanceAnalyzerTransportChannel implements TransportCh
 
     @Override
     public String getProfileName() {
-        return "RTFPerformanceAnalyzerTransportChannelProfile";
+        return this.original == null ? null : this.original.getProfileName();
     }
 
     @Override
     public String getChannelType() {
-        return "RTFPerformanceAnalyzerTransportChannelType";
+        return this.original == null ? null : this.original.getChannelType();
+    }
+
+    @Override
+    public <T> Optional<T> get(String name, Class<T> clazz) {
+        return this.original == null ? Optional.empty() : this.original.get(name, clazz);
+    }
+
+    @Override
+    public Version getVersion() {
+        return this.original == null ? null : this.original.getVersion();
     }
 
     @Override
@@ -118,11 +130,5 @@ public final class RTFPerformanceAnalyzerTransportChannel implements TransportCh
                         .addTag(
                                 RTFMetrics.CommonDimension.SHARD_ROLE.toString(),
                                 primary ? SHARD_ROLE_PRIMARY : SHARD_ROLE_REPLICA));
-    }
-
-    // This function is called from the security plugin using reflection. Do not
-    // remove this function without changing the security plugin.
-    public TransportChannel getInnerChannel() {
-        return this.original;
     }
 }
