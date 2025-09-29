@@ -93,7 +93,8 @@ public class PerformanceAnalyzerTransportChannelTests {
                         .collect(Collectors.toList());
 
         for (Method method : overridableMethods) {
-            //            completeStream and sendresponsebatch Methods are experimental and not implemented in PAChannel
+            //            completeStream and sendresponsebatch Methods are experimental and not
+            // implemented in PAChannel
             if (Set.of("sendresponsebatch", "completestream")
                     .contains(method.getName().toLowerCase())) {
                 continue;
