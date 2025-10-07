@@ -304,7 +304,7 @@ dependencies {
     }
 
     implementation 'org.jooq:jooq:3.10.8'
-    implementation 'org.apache.commons:commons-lang3:3.9'
+    implementation "org.apache.commons:commons-lang3:${versions.commonslang}"
     implementation "org.bouncycastle:bc-fips:${versions.bouncycastle_jce}"
     implementation "org.bouncycastle:bcpkix-fips:${versions.bouncycastle_pkix}"
     implementation "org.opensearch:performance-analyzer-commons:${paCommonsVersion}"
