@@ -6,9 +6,11 @@
 package org.opensearch.performanceanalyzer.transport;
 
 import java.io.IOException;
+import java.util.Optional;
 import java.util.concurrent.atomic.AtomicLong;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.opensearch.Version;
 import org.opensearch.core.transport.TransportResponse;
 import org.opensearch.performanceanalyzer.commons.metrics.AllMetrics.ShardBulkDimension;
 import org.opensearch.performanceanalyzer.commons.metrics.AllMetrics.ShardBulkMetric;
@@ -78,12 +80,22 @@ public class PerformanceAnalyzerTransportChannel implements TransportChannel, Me
 
     @Override
     public String getProfileName() {
-        return "PerformanceAnalyzerTransportChannelProfile";
+        return this.original == null ? null : this.original.getProfileName();
     }
 
     @Override
     public String getChannelType() {
-        return "PerformanceAnalyzerTransportChannelType";
+        return this.original == null ? null : this.original.getChannelType();
+    }
+
+    @Override
+    public <T> Optional<T> get(String name, Class<T> clazz) {
+        return this.original == null ? Optional.empty() : this.original.get(name, clazz);
+    }
+
+    @Override
+    public Version getVersion() {
+        return this.original == null ? null : this.original.getVersion();
     }
 
     @Override
@@ -141,12 +153,6 @@ public class PerformanceAnalyzerTransportChannel implements TransportChannel, Me
                 threadID,
                 id,
                 PerformanceAnalyzerMetrics.FINISH_FILE_NAME);
-    }
-
-    // This function is called from the security plugin using reflection. Do not
-    // remove this function without changing the security plugin.
-    public TransportChannel getInnerChannel() {
-        return this.original;
     }
 
     @Override
