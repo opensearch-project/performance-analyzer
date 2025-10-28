@@ -21,6 +21,8 @@ import org.opensearch.core.index.Index;
 import org.opensearch.core.index.shard.ShardId;
 import org.opensearch.core.tasks.resourcetracker.TaskResourceUsage;
 import org.opensearch.performanceanalyzer.OpenSearchResources;
+import org.opensearch.performanceanalyzer.ShardMetricsCollector;
+import org.opensearch.performanceanalyzer.commons.metrics.RTFMetrics;
 import org.opensearch.performanceanalyzer.commons.util.Util;
 import org.opensearch.performanceanalyzer.config.PerformanceAnalyzerController;
 import org.opensearch.performanceanalyzer.util.Utils;
@@ -44,6 +46,8 @@ public class RTFPerformanceAnalyzerSearchListenerTests {
     @Mock private Histogram cpuUtilizationHistogram;
     @Mock private Histogram heapUsedHistogram;
     @Mock private Histogram searchLatencyHistogram;
+    @Mock private Histogram shardMetricsCpuHistogram;
+    @Mock private Histogram shardMetricsHeapHistogram;
     @Mock private Index index;
 
     @Mock private TaskResourceUsage taskResourceUsage;
@@ -60,22 +64,31 @@ public class RTFPerformanceAnalyzerSearchListenerTests {
         initMocks(this);
         OpenSearchResources.INSTANCE.setMetricsRegistry(metricsRegistry);
         Mockito.when(controller.isPerformanceAnalyzerEnabled()).thenReturn(true);
+
+        // First set up metrics registry with most lenient matching
         Mockito.when(
                         metricsRegistry.createHistogram(
-                                Mockito.eq("cpu_utilization"),
-                                Mockito.anyString(),
-                                Mockito.eq("rate")))
-                .thenReturn(cpuUtilizationHistogram);
-        Mockito.when(
-                        metricsRegistry.createHistogram(
-                                Mockito.eq("heap_allocated"), Mockito.anyString(), Mockito.eq("B")))
-                .thenReturn(heapUsedHistogram);
-        Mockito.when(
-                        metricsRegistry.createHistogram(
-                                Mockito.eq("shard_search_latency"),
-                                Mockito.anyString(),
-                                Mockito.eq("ms")))
-                .thenReturn(searchLatencyHistogram);
+                                Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
+                .thenAnswer(
+                        invocation -> {
+                            String name = invocation.getArgument(0);
+                            if (name.equals(ShardMetricsCollector.SHARD_CPU_UTILIZATION)) {
+                                return shardMetricsCpuHistogram;
+                            } else if (name.equals(ShardMetricsCollector.SHARD_HEAP_ALLOCATED)) {
+                                return shardMetricsHeapHistogram;
+                            } else if (name.equals(
+                                    RTFMetrics.OSMetrics.CPU_UTILIZATION.toString())) {
+                                return cpuUtilizationHistogram;
+                            } else if (name.equals(
+                                    RTFMetrics.OSMetrics.HEAP_ALLOCATED.toString())) {
+                                return heapUsedHistogram;
+                            } else if (name.equals(
+                                    RTFMetrics.ShardOperationsValue.SHARD_SEARCH_LATENCY
+                                            .toString())) {
+                                return searchLatencyHistogram;
+                            }
+                            return null;
+                        });
         searchListener = new RTFPerformanceAnalyzerSearchListener(controller);
         assertEquals(
                 RTFPerformanceAnalyzerSearchListener.class.getSimpleName(),
@@ -161,6 +174,14 @@ public class RTFPerformanceAnalyzerSearchListenerTests {
 
     @Test
     public void testTaskCompletionListener() {
+        Histogram shardCpu = ShardMetricsCollector.INSTANCE.getCpuUtilizationHistogram();
+        Histogram shardHeap = ShardMetricsCollector.INSTANCE.getHeapUsedHistogram();
+
+        if (shardCpu != null && shardHeap != null) {
+            // Clear any previous mock interactions
+            Mockito.clearInvocations(shardCpu, shardHeap);
+        }
+        ShardMetricsCollector.INSTANCE.initialize();
         initializeValidSearchContext(true);
         RTFPerformanceAnalyzerSearchListener rtfSearchListener =
                 new RTFPerformanceAnalyzerSearchListener(controller);
@@ -178,6 +199,8 @@ public class RTFPerformanceAnalyzerSearchListenerTests {
         Mockito.verify(cpuUtilizationHistogram)
                 .record(Mockito.anyDouble(), Mockito.any(Tags.class));
         Mockito.verify(heapUsedHistogram).record(Mockito.anyDouble(), Mockito.any(Tags.class));
+        Mockito.verify(shardCpu).record(Mockito.anyDouble(), Mockito.any(Tags.class));
+        Mockito.verify(shardHeap).record(Mockito.anyDouble(), Mockito.any(Tags.class));
     }
 
     private void initializeValidSearchContext(boolean isValid) {

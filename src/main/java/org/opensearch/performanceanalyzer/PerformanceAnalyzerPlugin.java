@@ -407,6 +407,8 @@ public final class PerformanceAnalyzerPlugin extends Plugin
         // initialize it. This is the earliest point at which we know ClusterService is created.
         // So, call the initialize method here.
         clusterSettingsManager.initialize();
+        // Initialize ShardMetricsCollector histograms
+        ShardMetricsCollector.INSTANCE.initialize();
         return Collections.singletonList(performanceAnalyzerController);
     }
 

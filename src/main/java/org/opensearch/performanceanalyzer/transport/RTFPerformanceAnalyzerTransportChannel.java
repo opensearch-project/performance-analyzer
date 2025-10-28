@@ -15,6 +15,7 @@ import org.apache.logging.log4j.Logger;
 import org.opensearch.Version;
 import org.opensearch.core.index.shard.ShardId;
 import org.opensearch.core.transport.TransportResponse;
+import org.opensearch.performanceanalyzer.ShardMetricsCollector;
 import org.opensearch.performanceanalyzer.commons.metrics.RTFMetrics;
 import org.opensearch.performanceanalyzer.util.Utils;
 import org.opensearch.telemetry.metrics.Histogram;
@@ -142,27 +143,41 @@ public final class RTFPerformanceAnalyzerTransportChannel implements TransportCh
     void recordCPUUtilizationMetric(
             ShardId shardId, double cpuUtilization, String operation, boolean isFailed) {
         cpuUtilizationHistogram.record(cpuUtilization, createTags(shardId, operation, isFailed));
+        ShardMetricsCollector.INSTANCE.recordCpuUtilization(cpuUtilization, createTags(shardId));
     }
 
     @VisibleForTesting
     void recordHeapUsedMetric(
             ShardId shardId, double heapUsedBytes, String operation, boolean isFailed) {
         heapUsedHistogram.record(heapUsedBytes, createTags(shardId, operation, isFailed));
+        ShardMetricsCollector.INSTANCE.recordHeapUsed(heapUsedBytes, createTags(shardId));
     }
 
     private Tags createTags(ShardId shardId, String operation, boolean isFailed) {
-        return Tags.create()
-                .addTag(
-                        RTFMetrics.CommonDimension.INDEX_NAME.toString(),
-                        shardId.getIndex().getName())
-                .addTag(
-                        RTFMetrics.CommonDimension.INDEX_UUID.toString(),
-                        shardId.getIndex().getUUID())
-                .addTag(RTFMetrics.CommonDimension.SHARD_ID.toString(), shardId.getId())
-                .addTag(RTFMetrics.CommonDimension.OPERATION.toString(), operation)
-                .addTag(RTFMetrics.CommonDimension.FAILED.toString(), isFailed)
-                .addTag(
-                        RTFMetrics.CommonDimension.SHARD_ROLE.toString(),
-                        primary ? SHARD_ROLE_PRIMARY : SHARD_ROLE_REPLICA);
+        Tags tags =
+                Tags.create()
+                        .addTag(
+                                RTFMetrics.CommonDimension.INDEX_NAME.toString(),
+                                shardId.getIndex().getName())
+                        .addTag(
+                                RTFMetrics.CommonDimension.INDEX_UUID.toString(),
+                                shardId.getIndex().getUUID())
+                        .addTag(RTFMetrics.CommonDimension.SHARD_ID.toString(), shardId.getId());
+
+        // Only add operation tag if operation is not null
+        if (operation != null && !operation.isEmpty()) {
+            tags.addTag(RTFMetrics.CommonDimension.OPERATION.toString(), operation)
+                    .addTag(RTFMetrics.CommonDimension.FAILED.toString(), isFailed)
+                    .addTag(
+                            RTFMetrics.CommonDimension.SHARD_ROLE.toString(),
+                            primary ? SHARD_ROLE_PRIMARY : SHARD_ROLE_REPLICA);
+            ;
+        }
+
+        return tags;
+    }
+
+    private Tags createTags(ShardId shardId) {
+        return createTags(shardId, null, false);
     }
 }

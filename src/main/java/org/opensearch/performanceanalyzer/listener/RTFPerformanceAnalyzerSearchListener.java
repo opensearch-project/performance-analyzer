@@ -16,6 +16,7 @@ import org.apache.logging.log4j.Logger;
 import org.opensearch.core.action.NotifyOnceListener;
 import org.opensearch.index.shard.SearchOperationListener;
 import org.opensearch.performanceanalyzer.OpenSearchResources;
+import org.opensearch.performanceanalyzer.ShardMetricsCollector;
 import org.opensearch.performanceanalyzer.commons.collectors.StatsCollector;
 import org.opensearch.performanceanalyzer.commons.metrics.RTFMetrics;
 import org.opensearch.performanceanalyzer.commons.metrics.RTFMetrics.ShardOperationsValue;
@@ -287,18 +288,29 @@ public class RTFPerformanceAnalyzerSearchListener
                  * particular phaseTime and the total time till this calculation happen from the
                  * overall start time.
                  */
-                long totalTime = System.nanoTime() - startTime;
+                long totalTime = System.nanoTime() - task.getStartTimeNanos();
                 double shareFactor = computeShareFactor(phaseTookTime, totalTime);
-                cpuUtilizationHistogram.record(
+                LOG.debug(
+                        "Total task time {} ns. Total Operation Listener time {} ns. "
+                                + "Phase took time {} ns. Share factor {} ",
+                        totalTime,
+                        System.nanoTime() - startTime,
+                        phaseTookTime,
+                        shareFactor);
+                double cpuUtilization =
                         Utils.calculateCPUUtilization(
                                 numProcessors,
                                 totalTime,
                                 task.getTotalResourceStats().getCpuTimeInNanos(),
-                                shareFactor),
-                        createTags(searchContext, phase, isFailed));
-                heapUsedHistogram.record(
-                        Math.max(0, task.getTotalResourceStats().getMemoryInBytes() * shareFactor),
-                        createTags(searchContext, phase, isFailed));
+                                shareFactor);
+                cpuUtilizationHistogram.record(
+                        cpuUtilization, createTags(searchContext, phase, isFailed));
+                ShardMetricsCollector.INSTANCE.recordCpuUtilization(
+                        cpuUtilization, createTags(searchContext));
+                double heapUsed =
+                        Math.max(0, task.getTotalResourceStats().getMemoryInBytes() * shareFactor);
+                heapUsedHistogram.record(heapUsed, createTags(searchContext, phase, isFailed));
+                ShardMetricsCollector.INSTANCE.recordHeapUsed(heapUsed, createTags(searchContext));
             }
 
             @Override
@@ -309,17 +321,27 @@ public class RTFPerformanceAnalyzerSearchListener
     }
 
     private Tags createTags(SearchContext searchContext, String phase, boolean isFailed) {
-        return Tags.create()
-                .addTag(
-                        RTFMetrics.CommonDimension.INDEX_NAME.toString(),
-                        searchContext.request().shardId().getIndex().getName())
-                .addTag(
-                        RTFMetrics.CommonDimension.INDEX_UUID.toString(),
-                        searchContext.request().shardId().getIndex().getUUID())
-                .addTag(
-                        RTFMetrics.CommonDimension.SHARD_ID.toString(),
-                        searchContext.request().shardId().getId())
-                .addTag(RTFMetrics.CommonDimension.OPERATION.toString(), phase)
-                .addTag(RTFMetrics.CommonDimension.FAILED.toString(), isFailed);
+        Tags tags =
+                Tags.create()
+                        .addTag(
+                                RTFMetrics.CommonDimension.INDEX_NAME.toString(),
+                                searchContext.request().shardId().getIndex().getName())
+                        .addTag(
+                                RTFMetrics.CommonDimension.INDEX_UUID.toString(),
+                                searchContext.request().shardId().getIndex().getUUID())
+                        .addTag(
+                                RTFMetrics.CommonDimension.SHARD_ID.toString(),
+                                searchContext.request().shardId().getId());
+
+        // Only add phase tag if phase is not null
+        if (phase != null && !phase.isEmpty()) {
+            tags.addTag(RTFMetrics.CommonDimension.OPERATION.toString(), phase)
+                    .addTag(RTFMetrics.CommonDimension.FAILED.toString(), isFailed);
+        }
+        return tags;
+    }
+
+    private Tags createTags(SearchContext searchContext) {
+        return createTags(searchContext, null, false);
     }
 }

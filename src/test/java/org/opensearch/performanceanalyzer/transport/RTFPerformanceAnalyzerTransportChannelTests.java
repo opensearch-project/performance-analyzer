@@ -31,8 +31,11 @@ import org.mockito.Mockito;
 import org.opensearch.core.index.Index;
 import org.opensearch.core.index.shard.ShardId;
 import org.opensearch.core.transport.TransportResponse;
+import org.opensearch.performanceanalyzer.OpenSearchResources;
+import org.opensearch.performanceanalyzer.ShardMetricsCollector;
 import org.opensearch.performanceanalyzer.util.Utils;
 import org.opensearch.telemetry.metrics.Histogram;
+import org.opensearch.telemetry.metrics.MetricsRegistry;
 import org.opensearch.telemetry.metrics.tags.Tags;
 import org.opensearch.transport.TransportChannel;
 
@@ -44,6 +47,9 @@ public class RTFPerformanceAnalyzerTransportChannelTests {
     @Mock private Histogram cpuUtilizationHistogram;
     @Mock private Histogram indexingLatencyHistogram;
     @Mock private Histogram heapUsedHistogram;
+    @Mock private Histogram shardMetricsCpuHistogram;
+    @Mock private Histogram shardMetricsHeapHistogram;
+
     private ShardId shardId;
     @Mock private ShardId mockedShardId;
     @Mock private Index index;
@@ -58,7 +64,35 @@ public class RTFPerformanceAnalyzerTransportChannelTests {
         String indexName = "testIndex";
         shardId = new ShardId(new Index(indexName, "uuid"), 1);
         channel = new RTFPerformanceAnalyzerTransportChannel();
-        channel.set(originalChannel, cpuUtilizationHistogram, indexName, shardId, false);
+
+        // Setup metrics registry to return our mock histograms
+        MetricsRegistry metricsRegistry = Mockito.mock(MetricsRegistry.class);
+        Mockito.when(
+                        metricsRegistry.createHistogram(
+                                Mockito.eq(ShardMetricsCollector.SHARD_CPU_UTILIZATION),
+                                Mockito.anyString(),
+                                Mockito.anyString()))
+                .thenReturn(shardMetricsCpuHistogram);
+        Mockito.when(
+                        metricsRegistry.createHistogram(
+                                Mockito.eq(ShardMetricsCollector.SHARD_HEAP_ALLOCATED),
+                                Mockito.anyString(),
+                                Mockito.anyString()))
+                .thenReturn(shardMetricsHeapHistogram);
+
+        // Set the metrics registry
+        OpenSearchResources.INSTANCE.setMetricsRegistry(metricsRegistry);
+
+        // Initialize ShardMetricsCollector
+        ShardMetricsCollector.INSTANCE.initialize();
+        channel.set(
+                originalChannel,
+                cpuUtilizationHistogram,
+                indexingLatencyHistogram,
+                heapUsedHistogram,
+                indexName,
+                shardId,
+                false);
     }
 
     @Test
@@ -98,6 +132,11 @@ public class RTFPerformanceAnalyzerTransportChannelTests {
 
     @Test
     public void testRecordCPUUtilizationMetric() {
+        Histogram shardCpu = ShardMetricsCollector.INSTANCE.getCpuUtilizationHistogram();
+        if (shardCpu != null) {
+            // Clear any previous mock interactions
+            Mockito.clearInvocations(shardCpu);
+        }
         RTFPerformanceAnalyzerTransportChannel channel =
                 new RTFPerformanceAnalyzerTransportChannel();
         channel.set(
@@ -114,6 +153,7 @@ public class RTFPerformanceAnalyzerTransportChannelTests {
         channel.recordCPUUtilizationMetric(mockedShardId, 10l, "bulkShard", false);
         Mockito.verify(cpuUtilizationHistogram)
                 .record(Mockito.anyDouble(), Mockito.any(Tags.class));
+        Mockito.verify(shardCpu).record(anyDouble(), any(Tags.class));
     }
 
     @Test
@@ -138,6 +178,11 @@ public class RTFPerformanceAnalyzerTransportChannelTests {
 
     @Test
     public void testRecordHeapUsedMetric() {
+        Histogram shardHeap = ShardMetricsCollector.INSTANCE.getHeapUsedHistogram();
+        if (shardHeap != null) {
+            // Clear any previous mock interactions
+            Mockito.clearInvocations(shardHeap);
+        }
         RTFPerformanceAnalyzerTransportChannel channel =
                 new RTFPerformanceAnalyzerTransportChannel();
         channel.set(
@@ -153,13 +198,23 @@ public class RTFPerformanceAnalyzerTransportChannelTests {
         Mockito.when(index.getUUID()).thenReturn("abc-def");
         channel.recordHeapUsedMetric(mockedShardId, 10l, "bulkShard", false);
         Mockito.verify(heapUsedHistogram).record(Mockito.anyDouble(), Mockito.any(Tags.class));
+        // Verify the shard metrics histogram
+        Mockito.verify(shardHeap).record(anyDouble(), any(Tags.class));
+    }
 
     public void testRTFPAChannelDelegatesToOriginal()
             throws InvocationTargetException, IllegalAccessException {
         TransportChannel handlerSpy = spy(originalChannel);
         RTFPerformanceAnalyzerTransportChannel rtfChannel =
                 new RTFPerformanceAnalyzerTransportChannel();
-        rtfChannel.set(handlerSpy, cpuUtilizationHistogram, index.getName(), shardId, false);
+        rtfChannel.set(
+                handlerSpy,
+                cpuUtilizationHistogram,
+                indexingLatencyHistogram,
+                heapUsedHistogram,
+                index.getName(),
+                shardId,
+                false);
 
         List<Method> overridableMethods =
                 Arrays.stream(TransportChannel.class.getMethods())
@@ -171,7 +226,7 @@ public class RTFPerformanceAnalyzerTransportChannelTests {
                         .collect(Collectors.toList());
 
         for (Method method : overridableMethods) {
-            //            completeStream and sendresponsebatch Methods are experimental and not
+            // completeStream and sendresponsebatch Methods are experimental and not
             // implemented in PAChannel
             if (Set.of("sendresponsebatch", "completestream")
                     .contains(method.getName().toLowerCase())) {
