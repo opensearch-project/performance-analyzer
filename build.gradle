@@ -48,7 +48,7 @@ buildscript {
 plugins {
     id 'java'
     id 'com.netflix.nebula.ospackage' version "11.6.0"
-    id 'com.github.spotbugs' version '6.2.2'
+    id 'com.github.spotbugs' version '6.2.4'
     id 'jacoco'
     id 'com.diffplug.spotless' version '6.25.0'
     id 'checkstyle'
@@ -58,7 +58,7 @@ plugins {
 }
 
 checkstyle {
-    toolVersion = '10.26.1'
+    toolVersion = '11.0.0'
     configFile file("checkstyle/checkstyle.xml")
 }
 
@@ -297,6 +297,8 @@ dependencies {
             force "org.slf4j:slf4j-api:2.0.0"
             force "org.apache.bcel:bcel:6.6.0" // This line should be removed once Spotbugs is upgraded to 4.7.4
             force "com.google.guava:guava:${guavaVersion}"
+            force "org.codehaus.plexus:plexus-utils:3.3.0"
+            force "org.apache.httpcomponents:httpcore:${versions.httpcore}"
         }
     }
 
@@ -920,4 +922,3 @@ task updateVersion {
         ant.replaceregexp(file:'build.gradle', match: '"opensearch.version", "\\d.*"', replace: '"opensearch.version", "' + newVersion.tokenize('-')[0] + '-SNAPSHOT"', flags:'g', byline:true)
     }
 }
-
