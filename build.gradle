@@ -296,6 +296,7 @@ dependencies {
             force "org.slf4j:slf4j-api:2.0.0"
             force "org.apache.bcel:bcel:6.6.0" // This line should be removed once Spotbugs is upgraded to 4.7.4
             force "com.google.guava:guava:${guavaVersion}"
+            force "io.netty:netty-codec-http2:${nettyVersion}"
         }
     }
 
