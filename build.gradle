@@ -300,7 +300,7 @@ dependencies {
     }
 
     implementation 'org.jooq:jooq:3.10.8'
-    implementation 'org.apache.commons:commons-lang3:3.9'
+    implementation "org.apache.commons:commons-lang3:${versions.commonslang}"
     implementation 'org.bouncycastle:bcprov-jdk15to18:1.78.1'
     implementation 'org.bouncycastle:bcpkix-jdk18on:1.78.1'
     implementation "org.opensearch:performance-analyzer-commons:${paCommonsVersion}"
