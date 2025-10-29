@@ -299,6 +299,7 @@ dependencies {
             force "com.google.guava:guava:${guavaVersion}"
             force "org.codehaus.plexus:plexus-utils:3.3.0"
             force "org.apache.httpcomponents:httpcore:${versions.httpcore}"
+            force "commons-codec:commons-codec:${versions.commonscodec}"
         }
     }
 
