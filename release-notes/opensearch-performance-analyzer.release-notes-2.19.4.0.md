@@ -10,6 +10,3 @@ Compatible with OpenSearch and OpenSearch Dashboards version 2.19.4
 * [AUTO] Increment version to 2.19.4-SNAPSHOT ([#842](https://github.com/opensearch-project/performance-analyzer/pull/842))
 * Update the maven snapshot publish endpoint and credential ([#839](https://github.com/opensearch-project/performance-analyzer/pull/839))
 * [2.19] run ./gradlew updateSHAs to fix dependency license check ([#859](https://github.com/opensearch-project/performance-analyzer/pull/859))
-
-### Enhancements
-* [Backport 2.19] Onboarding new maven snapshots publishing to s3 (PA) ([#854](https://github.com/opensearch-project/performance-analyzer/pull/854))
