@@ -10,7 +10,8 @@ buildscript {
         isSnapshot = "true" == System.getProperty("build.snapshot", "true")
         buildVersionQualifier = System.getProperty("build.version_qualifier", "")
 
-        default_bwc_version = System.getProperty("bwc.version", "2.17.0.0")
+        // Hardcoding BWC to 2.19 as maven does not have older version snapshots resulting in build failure
+        default_bwc_version = System.getProperty("bwc.version", "2.19.0.0")
         pa_bwc_version = System.getProperty("tests.bwc.version", default_bwc_version)
         baseName = "paBwcCluster"
 
