@@ -297,6 +297,7 @@ dependencies {
             force "org.apache.commons:commons-lang3:${versions.commonslang}"
             force "org.slf4j:slf4j-api:2.0.0"
             force "com.google.guava:guava:${guavaVersion}"
+            force "io.netty:netty-codec-http2:${nettyVersion}"
         }
     }
 
