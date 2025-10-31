@@ -31,6 +31,8 @@ jobs:
           OP_SERVICE_ACCOUNT_TOKEN: ${{ secrets.OP_SERVICE_ACCOUNT_TOKEN }}
           MAVEN_SNAPSHOTS_S3_REPO: op://opensearch-infra-secrets/maven-snapshots-s3/repo
           MAVEN_SNAPSHOTS_S3_ROLE: op://opensearch-infra-secrets/maven-snapshots-s3/role
+          SONATYPE_USERNAME: op://opensearch-infra-secrets/maven-central-portal-credentials/username
+          SONATYPE_PASSWORD: op://opensearch-infra-secrets/maven-central-portal-credentials/password
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v5
