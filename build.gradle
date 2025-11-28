@@ -34,9 +34,9 @@ buildscript {
     // Used to resolve build file dependencies
     repositories {
         mavenLocal()
-        maven { url "https://ci.opensearch.org/ci/dbc/snapshots/maven/" }
+        maven { url = "https://ci.opensearch.org/ci/dbc/snapshots/maven/" }
         mavenCentral()
-        maven { url "https://plugins.gradle.org/m2/" }
+        maven { url = "https://plugins.gradle.org/m2/" }
     }
 
     dependencies {
@@ -59,7 +59,7 @@ plugins {
 
 checkstyle {
     toolVersion = '11.0.0'
-    configFile file("checkstyle/checkstyle.xml")
+    configFile = file("checkstyle/checkstyle.xml")
 }
 
 spotbugsMain {
@@ -135,13 +135,15 @@ loggerUsageCheck.enabled = false
 def _numNodes = findProperty('numNodes') as Integer ?: 1
 
 opensearchplugin {
-    name 'opensearch-performance-analyzer'
-    description 'OpenSearch Performance Analyzer Plugin'
-    classname 'org.opensearch.performanceanalyzer.PerformanceAnalyzerPlugin'
+    name = 'opensearch-performance-analyzer'
+    description = 'OpenSearch Performance Analyzer Plugin'
+    classname = 'org.opensearch.performanceanalyzer.PerformanceAnalyzerPlugin'
 }
 
-sourceCompatibility = JavaVersion.VERSION_21
-targetCompatibility = JavaVersion.VERSION_21
+java {
+    sourceCompatibility = JavaVersion.VERSION_25
+    targetCompatibility = JavaVersion.VERSION_25
+}
 
 compileJava {
     dependsOn spotlessApply
@@ -151,7 +153,7 @@ javadoc {
 }
 
 project.afterEvaluate {
-    JavaVersion targetVersion = JavaVersion.toVersion(targetCompatibility)
+    JavaVersion targetVersion = JavaVersion.toVersion(project.java.targetCompatibility)
 
     // cannot contain the first version
     // should be '8' or '11' etc.
@@ -215,7 +217,7 @@ tasks.withType(JavaCompile) {
 }
 
 jacoco {
-    toolVersion = "0.8.12"
+    toolVersion = "0.8.14"
 }
 
 jacocoTestReport {
@@ -286,19 +288,21 @@ dependencies {
     }
 
     configurations.all {
-        resolutionStrategy {
-            force "junit:junit:${junitVersion}"
-            force "com.fasterxml.jackson.core:jackson-annotations:${jacksonVersion}"
-            force "com.fasterxml.jackson.core:jackson-core:${jacksonVersion}"
-            force "com.fasterxml.jackson.core:jackson-databind:${jacksonDataBindVersion}"
-            force "com.fasterxml.jackson.module:jackson-module-paranamer:${jacksonVersion}"
-            force "com.fasterxml.jackson.dataformat:jackson-dataformat-smile:${jacksonVersion}"
-            force "com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:${jacksonVersion}"
-            force "com.fasterxml.jackson.dataformat:jackson-dataformat-cbor:${jacksonVersion}"
-            force "org.apache.commons:commons-lang3:${versions.commonslang}"
-            force "org.slf4j:slf4j-api:2.0.0"
-            force "org.apache.bcel:bcel:6.6.0" // This line should be removed once Spotbugs is upgraded to 4.7.4
-            force "com.google.guava:guava:${guavaVersion}"
+        incoming.beforeResolve {
+            resolutionStrategy {
+                force "junit:junit:${junitVersion}"
+                force "com.fasterxml.jackson.core:jackson-annotations:${jacksonVersion}"
+                force "com.fasterxml.jackson.core:jackson-core:${jacksonVersion}"
+                force "com.fasterxml.jackson.core:jackson-databind:${jacksonDataBindVersion}"
+                force "com.fasterxml.jackson.module:jackson-module-paranamer:${jacksonVersion}"
+                force "com.fasterxml.jackson.dataformat:jackson-dataformat-smile:${jacksonVersion}"
+                force "com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:${jacksonVersion}"
+                force "com.fasterxml.jackson.dataformat:jackson-dataformat-cbor:${jacksonVersion}"
+                force "org.apache.commons:commons-lang3:${versions.commonslang}"
+                force "org.slf4j:slf4j-api:2.0.0"
+                force "org.apache.bcel:bcel:6.6.0" // This line should be removed once Spotbugs is upgraded to 4.7.4
+                force "com.google.guava:guava:${guavaVersion}"
+            }
         }
     }
 
@@ -440,10 +444,7 @@ dependencyLicenses {
 
 dependencyLicenses.doFirst {
     def licenseDir = "$projectDir/licenses"
-    exec {
-        workingDir("$licenseDir")
-        commandLine 'rm', "-f", "performance-analyzer-commons-${paCommonsVersion}.jar.sha1"
-    }
+    delete "${licenseDir}/performance-analyzer-commons-${paCommonsVersion}.jar.sha1"
     updateShas.updateShas()
 }
 
@@ -724,7 +725,7 @@ afterEvaluate {
         version = "${project.version}"
 
         into '/usr/share/opensearch/plugins'
-        from(zipTree(bundlePlugin.archivePath)) {
+        from(zipTree(bundlePlugin.archiveFile)) {
             into opensearchplugin.name
         }
 
