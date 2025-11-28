@@ -106,7 +106,7 @@ noticeFile = rootProject.file('NOTICE.txt')
 spotless {
     java {
         licenseHeaderFile(file('license-header'))
-        googleJavaFormat('1.17.0').aosp()
+        googleJavaFormat('1.32.0').aosp()
         importOrder()
         removeUnusedImports()
         trimTrailingWhitespace()
