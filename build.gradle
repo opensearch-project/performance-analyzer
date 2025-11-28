@@ -171,6 +171,7 @@ project.afterEvaluate {
     }
 
     compileJava.options.compilerArgs.removeAll(['--release', version])
+    compileJava.options.release = version.toInteger()
 }
 
 publishing {
