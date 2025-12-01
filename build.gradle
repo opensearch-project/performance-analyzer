@@ -140,12 +140,9 @@ opensearchplugin {
     classname = 'org.opensearch.performanceanalyzer.PerformanceAnalyzerPlugin'
 }
 
-def javaVersion = JavaVersion.current().isCompatibleWith(JavaVersion.VERSION_25) ?
-        JavaVersion.VERSION_25 : JavaVersion.VERSION_21
-
 java {
-    sourceCompatibility = javaVersion
-    targetCompatibility = javaVersion
+    sourceCompatibility = JavaVersion.VERSION_21
+    targetCompatibility = JavaVersion.VERSION_21
 }
 
 compileJava {
