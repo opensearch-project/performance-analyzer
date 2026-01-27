@@ -16,7 +16,7 @@ buildscript {
 
         // The PA Commons (https://github.com/opensearch-project/performance-analyzer-commons)
         // is a library dependency with hardcoded versioning in PA and RCA repos.
-        paCommonsVersion = "2.0.0"
+        paCommonsVersion = "2.1.1"
 
         // 3.0.0-SNAPSHOT -> 3.0.0.0-SNAPSHOT
         version_tokens = opensearch_version.tokenize('-')
@@ -26,7 +26,7 @@ buildscript {
         }
         if (isSnapshot) {
             opensearch_build += "-SNAPSHOT"
-            //paCommonsVersion += "-SNAPSHOT"
+            paCommonsVersion += "-SNAPSHOT"
 
         }
     }
@@ -272,6 +272,7 @@ dependencies {
 
     def junitVersion = "${versions.junit}"
     def jacksonVersion = "${versions.jackson}"
+    def jacksonAnnotationsVersion = "${versions.jackson_annotations}"
     def jacksonDataBindVersion = "${versions.jackson_databind}"
     def guavaVersion = "${versions.guava}"
 
@@ -292,7 +293,7 @@ dependencies {
         incoming.beforeResolve {
             resolutionStrategy {
                 force "junit:junit:${junitVersion}"
-                force "com.fasterxml.jackson.core:jackson-annotations:${jacksonVersion}"
+                force "com.fasterxml.jackson.core:jackson-annotations:${jacksonAnnotationsVersion}"
                 force "com.fasterxml.jackson.core:jackson-core:${jacksonVersion}"
                 force "com.fasterxml.jackson.core:jackson-databind:${jacksonDataBindVersion}"
                 force "com.fasterxml.jackson.module:jackson-module-paranamer:${jacksonVersion}"
