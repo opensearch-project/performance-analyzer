@@ -58,6 +58,7 @@ import org.opensearch.performanceanalyzer.collectors.telemetry.RTFCacheConfigMet
 import org.opensearch.performanceanalyzer.collectors.telemetry.RTFDisksCollector;
 import org.opensearch.performanceanalyzer.collectors.telemetry.RTFHeapMetricsCollector;
 import org.opensearch.performanceanalyzer.collectors.telemetry.RTFNodeStatsAllShardsMetricsCollector;
+import org.opensearch.performanceanalyzer.collectors.telemetry.RTFShardOperationCollector;
 import org.opensearch.performanceanalyzer.collectors.telemetry.RTFThreadPoolMetricsCollector;
 import org.opensearch.performanceanalyzer.commons.OSMetricsGeneratorFactory;
 import org.opensearch.performanceanalyzer.commons.collectors.DisksCollector;
@@ -239,6 +240,9 @@ public final class PerformanceAnalyzerPlugin extends Plugin
         scheduledMetricCollectorsExecutor.addScheduledMetricCollector(
                 new RTFCacheConfigMetricsCollector(
                         performanceAnalyzerController, configOverridesWrapper));
+        scheduledMetricCollectorsExecutor.addScheduledMetricCollector(
+                new RTFShardOperationCollector(
+                        performanceAnalyzerController, configOverridesWrapper));
     }
 
     private void scheduleRcaCollectors() {
@@ -403,6 +407,8 @@ public final class PerformanceAnalyzerPlugin extends Plugin
         // initialize it. This is the earliest point at which we know ClusterService is created.
         // So, call the initialize method here.
         clusterSettingsManager.initialize();
+        // Initialize ShardMetricsCollector histograms
+        ShardMetricsCollector.INSTANCE.initialize();
         return Collections.singletonList(performanceAnalyzerController);
     }
 

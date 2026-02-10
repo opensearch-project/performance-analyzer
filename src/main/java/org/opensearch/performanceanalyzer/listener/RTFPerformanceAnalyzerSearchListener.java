@@ -6,6 +6,7 @@
 package org.opensearch.performanceanalyzer.listener;
 
 import static org.opensearch.performanceanalyzer.commons.stats.metrics.StatExceptionCode.OPENSEARCH_REQUEST_INTERCEPTOR_ERROR;
+import static org.opensearch.performanceanalyzer.util.Utils.computeShareFactor;
 
 import com.google.common.annotations.VisibleForTesting;
 import java.util.HashMap;
@@ -15,8 +16,10 @@ import org.apache.logging.log4j.Logger;
 import org.opensearch.core.action.NotifyOnceListener;
 import org.opensearch.index.shard.SearchOperationListener;
 import org.opensearch.performanceanalyzer.OpenSearchResources;
+import org.opensearch.performanceanalyzer.ShardMetricsCollector;
 import org.opensearch.performanceanalyzer.commons.collectors.StatsCollector;
 import org.opensearch.performanceanalyzer.commons.metrics.RTFMetrics;
+import org.opensearch.performanceanalyzer.commons.metrics.RTFMetrics.ShardOperationsValue;
 import org.opensearch.performanceanalyzer.commons.util.Util;
 import org.opensearch.performanceanalyzer.config.PerformanceAnalyzerController;
 import org.opensearch.performanceanalyzer.util.Utils;
@@ -47,6 +50,7 @@ public class RTFPerformanceAnalyzerSearchListener
     private final PerformanceAnalyzerController controller;
     private final Histogram cpuUtilizationHistogram;
     private final Histogram heapUsedHistogram;
+    private final Histogram searchLatencyHistogram;
     private final int numProcessors;
 
     public RTFPerformanceAnalyzerSearchListener(final PerformanceAnalyzerController controller) {
@@ -55,7 +59,9 @@ public class RTFPerformanceAnalyzerSearchListener
                 createCPUUtilizationHistogram(OpenSearchResources.INSTANCE.getMetricsRegistry());
         this.heapUsedHistogram =
                 createHeapUsedHistogram(OpenSearchResources.INSTANCE.getMetricsRegistry());
-        this.threadLocal = ThreadLocal.withInitial(() -> new HashMap<String, Long>());
+        this.searchLatencyHistogram =
+                createSearchLatencyHistogram(OpenSearchResources.INSTANCE.getMetricsRegistry());
+        this.threadLocal = ThreadLocal.withInitial(HashMap::new);
         this.numProcessors = Runtime.getRuntime().availableProcessors();
     }
 
@@ -77,6 +83,20 @@ public class RTFPerformanceAnalyzerSearchListener
                     RTFMetrics.OSMetrics.HEAP_ALLOCATED.toString(),
                     "Heap used per shard for a search phase",
                     RTFMetrics.MetricUnits.BYTE.toString());
+        } else {
+            LOG.debug("MetricsRegistry is null");
+            return null;
+        }
+    }
+
+    // This histogram will help to get the total latency for search request using getMax over an
+    // interval.
+    private Histogram createSearchLatencyHistogram(MetricsRegistry metricsRegistry) {
+        if (metricsRegistry != null) {
+            return metricsRegistry.createHistogram(
+                    ShardOperationsValue.SHARD_SEARCH_LATENCY.toString(),
+                    "Search latency per shard per phase",
+                    RTFMetrics.MetricUnits.MILLISECOND.toString());
         } else {
             LOG.debug("MetricsRegistry is null");
             return null;
@@ -170,9 +190,13 @@ public class RTFPerformanceAnalyzerSearchListener
     @Override
     public void queryPhase(SearchContext searchContext, long tookInNanos) {
         long queryStartTime = threadLocal.get().getOrDefault(QUERY_START_TIME, System.nanoTime());
-        long queryTime = (System.nanoTime() - queryStartTime);
+        double queryTimeInMills = tookInNanos / 1_000_000.0;
+
+        searchLatencyHistogram.record(
+                queryTimeInMills, createTags(searchContext, SHARD_QUERY_PHASE, false));
+
         addResourceTrackingCompletionListener(
-                searchContext, queryStartTime, queryTime, SHARD_QUERY_PHASE, false);
+                searchContext, queryStartTime, tookInNanos, SHARD_QUERY_PHASE, false);
     }
 
     @Override
@@ -191,9 +215,12 @@ public class RTFPerformanceAnalyzerSearchListener
     @Override
     public void fetchPhase(SearchContext searchContext, long tookInNanos) {
         long fetchStartTime = threadLocal.get().getOrDefault(FETCH_START_TIME, System.nanoTime());
-        long fetchTime = (System.nanoTime() - fetchStartTime);
+        double fetchTimeInMills = tookInNanos / 1_000_000.0;
+        searchLatencyHistogram.record(
+                fetchTimeInMills, createTags(searchContext, SHARD_FETCH_PHASE, false));
+
         addResourceTrackingCompletionListenerForFetchPhase(
-                searchContext, fetchStartTime, fetchTime, SHARD_FETCH_PHASE, false);
+                searchContext, fetchStartTime, tookInNanos, SHARD_FETCH_PHASE, false);
     }
 
     @Override
@@ -261,33 +288,29 @@ public class RTFPerformanceAnalyzerSearchListener
                  * particular phaseTime and the total time till this calculation happen from the
                  * overall start time.
                  */
-                long totalTime = System.nanoTime() - startTime;
+                long totalTime = System.nanoTime() - task.getStartTimeNanos();
                 double shareFactor = computeShareFactor(phaseTookTime, totalTime);
-                cpuUtilizationHistogram.record(
+                LOG.debug(
+                        "Total task time {} ns. Total Operation Listener time {} ns. "
+                                + "Phase took time {} ns. Share factor {} ",
+                        totalTime,
+                        System.nanoTime() - startTime,
+                        phaseTookTime,
+                        shareFactor);
+                double cpuUtilization =
                         Utils.calculateCPUUtilization(
                                 numProcessors,
                                 totalTime,
                                 task.getTotalResourceStats().getCpuTimeInNanos(),
-                                shareFactor),
-                        createTags());
-                heapUsedHistogram.record(
-                        Math.max(0, task.getTotalResourceStats().getMemoryInBytes() * shareFactor),
-                        createTags());
-            }
-
-            private Tags createTags() {
-                return Tags.create()
-                        .addTag(
-                                RTFMetrics.CommonDimension.INDEX_NAME.toString(),
-                                searchContext.request().shardId().getIndex().getName())
-                        .addTag(
-                                RTFMetrics.CommonDimension.INDEX_UUID.toString(),
-                                searchContext.request().shardId().getIndex().getUUID())
-                        .addTag(
-                                RTFMetrics.CommonDimension.SHARD_ID.toString(),
-                                searchContext.request().shardId().getId())
-                        .addTag(RTFMetrics.CommonDimension.OPERATION.toString(), phase)
-                        .addTag(RTFMetrics.CommonDimension.FAILED.toString(), isFailed);
+                                shareFactor);
+                cpuUtilizationHistogram.record(
+                        cpuUtilization, createTags(searchContext, phase, isFailed));
+                ShardMetricsCollector.INSTANCE.recordCpuUtilization(
+                        cpuUtilization, createTags(searchContext));
+                double heapUsed =
+                        Math.max(0, task.getTotalResourceStats().getMemoryInBytes() * shareFactor);
+                heapUsedHistogram.record(heapUsed, createTags(searchContext, phase, isFailed));
+                ShardMetricsCollector.INSTANCE.recordHeapUsed(heapUsed, createTags(searchContext));
             }
 
             @Override
@@ -297,8 +320,28 @@ public class RTFPerformanceAnalyzerSearchListener
         };
     }
 
-    @VisibleForTesting
-    static double computeShareFactor(long phaseTookTime, long totalTime) {
-        return Math.min(1, ((double) phaseTookTime) / Math.max(1.0, totalTime));
+    private Tags createTags(SearchContext searchContext, String phase, boolean isFailed) {
+        Tags tags =
+                Tags.create()
+                        .addTag(
+                                RTFMetrics.CommonDimension.INDEX_NAME.toString(),
+                                searchContext.request().shardId().getIndex().getName())
+                        .addTag(
+                                RTFMetrics.CommonDimension.INDEX_UUID.toString(),
+                                searchContext.request().shardId().getIndex().getUUID())
+                        .addTag(
+                                RTFMetrics.CommonDimension.SHARD_ID.toString(),
+                                searchContext.request().shardId().getId());
+
+        // Only add phase tag if phase is not null
+        if (phase != null && !phase.isEmpty()) {
+            tags.addTag(RTFMetrics.CommonDimension.OPERATION.toString(), phase)
+                    .addTag(RTFMetrics.CommonDimension.FAILED.toString(), isFailed);
+        }
+        return tags;
+    }
+
+    private Tags createTags(SearchContext searchContext) {
+        return createTags(searchContext, null, false);
     }
 }

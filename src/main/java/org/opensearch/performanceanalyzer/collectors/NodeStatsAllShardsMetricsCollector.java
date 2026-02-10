@@ -13,6 +13,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.collect.ImmutableMap;
 import java.lang.reflect.Field;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import org.apache.logging.log4j.LogManager;
@@ -57,9 +58,7 @@ public class NodeStatsAllShardsMetricsCollector extends PerformanceAnalyzerMetri
     private static final int KEYS_PATH_LENGTH = 2;
     private static final Logger LOG =
             LogManager.getLogger(NodeStatsAllShardsMetricsCollector.class);
-    private HashMap<ShardId, IndexShard> currentShards;
-    private HashMap<ShardId, ShardStats> currentPerShardStats;
-    private HashMap<ShardId, ShardStats> prevPerShardStats;
+    private Map<ShardId, ShardStats> prevPerShardStats;
     private final PerformanceAnalyzerController controller;
 
     public NodeStatsAllShardsMetricsCollector(final PerformanceAnalyzerController controller) {
@@ -68,19 +67,8 @@ public class NodeStatsAllShardsMetricsCollector extends PerformanceAnalyzerMetri
                 "NodeStatsMetrics",
                 NODE_STATS_ALL_SHARDS_METRICS_COLLECTOR_EXECUTION_TIME,
                 NODESTATS_COLLECTION_ERROR);
-        currentShards = new HashMap<>();
         prevPerShardStats = new HashMap<>();
-        currentPerShardStats = new HashMap<>();
         this.controller = controller;
-    }
-
-    private void populateCurrentShards() {
-        if (!currentShards.isEmpty()) {
-            prevPerShardStats.putAll(currentPerShardStats);
-            currentPerShardStats.clear();
-        }
-        currentShards.clear();
-        currentShards = Utils.getShards();
     }
 
     private static final Map<String, ValueCalculator> maps =
@@ -152,13 +140,13 @@ public class NodeStatsAllShardsMetricsCollector extends PerformanceAnalyzerMetri
         if (indicesService == null) {
             return;
         }
-        populateCurrentShards();
-        populatePerShardStats(indicesService);
 
-        for (HashMap.Entry currentShard : currentPerShardStats.entrySet()) {
-            ShardId shardId = (ShardId) currentShard.getKey();
-            ShardStats currentShardStats = (ShardStats) currentShard.getValue();
-            if (prevPerShardStats.size() == 0) {
+        Map<ShardId, ShardStats> currentPerShardStats = populatePerShardStats(indicesService);
+
+        for (HashMap.Entry<ShardId, ShardStats> currentShard : currentPerShardStats.entrySet()) {
+            ShardId shardId = currentShard.getKey();
+            ShardStats currentShardStats = currentShard.getValue();
+            if (prevPerShardStats.isEmpty() || !prevPerShardStats.containsKey(shardId)) {
                 // Populating value for the first run.
                 populateMetricValue(
                         currentShardStats, startTime, shardId.getIndexName(), shardId.id());
@@ -179,6 +167,7 @@ public class NodeStatsAllShardsMetricsCollector extends PerformanceAnalyzerMetri
             populateDiffMetricValue(
                     prevValue, currValue, startTime, shardId.getIndexName(), shardId.id());
         }
+        prevPerShardStats = currentPerShardStats;
     }
 
     // - Separated to have a unit test; and catch any code changes around this field
@@ -188,10 +177,12 @@ public class NodeStatsAllShardsMetricsCollector extends PerformanceAnalyzerMetri
         return field;
     }
 
-    public void populatePerShardStats(IndicesService indicesService) {
+    public Map<ShardId, ShardStats> populatePerShardStats(IndicesService indicesService) {
         // Populate the shard stats per shard.
-        for (HashMap.Entry currentShard : currentShards.entrySet()) {
-            IndexShard currentIndexShard = (IndexShard) currentShard.getValue();
+        HashMap<ShardId, IndexShard> currentShards = Utils.getShards();
+        Map<ShardId, ShardStats> currentPerShardStats = new HashMap<>(Collections.emptyMap());
+        for (HashMap.Entry<ShardId, IndexShard> currentShard : currentShards.entrySet()) {
+            IndexShard currentIndexShard = currentShard.getValue();
             IndexShardStats currentIndexShardStats =
                     Utils.indexShardStats(
                             indicesService,
@@ -200,20 +191,24 @@ public class NodeStatsAllShardsMetricsCollector extends PerformanceAnalyzerMetri
                                     CommonStatsFlags.Flag.QueryCache,
                                     CommonStatsFlags.Flag.FieldData,
                                     CommonStatsFlags.Flag.RequestCache));
-            for (ShardStats shardStats : currentIndexShardStats.getShards()) {
-                currentPerShardStats.put(currentIndexShardStats.getShardId(), shardStats);
+            if (currentIndexShardStats != null) {
+                for (ShardStats shardStats : currentIndexShardStats.getShards()) {
+                    currentPerShardStats.put(currentIndexShardStats.getShardId(), shardStats);
+                }
             }
         }
+        return currentPerShardStats;
     }
 
     public void populateMetricValue(
             ShardStats shardStats, long startTime, String IndexName, int ShardId) {
-        StringBuilder value = new StringBuilder();
-        value.append(PerformanceAnalyzerMetrics.getJsonCurrentMilliSeconds());
-        // Populate the result with cache specific metrics only.
-        value.append(PerformanceAnalyzerMetrics.sMetricNewLineDelimitor)
-                .append(new NodeStatsMetricsAllShardsPerCollectionStatus(shardStats).serialize());
-        saveMetricValues(value.toString(), startTime, IndexName, String.valueOf(ShardId));
+        String value =
+                PerformanceAnalyzerMetrics.getJsonCurrentMilliSeconds()
+                        +
+                        // Populate the result with cache specific metrics only.
+                        PerformanceAnalyzerMetrics.sMetricNewLineDelimitor
+                        + new NodeStatsMetricsAllShardsPerCollectionStatus(shardStats).serialize();
+        saveMetricValues(value, startTime, IndexName, String.valueOf(ShardId));
     }
 
     public void populateDiffMetricValue(
