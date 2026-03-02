@@ -54,10 +54,11 @@ jobs:
       working-directory: ./tmp/performance-analyzer
       run: ./gradlew jacocoTestReport
     - name: Upload coverage report
-      working-directory: ./tmp/performance-analyzer
-      env:
-        CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
-      run: bash <(curl -s https://codecov.io/bash) -f ./build/reports/jacoco/test/jacocoTestReport.xml
+      uses: codecov/codecov-action@v4
+      with:
+        token: ${{ secrets.CODECOV_TOKEN }}
+        files: ./tmp/performance-analyzer/build/reports/jacoco/test/jacocoTestReport.xml
+        fail_ci_if_error: true
     - name: Run Integration Tests
       working-directory: ./tmp/performance-analyzer
       run: ./gradlew integTest -Dtests.enableIT -Dtests.useDockerCluster
