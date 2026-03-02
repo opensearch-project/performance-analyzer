@@ -6,11 +6,10 @@
 buildscript {
 
     ext {
-        opensearch_version = System.getProperty("opensearch.version", "2.19.0-SNAPSHOT")
+        opensearch_version = System.getProperty("opensearch.version", "2.19.4-SNAPSHOT")
         isSnapshot = "true" == System.getProperty("build.snapshot", "true")
         buildVersionQualifier = System.getProperty("build.version_qualifier", "")
 
-        // Hardcoding BWC to 2.19 as maven does not have older version snapshots resulting in build failure
         default_bwc_version = System.getProperty("bwc.version", "2.19.0.0")
         pa_bwc_version = System.getProperty("tests.bwc.version", default_bwc_version)
         baseName = "paBwcCluster"
