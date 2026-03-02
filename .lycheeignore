@@ -1,0 +1,8 @@
+# Lychee Link Checker Ignore List
+
+# JUnit license URL has redirect issues. Always fails with below error
+# Failed: error following redirect for url (https://junit.org/license): too many redirects
+http://www.junit.org/license
+https://junit.org/license
+
+# Add other problematic URLs here as needed
