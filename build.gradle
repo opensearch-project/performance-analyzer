@@ -6,7 +6,7 @@
 buildscript {
 
     ext {
-        opensearch_version = System.getProperty("opensearch.version", "2.19.4-SNAPSHOT")
+        opensearch_version = System.getProperty("opensearch.version", "2.19.5-SNAPSHOT")
         isSnapshot = "true" == System.getProperty("build.snapshot", "true")
         buildVersionQualifier = System.getProperty("build.version_qualifier", "")
 
@@ -27,7 +27,7 @@ buildscript {
         }
         if (isSnapshot) {
             opensearch_build += "-SNAPSHOT"
-            //paCommonsVersion += "-SNAPSHOT"
+            paCommonsVersion += "-SNAPSHOT"
 
         }
     }
@@ -301,6 +301,8 @@ dependencies {
             force "org.apache.httpcomponents:httpcore:${versions.httpcore}"
             force "commons-codec:commons-codec:${versions.commonscodec}"
             force "io.netty:netty-codec-http2:${nettyVersion}"
+            force "org.apache.logging.log4j:log4j-api:2.25.3"
+            force "org.apache.logging.log4j:log4j-core:2.25.3"
         }
     }
 
