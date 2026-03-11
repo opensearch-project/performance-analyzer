@@ -16,6 +16,7 @@ import org.opensearch.action.support.ActionFilterChain;
 import org.opensearch.common.inject.Inject;
 import org.opensearch.core.action.ActionListener;
 import org.opensearch.core.action.ActionResponse;
+import org.opensearch.performanceanalyzer.collectors.telemetry.RTFSearchRequestMetricsCollector;
 import org.opensearch.performanceanalyzer.commons.metrics.PerformanceAnalyzerMetrics;
 import org.opensearch.performanceanalyzer.commons.util.Util;
 import org.opensearch.performanceanalyzer.config.PerformanceAnalyzerController;
@@ -26,10 +27,12 @@ public class PerformanceAnalyzerActionFilter implements ActionFilter {
     private static AtomicLong uniqueID = new AtomicLong(0);
 
     private final PerformanceAnalyzerController controller;
+    private final RTFSearchRequestMetricsCollector rtfSearchRequestMetricsCollector;
 
     @Inject
     public PerformanceAnalyzerActionFilter(final PerformanceAnalyzerController controller) {
         this.controller = controller;
+        this.rtfSearchRequestMetricsCollector = new RTFSearchRequestMetricsCollector(controller);
     }
 
     @Override
@@ -73,9 +76,14 @@ public class PerformanceAnalyzerActionFilter implements ActionFilter {
                         RequestType.search.toString(),
                         id,
                         PerformanceAnalyzerMetrics.START_FILE_NAME);
+                rtfSearchRequestMetricsCollector.onSearchRequest(search);
                 chain.proceed(task, action, request, newListener);
                 return;
             }
+        }
+
+        if (request instanceof SearchRequest) {
+            rtfSearchRequestMetricsCollector.onSearchRequest((SearchRequest) request);
         }
 
         chain.proceed(task, action, request, listener);
