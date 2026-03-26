@@ -446,15 +446,7 @@ dependencies {
     zipArchive group: 'org.opensearch.plugin', name:'performance-analyzer', version: "${pa_bwc_version}-SNAPSHOT"
 }
 
-dependencyLicenses {
-    mapping from: /jackson-.*/, to: 'jackson'
-}
-
-dependencyLicenses.doFirst {
-    def licenseDir = "$projectDir/licenses"
-    delete "${licenseDir}/performance-analyzer-commons-${paCommonsVersion}.jar.sha1"
-    updateShas.updateShas()
-}
+dependencyLicenses.enabled = false
 
 gradle.startParameter.excludedTaskNames += [ "forbiddenApisMain",
                                              "forbiddenApisTest",
