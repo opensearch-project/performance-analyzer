@@ -5,8 +5,6 @@
 
 package org.opensearch.performanceanalyzer;
 
-import static java.util.Collections.singletonList;
-
 import java.io.File;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -40,6 +38,7 @@ import org.opensearch.env.Environment;
 import org.opensearch.env.NodeEnvironment;
 import org.opensearch.index.IndexModule;
 import org.opensearch.performanceanalyzer.action.PerformanceAnalyzerActionFilter;
+import org.opensearch.performanceanalyzer.action.RTFPerformanceAnalyzerActionFilter;
 import org.opensearch.performanceanalyzer.collectors.AdmissionControlMetricsCollector;
 import org.opensearch.performanceanalyzer.collectors.CacheConfigMetricsCollector;
 import org.opensearch.performanceanalyzer.collectors.CircuitBreakerCollector;
@@ -296,7 +295,9 @@ public final class PerformanceAnalyzerPlugin extends Plugin
     // - http level: bulk, search
     @Override
     public List<ActionFilter> getActionFilters() {
-        return singletonList(new PerformanceAnalyzerActionFilter(performanceAnalyzerController));
+        return Arrays.asList(
+                new PerformanceAnalyzerActionFilter(performanceAnalyzerController),
+                new RTFPerformanceAnalyzerActionFilter(performanceAnalyzerController));
     }
 
     @Override
