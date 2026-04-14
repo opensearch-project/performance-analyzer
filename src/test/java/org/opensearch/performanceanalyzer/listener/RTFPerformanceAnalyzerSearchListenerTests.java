@@ -13,6 +13,7 @@ import org.apache.commons.lang3.SystemUtils;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.opensearch.action.search.SearchShardTask;
@@ -29,6 +30,7 @@ import org.opensearch.performanceanalyzer.util.Utils;
 import org.opensearch.search.internal.SearchContext;
 import org.opensearch.search.internal.ShardSearchRequest;
 import org.opensearch.tasks.Task;
+import org.opensearch.telemetry.metrics.Counter;
 import org.opensearch.telemetry.metrics.Histogram;
 import org.opensearch.telemetry.metrics.MetricsRegistry;
 import org.opensearch.telemetry.metrics.tags.Tags;
@@ -48,6 +50,7 @@ public class RTFPerformanceAnalyzerSearchListenerTests {
     @Mock private Histogram searchLatencyHistogram;
     @Mock private Histogram shardMetricsCpuHistogram;
     @Mock private Histogram shardMetricsHeapHistogram;
+    @Mock private Counter querySourceHitsCounter;
     @Mock private Index index;
 
     @Mock private TaskResourceUsage taskResourceUsage;
@@ -89,6 +92,10 @@ public class RTFPerformanceAnalyzerSearchListenerTests {
                             }
                             return null;
                         });
+        Mockito.when(
+                        metricsRegistry.createCounter(
+                                Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
+                .thenReturn(querySourceHitsCounter);
         searchListener = new RTFPerformanceAnalyzerSearchListener(controller);
         assertEquals(
                 RTFPerformanceAnalyzerSearchListener.class.getSimpleName(),
@@ -201,6 +208,101 @@ public class RTFPerformanceAnalyzerSearchListenerTests {
         Mockito.verify(heapUsedHistogram).record(Mockito.anyDouble(), Mockito.any(Tags.class));
         Mockito.verify(shardCpu).record(Mockito.anyDouble(), Mockito.any(Tags.class));
         Mockito.verify(shardHeap).record(Mockito.anyDouble(), Mockito.any(Tags.class));
+    }
+
+    @Test
+    public void testFetchPhaseEmitsQuerySourceHitsWhenSourceRequested() {
+        initializeValidSearchContext(true);
+        Mockito.when(controller.getCollectorsRunModeValue())
+                .thenReturn(Util.CollectorMode.TELEMETRY.getValue());
+        Mockito.when(shardId.getIndex()).thenReturn(index);
+        Mockito.when(index.getName()).thenReturn("myTestIndex");
+        Mockito.when(index.getUUID()).thenReturn("abc-def");
+        Mockito.when(searchContext.sourceRequested()).thenReturn(true);
+
+        searchListener.preFetchPhase(searchContext);
+        searchListener.fetchPhase(searchContext, 0L);
+
+        Mockito.verify(querySourceHitsCounter).add(Mockito.eq(1L), Mockito.any(Tags.class));
+    }
+
+    @Test
+    public void testFetchPhaseDoesNotEmitQuerySourceHitsWhenSourceNotRequested() {
+        initializeValidSearchContext(true);
+        Mockito.when(controller.getCollectorsRunModeValue())
+                .thenReturn(Util.CollectorMode.TELEMETRY.getValue());
+        Mockito.when(shardId.getIndex()).thenReturn(index);
+        Mockito.when(index.getName()).thenReturn("myTestIndex");
+        Mockito.when(index.getUUID()).thenReturn("abc-def");
+        Mockito.when(searchContext.sourceRequested()).thenReturn(false);
+
+        searchListener.preFetchPhase(searchContext);
+        searchListener.fetchPhase(searchContext, 0L);
+
+        Mockito.verify(querySourceHitsCounter, Mockito.never())
+                .add(Mockito.anyLong(), Mockito.any(Tags.class));
+    }
+
+    @Test
+    public void testQuerySourceHitsCounterNotCreatedWhenMetricsRegistryNull() {
+        OpenSearchResources.INSTANCE.setMetricsRegistry(null);
+        RTFPerformanceAnalyzerSearchListener listener =
+                new RTFPerformanceAnalyzerSearchListener(controller);
+
+        // Should not throw even with null counter — emitFetchWithSourceMetric guards against it
+        initializeValidSearchContext(true);
+        Mockito.when(controller.getCollectorsRunModeValue())
+                .thenReturn(Util.CollectorMode.TELEMETRY.getValue());
+        Mockito.when(shardId.getIndex()).thenReturn(index);
+        Mockito.when(index.getName()).thenReturn("myTestIndex");
+        Mockito.when(index.getUUID()).thenReturn("abc-def");
+
+        listener.preFetchPhase(searchContext);
+        listener.fetchPhase(searchContext, 0L);
+
+        // Restore for other tests
+        OpenSearchResources.INSTANCE.setMetricsRegistry(metricsRegistry);
+    }
+
+    @Test
+    public void testQuerySourceHitsHandlesExceptionGracefully() {
+        initializeValidSearchContext(true);
+        Mockito.when(controller.getCollectorsRunModeValue())
+                .thenReturn(Util.CollectorMode.TELEMETRY.getValue());
+        Mockito.when(shardId.getIndex()).thenReturn(index);
+        Mockito.when(index.getName()).thenReturn("myTestIndex");
+        Mockito.when(index.getUUID()).thenReturn("abc-def");
+        Mockito.when(searchContext.sourceRequested())
+                .thenThrow(new RuntimeException("simulated failure"));
+
+        // Should not propagate — catch block logs error and swallows
+        searchListener.preFetchPhase(searchContext);
+        searchListener.fetchPhase(searchContext, 0L);
+
+        Mockito.verify(querySourceHitsCounter, Mockito.never())
+                .add(Mockito.anyLong(), Mockito.any(Tags.class));
+    }
+
+    @Test
+    public void testQuerySourceHitsEmitsCorrectTags() {
+        initializeValidSearchContext(true);
+        Mockito.when(controller.getCollectorsRunModeValue())
+                .thenReturn(Util.CollectorMode.TELEMETRY.getValue());
+        Mockito.when(shardId.getIndex()).thenReturn(index);
+        Mockito.when(index.getName()).thenReturn("myTestIndex");
+        Mockito.when(index.getUUID()).thenReturn("abc-def");
+        Mockito.when(searchContext.sourceRequested()).thenReturn(true);
+
+        searchListener.preFetchPhase(searchContext);
+        searchListener.fetchPhase(searchContext, 0L);
+
+        ArgumentCaptor<Tags> tagsCaptor = ArgumentCaptor.forClass(Tags.class);
+        Mockito.verify(querySourceHitsCounter).add(Mockito.eq(1L), tagsCaptor.capture());
+
+        Tags capturedTags = tagsCaptor.getValue();
+        String tagsString = capturedTags.toString();
+        assertTrue("Tags should contain index name", tagsString.contains("myTestIndex"));
+        assertTrue("Tags should contain index UUID", tagsString.contains("abc-def"));
     }
 
     private void initializeValidSearchContext(boolean isValid) {
