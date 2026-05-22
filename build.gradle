@@ -306,6 +306,7 @@ dependencies {
                 force "com.google.guava:guava:${guavaVersion}"
                 force "org.apache.logging.log4j:log4j-core:${log4jVersion}"
                 force "org.apache.logging.log4j:log4j-api:${log4jVersion}"
+                force "org.codehaus.plexus:plexus-utils:4.0.2"
             }
         }
     }
