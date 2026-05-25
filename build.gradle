@@ -6,7 +6,7 @@
 buildscript {
 
     ext {
-        opensearch_version = System.getProperty("opensearch.version", "3.6.0-SNAPSHOT")
+        opensearch_version = System.getProperty("opensearch.version", "3.7.0-SNAPSHOT")
         isSnapshot = "true" == System.getProperty("build.snapshot", "true")
         buildVersionQualifier = System.getProperty("build.version_qualifier", "")
 
@@ -306,6 +306,7 @@ dependencies {
                 force "com.google.guava:guava:${guavaVersion}"
                 force "org.apache.logging.log4j:log4j-core:${log4jVersion}"
                 force "org.apache.logging.log4j:log4j-api:${log4jVersion}"
+                force "org.codehaus.plexus:plexus-utils:4.0.2"
             }
         }
     }
