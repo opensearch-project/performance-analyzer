@@ -25,6 +25,7 @@ import org.opensearch.performanceanalyzer.config.PerformanceAnalyzerController;
 import org.opensearch.performanceanalyzer.util.Utils;
 import org.opensearch.search.internal.SearchContext;
 import org.opensearch.tasks.Task;
+import org.opensearch.telemetry.metrics.Counter;
 import org.opensearch.telemetry.metrics.Histogram;
 import org.opensearch.telemetry.metrics.MetricsRegistry;
 import org.opensearch.telemetry.metrics.tags.Tags;
@@ -51,7 +52,10 @@ public class RTFPerformanceAnalyzerSearchListener
     private final Histogram cpuUtilizationHistogram;
     private final Histogram heapUsedHistogram;
     private final Histogram searchLatencyHistogram;
+    private final Counter querySourceHitsCounter;
     private final int numProcessors;
+
+    public static final String QUERY_SOURCE_HITS = "query_source_hits";
 
     public RTFPerformanceAnalyzerSearchListener(final PerformanceAnalyzerController controller) {
         this.controller = controller;
@@ -61,6 +65,8 @@ public class RTFPerformanceAnalyzerSearchListener
                 createHeapUsedHistogram(OpenSearchResources.INSTANCE.getMetricsRegistry());
         this.searchLatencyHistogram =
                 createSearchLatencyHistogram(OpenSearchResources.INSTANCE.getMetricsRegistry());
+        this.querySourceHitsCounter =
+                createQuerySourceHitsCounter(OpenSearchResources.INSTANCE.getMetricsRegistry());
         this.threadLocal = ThreadLocal.withInitial(HashMap::new);
         this.numProcessors = Runtime.getRuntime().availableProcessors();
     }
@@ -97,6 +103,18 @@ public class RTFPerformanceAnalyzerSearchListener
                     ShardOperationsValue.SHARD_SEARCH_LATENCY.toString(),
                     "Search latency per shard per phase",
                     RTFMetrics.MetricUnits.MILLISECOND.toString());
+        } else {
+            LOG.debug("MetricsRegistry is null");
+            return null;
+        }
+    }
+
+    private Counter createQuerySourceHitsCounter(MetricsRegistry metricsRegistry) {
+        if (metricsRegistry != null) {
+            return metricsRegistry.createCounter(
+                    QUERY_SOURCE_HITS,
+                    "Count of shard fetch phases where _source was requested",
+                    RTFMetrics.MetricUnits.COUNT.toString());
         } else {
             LOG.debug("MetricsRegistry is null");
             return null;
@@ -219,6 +237,9 @@ public class RTFPerformanceAnalyzerSearchListener
         searchLatencyHistogram.record(
                 fetchTimeInMills, createTags(searchContext, SHARD_FETCH_PHASE, false));
 
+        // Emit counter if _source was requested in this fetch phase
+        emitFetchWithSourceMetric(searchContext);
+
         addResourceTrackingCompletionListenerForFetchPhase(
                 searchContext, fetchStartTime, tookInNanos, SHARD_FETCH_PHASE, false);
     }
@@ -229,6 +250,23 @@ public class RTFPerformanceAnalyzerSearchListener
         long fetchTime = (System.nanoTime() - fetchStartTime);
         addResourceTrackingCompletionListenerForFetchPhase(
                 searchContext, fetchStartTime, fetchTime, SHARD_FETCH_PHASE, true);
+    }
+
+    /**
+     * Emits the query_source_hits counter if _source was requested in this fetch. Used to calculate
+     * source creation ratio: shard_search_rate / query_source_hits.
+     */
+    private void emitFetchWithSourceMetric(SearchContext searchContext) {
+        if (querySourceHitsCounter == null) {
+            return;
+        }
+        try {
+            if (searchContext.sourceRequested()) {
+                querySourceHitsCounter.add(1, createIndexTags(searchContext));
+            }
+        } catch (Exception e) {
+            LOG.error("Error emitting query_source_hits metric", e);
+        }
     }
 
     private void addResourceTrackingCompletionListener(
@@ -343,5 +381,15 @@ public class RTFPerformanceAnalyzerSearchListener
 
     private Tags createTags(SearchContext searchContext) {
         return createTags(searchContext, null, false);
+    }
+
+    private Tags createIndexTags(SearchContext searchContext) {
+        return Tags.create()
+                .addTag(
+                        RTFMetrics.CommonDimension.INDEX_NAME.toString(),
+                        searchContext.request().shardId().getIndex().getName())
+                .addTag(
+                        RTFMetrics.CommonDimension.INDEX_UUID.toString(),
+                        searchContext.request().shardId().getIndex().getUUID());
     }
 }
