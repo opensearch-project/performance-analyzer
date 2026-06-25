@@ -6,3 +6,6 @@ http://www.junit.org/license
 https://junit.org/license
 
 # Add other problematic URLs here as needed
+
+# Opendistro repo was migrated to opensearch-project; old PR links are dead
+https://github.com/opendistro-for-elasticsearch/performance-analyzer/pull/389
