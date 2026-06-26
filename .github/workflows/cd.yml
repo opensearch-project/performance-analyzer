@@ -11,12 +11,13 @@ jobs:
 
     steps:
       - name: Checkout Performance Analyzer package
-        uses: actions/checkout@v2
+        uses: actions/checkout@ee0669bd1cc54295c223e0bb666b733df41de1c5 # v2
         with:
           path: ./tmp/pa
       - name: Set up JDK 1.12
-        uses: actions/setup-java@v1
+        uses: actions/setup-java@c1e323688fd81a25caa38c78aa6df2d33d3e20d9 # v4
         with:
+          distribution: temurin
           java-version: 1.12
       - name: Build Artifacts
         working-directory: ./tmp/pa
@@ -31,7 +32,7 @@ jobs:
           cp $deb_artifact artifacts/
 
       - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v1
+        uses: aws-actions/configure-aws-credentials@6a64f289c4a4b67a1e2c44cc4bd9d6f7bc59b156 # v1
         with:
           aws-access-key-id: ${{ secrets.AWS_STAGING_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_STAGING_SECRET_ACCESS_KEY }}
@@ -62,7 +63,7 @@ jobs:
           aws s3 cp --quiet $deb ${s3_prefix}${deb_outfile}
 
       - name: Upload Workflow Artifacts
-        uses: actions/upload-artifact@v1
+        uses: actions/upload-artifact@34622df80861c3ed63eb2bff892de2f1fbf4c9da # v1
         with:
           name: artifacts
           path: ./tmp/pa/artifacts/
