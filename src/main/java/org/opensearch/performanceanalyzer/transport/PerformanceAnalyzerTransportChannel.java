@@ -99,6 +99,11 @@ public class PerformanceAnalyzerTransportChannel implements TransportChannel, Me
     }
 
     @Override
+    public boolean isCancelled() {
+        return this.original != null && this.original.isCancelled();
+    }
+
+    @Override
     public void sendResponse(TransportResponse response) throws IOException {
         emitMetricsFinish(null);
         original.sendResponse(response);
