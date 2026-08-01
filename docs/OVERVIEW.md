@@ -10,7 +10,7 @@ In `src/main/java/org/opensearch/performanceanalyzer/`:
     - For example:
         - `getActionFilters` provides OpenSearch with a list of classes that implement `ActionFilter`.
         - `action/PerformanceAnalyzerActionFilter` is the only class currently returned to OpenSearch as an `ActionFilter`.
-        - when a BulkRequest or SearchRequest is recieved by OpenSearch, `action/PerformanceAnalyzerActionFilter` logs a start event and creates a listener (`action/PerformanceAnalyzerActionListener`) which waits to record the corresponding end event.
+        - when a BulkRequest or SearchRequest is received by OpenSearch, `action/PerformanceAnalyzerActionFilter` logs a start event and creates a listener (`action/PerformanceAnalyzerActionListener`) which waits to record the corresponding end event.
     - `PerformanceAnalyzerPlugin.getRestHandlers` returns all the classes that can handle REST requests to OpenSearch.
 -  The classes in `http_action/config` define all the public API routes for Performance Analyzer.
     - `http_action/config/RestConfig` defines `PA_BASE_URI = "/_plugins/_performanceanalyzer"`
