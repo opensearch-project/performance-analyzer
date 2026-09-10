@@ -6,7 +6,7 @@
 buildscript {
 
     ext {
-        opensearch_version = System.getProperty("opensearch.version", "3.8.0-SNAPSHOT")
+        opensearch_version = System.getProperty("opensearch.version", "3.9.0-SNAPSHOT")
         isSnapshot = "true" == System.getProperty("build.snapshot", "true")
         buildVersionQualifier = System.getProperty("build.version_qualifier", "")
 
@@ -326,7 +326,8 @@ dependencies {
         implementation "org.bouncycastle:bcpkix-fips:${versions.bouncycastle_pkix}"
     }
     implementation "org.opensearch:performance-analyzer-commons:${paCommonsVersion}"
-    implementation "com.fasterxml.jackson.core:jackson-annotations:${jacksonVersion}"
+    implementation "com.fasterxml.jackson.core:jackson-annotations:${jacksonAnnotationsVersion}"
+    implementation "com.fasterxml.jackson.core:jackson-core:${jacksonVersion}"
     implementation "com.fasterxml.jackson.core:jackson-databind:${jacksonDataBindVersion}"
     implementation "com.fasterxml.jackson.module:jackson-module-paranamer:${jacksonVersion}"
     implementation("com.google.guava:guava:${guavaVersion}") {
