@@ -13,7 +13,12 @@ import java.util.HashMap;
 import java.util.Map;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.apache.lucene.search.BooleanClause;
 import org.opensearch.core.action.NotifyOnceListener;
+import org.opensearch.index.query.QueryBuilder;
+import org.opensearch.index.query.QueryBuilderVisitor;
+import org.opensearch.index.query.ScriptQueryBuilder;
+import org.opensearch.index.query.functionscore.ScriptScoreQueryBuilder;
 import org.opensearch.index.shard.SearchOperationListener;
 import org.opensearch.performanceanalyzer.OpenSearchResources;
 import org.opensearch.performanceanalyzer.ShardMetricsCollector;
@@ -23,8 +28,10 @@ import org.opensearch.performanceanalyzer.commons.metrics.RTFMetrics.ShardOperat
 import org.opensearch.performanceanalyzer.commons.util.Util;
 import org.opensearch.performanceanalyzer.config.PerformanceAnalyzerController;
 import org.opensearch.performanceanalyzer.util.Utils;
+import org.opensearch.search.builder.SearchSourceBuilder;
 import org.opensearch.search.internal.SearchContext;
 import org.opensearch.tasks.Task;
+import org.opensearch.telemetry.metrics.Counter;
 import org.opensearch.telemetry.metrics.Histogram;
 import org.opensearch.telemetry.metrics.MetricsRegistry;
 import org.opensearch.telemetry.metrics.tags.Tags;
@@ -51,7 +58,10 @@ public class RTFPerformanceAnalyzerSearchListener
     private final Histogram cpuUtilizationHistogram;
     private final Histogram heapUsedHistogram;
     private final Histogram searchLatencyHistogram;
+    private final Counter shardQueryWithScriptCounter;
     private final int numProcessors;
+
+    public static final String SHARD_QUERY_WITH_SCRIPT_COUNT = "shard_query_with_script_count";
 
     public RTFPerformanceAnalyzerSearchListener(final PerformanceAnalyzerController controller) {
         this.controller = controller;
@@ -61,6 +71,9 @@ public class RTFPerformanceAnalyzerSearchListener
                 createHeapUsedHistogram(OpenSearchResources.INSTANCE.getMetricsRegistry());
         this.searchLatencyHistogram =
                 createSearchLatencyHistogram(OpenSearchResources.INSTANCE.getMetricsRegistry());
+        this.shardQueryWithScriptCounter =
+                createShardQueryWithScriptCounter(
+                        OpenSearchResources.INSTANCE.getMetricsRegistry());
         this.threadLocal = ThreadLocal.withInitial(HashMap::new);
         this.numProcessors = Runtime.getRuntime().availableProcessors();
     }
@@ -97,6 +110,18 @@ public class RTFPerformanceAnalyzerSearchListener
                     ShardOperationsValue.SHARD_SEARCH_LATENCY.toString(),
                     "Search latency per shard per phase",
                     RTFMetrics.MetricUnits.MILLISECOND.toString());
+        } else {
+            LOG.debug("MetricsRegistry is null");
+            return null;
+        }
+    }
+
+    private Counter createShardQueryWithScriptCounter(MetricsRegistry metricsRegistry) {
+        if (metricsRegistry != null) {
+            return metricsRegistry.createCounter(
+                    SHARD_QUERY_WITH_SCRIPT_COUNT,
+                    "Count of shard query phases where a script was used",
+                    RTFMetrics.MetricUnits.COUNT.toString());
         } else {
             LOG.debug("MetricsRegistry is null");
             return null;
@@ -195,6 +220,9 @@ public class RTFPerformanceAnalyzerSearchListener
         searchLatencyHistogram.record(
                 queryTimeInMills, createTags(searchContext, SHARD_QUERY_PHASE, false));
 
+        // Emit counter if query contains a script
+        emitQueryWithScriptMetric(searchContext);
+
         addResourceTrackingCompletionListener(
                 searchContext, queryStartTime, tookInNanos, SHARD_QUERY_PHASE, false);
     }
@@ -229,6 +257,66 @@ public class RTFPerformanceAnalyzerSearchListener
         long fetchTime = (System.nanoTime() - fetchStartTime);
         addResourceTrackingCompletionListenerForFetchPhase(
                 searchContext, fetchStartTime, fetchTime, SHARD_FETCH_PHASE, true);
+    }
+
+    /**
+     * Emits the shard_query_with_script_count counter if the query contains a script. Uses
+     * QueryBuilderVisitor to recursively walk the query tree and detect ScriptQueryBuilder or
+     * ScriptScoreQueryBuilder. Also checks for script_fields via hasScriptFields().
+     */
+    private void emitQueryWithScriptMetric(SearchContext searchContext) {
+        if (shardQueryWithScriptCounter == null) {
+            return;
+        }
+        try {
+            // Check script_fields
+            if (searchContext.hasScriptFields()) {
+                shardQueryWithScriptCounter.add(1, createTags(searchContext));
+                return;
+            }
+
+            // Walk the query tree for script queries
+            SearchSourceBuilder source = searchContext.request().source();
+            if (source != null && source.query() != null) {
+                ScriptQueryVisitor visitor = new ScriptQueryVisitor();
+                source.query().visit(visitor);
+                if (visitor.hasScript()) {
+                    shardQueryWithScriptCounter.add(1, createTags(searchContext));
+                }
+            }
+        } catch (Exception e) {
+            LOG.debug("Error emitting shard_query_with_script_count metric", e);
+        }
+    }
+
+    /**
+     * Visitor that recursively walks the query tree to detect script-based queries. Detects
+     * ScriptQueryBuilder and ScriptScoreQueryBuilder at any nesting level.
+     */
+    private static class ScriptQueryVisitor implements QueryBuilderVisitor {
+        private boolean scriptDetected = false;
+
+        @Override
+        public void accept(QueryBuilder qb) {
+            if (scriptDetected) {
+                return;
+            }
+            if (qb instanceof ScriptQueryBuilder || qb instanceof ScriptScoreQueryBuilder) {
+                scriptDetected = true;
+            }
+        }
+
+        @Override
+        public QueryBuilderVisitor getChildVisitor(BooleanClause.Occur occur) {
+            if (scriptDetected) {
+                return QueryBuilderVisitor.NO_OP_VISITOR;
+            }
+            return this;
+        }
+
+        public boolean hasScript() {
+            return scriptDetected;
+        }
     }
 
     private void addResourceTrackingCompletionListener(
