@@ -9,7 +9,6 @@ This document contains a list of maintainers in this repo. See [opensearch-proje
 | Khushboo Rajput           | [khushbr](https://github.com/khushbr)                 | Amazon      |
 | Chenyang Ji               | [ansjcy](https://github.com/ansjcy)                   | Amazon      |
 | Subhobrata Dey            | [sbcd90](https://github.com/sbcd90)                   | Amazon      |
-| Dev Agarwal               | [devagarwal1803](https://github.com/devagarwal1803)   | Amazon      |
 | shephali mittal           | [Shephalimittal](https://github.com/Shephalimittal)   | Amazon      |
 | Atharva Sharma            | [atharvasharma61](https://github.com/atharvasharma61) | Amazon      |
 | Nishchay Malhotra         | [nishchay21](https://github.com/nishchay21)           | Amazon      |
@@ -33,3 +32,4 @@ This document contains a list of maintainers in this repo. See [opensearch-proje
 | Saurabh Singh     | [getsaurabh02](https://github.com/getsaurabh02)       | Amazon      |
 | Megha Goyal       | [goyamegh](https://github.com/goyamegh)               | Amazon      |
 | Sagar             | [sgup432](https://github.com/sgup432)                 | Amazon      |
+| Dev Agarwal       | [devagarwal1803](https://github.com/devagarwal1803)   | Amazon      |
