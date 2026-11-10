@@ -8,7 +8,6 @@ This document contains a list of maintainers in this repo. See [opensearch-proje
 |---------------------------|-------------------------------------------------------| ----------- |
 | Khushboo Rajput           | [khushbr](https://github.com/khushbr)                 | Amazon      |
 | Chenyang Ji               | [ansjcy](https://github.com/ansjcy)                   | Amazon      |
-| Subhobrata Dey            | [sbcd90](https://github.com/sbcd90)                   | Amazon      |
 | shephali mittal           | [Shephalimittal](https://github.com/Shephalimittal)   | Amazon      |
 | Nishchay Malhotra         | [nishchay21](https://github.com/nishchay21)           | Amazon      |
 | Dharmesh Singh            | [psychbot](https://github.com/psychbot)       | Amazon      |
@@ -33,3 +32,4 @@ This document contains a list of maintainers in this repo. See [opensearch-proje
 | DevJhaAbhishek    | [DevJhaAbhishek](https://github.com/DevJhaAbhishek)   | Amazon      |
 | Varunsrivathsa Venkatesha | [varunsrivathsav](https://github.com/varunsrivathsav) | Amazon      |
 | Ranjith Ramachandra | [rramachand21](https://github.com/rramachand21)     | Amazon      |
+| Subhobrata Dey    | [sbcd90](https://github.com/sbcd90)                   | Amazon      |
