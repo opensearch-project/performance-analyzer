@@ -32,6 +32,7 @@ import org.opensearch.env.TestEnvironment;
 import org.opensearch.indices.breaker.BreakerSettings;
 import org.opensearch.indices.breaker.HierarchyCircuitBreakerService;
 import org.opensearch.performanceanalyzer.action.PerformanceAnalyzerActionFilter;
+import org.opensearch.performanceanalyzer.action.RTFPerformanceAnalyzerActionFilter;
 import org.opensearch.performanceanalyzer.config.setting.PerformanceAnalyzerClusterSettings;
 import org.opensearch.performanceanalyzer.http_action.config.PerformanceAnalyzerClusterConfigAction;
 import org.opensearch.performanceanalyzer.http_action.config.PerformanceAnalyzerConfigAction;
@@ -106,8 +107,9 @@ public class PerformanceAnalyzerPluginTests extends OpenSearchTestCase {
     @Test
     public void testGetActionFilters() {
         List<ActionFilter> list = plugin.getActionFilters();
-        assertEquals(1, list.size());
+        assertEquals(2, list.size());
         assertEquals(PerformanceAnalyzerActionFilter.class, list.get(0).getClass());
+        assertEquals(RTFPerformanceAnalyzerActionFilter.class, list.get(1).getClass());
     }
 
     @Test
