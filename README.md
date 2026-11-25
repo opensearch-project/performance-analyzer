@@ -100,7 +100,7 @@ See the [design doc](https://github.com/opensearch-project/performance-analyzer-
 
 ## Documentation
 
-Please refer to the [technical documentation](https://opensearch.org/docs/monitoring-plugins/pa/index/) for detailed information on installing and configuring Performance Analyzer.
+Please refer to the [technical documentation](https://docs.opensearch.org/latest/monitoring-your-cluster/pa/index/) for detailed information on installing and configuring Performance Analyzer.
 
 The [Architecture](docs/READER.md) document provides a high-level overview of the Performance Analyzer architecture.
 
